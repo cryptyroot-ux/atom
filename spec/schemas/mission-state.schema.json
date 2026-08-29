@@ -1,0 +1,55 @@
+{
+  "title": "MissionState",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "phase",
+    "condition"
+  ],
+  "properties": {
+    "phase": {
+      "enum": [
+        "CREATED",
+        "COMPILED",
+        "READY",
+        "RUNNING",
+        "VERIFYING",
+        "TERMINAL"
+      ]
+    },
+    "condition": {
+      "enum": [
+        "NORMAL",
+        "WAITING",
+        "APPROVAL_REQUIRED",
+        "PAUSED",
+        "DEGRADED",
+        "BLOCKED"
+      ]
+    },
+    "outcome": {
+      "oneOf": [
+        {
+          "enum": [
+            "SUCCEEDED",
+            "FAILED",
+            "CANCELLED",
+            "UNSATISFIABLE",
+            "REJECTED"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/mission-state.schema.json"
+}

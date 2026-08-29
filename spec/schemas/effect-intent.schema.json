@@ -1,0 +1,99 @@
+{
+  "title": "EffectIntent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "effect_id",
+    "mission_id",
+    "capability_id",
+    "target_id",
+    "request_digest",
+    "effect_class",
+    "risk_class",
+    "idempotency",
+    "reconciliation",
+    "dependencies",
+    "state"
+  ],
+  "properties": {
+    "effect_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "capability_id": {
+      "type": "string"
+    },
+    "target_id": {
+      "type": "string"
+    },
+    "request_digest": {
+      "type": "string"
+    },
+    "external_operation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "effect_class": {
+      "type": "string"
+    },
+    "risk_class": {
+      "type": "string"
+    },
+    "idempotency": {
+      "type": "object"
+    },
+    "preconditions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "postconditions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "reconciliation": {
+      "type": "object"
+    },
+    "compensation": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "state": {
+      "enum": [
+        "INTENT_DURABLE",
+        "AUTHORIZATION_PENDING",
+        "AUTHORIZED",
+        "COMMIT_REVALIDATING",
+        "DISPATCHING",
+        "DISPATCHED",
+        "OBSERVING",
+        "CONFIRMED_SUCCESS",
+        "CONFIRMED_FAILURE",
+        "PARTIAL",
+        "CANCELLED_BEFORE_EFFECT",
+        "UNKNOWN_OUTCOME",
+        "RECONCILING",
+        "COMPENSATING",
+        "COMPENSATED",
+        "COMPENSATION_FAILED"
+      ]
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/effect-intent.schema.json"
+}

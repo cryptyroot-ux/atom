@@ -1,0 +1,59 @@
+spec_version: 4.0.0
+invariants:
+- id: ATOM-INV-001
+  text: Probabilistic cognition cannot directly mutate authoritative state.
+- id: ATOM-INV-002
+  text: UNKNOWN_OUTCOME is first-class and is never coerced to success, failure, or
+    safe-to-retry.
+- id: ATOM-INV-003
+  text: Capability delegation can only attenuate authority; child authority is never
+    broader than parent authority.
+- id: ATOM-INV-004
+  text: Every consequential effect has durable intent before dispatch and commit-time
+    authorization bound to the exact effect digest.
+- id: ATOM-INV-005
+  text: Proof scope must equal mutation scope, including principal, target set, generation,
+    resource witness, and effect digest.
+- id: ATOM-INV-006
+  text: Secrets are brokered handles, not ambient model or worker environment state.
+- id: ATOM-INV-007
+  text: Authoritative projections are rebuildable from the tamper-evident ledger;
+    projections never override the ledger.
+- id: ATOM-INV-008
+  text: Generated or third-party executable capability cannot become ACTIVE without
+    the policy-required certificate and supply-chain evidence.
+- id: ATOM-INV-009
+  text: Untrusted information cannot increase its source authority through model transformation,
+    summarization, or memory consolidation.
+- id: ATOM-INV-010
+  text: Replay cannot re-emit consequential external effects unless an explicit live-fork
+    policy authorizes a new effect identity.
+- id: ATOM-INV-011
+  text: Behavior certificates bind exact behavior-relevant inputs and become stale
+    when incompatible inputs change.
+- id: ATOM-INV-012
+  text: Resource pressure, urgency, model recommendation, or repeated success never
+    increases authority.
+- id: ATOM-INV-013
+  text: 'Cancellation is truthful: a mission is not terminal-cancelled while owned
+    consequential effects remain unreconciled.'
+- id: ATOM-INV-014
+  text: Read-only observation paths cannot implicitly provision, install, start, mutate,
+    or obtain write credentials.
+- id: ATOM-INV-015
+  text: Simulation and prediction are never stored as direct observations of reality.
+- id: ATOM-INV-016
+  text: Self-improvement may recursively increase capability but cannot self-promote
+    trusted-core changes or authority expansion.
+- id: ATOM-INV-017
+  text: Learning/promotion decisions require separated evaluation evidence and cannot
+    rely only on training trajectories.
+- id: ATOM-INV-018
+  text: A stale instance, worker, lease, grant generation, or restore epoch cannot
+    commit a new authoritative mutation.
+- id: ATOM-INV-019
+  text: Memory retrieval, context eligibility, decision eligibility, and effect eligibility
+    are separate policy gates.
+- id: ATOM-INV-020
+  text: No superiority claim is valid without pinned versions, comparable budgets,
+    reproducible harnesses, and published failure traces.

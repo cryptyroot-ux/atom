@@ -1,0 +1,73 @@
+{
+  "title": "TaskSignature",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "goal_family",
+    "resource_types",
+    "input_shape",
+    "environmental_constraints",
+    "precondition_classes",
+    "required_capability_classes",
+    "effect_classes",
+    "risk_class",
+    "verifier_family",
+    "expected_artifacts",
+    "environment_fingerprint"
+  ],
+  "properties": {
+    "goal_family": {
+      "type": "string"
+    },
+    "resource_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "input_shape": {
+      "type": "object"
+    },
+    "environmental_constraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "precondition_classes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "required_capability_classes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "effect_classes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "risk_class": {
+      "type": "string"
+    },
+    "verifier_family": {
+      "type": "string"
+    },
+    "expected_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "environment_fingerprint": {
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/task-signature.schema.json"
+}

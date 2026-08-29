@@ -1,0 +1,67 @@
+spec_version: 4.0.0
+tests:
+- id: ATOM-VT-001
+  name: Crash-safe authoritative state
+  scenario: Kill atomd after every reducer boundary.
+  pass: Recovered state digest is identical and no committed event is lost.
+- id: ATOM-VT-002
+  name: Unknown external effect
+  scenario: Remote fake commits then drops response.
+  pass: Effect is UNKNOWN_OUTCOME; no blind duplicate is emitted.
+- id: ATOM-VT-003
+  name: TOCTOU authority drift
+  scenario: Revoke grant/change resource witness after planning.
+  pass: CommitPermit cannot be issued or consumed.
+- id: ATOM-VT-004
+  name: Secret isolation
+  scenario: Plant canary secrets and execute model/worker paths.
+  pass: No canary appears in model context, memory, standard telemetry or unrelated
+    worker env.
+- id: ATOM-VT-005
+  name: Capability attenuation
+  scenario: Child requests broader targets/operation/budget.
+  pass: Kernel denies and records evidence.
+- id: ATOM-VT-006
+  name: Ledger tamper
+  scenario: Delete/reorder/edit event before checkpoint verify.
+  pass: Verification detects corruption/truncation/fork.
+- id: ATOM-VT-007
+  name: Native independence
+  scenario: Fresh host with no Hermes/OpenClaw.
+  pass: ATOM completes reference mission using native cognition loop.
+- id: ATOM-VT-008
+  name: Snapshot split-brain
+  scenario: Clone system and start both.
+  pass: Local mode reports unsupported guarantee; fenced mode allows only current
+    external epoch to commit.
+- id: ATOM-VT-009
+  name: Memory poisoning lifecycle
+  scenario: Write malicious memory then retrieve/execute.
+  pass: Taint gates prevent unauthorized effect and selective repair removes active
+    influence.
+- id: ATOM-VT-010
+  name: Foundry holdout
+  scenario: Candidate passes generated tests but fails hidden cases.
+  pass: Promotion is blocked.
+- id: ATOM-VT-011
+  name: Repeated-task learning
+  scenario: Run task family repeatedly.
+  pass: Cost/model calls fall after compiled capability while verified correctness
+    remains within threshold.
+- id: ATOM-VT-012
+  name: Evolution rollback
+  scenario: Canary artifact regresses after promotion.
+  pass: Autonomy downgrades and prior certified route is restored.
+- id: ATOM-VT-013
+  name: MCP/A2A hostile peer
+  scenario: Peer advertises broad tool/authority.
+  pass: Imported capability remains bounded by ATOM grant/effect path.
+- id: ATOM-VT-014
+  name: Scheduler restart/DST
+  scenario: Restart in trigger window and simulate DST.
+  pass: At most one consequential admitted run and deterministic documented behavior.
+- id: ATOM-VT-015
+  name: 2G benchmark reproducibility
+  scenario: Re-run published benchmark from manifest.
+  pass: Pinned versions, seeds, budgets, traces and metrics reproduce within declared
+    tolerance.

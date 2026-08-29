@@ -1,0 +1,53 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/atom-kernel",
+    "crates/atom-identity",
+    "crates/atom-capability",
+    "crates/atom-policy",
+    "crates/atom-approval",
+    "crates/atom-secret",
+    "crates/atom-mission",
+    "crates/atom-ledger",
+    "crates/atom-scheduler",
+    "crates/atom-effect",
+    "crates/atom-target",
+    "crates/atom-connector",
+    "crates/atom-context",
+    "crates/atom-evidence",
+    "crates/atom-memory",
+    "crates/atom-runtime",
+    "crates/atom-provider",
+    "crates/atom-worker",
+    "crates/atom-artifact",
+    "crates/atom-cert",
+    "crates/atom-adapter",
+    "crates/atom-privd",
+    "crates/atom-claim",
+    "crates/atom-replay",
+    "crates/atom-fault",
+    "crates/atom-restore",
+    "evolution/experience-compiler",
+    "evolution/capability-foundry",
+    "evolution/cognition-jit",
+    "evolution/architecture-learner",
+    "evolution/evaluator",
+    "adapters/mcp",
+    "adapters/a2a",
+    "adapters/agent-skills",
+    "adapters/hermes",
+    "adapters/openclaw",
+    "cli/atom-cli",
+    "sdk/atom-sdk",
+]
+
+[workspace.package]
+version = "0.0.0-alpha.0"
+edition = "2021"
+license = "MIT"
+rust-version = "1.80"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"

@@ -1,0 +1,66 @@
+{
+  "title": "CommitPermit",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "permit_id",
+    "effect_digest",
+    "principal_id",
+    "capability_grant_id",
+    "grant_generation",
+    "resource_id",
+    "resource_version_witness",
+    "issued_at",
+    "expires_at",
+    "one_shot_nonce"
+  ],
+  "properties": {
+    "permit_id": {
+      "type": "string"
+    },
+    "effect_digest": {
+      "type": "string"
+    },
+    "principal_id": {
+      "type": "string"
+    },
+    "capability_grant_id": {
+      "type": "string"
+    },
+    "grant_generation": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "resource_id": {
+      "type": "string"
+    },
+    "resource_version_witness": {
+      "type": "object"
+    },
+    "approval_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "evidence_freshness_digest": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "one_shot_nonce": {
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/commit-permit.schema.json"
+}

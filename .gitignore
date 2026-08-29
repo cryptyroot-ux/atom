@@ -1,0 +1,11 @@
+target/
+**/*.rs.bk
+Cargo.lock.orig
+*.pdb
+.DS_Store
+# runtime state — never commit
+*.db
+*.db-wal
+*.db-shm
+.atom-runtime/
+artifacts-store/

@@ -1,0 +1,72 @@
+{
+  "title": "BehaviorCertificate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "certificate_id",
+    "subject_digest",
+    "behavior_manifest_digest",
+    "evaluation_suite_digest",
+    "environment_scope",
+    "verifier_level",
+    "issued_at",
+    "valid_until",
+    "stale_conditions",
+    "evidence_refs"
+  ],
+  "properties": {
+    "certificate_id": {
+      "type": "string"
+    },
+    "subject_digest": {
+      "type": "string"
+    },
+    "behavior_manifest_digest": {
+      "type": "string"
+    },
+    "evaluation_suite_digest": {
+      "type": "string"
+    },
+    "environment_scope": {
+      "type": "object"
+    },
+    "verifier_level": {
+      "enum": [
+        "V0",
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5"
+      ]
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "stale_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "signature": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/certificate.schema.json"
+}

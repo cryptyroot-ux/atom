@@ -1,0 +1,102 @@
+{
+  "title": "Claim",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "claim_id",
+    "kind",
+    "state",
+    "proposition",
+    "confidence",
+    "source_authority",
+    "valid_time",
+    "transaction_time",
+    "provenance",
+    "taint_labels"
+  ],
+  "properties": {
+    "claim_id": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "OBSERVATION",
+        "FACT",
+        "BELIEF",
+        "HYPOTHESIS",
+        "PREDICTION",
+        "PREFERENCE",
+        "POLICY",
+        "PROCEDURE",
+        "COMMITMENT",
+        "INFERENCE"
+      ]
+    },
+    "state": {
+      "enum": [
+        "PROPOSED",
+        "SUPPORTED",
+        "DISPUTED",
+        "CORROBORATED",
+        "SUPERSEDED",
+        "RETRACTED",
+        "EXPIRED"
+      ]
+    },
+    "proposition": {
+      "type": "object"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "source_authority": {
+      "type": "string"
+    },
+    "valid_time": {
+      "type": "object"
+    },
+    "transaction_time": {
+      "type": "object"
+    },
+    "provenance": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "supersedes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "contradicts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "taint_labels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "retrieval_policy": {
+      "type": "object"
+    },
+    "retention_policy": {
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/claim.schema.json"
+}

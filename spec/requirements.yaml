@@ -1,0 +1,271 @@
+spec_version: 4.0.0
+requirements:
+- id: ATOM-V4-KRN-001
+  area: Sovereign Kernel
+  priority: P0
+  requirement: All consequential mutation paths MUST traverse typed capability authorization and Effect Kernel commit revalidation.
+  verification: Architecture path test plus adversarial bypass suite.
+  release: v4.0-alpha
+- id: ATOM-V4-KRN-002
+  area: Sovereign Kernel
+  priority: P0
+  requirement: The main runtime MUST operate unprivileged; host administration MUST be mediated by atom-privd typed operations
+    and valid CommitPermit.
+  verification: Privilege boundary integration test.
+  release: v4.0-alpha
+- id: ATOM-V4-AUT-001
+  area: Authority
+  priority: P0
+  requirement: CapabilityGrant MUST bind subject/workload identity, operation, resource selector, purpose, validity interval,
+    budget, delegation depth, audience, generation, revocation and parent grant where delegated.
+  verification: Schema/property tests and escalation attempts.
+  release: v4.0-alpha
+- id: ATOM-V4-AUT-002
+  area: Authority
+  priority: P0
+  requirement: Delegation MUST be syntactically and semantically subset-only.
+  verification: Capability lattice property test.
+  release: v4.0-alpha
+- id: ATOM-V4-AUT-003
+  area: Authority
+  priority: P0
+  requirement: Approvals MUST be durable ApprovalGrants scoped to exact effect or bounded capability/resource envelope.
+  verification: Changed-payload, expiry, revocation tests.
+  release: v4.0-alpha
+- id: ATOM-V4-EFX-001
+  area: Effects
+  priority: P0
+  requirement: Every consequential mutation MUST persist EffectIntent before dispatch.
+  verification: Kill-before/after-dispatch fault matrix.
+  release: v4.0-alpha
+- id: ATOM-V4-EFX-002
+  area: Effects
+  priority: P0
+  requirement: EffectIntent MUST include canonical request digest, target, idempotency semantics, external operation identity
+    when available, pre/postconditions, reconciliation class, compensation semantics and dependency edges.
+  verification: Connector conformance suite.
+  release: v4.0-alpha
+- id: ATOM-V4-EFX-003
+  area: Effects
+  priority: P0
+  requirement: Ambiguous post-dispatch outcome MUST enter UNKNOWN_OUTCOME and block dependent mutations until reconciled or
+    explicitly dispositioned by authorized policy.
+  verification: Remote-commit/drop-response test.
+  release: v4.0-alpha
+- id: ATOM-V4-EFX-004
+  area: Effects
+  priority: P0
+  requirement: CommitPermit MUST be short-lived, one-shot and bound to effect digest, resource witness, principal, grant generation
+    and optional approval/evidence freshness digest.
+  verification: TOCTOU and permit replay tests.
+  release: v4.0-alpha
+- id: ATOM-V4-LED-001
+  area: Ledger
+  priority: P0
+  requirement: Authoritative event streams MUST use monotonic sequence, previous-event hash and canonical event hash; checkpoints
+    MUST seal stream heads.
+  verification: Delete/reorder/bit-flip/truncation tests.
+  release: v4.0-alpha
+- id: ATOM-V4-MSN-001
+  area: Mission
+  priority: P0
+  requirement: Mission MUST be the durable objective primitive and MUST define goal, success criteria, constraints, budgets,
+    authority envelope, evidence requirements and stopping rules.
+  verification: MissionSpec schema and rejection tests.
+  release: v4.0-alpha
+- id: ATOM-V4-MSN-002
+  area: Mission
+  priority: P0
+  requirement: Mission state MUST use canonical phase/condition/outcome axes from spec/enums.yaml.
+  verification: Generated enum conformance and reducer tests.
+  release: v4.0-alpha
+- id: ATOM-V4-MSN-003
+  area: Mission
+  priority: P0
+  requirement: Mission execution MUST use deterministic reducers for authoritative state and durable events for nondeterministic
+    activity results.
+  verification: Replay identical-state digest test.
+  release: v4.0-alpha
+- id: ATOM-V4-COG-001
+  area: Native Cognition
+  priority: P0
+  requirement: ATOM MUST provide a native provider-agnostic cognition loop sufficient for context assembly, structured tool/capability
+    proposal, cancellation, evidence capture and usage accounting without Hermes/OpenClaw.
+  verification: Native-only independence test.
+  release: v4.0-alpha
+- id: ATOM-V4-CXT-001
+  area: Context
+  priority: P0
+  requirement: Every context item MUST carry provenance, trust, sensitivity and injection-risk labels, and transformations
+    MUST preserve taint unless governed declassification occurs.
+  verification: Prompt-injection laundering tests.
+  release: v4.0-alpha
+- id: ATOM-V4-SEC-001
+  area: Secrets
+  priority: P0
+  requirement: Secrets MUST be delivered by SecretHandle with audience, principal, mission, capability, target, operation,
+    expiry, redemptions and generation constraints.
+  verification: Canary secret and cross-principal redemption tests.
+  release: v4.0-alpha
+- id: ATOM-V4-SCH-001
+  area: Scheduler
+  priority: P0
+  requirement: Schedules MUST define timezone, DST, misfire, overlap, catch-up, dedupe, lateness, authority profile and cancellation
+    semantics.
+  verification: Restart/DST/overlap matrix.
+  release: v4.0-alpha
+- id: ATOM-V4-OBS-001
+  area: Evidence
+  priority: P0
+  requirement: External reality observations MUST be provenance- and freshness-aware and distinguish observation from model
+    assertion.
+  verification: Stale-resource reobserve test.
+  release: v4.0-alpha
+- id: ATOM-V4-RPL-001
+  area: Replay
+  priority: P0
+  requirement: ATOM MUST implement R0-R2 replay for alpha and MUST label R3/R4 semantics explicitly; no universal exact-replay
+    claim is allowed.
+  verification: Replay class conformance tests.
+  release: v4.0-alpha
+- id: ATOM-V4-OPS-001
+  area: Operations
+  priority: P0
+  requirement: Official Linux install MUST support one-command bootstrap, native-only setup, clean rollback and no mandatory
+    Redis/Kafka/Kubernetes/external database.
+  verification: Clean Ubuntu/Debian VM E2E.
+  release: v4.0-alpha
+- id: ATOM-V4-UI-001
+  area: Mission Control
+  priority: P0
+  requirement: Web/PWA MUST expose mission, grant, approval, effect, UNKNOWN_OUTCOME reconciliation, evidence, cost and recovery
+    state without flattening uncertainty.
+  verification: Mobile E2E and visual fixtures.
+  release: v4.0-alpha
+- id: ATOM-V4-EXT-001
+  area: Extensions
+  priority: P0
+  requirement: Untrusted/generated extensions MUST not run in-process with the sovereign core and MUST not directly reach
+    secrets, authoritative DB, atom-privd or host Docker socket.
+  verification: Malicious extension isolation suite.
+  release: v4.0-alpha
+- id: ATOM-V4-SUP-001
+  area: Supply Chain
+  priority: P0
+  requirement: Official and Foundry executable artifacts MUST be content-addressed and include provenance, SBOM, signatures/attestations
+    and immutable identity.
+  verification: Tamper/install verification.
+  release: v4.0-alpha
+- id: ATOM-V4-EPI-001
+  area: Epistemics
+  priority: P1
+  requirement: Persistent critical knowledge MUST use typed Claim/Evidence/Observation records with provenance DAG, source
+    authority, confidence, valid-time, transaction-time, contradiction and taint.
+  verification: Schema, contradiction and time-travel tests.
+  release: v4.1
+- id: ATOM-V4-EPI-002
+  area: Epistemics
+  priority: P1
+  requirement: Ingest, store, retrieve, context, decision and effect eligibility MUST be separately policy-gated.
+  verification: Memory poisoning lifecycle test.
+  release: v4.1
+- id: ATOM-V4-FND-001
+  area: Capability Foundry
+  priority: P1
+  requirement: Tool Foundry MUST synthesize multiple candidate interfaces/implementations and gate activation on hermetic
+    build, tests, property/fuzz/adversarial checks, hidden holdout and certificate.
+  verification: Tool-Genesis-style benchmark.
+  release: v4.2
+- id: ATOM-V4-FND-002
+  area: Capability Foundry
+  priority: P1
+  requirement: Workflow Foundry MUST produce typed durable workflows with explicit failure, timeout, retry, reconciliation
+    and compensation transitions.
+  verification: Crash/replay holdout suite.
+  release: v4.2
+- id: ATOM-V4-FND-003
+  area: Capability Foundry
+  priority: P1
+  requirement: Verifier Foundry MUST label verifier independence using canonical V0-V5 taxonomy.
+  verification: Separated-context and oracle provenance tests.
+  release: v4.2
+- id: ATOM-V4-EXP-001
+  area: Experience Compiler
+  priority: P1
+  requirement: Experience Compiler MUST generate TaskSignature, mine repeated subtrajectories, separate positive/negative
+    examples, synthesize candidate artifacts and evaluate on hidden holdout before promotion.
+  verification: Repeated-task corpus with contamination controls.
+  release: v4.3
+- id: ATOM-V4-EXP-002
+  area: Experience Compiler
+  priority: P1
+  requirement: Experience Compiler MUST NOT emit autonomous authority expansion; it MAY emit non-authoritative PolicyRecommendation.
+  verification: Authority self-expansion adversarial test.
+  release: v4.3
+- id: ATOM-V4-JIT-001
+  area: Cognition JIT
+  priority: P1
+  requirement: Recurrent verified deliberative behavior SHOULD compile to cheaper workflow/tool/specialist capability when
+    correctness is preserved within policy threshold.
+  verification: Tokens/model-calls per verified success trend.
+  release: v4.4
+- id: ATOM-V4-ARC-001
+  area: Architecture Learner
+  priority: P1
+  requirement: Architecture selection MUST be a constrained policy over topology actions with hard safety constraints outside
+    the learner and vector reward including verified success, effect integrity, security, cost, latency and human attention.
+  verification: Offline/canary contextual-bandit evaluation.
+  release: v4.5
+- id: ATOM-V4-FLT-001
+  area: Reliability
+  priority: P1
+  requirement: Recovery MUST classify faults before selecting retry/reobserve/reauthorize/reconcile/replan behavior.
+  verification: Fault-class campaign.
+  release: v4.1
+- id: ATOM-V4-RST-001
+  area: Restore/Fencing
+  priority: P0
+  requirement: Local mode MUST not claim clone-proof split-brain safety; Fenced Sovereign Mode MUST use an external lease/epoch/connector
+    witness or equivalent.
+  verification: Snapshot clone/fencing test.
+  release: v4.0-alpha
+- id: ATOM-V4-EVO-001
+  area: Evolution
+  priority: P1
+  requirement: Adaptive artifacts MUST move through LAB -> SIMULATION -> SHADOW -> CANARY -> ACTIVE and support automatic
+    downgrade/rollback on regression.
+  verification: Promotion and rollback test.
+  release: v4.6
+- id: ATOM-V4-EVO-002
+  area: Evolution
+  priority: P1
+  requirement: E7 trusted-core changes and E8 authority/policy expansion MUST NOT self-promote from production cognition.
+  verification: Adversarial self-modification test.
+  release: v4.6
+- id: ATOM-V4-CER-001
+  area: Certification
+  priority: P1
+  requirement: Certificate MUST bind exact BehaviorManifestV2 digest, evaluation suite digest, environment scope, verifier
+    class, validity and stale conditions.
+  verification: Material-change stale-certificate test.
+  release: v4.2
+- id: ATOM-V4-BMK-001
+  area: Benchmark
+  priority: P0
+  requirement: Any 2G superiority claim MUST use pinned competitor/runtime versions, same-model and best-native tracks, comparable
+    budgets, multiple seeds, confidence intervals, fault/attack scenarios and public failure traces.
+  verification: Benchmark contract audit.
+  release: v4.0-alpha
+- id: ATOM-V4-INT-001
+  area: Interoperability
+  priority: P1
+  requirement: MCP/A2A/Agent Skills/Hermes/OpenClaw compatibility MUST be versioned profiles outside sovereign core semantics.
+  verification: Interop conformance matrix.
+  release: v4.1
+- id: ATOM-V4-API-001
+  area: API/CLI
+  priority: P0
+  requirement: Public write APIs MUST use operation identity/idempotency semantics where duplicate dispatch is possible and
+    return typed UNKNOWN/PARTIAL states.
+  verification: API duplicate and unknown-state tests.
+  release: v4.0-alpha

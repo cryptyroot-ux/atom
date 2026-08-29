@@ -1,0 +1,91 @@
+{
+  "title": "CapabilityGrant",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "grant_id",
+    "subject_id",
+    "workload_id",
+    "operations",
+    "resources",
+    "purpose",
+    "not_before",
+    "expires_at",
+    "budget",
+    "delegation_depth",
+    "audience",
+    "generation",
+    "revocation_state"
+  ],
+  "properties": {
+    "grant_id": {
+      "type": "string"
+    },
+    "subject_id": {
+      "type": "string"
+    },
+    "workload_id": {
+      "type": "string"
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "minItems": 1
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "not_before": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "budget": {
+      "type": "object"
+    },
+    "delegation_depth": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "parent_grant_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "audience": {
+      "type": "string"
+    },
+    "generation": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "revocation_state": {
+      "enum": [
+        "ACTIVE",
+        "REVOKED",
+        "EXPIRED"
+      ]
+    },
+    "nonce": {
+      "type": "string"
+    },
+    "constraints": {
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/capability-grant.schema.json"
+}

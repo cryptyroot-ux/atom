@@ -1,0 +1,28 @@
+version: 1.0.0
+axes:
+  phase:
+  - CREATED
+  - COMPILED
+  - READY
+  - RUNNING
+  - VERIFYING
+  - TERMINAL
+  condition:
+  - NORMAL
+  - WAITING
+  - APPROVAL_REQUIRED
+  - PAUSED
+  - DEGRADED
+  - BLOCKED
+  outcome:
+  - SUCCEEDED
+  - FAILED
+  - CANCELLED
+  - UNSATISFIABLE
+  - REJECTED
+rules:
+- outcome MUST be null unless phase is TERMINAL
+- TERMINAL requires non-null outcome
+- APPROVAL_REQUIRED may coexist with RUNNING
+- BLOCKED does not imply FAILED
+- UNSATISFIABLE is an outcome, not a condition

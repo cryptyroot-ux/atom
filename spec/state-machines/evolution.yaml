@@ -1,0 +1,19 @@
+version: 1.0.0
+rings:
+- LAB
+- SIMULATION
+- SHADOW
+- CANARY
+- ACTIVE
+- DEGRADED
+- ROLLBACK
+promotion:
+- LAB
+- SIMULATION
+- SHADOW
+- CANARY
+- ACTIVE
+rollback:
+- ACTIVE
+- DEGRADED
+- ROLLBACK

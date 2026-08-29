@@ -1,0 +1,82 @@
+checked_on: '2026-08-29'
+sources:
+- id: SRC-ATOM-PRD31
+  name: ATOM PRD v3.1
+  type: Project predecessor
+  location: /mnt/data/ATOM_PRD_v3.1.docx
+- id: SRC-ATOM-BP31
+  name: ATOM Technical Blueprint v3.1
+  type: Project predecessor
+  location: /mnt/data/ATOM_Technical_Blueprint_v3.1.docx
+- id: SRC-ADR01
+  name: ATOM Architecture Decision Pack v0.1
+  type: Project predecessor
+  location: 'File Library: ATOM_Architecture_Decision_Pack_v0.1.md'
+- id: SRC-OC-REC
+  name: OpenClaw Restart Recovery
+  type: Competitive baseline
+  location: https://docs.openclaw.ai/gateway/restart-recovery
+- id: SRC-OC-LOB
+  name: OpenClaw Lobster
+  type: Competitive baseline
+  location: https://docs.openclaw.ai/tools/lobster
+- id: SRC-HERMES
+  name: Hermes Agent Documentation
+  type: Competitive baseline
+  location: https://hermes-agent.nousresearch.com/docs/
+- id: SRC-HERMES-SK
+  name: Hermes Skills System
+  type: Competitive baseline
+  location: https://hermes-agent.nousresearch.com/docs/user-guide/features/skills/
+- id: SRC-LHH
+  name: LongHorizon-Harness
+  type: Research
+  location: https://arxiv.org/abs/2608.01964
+- id: SRC-EHRL
+  name: EvoHarness-RL
+  type: Research
+  location: https://arxiv.org/abs/2608.05446
+- id: SRC-EH
+  name: Evo-Harness
+  type: Research
+  location: https://arxiv.org/abs/2608.15071
+- id: SRC-TG
+  name: Tool-Genesis
+  type: Research
+  location: https://arxiv.org/abs/2603.05578
+- id: SRC-AB
+  name: AgencyBench
+  type: Research
+  location: https://aclanthology.org/2026.acl-long.337/
+- id: SRC-MINJA
+  name: MINJA memory injection
+  type: Research
+  location: https://arxiv.org/abs/2503.03704
+- id: SRC-MSB
+  name: MemSecBench
+  type: Research
+  location: https://arxiv.org/abs/2607.27080
+- id: SRC-MCP
+  name: MCP 2026-07-28
+  type: Standard
+  location: https://blog.modelcontextprotocol.io/posts/2026-07-28/
+- id: SRC-A2A
+  name: A2A 1.0.0
+  type: Standard
+  location: https://a2a-protocol.org/dev/specification/
+- id: SRC-CEDAR
+  name: Cedar authorization
+  type: Standard/reference
+  location: https://docs.cedarpolicy.com/auth/authorization.html
+- id: SRC-SPIFFE
+  name: SPIFFE Workload API
+  type: Standard/reference
+  location: https://spiffe.io/docs/latest/spiffe-specs/spiffe_workload_api/
+- id: SRC-SLSA
+  name: SLSA v1.2
+  type: Standard/reference
+  location: https://slsa.dev/spec/v1.2/
+- id: SRC-SIG
+  name: Sigstore in-toto attestations
+  type: Standard/reference
+  location: https://docs.sigstore.dev/cosign/verifying/attestation/

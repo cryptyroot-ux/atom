@@ -1,0 +1,136 @@
+{
+  "title": "BehaviorManifestV2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "cognition_runtime",
+    "runtime_version",
+    "provider",
+    "model_exact_id",
+    "sampling_parameters",
+    "system_prompt_digest",
+    "instruction_bundle_digest",
+    "context_compiler_version",
+    "context_snapshot_digest",
+    "capability_contract_digests",
+    "tool_schema_digests",
+    "policy_bundle_digest",
+    "grant_semantics_version",
+    "memory_snapshot_digest",
+    "epistemic_policy_version",
+    "verifier_bundle_digest",
+    "connector_versions",
+    "sandbox_runtime",
+    "worker_image_digests",
+    "secret_reference_generations",
+    "compatibility_profile_digests",
+    "environment_fingerprint"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "cognition_runtime": {
+      "type": "string"
+    },
+    "runtime_version": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "model_exact_id": {
+      "type": "string"
+    },
+    "system_prompt_digest": {
+      "type": "string"
+    },
+    "instruction_bundle_digest": {
+      "type": "string"
+    },
+    "context_compiler_version": {
+      "type": "string"
+    },
+    "context_snapshot_digest": {
+      "type": "string"
+    },
+    "policy_bundle_digest": {
+      "type": "string"
+    },
+    "grant_semantics_version": {
+      "type": "string"
+    },
+    "memory_snapshot_digest": {
+      "type": "string"
+    },
+    "epistemic_policy_version": {
+      "type": "string"
+    },
+    "verifier_bundle_digest": {
+      "type": "string"
+    },
+    "sandbox_runtime": {
+      "type": "string"
+    },
+    "environment_fingerprint": {
+      "type": "string"
+    },
+    "model_revision": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "routing_policy": {
+      "type": "object"
+    },
+    "sampling_parameters": {
+      "type": "object"
+    },
+    "capability_contract_digests": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tool_schema_digests": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "skill_digests": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "connector_versions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "worker_image_digests": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "secret_reference_generations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "compatibility_profile_digests": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/behavior-manifest-v2.schema.json"
+}
