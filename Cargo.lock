@@ -301,6 +301,13 @@ dependencies = [
 [[package]]
 name = "atom-provider"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-effect",
+ "atom-ledger",
+ "atom-mission",
+ "atom-runtime",
+ "chrono",
+]
 
 [[package]]
 name = "atom-replay"
@@ -316,6 +323,10 @@ dependencies = [
 [[package]]
 name = "atom-restore"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-connector",
+ "thiserror",
+]
 
 [[package]]
 name = "atom-runtime"
