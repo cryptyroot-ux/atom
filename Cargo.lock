@@ -154,6 +154,17 @@ version = "0.0.0-alpha.0"
 [[package]]
 name = "atom-cert"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-evidence",
+ "atom-ledger",
+ "chrono",
+ "hex",
+ "hmac",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror",
+]
 
 [[package]]
 name = "atom-claim"
@@ -235,6 +246,16 @@ dependencies = [
 [[package]]
 name = "atom-identity"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-capability",
+ "atom-evidence",
+ "atom-ledger",
+ "chrono",
+ "hex",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
 
 [[package]]
 name = "atom-kernel"
