@@ -158,6 +158,14 @@ version = "0.0.0-alpha.0"
 [[package]]
 name = "atom-claim"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-evidence",
+ "chrono",
+ "jsonschema",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
 
 [[package]]
 name = "atom-cli"
@@ -195,6 +203,12 @@ version = "0.0.0-alpha.0"
 [[package]]
 name = "atom-evidence"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
 
 [[package]]
 name = "atom-experience-compiler"
