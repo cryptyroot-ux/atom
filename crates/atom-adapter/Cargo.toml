@@ -3,5 +3,9 @@ name = "atom-adapter"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+description = "ATOM v4 adapter substrate: wraps an external protocol message and preserves its taint and source authority across the boundary — no laundering (ADP-001, INT-001, INV-009)"
 
 [dependencies]
+atom-evidence = { path = "../atom-evidence" }
+serde = { workspace = true, features = ["derive"] }
+thiserror = { workspace = true }

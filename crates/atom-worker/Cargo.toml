@@ -3,5 +3,12 @@ name = "atom-worker"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+description = "ATOM v4 worker: an isolated execution unit bound to a single capability grant, with no ambient authority and deny-by-default operation admission (WKR-001)"
 
 [dependencies]
+atom-capability = { path = "../atom-capability" }
+serde = { workspace = true, features = ["derive"] }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+chrono = { version = "0.4", features = ["serde"] }
