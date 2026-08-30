@@ -117,6 +117,14 @@ version = "0.0.0-alpha.0"
 [[package]]
 name = "atom-approval"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-capability",
+ "atom-effect",
+ "chrono",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
 
 [[package]]
 name = "atom-architecture-learner"
