@@ -18,6 +18,13 @@
 
 #![forbid(unsafe_code)]
 
+/// Implementation maturity marker for the connector contract surface.
+///
+/// Consumed by `atom-restore` (via `CONNECTOR_CONTRACT_STAGE`) so a fenced
+/// restore adapter declares which connector contract version it was built
+/// against. Kept in the contract crate so the version lives in one place.
+pub const CRATE_STAGE: &str = "G1-connector-effect-contract";
+
 use std::collections::BTreeSet;
 
 use atom_effect::EffectIntent;
