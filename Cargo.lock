@@ -93,6 +93,11 @@ checksum = "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470"
 [[package]]
 name = "atom-adapter"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-evidence",
+ "serde",
+ "thiserror",
+]
 
 [[package]]
 name = "atom-adapter-a2a"
@@ -133,6 +138,12 @@ version = "0.0.0-alpha.0"
 [[package]]
 name = "atom-artifact"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror",
+]
 
 [[package]]
 name = "atom-capability"
@@ -178,6 +189,11 @@ version = "0.0.0-alpha.0"
 [[package]]
 name = "atom-connector"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-effect",
+ "serde",
+ "thiserror",
+]
 
 [[package]]
 name = "atom-context"
@@ -263,6 +279,11 @@ dependencies = [
 [[package]]
 name = "atom-memory"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-evidence",
+ "serde",
+ "thiserror",
+]
 
 [[package]]
 name = "atom-mission"
@@ -363,10 +384,21 @@ dependencies = [
 [[package]]
 name = "atom-target"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-effect",
+ "serde",
+ "thiserror",
+]
 
 [[package]]
 name = "atom-worker"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-capability",
+ "chrono",
+ "serde",
+ "thiserror",
+]
 
 [[package]]
 name = "atomic-waker"
