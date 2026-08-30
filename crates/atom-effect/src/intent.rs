@@ -4,17 +4,16 @@
 //! An intent authorises nothing by itself. It is the written-down request, its
 //! declared semantics, and its position in the lifecycle — nothing more.
 
+use std::collections::BTreeSet;
+
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use thiserror::Error;
 
-use crate::digest::{digest_component, finish};
+use crate::digest::{digest_component, digest_optional, finish};
 use crate::event::EffectEvent;
 use crate::reducer::{try_reduce, ReduceError};
-use crate::semantics::{
-    Compensation, CompensationStrategy, Condition, Idempotency, IdempotencyMode, Reconciliation,
-    ReconciliationClass,
-};
+use crate::semantics::{Compensation, Condition, Idempotency, Reconciliation};
 use crate::state::EffectState;
 
 /// The builder refused to produce an intent.
@@ -101,45 +100,8 @@ pub struct EffectIntent {
     /// Where the effect has got to in `spec/state-machines/effect.yaml`.
     pub state: EffectState,
 }
-// INTENT-CONTINUES-HERE
-
 impl EffectIntent {
-    /// Canonical digest over stable identity + semantics. A mutated request is a
-    /// new effect, so `request_digest`, `target_id` and `capability_id` are in.
-    #[must_use]
-    pub fn digest(&self) -> String {
-        let mut hasher = Sha256::new();
-        digest_component(&mut hasher, &self.effect_id);
-        digest_component(&mut hasher, &self.mission_id);
-        digest_component(&mut hasher, &self.capability_id);
-        digest_component(&mut hasher, &self.target_id);
-        digest_component(&mut hasher, &self.request_digest);
-        digest_component(&mut hasher, &self.effect_class);
-        digest_component(&mut hasher, &self.risk_class);
-        for dep in &self.dependencies {
-            digest_component(&mut hasher, dep);
-        }
-        finish(hasher)
-    }
-
-    /// Apply `event` via the pure reducer, returning a new intent in the next
-    /// state. Refusals (anything not in `spec/state-machines/effect.yaml`) are
-    /// surfaced as an error rather than silently ignored. Durable event payloads
-    /// (e.g. the external operation id discovered at dispatch) are recorded.
-    #[must_use]
-    pub fn try_advance(&self, event: &EffectEvent) -> Result<EffectIntent, ReduceError> {
-        let next = try_reduce(self.state, event)?;
-        let mut advanced = self.clone();
-        advanced.state = next;
-        // Record the external operation identity when the target returns one.
-        if let EffectEvent::Dispatched(payload) = event {
-            advanced.external_operation_id = payload.external_operation_id.clone();
-        }
-        Ok(advanced)
-    }
-
-    /// Start building an intent. `EffectIntentBuilder` enforces every EFX-002
-    /// mandatory field and rejects self-contradicting semantics.
+    /// Starts a builder for an effect on `target_id`.
     #[must_use]
     pub fn builder(
         effect_id: &str,
@@ -147,57 +109,13 @@ impl EffectIntent {
         capability_id: &str,
         target_id: &str,
     ) -> EffectIntentBuilder {
-        EffectIntentBuilder::new(effect_id, mission_id, capability_id, target_id)
-    }
-
-    /// Digest over the current state only — distinct from [`Self::digest`],
-    /// which is identity-stable. Used by tests to assert each state digests
-    /// differently.
-    #[must_use]
-    pub fn state_digest(&self) -> String {
-        let mut hasher = Sha256::new();
-        digest_component(&mut hasher, &self.effect_id);
-        digest_component(&mut hasher, self.state.as_str());
-        finish(hasher)
-    }
-}
-
-/// A fluent builder that refuses to produce an [`EffectIntent`] missing any
-/// EFX-002 field or carrying self-contradicting semantics.
-#[derive(Clone, Debug)]
-pub struct EffectIntentBuilder {
-    effect_id: String,
-    mission_id: String,
-    capability_id: String,
-    target_id: String,
-    request_digest: Option<String>,
-    effect_class: Option<String>,
-    risk_class: Option<String>,
-    idempotency: Option<Idempotency>,
-    preconditions: Vec<Condition>,
-    postconditions: Vec<Condition>,
-    reconciliation: Option<Reconciliation>,
-    compensation: Option<Compensation>,
-    dependencies: Vec<String>,
-}
-
-impl EffectIntentBuilder {
-    /// Create a builder for the given durable identity.
-    #[must_use]
-    pub fn new(
-        effect_id: &str,
-        mission_id: &str,
-        capability_id: &str,
-        target_id: &str,
-    ) -> Self {
-        Self {
+        EffectIntentBuilder {
             effect_id: effect_id.to_owned(),
             mission_id: mission_id.to_owned(),
             capability_id: capability_id.to_owned(),
             target_id: target_id.to_owned(),
             request_digest: None,
-            effect_class: None,
-            risk_class: None,
+            classes: None,
             idempotency: None,
             preconditions: Vec::new(),
             postconditions: Vec::new(),
@@ -207,156 +125,232 @@ impl EffectIntentBuilder {
         }
     }
 
-    /// Set `request_digest`.
-    pub fn request_digest(mut self, value: &str) -> Self {
-        self.request_digest = Some(value.to_owned());
+    /// The identity digest: everything the caller declared, and nothing the
+    /// lifecycle later discovers.
+    ///
+    /// A [`crate::CommitPermit`] binds to this, so an effect that moves through
+    /// its states keeps the identity its permit was issued against (EFX-004).
+    #[must_use]
+    pub fn digest(&self) -> String {
+        let mut hasher = Sha256::new();
+        self.digest_into(&mut hasher);
+        finish(hasher)
+    }
+
+    /// The identity digest extended with the lifecycle position.
+    #[must_use]
+    pub fn state_digest(&self) -> String {
+        let mut hasher = Sha256::new();
+        self.digest_into(&mut hasher);
+        digest_component(&mut hasher, "state");
+        digest_component(&mut hasher, self.state.as_str());
+        digest_optional(&mut hasher, self.external_operation_id.as_deref());
+        finish(hasher)
+    }
+    /// Feeds the declared identity into `hasher`, list lengths included so no
+    /// two different declarations can hash the same way.
+    fn digest_into(&self, hasher: &mut Sha256) {
+        for value in [
+            &self.effect_id,
+            &self.mission_id,
+            &self.capability_id,
+            &self.target_id,
+            &self.request_digest,
+            &self.effect_class,
+            &self.risk_class,
+        ] {
+            digest_component(hasher, value);
+        }
+        self.idempotency.digest_into(hasher);
+        for (label, conditions) in [
+            ("preconditions", &self.preconditions),
+            ("postconditions", &self.postconditions),
+        ] {
+            digest_component(hasher, label);
+            digest_component(hasher, &conditions.len().to_string());
+            for condition in conditions {
+                condition.digest_into(hasher);
+            }
+        }
+        self.reconciliation.digest_into(hasher);
+        match &self.compensation {
+            Some(compensation) => {
+                digest_component(hasher, "some");
+                compensation.digest_into(hasher);
+            }
+            None => digest_component(hasher, "none"),
+        }
+        digest_component(hasher, "dependencies");
+        digest_component(hasher, &self.dependencies.len().to_string());
+        for dependency in &self.dependencies {
+            digest_component(hasher, dependency);
+        }
+    }
+    /// The intent after applying one durable event.
+    ///
+    /// The only field an event may write, besides the state, is the external
+    /// operation identity the target hands back at dispatch (EFX-002).
+    ///
+    /// # Errors
+    ///
+    /// [`ReduceError::EventNotAccepted`] when `spec/state-machines/effect.yaml`
+    /// has no edge for this state and event.
+    pub fn try_advance(&self, event: &EffectEvent) -> Result<Self, ReduceError> {
+        let state = try_reduce(self.state, event)?;
+        let mut next = self.clone();
+        next.state = state;
+        if let EffectEvent::Dispatched(payload) = event {
+            next.external_operation_id = payload.external_operation_id.clone();
+        }
+        Ok(next)
+    }
+}
+/// Accumulates an [`EffectIntent`] and refuses to produce an invalid one.
+///
+/// Every EFX-002 field is mandatory, and a field whose parts contradict each
+/// other is rejected: a stored contradiction would be replayed as if true.
+#[derive(Clone, Debug)]
+pub struct EffectIntentBuilder {
+    effect_id: String,
+    mission_id: String,
+    capability_id: String,
+    target_id: String,
+    request_digest: Option<String>,
+    classes: Option<(String, String)>,
+    idempotency: Option<Idempotency>,
+    preconditions: Vec<Condition>,
+    postconditions: Vec<Condition>,
+    reconciliation: Option<Reconciliation>,
+    compensation: Option<Compensation>,
+    dependencies: Vec<String>,
+}
+
+impl EffectIntentBuilder {
+    /// Sets the digest of the canonical request body.
+    #[must_use]
+    pub fn request_digest(mut self, request_digest: &str) -> Self {
+        self.request_digest = Some(request_digest.to_owned());
         self
     }
 
-    /// Set effect and risk classes.
+    /// Sets the effect and risk classes.
+    #[must_use]
     pub fn classes(mut self, effect_class: &str, risk_class: &str) -> Self {
-        self.effect_class = Some(effect_class.to_owned());
-        self.risk_class = Some(risk_class.to_owned());
+        self.classes = Some((effect_class.to_owned(), risk_class.to_owned()));
         self
     }
 
-    /// Set idempotency semantics.
-    pub fn idempotency(mut self, value: Idempotency) -> Self {
-        self.idempotency = Some(value);
+    /// Sets the idempotency contract.
+    #[must_use]
+    pub fn idempotency(mut self, idempotency: Idempotency) -> Self {
+        self.idempotency = Some(idempotency);
         self
     }
-
-    /// Set reconciliation semantics.
-    pub fn reconciliation(mut self, value: Reconciliation) -> Self {
-        self.reconciliation = Some(value);
-        self
-    }
-
-    /// Set compensation semantics.
-    pub fn compensation(mut self, value: Compensation) -> Self {
-        self.compensation = Some(value);
-        self
-    }
-
-    /// Add a dependency edge (EFX-003).
-    pub fn dependency(mut self, effect_id: &str) -> Self {
-        self.dependencies.push(effect_id.to_owned());
-        self
-    }
-
-    /// Add a precondition edge (EFX-002).
+    /// Adds a precondition, keeping declaration order.
+    #[must_use]
     pub fn precondition(mut self, condition: Condition) -> Self {
         self.preconditions.push(condition);
         self
     }
 
-    /// Add a postcondition edge (EFX-002).
+    /// Adds a postcondition, keeping declaration order.
+    #[must_use]
     pub fn postcondition(mut self, condition: Condition) -> Self {
         self.postconditions.push(condition);
         self
     }
 
-    /// Build, enforcing every EFX-002 requirement.
-    pub fn build(self) -> Result<EffectIntent, IntentError> {
-        require_text(&self.effect_id, "effect_id")?;
-        require_text(&self.mission_id, "mission_id")?;
-        require_text(&self.capability_id, "capability_id")?;
-        require_text(&self.target_id, "target_id")?;
+    /// Sets how an unknown outcome would be settled.
+    #[must_use]
+    pub fn reconciliation(mut self, reconciliation: Reconciliation) -> Self {
+        self.reconciliation = Some(reconciliation);
+        self
+    }
 
-        let request_digest = self
-            .request_digest
-            .ok_or(IntentError::MissingField { field: "request_digest" })?;
+    /// Sets how a landed effect would be undone.
+    #[must_use]
+    pub fn compensation(mut self, compensation: Compensation) -> Self {
+        self.compensation = Some(compensation);
+        self
+    }
+
+    /// Adds an effect this one waits for, keeping declaration order.
+    #[must_use]
+    pub fn dependency(mut self, effect_id: &str) -> Self {
+        self.dependencies.push(effect_id.to_owned());
+        self
+    }
+    /// Validates every EFX-002 field and produces the intent.
+    ///
+    /// The result always starts in `INTENT_DURABLE`: an intent that has just
+    /// been written down has been authorised by nobody.
+    ///
+    /// # Errors
+    ///
+    /// [`IntentError`] naming the first field that is absent, blank,
+    /// self-contradicting, or a broken dependency edge.
+    pub fn build(self) -> Result<EffectIntent, IntentError> {
+        for (value, field) in [
+            (&self.effect_id, "effect_id"),
+            (&self.mission_id, "mission_id"),
+            (&self.capability_id, "capability_id"),
+            (&self.target_id, "target_id"),
+        ] {
+            require_text(value, field)?;
+        }
+
+        let request_digest = self.request_digest.ok_or(IntentError::MissingField {
+            field: "request_digest",
+        })?;
         require_text(&request_digest, "request_digest")?;
 
-        let effect_class = self
-            .effect_class
-            .ok_or(IntentError::MissingField { field: "effect_class" })?;
+        let (effect_class, risk_class) = self.classes.ok_or(IntentError::MissingField {
+            field: "effect_class",
+        })?;
         require_text(&effect_class, "effect_class")?;
-
-        let risk_class = self
-            .risk_class
-            .ok_or(IntentError::MissingField { field: "risk_class" })?;
         require_text(&risk_class, "risk_class")?;
 
-        let idempotency = self
-            .idempotency
-            .ok_or(IntentError::MissingField { field: "idempotency" })?;
-        if idempotency.mode == IdempotencyMode::Keyed && idempotency.key.is_none() {
-            return Err(IntentError::Inconsistent {
-                field: "idempotency",
-                reason: "keyed scope requires a key",
-            });
-        }
-        if idempotency.mode == IdempotencyMode::Natural && idempotency.key.is_some() {
-            return Err(IntentError::Inconsistent {
-                field: "idempotency",
-                reason: "natural scope carries no key",
-            });
-        }
+        let idempotency = self.idempotency.ok_or(IntentError::MissingField {
+            field: "idempotency",
+        })?;
+        idempotency.validate()?;
 
-        let reconciliation = self
-            .reconciliation
-            .ok_or(IntentError::MissingField {
-                field: "reconciliation",
-            })?;
-        if reconciliation.class == ReconciliationClass::ExternalOperationLookup
-            && reconciliation.probe.is_none()
-        {
-            return Err(IntentError::Inconsistent {
-                field: "reconciliation",
-                reason: "external lookup requires a probe",
-            });
-        }
-        if reconciliation.class == ReconciliationClass::NotReconcilable
-            && reconciliation.probe.is_some()
-        {
-            return Err(IntentError::Inconsistent {
-                field: "reconciliation",
-                reason: "unreconcilable effects carry no probe",
-            });
-        }
+        let reconciliation = self.reconciliation.ok_or(IntentError::MissingField {
+            field: "reconciliation",
+        })?;
+        reconciliation.validate()?;
 
-        let compensation = self
-            .compensation
-            .ok_or(IntentError::MissingField { field: "compensation" })?;
-        if compensation.strategy == CompensationStrategy::InverseOperation
-            && compensation.operation.is_none()
-        {
-            return Err(IntentError::Inconsistent {
-                field: "compensation",
-                reason: "inverse operation requires an operation",
-            });
-        }
-        if compensation.strategy == CompensationStrategy::NotCompensable
-            && compensation.operation.is_some()
-        {
-            return Err(IntentError::Inconsistent {
-                field: "compensation",
-                reason: "not-compensable effects carry no operation",
-            });
-        }
-
-        // Conditions must carry a non-blank id and expression.
-        for (i, cond) in self.preconditions.iter().enumerate() {
-            cond.validate("preconditions", i)?;
-        }
-        for (i, cond) in self.postconditions.iter().enumerate() {
-            cond.validate("postconditions", i)?;
-        }
-
-        // Dependency edges: no blank, no self-dependency, no duplicates.
-        let mut seen = std::collections::HashSet::new();
-        for dep in &self.dependencies {
-            require_text(dep, "dependencies[...]")?;
-            if dep == &self.effect_id {
-                return Err(IntentError::SelfDependency {
-                    effect_id: dep.clone(),
-                });
+        let compensation = self.compensation.ok_or(IntentError::MissingField {
+            field: "compensation",
+        })?;
+        compensation.validate()?;
+        for (kind, conditions) in [
+            ("preconditions", &self.preconditions),
+            ("postconditions", &self.postconditions),
+        ] {
+            for (index, condition) in conditions.iter().enumerate() {
+                condition.validate(kind, index)?;
             }
-            if !seen.insert(dep.clone()) {
-                return Err(IntentError::DuplicateDependency {
-                    effect_id: dep.clone(),
-                });
+        }
+
+        {
+            let mut seen: BTreeSet<&str> = BTreeSet::new();
+            for (index, dependency) in self.dependencies.iter().enumerate() {
+                if dependency.trim().is_empty() {
+                    return Err(IntentError::EmptyField {
+                        field: format!("dependencies[{index}]"),
+                    });
+                }
+                if *dependency == self.effect_id {
+                    return Err(IntentError::SelfDependency {
+                        effect_id: dependency.clone(),
+                    });
+                }
+                if !seen.insert(dependency.as_str()) {
+                    return Err(IntentError::DuplicateDependency {
+                        effect_id: dependency.clone(),
+                    });
+                }
             }
         }
 
@@ -379,4 +373,3 @@ impl EffectIntentBuilder {
         })
     }
 }
-

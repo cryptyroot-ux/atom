@@ -170,6 +170,15 @@ version = "0.0.0-alpha.0"
 [[package]]
 name = "atom-effect"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-capability",
+ "chrono",
+ "jsonschema",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror",
+]
 
 [[package]]
 name = "atom-evaluator"

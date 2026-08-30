@@ -99,15 +99,13 @@ pub fn try_project(
     initial: EffectState,
     events: &[EffectEvent],
 ) -> Result<EffectState, ReduceError> {
-    events
-        .iter()
-        .try_fold(initial, |state, event| try_reduce(state, event))
+    events.iter().try_fold(initial, try_reduce)
 }
 
 /// Replays `events` from `initial`, skipping refusals.
 #[must_use]
 pub fn project(initial: EffectState, events: &[EffectEvent]) -> EffectState {
-    events.iter().fold(initial, |state, event| reduce(state, event))
+    events.iter().fold(initial, reduce)
 }
 
 /// A digest of the whole trajectory: the route, not just the destination.

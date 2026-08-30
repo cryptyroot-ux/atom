@@ -162,7 +162,10 @@ impl EffectState {
     ///
     /// Convenience over [`crate::try_reduce`] for callers that already hold a
     /// state and do not want to import the reducer module.
-    #[must_use]
+    ///
+    /// # Errors
+    ///
+    /// [`crate::reducer::ReduceError`] when the event has no edge from `self`.
     pub fn try_advance(
         self,
         event: &crate::event::EffectEvent,
