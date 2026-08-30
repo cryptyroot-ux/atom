@@ -1,0 +1,98 @@
+spec_version: 4.0.0
+standard: OWASP Top 10 for Agentic Applications (2025/2026)
+generated_by: conformance-pass 2026-08-31 (LUNA) — closes audit finding H-09
+coverage_legend:
+  STRONG: enforced by test-backed crate
+  STRONG-DESIGN: enforced by design/test but no signed release artifact yet
+  PARTIAL: covered by design + partial test; residual risk tracked
+  GAP: no control/test yet
+crosswalk:
+  - asi: ASI01
+    name: Goal Hijack
+    coverage: PARTIAL
+    control: Mission-goal immutability + intent provenance + taint/policy boundary
+    crate: atom-mission / atom-context
+    tests: []
+    residual: Goal-drift explicit test pending
+    status: covered-by-design
+  - asi: ASI02
+    name: Tool Misuse
+    coverage: STRONG
+    control: Capability grants + Effect Kernel commit gate (cognition cannot mutate state directly)
+    crate: atom-capability / atom-kernel
+    tests: [ATOM-VT-005]
+    residual: none
+    status: covered-tested
+  - asi: ASI03
+    name: Identity / Privilege Abuse
+    coverage: STRONG
+    control: Workload identity (AUT-001) + SecretHandle brokered secrets (no ambient secret env)
+    crate: atom-identity / atom-capability / atom-secret
+    tests: [ATOM-VT-004]
+    residual: key-rotation test pending
+    status: covered-tested
+  - asi: ASI04
+    name: Agentic Supply Chain
+    coverage: STRONG-DESIGN
+    control: Artifact content digest + provenance (SUP-001)
+    crate: atom-artifact
+    tests: []
+    residual: no signed release / SLSA attestation artifact yet (audit H-08)
+    status: designed-not-released
+  - asi: ASI05
+    name: Unexpected Code Execution
+    coverage: PARTIAL
+    control: Worker isolation + root.shell.exec denied by default (audit H-10); break-glass separate
+    crate: atom-worker / atom-privd
+    tests: [ATOM-VT-014]
+    residual: egress / syscall profile test pending
+    status: covered-partial
+  - asi: ASI06
+    name: Memory & Context Poisoning
+    coverage: STRONG-DESIGN
+    control: Taint gates + Write/Execute/Forget lifecycle (CXT-001)
+    crate: atom-context
+    tests: [ATOM-VT-009]
+    residual: tenant-isolation test pending
+    status: covered-tested
+  - asi: ASI07
+    name: Insecure Inter-Agent Comms
+    coverage: GAP
+    control: Peer identity + message signature + nonce/replay + delegation chain needed
+    crate: atom-connector
+    tests: [ATOM-VT-013]
+    residual: hostile-peer fixture exists, no signed-message/replay test yet
+    status: partial-fixture
+  - asi: ASI08
+    name: Cascading Failures
+    coverage: PARTIAL
+    control: Dependency barriers + fault classes (FLT-001)
+    crate: atom-fault
+    tests: []
+    residual: circuit-breaker / cascade-simulation test pending
+    status: covered-partial
+  - asi: ASI09
+    name: Human-Agent Trust Exploitation
+    coverage: GAP
+    control: Exact-effect approval preview (anti-manipulation UX, secure-channel binding)
+    crate: atom-approval / atom-ui
+    tests: []
+    residual: PWA (atom-ui) not built; no secure-channel binding test
+    status: not-built
+  - asi: ASI10
+    name: Rogue Agents
+    coverage: PARTIAL
+    control: Cancellation truthful + E7/E8 self-promotion ban (INV-016)
+    crate: atom-mission
+    tests: []
+    residual: watchdog / kill-proof / orphan-worker reclaim test pending
+    status: covered-partial
+residual_risk_acceptance:
+  - id: ASI07
+    disposition: deferred to atom-connector conformance v2 (signed-message + replay suite)
+  - id: ASI09
+    disposition: deferred to PWA / atom-api build (G1 UI track)
+  - id: ASI04-release
+    disposition: deferred to signed release bundle (H-08 closure)
+  - id: ASI05/08/10-tests
+    disposition: fault-injection test suite tracked in roadmap, not blocking v4.0-alpha core

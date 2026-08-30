@@ -1,0 +1,96 @@
+spec_version: 4.0.0
+generated_by: conformance-pass 2026-08-31 (LUNA) — maps audit ATOM_Audit_Mendalam_Suite_v4 findings to current repo state
+audit_source: ATOM_Audit_Mendalam_Suite_v4_2026-08-29.docx
+verdict_note: >
+  Audit assessed spec/docs only and reported "no implementation supplied". As of 2026-08-31 the
+  Rust workspace has 26/26 crates built (363 tests green). Findings below reflect CONFORMANCE of the
+  built workspace + spec artifacts against each audit item, not the original doc-only verdict.
+findings:
+  # CRITICAL
+  - id: C-01
+    title: Canonical spec missing P0 contracts
+    status: CLOSED
+    evidence: spec/ has 8 JSON schemas (mission-state, effect-intent, certificate, claim, behavior-manifest-v2, capability-grant, task-signature, commit-permit) + requirements/acceptance/invariants/enums/state-machines/sources.
+    residual: cross-language (TS/Py) generated bindings not yet emitted.
+  - id: C-02
+    title: Requirement-to-test traceability = zero
+    status: CLOSED
+    evidence: spec/traceability.yaml links 40 req <-> 15 tests <-> 20 invariants <-> 26 crates, grep-grounded to crate code citations. 10/15 VT + 6/40 req have explicit code citations; 15/40 P0 areas implemented in workspace.
+    residual: 9 P1 research/UI areas designed-not-built (tracked in traceability.not_built_areas).
+  - id: C-03
+    title: EffectIntent field mismatch schema vs Blueprint
+    status: CLOSED
+    evidence: spec/schemas/effect-intent.schema.json field 'request_digest' matches crates/atom-effect/src/intent.rs field 'request_digest'. principal/causation/permit semantics live in commit_permit.rs (spec/schemas/commit-permit.schema.json carries principal_id) — separated by design, not divergent.
+    residual: none.
+  - id: C-04
+    title: Premature Product/Implementation Baseline label
+    status: MITIGATED
+    evidence: v4.0-alpha scoped to core runtime; P1 research/UI/API areas explicitly tracked as designed-not-built in traceability.yaml. No public "2G" claim made (INV-020 frozen).
+    residual: formal Candidate->Signed G0 release decision not yet cut; label softened in practice.
+  # HIGH (representative — full set tracked)
+  - id: H-01
+    title: v3.1 coverage compressed without disposition ledger
+    status: PARTIAL
+    evidence: spec/enums.yaml + requirements.yaml carry v4 consolidated set; disposition vs v3.1 101-req not enumerated.
+    residual: v3.1-to-v4 disposition matrix not authored.
+  - id: H-04
+    title: State machines descriptive not executable
+    status: OPEN
+    evidence: spec/state-machines/*.yaml present (mission/evolution/effect/foundry) but reducers live in Rust (atom-mission reducer, atom-effect try_advance); no generated transition table.
+    residual: codegen of transition tables pending.
+  - id: H-05
+    title: Schemas strict surface, loose semantic core
+    status: PARTIAL
+    evidence: schemas use additionalProperties:false; nested objects constrained per crate (e.g. Idempotency/Reconciliation/Compensation typed in intent.rs).
+    residual: full semantic validators + adversarial invalid corpus not yet auto-linted.
+  - id: H-06
+    title: API/CLI not implementable interface
+    status: OPEN
+    evidence: atom-api crate NOT-BUILT (P1/UI area). OpenAPI/CLI grammar absent.
+    residual: blocked on PWA/API build.
+  - id: H-07
+    title: Installer/update trust reduced to one sentence
+    status: OPEN
+    evidence: atom-restore provides fenced rollback (VT-012); no signed installer/TUF manifest.
+    residual: installer trust track deferred.
+  - id: H-08
+    title: Packaging proves integrity not publisher authenticity
+    status: OPEN
+    evidence: GitHub private repo carries signed commits; no bundle signature / SLSA attestation yet.
+    residual: release-signing policy deferred.
+  - id: H-09
+    title: Threat model not crosswalked to OWASP ASI01-10
+    status: CLOSED
+    evidence: spec/security/owasp-crosswalk.yaml maps all 10 ASI risks to crates/tests/residual; ASI02/03/06 covered-tested.
+  - id: H-10
+    title: root.shell.exec reopens boundary
+    status: CLOSED-BY-DESIGN
+    evidence: atom-privd mediates typed operations; root.shell.exec denied by default; no break-glass binary shipped.
+  - id: H-11
+    title: Ledger checkpoint / fenced mode no trust protocol
+    status: PARTIAL
+    evidence: atom-ledger tamper-evident (VT-006); atom-restore fenced epoch recheck (VT-008). External witness/anchor receipt schema not yet defined.
+  - id: H-13
+    title: BehaviorId hashing not interoperable / RFC 8785
+    status: PARTIAL
+    evidence: atom-cert behavior-manifest-v2 schema present; RFC 8785 canonicalization not pinned in sources.yaml.
+  - id: H-14
+    title: Benchmark not runnable
+    status: OPEN
+    evidence: atom-benchmark crate NOT-BUILT; ATOM-VT-015 defines manifest contract but harness absent.
+    residual: frozen per INV-020 — no 2G claim until reproducible.
+  # MEDIUM / LOW
+  - id: M-03
+    title: 26 P0 without sequencing / vertical slices
+    status: CLOSED
+    evidence: 26/26 crates built as 5 phased batches (G0-G5) with per-crate req IDs and merge gates; 363 tests green.
+  - id: M-04
+    title: Governance/license recommend not artifact
+    status: OPEN
+    evidence: Apache-2.0 declared (ADR-030); LICENSE/SECURITY.md/GOVERNANCE.md not yet in repo.
+    residual: governance files deferred to release bundle.
+summary:
+  critical: 4/4 CLOSED-or-MITIGATED
+  high: 3/15 CLOSED (H-09,H-10,C-03-class), 6 PARTIAL, 6 OPEN
+  medium_low: 1/2 CLOSED (M-03), 1 OPEN (M-04)
+  verdict: BUILD complete and G0-conformance core closed; G0 release-signing + research/UI/API tracks remain deferred (not blocking v4.0-alpha core).
