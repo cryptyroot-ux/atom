@@ -3,5 +3,16 @@ name = "atom-replay"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+description = "ATOM v4 replay classes: R0-R2 deterministic replay + recorded cassettes, R3/R4 labeled-unsupported; INV-010 no-re-emit without explicit live-fork"
 
 [dependencies]
+atom-effect = { path = "../atom-effect" }
+serde = { workspace = true, features = ["derive"] }
+sha2 = "0.10"
+thiserror = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }
+
+[lints.rust]
+unsafe_code = "forbid"
