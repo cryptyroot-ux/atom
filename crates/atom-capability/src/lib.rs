@@ -322,12 +322,17 @@ pub fn subset_check(
         }
     }
 
-    // 4. Budget ≤ parent remaining reservation
-    //    We use max_cost as the binding constraint (max_seconds is informational).
+    // 4. Budget ≤ parent remaining reservation (BOTH dimensions, INV-003).
     if child.budget.max_cost > parent.budget.max_cost {
         return Err(CapabilityError::BudgetExceeded {
             child: child.budget.max_cost,
             parent_remaining: parent.budget.max_cost,
+        });
+    }
+    if child.budget.max_seconds > parent.budget.max_seconds {
+        return Err(CapabilityError::BudgetExceeded {
+            child: child.budget.max_seconds,
+            parent_remaining: parent.budget.max_seconds,
         });
     }
 
@@ -349,13 +354,14 @@ pub fn subset_check(
         });
     }
 
-    // 7. Audience cannot widen
-    //    Child audience must be equal or more specific (substring or exact match).
-    //    We treat parent audience as the upper bound — child must be identical
-    //    or a subset string. A wildcard parent ("*") allows anything.
+    // 7. Audience cannot widen (INV-003).
+    //    Attenuation: child audience must equal parent, or be a strict child namespace
+    //    of parent under the "parent + ':'" separator. A bare prefix match like
+    //    "team" ⊃ "teamXYZ" is REJECTED — that would let a child escape its scope.
+    //    A wildcard parent ("*") allows any audience (owner delegating broadly).
     if parent.audience != "*" && child.audience != parent.audience {
-        // Allow child to be more specific (e.g. parent="team", child="team:alice")
-        if !child.audience.starts_with(&parent.audience) {
+        let namespace = format!("{}:", parent.audience);
+        if !child.audience.starts_with(&namespace) {
             return Err(CapabilityError::AudienceWidened {
                 child: child.audience.clone(),
                 parent: parent.audience.clone(),
@@ -363,15 +369,15 @@ pub fn subset_check(
         }
     }
 
-    // 8. Purpose cannot widen
-    //    Child purpose must be equal or more specific.
-    if parent.purpose != "*" && child.purpose != parent.purpose
-        && !child.purpose.starts_with(&parent.purpose)
-    {
-        return Err(CapabilityError::PurposeWidened {
-            child: child.purpose.clone(),
-            parent: parent.purpose.clone(),
-        });
+    // 8. Purpose cannot widen (INV-003) — same strict namespace rule as audience.
+    if parent.purpose != "*" && child.purpose != parent.purpose {
+        let namespace = format!("{}:", parent.purpose);
+        if !child.purpose.starts_with(&namespace) {
+            return Err(CapabilityError::PurposeWidened {
+                child: child.purpose.clone(),
+                parent: parent.purpose.clone(),
+            });
+        }
     }
 
     Ok(())
@@ -511,5 +517,111 @@ mod tests {
         child.parent_grant_id = None; // remove parent ref
         let err = subset_check(&parent, &child).unwrap_err();
         assert_eq!(err, CapabilityError::MissingParentGrantId);
+    }
+
+    // ─── ATOM-VT-005: child requesting broader authority is DENIED ───────────────
+    // Covers the spec acceptance criterion: kernel denies when child targets,
+    // operations, or budget widen beyond the parent.
+
+    #[test]
+    fn vt005_broader_operations_denied() {
+        let parent = make_grant(vec!["read", "write"], 1000, 5);
+        let child = make_child(&parent, vec!["read", "write", "admin"], 500, 4);
+        assert!(matches!(
+            subset_check(&parent, &child),
+            Err(CapabilityError::OperationsNotSubset { .. })
+        ));
+    }
+
+    #[test]
+    fn vt005_broader_resources_denied() {
+        let parent = make_grant(vec!["read"], 1000, 5);
+        // parent scoped to db:1, child claims db:2
+        let mut parent = parent;
+        parent.resources = vec![ResourceSelector {
+            resource_type: "db".into(),
+            resource_id: "1".into(),
+        }];
+        let mut child = make_child(&parent, vec!["read"], 500, 4);
+        child.resources = vec![ResourceSelector {
+            resource_type: "db".into(),
+            resource_id: "2".into(),
+        }];
+        assert!(matches!(
+            subset_check(&parent, &child),
+            Err(CapabilityError::ResourcesNotContained { .. })
+        ));
+    }
+
+    #[test]
+    fn vt005_broader_budget_denied() {
+        let parent = make_grant(vec!["read"], 1000, 5);
+        let child = make_child(&parent, vec!["read"], 2000, 4); // budget > parent
+        assert!(matches!(
+            subset_check(&parent, &child),
+            Err(CapabilityError::BudgetExceeded { .. })
+        ));
+    }
+
+    #[test]
+    fn vt005_broader_time_window_denied() {
+        let parent = make_grant(vec!["read"], 1000, 5);
+        let mut child = make_child(&parent, vec!["read"], 500, 4);
+        child.expires_at = parent.expires_at + chrono::Duration::minutes(10); // extends past parent
+        assert!(matches!(
+            subset_check(&parent, &child),
+            Err(CapabilityError::TimeWindowOutside { .. })
+        ));
+    }
+
+    #[test]
+    fn vt005_delegation_depth_not_decreased_denied() {
+        let parent = make_grant(vec!["read"], 1000, 5);
+        let child = make_child(&parent, vec!["read"], 500, 5); // same depth
+        assert!(matches!(
+            subset_check(&parent, &child),
+            Err(CapabilityError::DelegationDepthNotDecreased { .. })
+        ));
+    }
+
+    // ─── AUT-002 lattice property: attenuation composes (a⊆b ∧ b⊆c ⟹ a⊆c) ───────
+    #[test]
+    fn lattice_transitivity_holds() {
+        let root = make_grant(vec!["read", "write", "execute", "admin"], 100_000, 10);
+        let mid = make_child(&root, vec!["read", "write"], 50_000, 5);
+        assert!(subset_check(&root, &mid).is_ok());
+        // grandchild is a valid subset of mid (direct parent link)
+        let leaf = make_child(&mid, vec!["read"], 25_000, 3);
+        assert!(subset_check(&mid, &leaf).is_ok());
+        // Semantic transitivity of AUTHORITY holds: leaf's authority is strictly
+        // within root's, even though the API requires a direct parent link for the
+        // delegation chain (leaf.parent == mid, not root — that is enforced separately).
+        let root_ops: std::collections::HashSet<&str> =
+            root.operations.iter().map(|s| s.as_str()).collect();
+        assert!(leaf.operations.iter().all(|o| root_ops.contains(o.as_str())));
+        assert!(leaf.budget.max_cost <= root.budget.max_cost);
+        assert!(leaf.delegation_depth < root.delegation_depth);
+        // a grant derived from root but wider than mid is allowed by root,
+        // yet rejected when checked against mid (ops wider than mid's scope)
+        let sibling = make_child(&root, vec!["read", "write", "execute"], 50_000, 5);
+        assert!(subset_check(&root, &sibling).is_ok()); // allowed by root
+        // tighten sibling's window so it sits strictly inside mid's, isolating the
+        // operation-width check (otherwise the equal expiry trips TimeWindowOutside)
+        let mut sibling = sibling;
+        sibling.expires_at = mid.expires_at - chrono::Duration::minutes(1);
+        assert!(subset_check(&mid, &sibling).is_err()); // NOT allowed by mid (ops wider)
+    }
+
+    // ─── INV-012: authority never increases under any "pressure" signal ──────────
+    #[test]
+    fn inv012_authority_cannot_self_increase() {
+        let parent = make_grant(vec!["read"], 1000, 5);
+        // A child that tries to ADD write (simulating "urgent, please elevate"):
+        let mut child = make_child(&parent, vec!["read"], 500, 4);
+        child.operations.push("write".into());
+        assert!(matches!(
+            subset_check(&parent, &child),
+            Err(CapabilityError::OperationsNotSubset { .. })
+        ));
     }
 }
