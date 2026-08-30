@@ -5,3 +5,5 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
+atom-connector = { path = "../atom-connector" }
+thiserror.workspace = true

@@ -5,3 +5,10 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
+atom-effect = { path = "../atom-effect" }
+atom-mission = { path = "../atom-mission" }
+atom-runtime = { path = "../atom-runtime" }
+
+[dev-dependencies]
+atom-ledger = { path = "../atom-ledger" }
+chrono = { version = "0.4" }
