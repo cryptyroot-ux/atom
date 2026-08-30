@@ -320,6 +320,17 @@ version = "0.0.0-alpha.0"
 [[package]]
 name = "atom-runtime"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-capability",
+ "atom-effect",
+ "atom-ledger",
+ "atom-mission",
+ "atom-privd",
+ "chrono",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
 
 [[package]]
 name = "atom-scheduler"
