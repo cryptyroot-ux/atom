@@ -3,5 +3,15 @@ name = "atom-effect"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+description = "ATOM v4 effect kernel: durable EffectIntent, one-shot CommitPermit commit boundary and the pure 16-state effect reducer"
 
 [dependencies]
+atom-capability = { path = "../atom-capability" }
+chrono = { version = "0.4", features = ["serde"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha2 = "0.10"
+thiserror = { workspace = true }
+
+[dev-dependencies]
+jsonschema = { version = "0.18.3", default-features = false, features = ["draft202012"] }
