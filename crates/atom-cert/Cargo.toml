@@ -3,5 +3,18 @@ name = "atom-cert"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+description = "ATOM v4 behavior certificate binding manifest/eval/env/verifier; material-change → stale (CER-001)"
 
 [dependencies]
+atom-ledger = { path = "../atom-ledger" }
+atom-evidence = { path = "../atom-evidence" }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+chrono = { version = "0.4", features = ["serde"] }
+hex = "0.4.3"
+sha2 = "0.10.9"
+hmac = "0.12.1"
+
+[lints.rust]
+unsafe_code = "forbid"
