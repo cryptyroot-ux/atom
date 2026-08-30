@@ -1,7 +1,20 @@
-//! atom-privd: Minimal privileged broker: typed ops only, permit-gated, allowlist.
-//! ATOM v4 — normative source is spec/ (precedence 1). This is a G0 skeleton crate.
+//! `atom-privd`: the privilege boundary of the ATOM kernel (KRN-002).
+//!
+//! The main runtime is unprivileged. Every host-administration action it needs
+//! is a typed [`HostOp`] — a closed enum with no "run arbitrary command" — that
+//! it hands to a [`PrivilegeBroker`]. The broker admits an op only after a valid,
+//! one-shot [`atom_effect::CommitPermit`] is spent through the real commit gate,
+//! and only an admitted op reaches the host through a [`HostExecutor`].
+//!
+//! ATOM v4 — the normative source is `spec/` (precedence 1); this crate is one
+//! implementation of it.
 
 #![forbid(unsafe_code)]
 
-/// Placeholder marker so the crate compiles under the G0 spec-freeze skeleton.
-pub const CRATE_STAGE: &str = "G0-skeleton";
+mod broker;
+mod executor;
+mod op;
+
+pub use broker::{AdmissionRequest, Admitted, DenyReason, PrivilegeBroker};
+pub use executor::{ExecError, HostExecutor, OpOutcome};
+pub use op::{HostOp, OpError};

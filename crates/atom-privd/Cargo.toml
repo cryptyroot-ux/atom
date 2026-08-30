@@ -3,5 +3,14 @@ name = "atom-privd"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+description = "ATOM v4 privilege boundary (KRN-002): the unprivileged runtime reaches host administration only through atom-privd typed operations gated by a valid, one-shot CommitPermit"
 
 [dependencies]
+atom-capability = { path = "../atom-capability" }
+atom-effect = { path = "../atom-effect" }
+chrono = { version = "0.4", features = ["serde"] }
+serde = { workspace = true, features = ["derive"] }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }
