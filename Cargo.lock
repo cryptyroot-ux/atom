@@ -217,6 +217,12 @@ version = "0.0.0-alpha.0"
 [[package]]
 name = "atom-fault"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-effect",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
 
 [[package]]
 name = "atom-identity"
