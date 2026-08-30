@@ -227,6 +227,13 @@ dependencies = [
 [[package]]
 name = "atom-policy"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-capability",
+ "chrono",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
 
 [[package]]
 name = "atom-privd"
