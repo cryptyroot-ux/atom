@@ -6,7 +6,7 @@
 #   ./release-artifact.sh [--output-dir DIR] [--artifact-name NAME]
 #
 # Requirements:
-#   - ATOM_SIGNING_KEY_ID and ATOM_SIGNING_KEY must be set in env
+#   - ATOM_SIGNING_KEY_ID and ATOM_SIGNING_SECRET must be set in env
 #   - Runs from repo root (where Cargo.toml lives)
 
 set -euo pipefail
@@ -23,7 +23,7 @@ die() { err "$*"; exit 1; }
 
 # ---- Validate env ----
 [[ -n "${ATOM_SIGNING_KEY_ID:-}" ]] || die "ATOM_SIGNING_KEY_ID not set"
-[[ -n "${ATOM_SIGNING_KEY:-}"  ]] || die "ATOM_SIGNING_KEY not set"
+[[ -n "${ATOM_SIGNING_SECRET:-}"  ]] || die "ATOM_SIGNING_SECRET not set"
 
 # ---- Ensure we're in the repo root ----
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || die "not in a git repo"
@@ -147,7 +147,7 @@ RUST
 # ---- Run the sealer ----
 export BINARY_B64="$BINARY_BYTES"
 export KEY_ID="$ATOM_SIGNING_KEY_ID"
-export SECRET_B64="$(echo -n "$ATOM_SIGNING_KEY" | base64 -w0)"
+export SECRET_B64="$(echo -n "$ATOM_SIGNING_SECRET" | base64 -w0)"
 export BUILDER="foundry"
 export SOURCE_REF="$GIT_COMMIT"
 export BUILD_RECIPE="$BUILD_RECIPE"

@@ -27,12 +27,12 @@ This guide documents how to install and run the `atom` sovereign binary on a fre
 ```bash
 # Required for `atom seal` and `atom verify`
 export ATOM_SIGNING_KEY_ID="my-signing-key-v1"     # arbitrary identifier
-export ATOM_SIGNING_KEY="base64-or-hex-secret"     # the actual secret bytes
+export ATOM_SIGNING_SECRET="base64-or-hex-secret"   # the actual secret bytes
 ```
 
 > **Tip**: Generate a secret once and store it securely:
 > ```bash
-> ATOM_SIGNING_KEY="$(openssl rand -base64 32)"
+> ATOM_SIGNING_SECRET="$(openssl rand -base64 32)"
 > ```
 
 ## Install from Source (Recommended)
@@ -96,7 +96,7 @@ sudo cp atom.service /etc/systemd/system/atom.service
 sudo mkdir -p /etc/atom
 cat <<'EOF' | sudo tee /etc/atom/env
 ATOM_SIGNING_KEY_ID=prod-signing-key
-ATOM_SIGNING_KEY=base64-secret-here
+ATOM_SIGNING_SECRET=base64-secret-here
 EOF
 sudo chmod 600 /etc/atom/env
 
@@ -114,7 +114,7 @@ docker build -t atom:0.0.0-alpha.0 -f Dockerfile .
 # Run (mount signing key env)
 docker run --rm \
   -e ATOM_SIGNING_KEY_ID=prod \
-  -e ATOM_SIGNING_KEY=base64-secret \
+  -e ATOM_SIGNING_SECRET=base64-secret \
   atom:0.0.0-alpha.0 atom --version
 ```
 
@@ -131,7 +131,7 @@ cargo uninstall atom-cli
 |---------|-----|
 | `atom: command not found` | Add `~/.cargo/bin` to `PATH`, or restart shell. |
 | `error: linking with \`cc\` failed` | Install `build-essential` / `base-devel` / `gcc`. |
-| `ATOM_SIGNING_KEY not set` | Export both env vars before running `atom seal/verify`. |
+| `ATOM_SIGNING_SECRET not set` | Export both env vars before running `atom seal/verify`. |
 | `ContentAddressMismatch` | The artifact bytes were modified after sealing — this is expected tamper detection. |
 | `SignatureInvalid` | Wrong signing secret, or artifact was tampered. |
 
