@@ -3,5 +3,13 @@ name = "atom-experience-compiler"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+description = "ATOM v4 Experience Compiler: mines repeated subtrajectories, synthesizes candidates, evaluates on hidden holdout (ATOM-EXP-001/002, VT-011)"
 
 [dependencies]
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+sha2 = { workspace = true }
+
+[dev-dependencies]
+proptest = "1"
