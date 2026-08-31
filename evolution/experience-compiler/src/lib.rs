@@ -17,7 +17,10 @@ pub mod signature;
 
 pub use compiler::ExperienceCompiler;
 pub use recommendation::{HoldoutResult, PolicyRecommendation};
-pub use signature::{CompilerError, CompilerResult, CostSnapshot, ExecutionTrajectory, Polarity, Subtrajectory, TaskSignature, TrajectoryStep};
+pub use signature::{
+    CompilerError, CompilerResult, CostSnapshot, ExecutionTrajectory, Polarity, Subtrajectory,
+    TaskSignature, TrajectoryStep,
+};
 
 /// Current crate stage marker (used by conformance tooling).
 pub const CRATE_STAGE: &str = "G5-Compounding";

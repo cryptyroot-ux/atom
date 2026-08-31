@@ -104,7 +104,9 @@ impl SeparatedEvaluator {
     /// Creates a new evaluator with the given holdout correctness floor.
     #[must_use]
     pub fn new(min_holdout_correctness: f64) -> Self {
-        Self { min_holdout_correctness }
+        Self {
+            min_holdout_correctness,
+        }
     }
 
     /// Decides promotion from a set of evaluation records.
@@ -113,8 +115,15 @@ impl SeparatedEvaluator {
     /// Returns [`EvalError::MissingHoldout`] when no `Holdout` record exists, or
     /// [`EvalError::InsufficientIndependence`] when the best holdout verifier is
     /// below `V2`. INV-017: training evidence alone is NEVER sufficient.
-    pub fn decide(&self, candidate_id: &str, records: &[EvaluationRecord]) -> Result<PromotionDecision, EvalError> {
-        let holdout: Vec<&EvaluationRecord> = records.iter().filter(|r| r.source == EvidenceSource::Holdout).collect();
+    pub fn decide(
+        &self,
+        candidate_id: &str,
+        records: &[EvaluationRecord],
+    ) -> Result<PromotionDecision, EvalError> {
+        let holdout: Vec<&EvaluationRecord> = records
+            .iter()
+            .filter(|r| r.source == EvidenceSource::Holdout)
+            .collect();
         if holdout.is_empty() {
             return Err(EvalError::MissingHoldout(candidate_id.to_owned()));
         }
@@ -122,9 +131,13 @@ impl SeparatedEvaluator {
         if best < 2 {
             return Err(EvalError::InsufficientIndependence(candidate_id.to_owned()));
         }
-        let passed = holdout.iter().all(|r| r.passed && r.correctness_rate >= self.min_holdout_correctness);
+        let passed = holdout
+            .iter()
+            .all(|r| r.passed && r.correctness_rate >= self.min_holdout_correctness);
         if passed {
-            Ok(PromotionDecision::Promote { candidate_id: candidate_id.to_owned() })
+            Ok(PromotionDecision::Promote {
+                candidate_id: candidate_id.to_owned(),
+            })
         } else {
             Ok(PromotionDecision::Block {
                 candidate_id: candidate_id.to_owned(),
@@ -138,7 +151,13 @@ impl SeparatedEvaluator {
 mod tests {
     use super::*;
 
-    fn rec(id: &str, source: EvidenceSource, v: VerifierLabel, rate: f64, passed: bool) -> EvaluationRecord {
+    fn rec(
+        id: &str,
+        source: EvidenceSource,
+        v: VerifierLabel,
+        rate: f64,
+        passed: bool,
+    ) -> EvaluationRecord {
         EvaluationRecord {
             candidate_id: id.to_owned(),
             source,
@@ -151,32 +170,74 @@ mod tests {
     #[test]
     fn blocks_without_holdout_evidence() {
         let ev = SeparatedEvaluator::new(0.95);
-        let records = vec![rec("cap1", EvidenceSource::Training, VerifierLabel::V5, 1.0, true)];
-        assert!(matches!(ev.decide("cap1", &records), Err(EvalError::MissingHoldout(_))));
+        let records = vec![rec(
+            "cap1",
+            EvidenceSource::Training,
+            VerifierLabel::V5,
+            1.0,
+            true,
+        )];
+        assert!(matches!(
+            ev.decide("cap1", &records),
+            Err(EvalError::MissingHoldout(_))
+        ));
     }
 
     #[test]
     fn blocks_with_self_verified_holdout_only() {
         let ev = SeparatedEvaluator::new(0.95);
         // Holdout exists but verifier is V0 (self) -> insufficient independence.
-        let records = vec![rec("cap1", EvidenceSource::Holdout, VerifierLabel::V0, 1.0, true)];
-        assert!(matches!(ev.decide("cap1", &records), Err(EvalError::InsufficientIndependence(_))));
+        let records = vec![rec(
+            "cap1",
+            EvidenceSource::Holdout,
+            VerifierLabel::V0,
+            1.0,
+            true,
+        )];
+        assert!(matches!(
+            ev.decide("cap1", &records),
+            Err(EvalError::InsufficientIndependence(_))
+        ));
     }
 
     #[test]
     fn promotes_with_independent_holdout() {
         let ev = SeparatedEvaluator::new(0.95);
         let records = vec![
-            rec("cap1", EvidenceSource::Training, VerifierLabel::V5, 1.0, true),
-            rec("cap1", EvidenceSource::Holdout, VerifierLabel::V3, 0.98, true),
+            rec(
+                "cap1",
+                EvidenceSource::Training,
+                VerifierLabel::V5,
+                1.0,
+                true,
+            ),
+            rec(
+                "cap1",
+                EvidenceSource::Holdout,
+                VerifierLabel::V3,
+                0.98,
+                true,
+            ),
         ];
-        assert!(matches!(ev.decide("cap1", &records), Ok(PromotionDecision::Promote { .. })));
+        assert!(matches!(
+            ev.decide("cap1", &records),
+            Ok(PromotionDecision::Promote { .. })
+        ));
     }
 
     #[test]
     fn blocks_when_holdout_fails_correctness() {
         let ev = SeparatedEvaluator::new(0.95);
-        let records = vec![rec("cap1", EvidenceSource::Holdout, VerifierLabel::V3, 0.80, false)];
-        assert!(matches!(ev.decide("cap1", &records), Ok(PromotionDecision::Block { .. })));
+        let records = vec![rec(
+            "cap1",
+            EvidenceSource::Holdout,
+            VerifierLabel::V3,
+            0.80,
+            false,
+        )];
+        assert!(matches!(
+            ev.decide("cap1", &records),
+            Ok(PromotionDecision::Block { .. })
+        ));
     }
 }

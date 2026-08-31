@@ -96,12 +96,19 @@ fn coverage_manifest_matches_harness_registry() {
 
     assert_eq!(coverage.spec_version, catalog.spec_version);
     let covered_ids: Vec<&str> = coverage.covered.iter().map(|c| c.id.as_str()).collect();
-    assert_eq!(covered_ids, COVERED_TESTS, "coverage ids drifted from registry");
+    assert_eq!(
+        covered_ids, COVERED_TESTS,
+        "coverage ids drifted from registry"
+    );
     for entry in &coverage.covered {
         let test = catalog
             .get(&entry.id)
             .unwrap_or_else(|| panic!("{} not in catalog", entry.id));
-        assert_eq!(entry.name, test.name, "coverage name drift for {}", entry.id);
+        assert_eq!(
+            entry.name, test.name,
+            "coverage name drift for {}",
+            entry.id
+        );
         assert!(!entry.crate_under_test.is_empty());
         assert!(!entry.pass_criterion.is_empty());
     }
@@ -111,10 +118,16 @@ fn coverage_manifest_matches_harness_registry() {
 fn vt011_mixed_holdout_passes_but_no_baseline_control_fails() {
     let training = vt011_repeated_task_family();
 
-    let passing =
-        evaluate_repeated_task_learning(&training, &vt011_mixed_holdout(), "conformance-repeated-task")
-            .expect("mixed holdout yields an outcome");
-    assert!(vt011_passes(&passing), "canonical holdout must pass: {passing:?}");
+    let passing = evaluate_repeated_task_learning(
+        &training,
+        &vt011_mixed_holdout(),
+        "conformance-repeated-task",
+    )
+    .expect("mixed holdout yields an outcome");
+    assert!(
+        vt011_passes(&passing),
+        "canonical holdout must pass: {passing:?}"
+    );
 
     // Control: with no baseline trajectories the compiler cannot measure a cost
     // drop, so the check must not pass — proving VT-011 is not a rubber stamp.

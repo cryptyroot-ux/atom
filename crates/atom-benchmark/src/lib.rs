@@ -348,11 +348,7 @@ impl BenchmarkRun {
     /// evaluation loop: every task is attempted and checked against its expected
     /// answer; the score is the measured pass-rate, not a hash of the manifest.
     #[must_use]
-    pub fn execute<F>(
-        manifest: &BenchmarkManifest,
-        suite: &[BenchmarkTask],
-        mut sut_for: F,
-    ) -> Self
+    pub fn execute<F>(manifest: &BenchmarkManifest, suite: &[BenchmarkTask], mut sut_for: F) -> Self
     where
         F: FnMut(&Track) -> Box<dyn SystemUnderTest>,
     {
@@ -465,7 +461,9 @@ pub fn evaluate_superiority(
         return Err(BenchmarkError::Inv020Unmet("fewer than 3 seeds"));
     }
     if !manifest.budgets.comparable_across_tracks {
-        return Err(BenchmarkError::Inv020Unmet("budgets not comparable across tracks"));
+        return Err(BenchmarkError::Inv020Unmet(
+            "budgets not comparable across tracks",
+        ));
     }
     if manifest.fault_scenarios.is_empty() {
         return Err(BenchmarkError::Inv020Unmet("no fault/attack scenarios"));
@@ -492,7 +490,11 @@ pub fn evaluate_superiority(
         manifest_digest: run.manifest_digest.clone(),
         winner_track: best.track.clone(),
         loser_track: worst.track.clone(),
-        metric: manifest.metrics.first().cloned().unwrap_or_else(|| "score".to_string()),
+        metric: manifest
+            .metrics
+            .first()
+            .cloned()
+            .unwrap_or_else(|| "score".to_string()),
         delta,
         ci95_low: best.ci95_low,
         ci95_high: best.ci95_high,

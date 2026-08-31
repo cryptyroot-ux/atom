@@ -56,10 +56,8 @@ impl CorrectnessCompare {
         policy: &CorrectnessPolicy,
     ) -> CorrectnessCheckResult {
         let sources: std::collections::HashSet<&String> = capability.source_traces.iter().collect();
-        let used: Vec<&DeliberativeTrace> = traces
-            .iter()
-            .filter(|t| sources.contains(&t.id))
-            .collect();
+        let used: Vec<&DeliberativeTrace> =
+            traces.iter().filter(|t| sources.contains(&t.id)).collect();
 
         let verified = used
             .iter()
@@ -110,7 +108,9 @@ mod tests {
             c.record_trace(trace(&format!("t{i}"), true, VerifierLevel::V3));
         }
         let cap = c.compile("summarize").unwrap();
-        let traces: Vec<DeliberativeTrace> = (0..5).map(|i| trace(&format!("t{i}"), true, VerifierLevel::V3)).collect();
+        let traces: Vec<DeliberativeTrace> = (0..5)
+            .map(|i| trace(&format!("t{i}"), true, VerifierLevel::V3))
+            .collect();
         let r = CorrectnessCompare::evaluate(&cap, &traces, &CorrectnessPolicy::default());
         assert!(r.preserved);
         assert!((r.observed_rate - 1.0).abs() < f64::EPSILON);
@@ -124,7 +124,9 @@ mod tests {
             c.record_trace(trace(&format!("s{i}"), true, VerifierLevel::V0));
         }
         let cap = c.compile("summarize").unwrap();
-        let traces: Vec<DeliberativeTrace> = (0..5).map(|i| trace(&format!("s{i}"), true, VerifierLevel::V0)).collect();
+        let traces: Vec<DeliberativeTrace> = (0..5)
+            .map(|i| trace(&format!("s{i}"), true, VerifierLevel::V0))
+            .collect();
         let r = CorrectnessCompare::evaluate(&cap, &traces, &CorrectnessPolicy::default());
         assert!(!r.preserved);
         assert_eq!(r.verified_traces, 0);
@@ -137,7 +139,13 @@ mod tests {
         let cap = CompiledCapability {
             id: "cap-mixed".to_owned(),
             task_family: "summarize".to_owned(),
-            source_traces: vec!["v0".to_owned(), "v1".to_owned(), "v2".to_owned(), "b0".to_owned(), "b1".to_owned()],
+            source_traces: vec![
+                "v0".to_owned(),
+                "v1".to_owned(),
+                "v2".to_owned(),
+                "b0".to_owned(),
+                "b1".to_owned(),
+            ],
             tokens_per_call: 500,
             model_calls_per_invocation: 3,
             evolution_stage: atom_evolution::Stage::Lab,

@@ -93,7 +93,10 @@ pub fn runtime_suite() -> Vec<BenchmarkTask> {
         .enumerate()
         .map(|(i, s)| BenchmarkTask {
             id: s.id.to_owned(),
-            prompt: format!("drive an atom-runtime mission to terminal (scenario={})", s.id),
+            prompt: format!(
+                "drive an atom-runtime mission to terminal (scenario={})",
+                s.id
+            ),
             expected: s.expected.to_owned(),
             cost_tokens: 100 + (i as u64) * 10,
         })
@@ -230,4 +233,3 @@ pub fn execute_runtime(manifest: &BenchmarkManifest, suite: &[BenchmarkTask]) ->
 pub fn benchmark_atom_runtime() -> BenchmarkRun {
     execute_runtime(&BenchmarkManifest::example(), &runtime_suite())
 }
-

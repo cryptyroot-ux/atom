@@ -71,7 +71,13 @@ pub struct HoldoutResult {
 impl HoldoutResult {
     /// Creates a new holdout result.
     #[must_use]
-    pub fn new(passed: bool, test_cases: usize, passed_cases: usize, cost_improvement_ratio: f64, correctness_ratio: f64) -> Self {
+    pub fn new(
+        passed: bool,
+        test_cases: usize,
+        passed_cases: usize,
+        cost_improvement_ratio: f64,
+        correctness_ratio: f64,
+    ) -> Self {
         Self {
             passed,
             test_cases,

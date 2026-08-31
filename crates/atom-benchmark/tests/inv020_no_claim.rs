@@ -47,7 +47,9 @@ fn claim_refused_with_noncomparable_budgets() {
     let run = BenchmarkRun::new(&m2);
     assert_eq!(
         evaluate_superiority(&m2, &run),
-        Err(BenchmarkError::Inv020Unmet("budgets not comparable across tracks"))
+        Err(BenchmarkError::Inv020Unmet(
+            "budgets not comparable across tracks"
+        ))
     );
 }
 

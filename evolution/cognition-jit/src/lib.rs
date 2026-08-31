@@ -17,6 +17,4 @@ pub mod correctness;
 pub mod jit;
 
 pub use correctness::{CorrectnessCheckResult, CorrectnessCompare, CorrectnessPolicy};
-pub use jit::{
-    CognitionJitCompiler, CompiledCapability, DeliberativeTrace, JitError, TaskFamily,
-};
+pub use jit::{CognitionJitCompiler, CompiledCapability, DeliberativeTrace, JitError, TaskFamily};

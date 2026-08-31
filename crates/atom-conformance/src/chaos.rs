@@ -72,9 +72,7 @@ pub fn chaos_path(root: &Path) -> PathBuf {
 /// # Errors
 /// Returns [`ConformanceError::Read`] / [`ConformanceError::ParseJson`] on I/O
 /// or decode failure, and [`ConformanceError::Chaos`] on a schema mismatch.
-pub fn load_canary_regression(
-    root: &Path,
-) -> Result<CanaryRegressionScenario, ConformanceError> {
+pub fn load_canary_regression(root: &Path) -> Result<CanaryRegressionScenario, ConformanceError> {
     let path = chaos_path(root);
     let bytes = fs::read(&path).map_err(|source| ConformanceError::Read {
         path: path.clone(),

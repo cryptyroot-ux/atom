@@ -42,7 +42,10 @@ fn score_is_real_not_a_rubber_stamp() {
 /// Same manifest + same suite => identical run digest (VT-015-style reproducibility).
 #[test]
 fn runtime_run_is_reproducible() {
-    assert_eq!(benchmark_atom_runtime().digest(), benchmark_atom_runtime().digest());
+    assert_eq!(
+        benchmark_atom_runtime().digest(),
+        benchmark_atom_runtime().digest()
+    );
 }
 
 /// Each canonical outcome (SUCCEEDED / FAILED / CANCELLED / BLOCKED) is produced

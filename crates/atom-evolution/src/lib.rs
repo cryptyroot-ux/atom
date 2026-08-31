@@ -194,8 +194,10 @@ impl ProposedChange {
     pub fn assert_no_self_promotion(&self) -> Result<(), EvolutionError> {
         // EVO-002: trusted-core (E7) or authority/policy (E8) changes MUST NOT
         // self-promote from production cognition.
-        let forbidden_class =
-            matches!(self.class, ChangeClass::TrustedCore | ChangeClass::AuthorityPolicy);
+        let forbidden_class = matches!(
+            self.class,
+            ChangeClass::TrustedCore | ChangeClass::AuthorityPolicy
+        );
         if forbidden_class && self.origin == ChangeOrigin::ProductionCognition {
             return Err(EvolutionError::SelfPromotionForbidden {
                 class: self.class,

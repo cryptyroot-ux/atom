@@ -6,7 +6,7 @@
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::evaluator::{EvidenceSource, EvaluationRecord, VerifierLabel};
+use crate::evaluator::{EvaluationRecord, EvidenceSource, VerifierLabel};
 
 /// Difficulty tier of a holdout case. Higher tiers stress edge behaviors.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
