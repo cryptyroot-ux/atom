@@ -1,13 +1,13 @@
-# ATOM.0-alpha Release Notes
+# ATOM 0.0.0-alpha.0 Release Notes
 
 **Release Date:** 2026-08-31
 **Tag:** 0.0.0-alpha.0
-**Commit:** 14c7a7d
+**Commit:** c2d0c52
 **License:** Apache-2.0
 
 ## Summary
 
-ATOM.0-alpha is the first complete implementation of the Sovereign Recursive Agent Architecture — a Rust workspace implementing 26 crates that enforce the boundary between probabilistic cognition and authoritative state mutation.
+ATOM 0.0.0-alpha.0 is the first complete implementation of the Sovereign Recursive Agent Architecture — a Rust workspace implementing 26 crates that enforce the boundary between probabilistic cognition and authoritative state mutation.
 
 This is an **alpha release** of the core runtime. Research tracks (Foundry, Evolution, Benchmark, Experience Compiler, JIT, Architecture Learner) and UI/API surface are deferred to future releases.
 
@@ -56,11 +56,22 @@ This is an **alpha release** of the core runtime. Research tracks (Foundry, Evol
 - OWASP Agentic Top 10 crosswalk
 - G0 release checklist
 
-### Test Evidence
+### CLI & Packaging
+
+- `atom` binary with `run`, `seal`, `verify`
+- `cargo install --path cli/atom-cli`
+- Dockerfile (distroless)
+- systemd unit (`pkg/atom.service`)
+- Installation guide (`pkg/INSTALL.md`)
+- Smoke test script (`scripts/deploy-smoke-test.sh`)
+
+### Verified Evidence
 
 ```
-cargo test --workspace: 363 passed, 0 failed
-cargo clippy --workspace: 0 warnings
+cargo test --workspace: 374 passed, 0 failed
+cargo clippy --workspace --all-targets -- -D warnings: 0 warnings
+GitHub Actions CI: Build/Test/Clippy/Secret scan green
+Smoke test: 10/10 passed
 ```
 
 ### Dependencies
@@ -69,19 +80,18 @@ cargo clippy --workspace: 0 warnings
 
 ## What's NOT Included (Deferred)
 
-| Area | Crate | Status |
-|------|-------|--------|
-| Capability Foundry | atom-foundry | Designed, not built (P1) |
-| Evolution | atom-evolution | Designed, not built (P1) |
-| Benchmark | atom-benchmark | Designed, not built (P1) |
-| Experience Compiler | atom-experience | Designed, not built (P1) |
-| Cognition JIT | atom-jit | Designed, not built (P1) |
-| Architecture Learner | atom-learner | Designed, not built (P1) |
-| API/CLI | atom-api | Designed, not built (P1) |
-| Mission Control PWA | atom-ui | Designed, not built (P1) |
-| Signed release bundle | — | Deferred (H-08) |
-| Installer/update trust | — | Deferred (H-07) |
-| v3.1 disposition ledger | — | Deferred (H-01) |
+| Area | Status |
+|------|--------|
+| API server / persistent daemon | Not implemented in alpha |
+| Capability Foundry | Designed, not built (P1) |
+| Evolution | Designed, not built (P1) |
+| Benchmark | Designed, not built (P1) |
+| Experience Compiler | Designed, not built (P1) |
+| Cognition JIT | Designed, not built (P1) |
+| Architecture Learner | Designed, not built (P1) |
+| Signed release bundle | Deferred |
+| Installer/update trust | Deferred |
+| v3.1 disposition ledger | Deferred |
 
 ## Claims Policy
 
@@ -95,10 +105,11 @@ Per INV-020: No superiority claim is valid without pinned versions, comparable b
 - Vulnerability reporting: `SECURITY.md`
 - All crates: `#![forbid(unsafe_code)]`
 - Root shell exec: denied by default
+- Secret scan: CI-enforced
 
 ## Upgrade Path
 
-This is the initial release. No upgrade path from prior versions.
+This is the initial alpha release. No upgrade path from prior versions.
 
 ## Acknowledgments
 
@@ -108,7 +119,7 @@ Built via multi-agent orchestration:
 - **Codex** (Engineer) — Ledger, mission, scheduler, provider, restore, runtime
 - **OpenCode** (Challenger) — Capability, effect, policy, secret, approval, context, claim, evidence, replay, target, connector, memory, worker, adapter, artifact
 
-## Links
+## Artifacts
 
 - Repository: https://github.com/cryptyroot-ux/atom
 - Spec: `spec/` directory
