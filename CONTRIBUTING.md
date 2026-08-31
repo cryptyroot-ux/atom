@@ -109,7 +109,7 @@ Commit message format:
 
 ### Rust Style
 
-- Edition 2021
+- Edition 2021 (workspace default; new crates may use 2024 idioms)
 - `#![forbid(unsafe_code)]` in all crates
 - `#[must_use]` on pure functions
 - `thiserror` for error types

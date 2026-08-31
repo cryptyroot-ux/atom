@@ -10,6 +10,8 @@
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![release](https://img.shields.io/badge/release-0.0.0--alpha.0-orange)](https://github.com/cryptyroot-ux/atom/releases/tag/0.0.0-alpha.0)
 [![rust](https://img.shields.io/badge/rust-edition%202022-93450a)](https://www.rust-lang.org/)
+[![CI](https://github.com/cryptyroot-ux/atom/actions/workflows/ci.yml/badge.svg)](https://github.com/cryptyroot-ux/atom/actions/workflows/ci.yml)
+[![CoC](https://img.shields.io/badge/code%20of%20conduct-Contributor%20Covenant-blueviolet)](CODE_OF_CONDUCT.md)
 
 ![ATOM logo](assets/logo.png)
 
@@ -94,6 +96,23 @@ atom run
 See [`spec/`](spec/) for the authoritative machine-readable contracts
 (schemas, state-machines, enums, requirements, invariants).
 
+## How ATOM differs
+
+Most agent frameworks treat the model as trusted: it plans, it calls tools, it
+mutates state. ATOM does not. The difference is architectural, not cosmetic:
+
+| Property | Typical agent framework | ATOM |
+|---|---|---|
+| Who can mutate state | The model, directly | A single unbypassable kernel |
+| Mutation authority | Implicit / ambient | Typed capability grants + commit-time revalidation |
+| Memory of what happened | Chat log / DB writes | Append-only hash-chained ledger (tamper-evident) |
+| Untrusted input | Flows through | Non-launderable taint labels govern disclosure |
+| Unsafe code | Varies | `#![forbid(unsafe_code)]` in every crate |
+| Evidence | Vibes | Claims + provenance + deterministic replay |
+
+The result is an agent that can **recursively grow its own capabilities** without
+ever growing its own authority — and leaves an auditable trail of every mutation.
+
 ## Layout
 
 ```
@@ -108,3 +127,9 @@ sdk/atom-sdk   typed clients for the /v1 API
 ## License
 
 Licensed under the [Apache License, Version 2.0](LICENSE).
+
+## Governance & Conduct
+
+- [GOVERNANCE.md](GOVERNANCE.md) — roles, decision process, release policy
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Contributor Covenant v2.1
+- [SECURITY.md](SECURITY.md) — vulnerability disclosure process

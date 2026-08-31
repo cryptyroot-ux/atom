@@ -4,8 +4,7 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| 0.0.0-alpha.0 | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
@@ -63,7 +62,7 @@ Currently no formal bug bounty program. Critical findings may receive discretion
 
 ## Security Architecture
 
-ATOM implements defense-in-depth per the Architecture Constitution v4.0:
+ATOM implements defense-in-depth per the Architecture Constitution (normative in `spec/`):
 
 - **Sovereign Boundary:** Cognition proposes → Authority permits → Reality determines (INV-001)
 - **Effect Integrity:** Durable intent before dispatch, commit-time revalidation (INV-004)

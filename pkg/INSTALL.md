@@ -1,4 +1,4 @@
-# ATOM v4 Installation Guide (G4 Foundry)
+# ATOM Installation Guide (G4 Foundry)
 
 This guide documents how to install and run the `atom` sovereign binary on a fresh machine.
 
@@ -47,7 +47,7 @@ cargo install --path cli/atom-cli --locked
 
 # 3. Verify installation
 atom --version
-# → atom 0.0.0-alpha.0 (ATOM v4.0-alpha)
+# → atom 0.0.0-alpha.0
 ```
 
 The binary is installed to `~/.cargo/bin/atom` (ensure `~/.cargo/bin` is in your `PATH`).
@@ -109,13 +109,13 @@ sudo systemctl enable --now atom
 
 ```bash
 # Build image
-docker build -t atom:v4.0-alpha -f Dockerfile .
+docker build -t atom:0.0.0-alpha.0 -f Dockerfile .
 
 # Run (mount signing key env)
 docker run --rm \
   -e ATOM_SIGNING_KEY_ID=prod \
   -e ATOM_SIGNING_KEY=base64-secret \
-  atom:v4.0-alpha atom --version
+  atom:0.0.0-alpha.0 atom --version
 ```
 
 ## Uninstall

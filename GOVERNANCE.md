@@ -25,7 +25,7 @@ Contributors are expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md) an
 ### Architecture Decisions
 
 - Recorded in `spec/` as ADR (Architecture Decision Records)
-- ADR-001 through ADR-040 are normative for v4.0
+- ADR-001 through ADR-040 are normative for the current architecture.
 - New ADRs require Trusted Core approval
 - ADRs are immutable once accepted; supersession is by new ADR
 
