@@ -1,0 +1,575 @@
+openapi: 3.1.0
+info:
+  title: ATOM Sovereign Agent Runtime API
+  description: |
+    ATOM v4.0-alpha — Sovereign Recursive Agent Architecture.
+    
+    This API exposes the runtime surface for mission control, effect dispatch,
+    capability management, and evidence retrieval. All mutation paths traverse
+    the sovereign kernel boundary (authorize → commit).
+    
+    ## Authentication
+    - Bearer token (JWT) for PWA/CLI clients
+    - mTLS for inter-service communication
+    - API key for development/testing only
+    
+    ## Idempotency
+    All mutation endpoints accept `Idempotency-Key` header.
+    Duplicate requests with the same key return the original response.
+    
+    ## Error Format
+    Errors follow RFC 9457 (Problem Details):
+    ```json
+    {
+      "type": "https://atom.dev/errors/kernel-denied",
+      "title": "Kernel Authorization Denied",
+      "status": 403,
+      "detail": "Capability grant does not cover requested operation",
+      "instance": "/missions/abc123/effects/def456"
+    }
+    ```
+  version: 4.0.0-alpha
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: Crypty Root
+    url: https://github.com/cryptyroot-ux/atom
+
+servers:
+  - url: http://localhost:8420
+    description: Local development
+  - url: https://api.atom.dev
+    description: Production (future)
+
+tags:
+  - name: missions
+    description: Mission lifecycle management
+  - name: effects
+    description: Effect intent dispatch and reconciliation
+  - name: capabilities
+    description: Capability grant management
+  - name: evidence
+    description: Evidence and observation retrieval
+  - name: ledger
+    description: Tamper-evident event store
+  - name: secrets
+    description: Brokered secret handle management
+  - name: health
+    description: System health and readiness
+
+paths:
+  /health:
+    get:
+      tags: [health]
+      summary: Health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: System healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, degraded, unhealthy]
+                  version:
+                    type: string
+                    example: "4.0.0-alpha"
+                  uptime_seconds:
+                    type: integer
+                  crates_loaded:
+                    type: integer
+                    example: 26
+
+  /ready:
+    get:
+      tags: [health]
+      summary: Readiness check
+      operationId: getReady
+      responses:
+        '200':
+          description: System ready to accept missions
+        '503':
+          description: System not ready
+
+  /missions:
+    get:
+      tags: [missions]
+      summary: List missions
+      operationId: listMissions
+      parameters:
+        - name: state
+          in: query
+          schema:
+            type: string
+            enum: [CREATED, RUNNING, SUCCEEDED, FAILED, CANCELLED, BLOCKED]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Mission list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  missions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Mission'
+                  total:
+                    type: integer
+
+    post:
+      tags: [missions]
+      summary: Create mission
+      operationId: createMission
+      description: |
+        Creates a new mission. The mission enters CREATED state and must be
+        authorized by the kernel before any effects can be dispatched.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MissionCreate'
+      responses:
+        '201':
+          description: Mission created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mission'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/KernelDenied'
+
+  /missions/{mission_id}:
+    get:
+      tags: [missions]
+      summary: Get mission
+      operationId: getMission
+      parameters:
+        - $ref: '#/components/parameters/MissionId'
+      responses:
+        '200':
+          description: Mission details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mission'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /missions/{mission_id}/cancel:
+    post:
+      tags: [missions]
+      summary: Cancel mission
+      operationId: cancelMission
+      description: |
+        Requests cancellation. Mission enters CANCELLED only when all owned
+        consequential effects are reconciled (INV-013).
+      parameters:
+        - $ref: '#/components/parameters/MissionId'
+      responses:
+        '200':
+          description: Cancellation requested
+        '409':
+          description: Mission has unreconciled effects
+
+  /effects:
+    post:
+      tags: [effects]
+      summary: Dispatch effect intent
+      operationId: dispatchEffect
+      description: |
+        Dispatches an effect intent. Requires valid CommitPermit bound to
+        the exact effect digest, principal, grant generation, and resource
+        witness (EFX-004).
+        
+        Ambiguous outcomes enter UNKNOWN_OUTCOME and block dependent
+        mutations until reconciled (EFX-003).
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EffectIntent'
+      responses:
+        '201':
+          description: Effect dispatched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EffectResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/KernelDenied'
+        '409':
+          description: Effect already dispatched (idempotency hit)
+
+  /effects/{effect_id}:
+    get:
+      tags: [effects]
+      summary: Get effect status
+      operationId: getEffect
+      parameters:
+        - name: effect_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Effect details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EffectResult'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /capabilities:
+    get:
+      tags: [capabilities]
+      summary: List capability grants
+      operationId: listCapabilities
+      parameters:
+        - name: subject_id
+          in: query
+          schema:
+            type: string
+        - name: active_only
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Capability grant list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  grants:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CapabilityGrant'
+
+  /evidence:
+    get:
+      tags: [evidence]
+      summary: List evidence observations
+      operationId: listEvidence
+      parameters:
+        - name: claim_id
+          in: query
+          schema:
+            type: string
+        - name: taint
+          in: query
+          schema:
+            type: string
+            enum: [trusted, untrusted, adversarial]
+      responses:
+        '200':
+          description: Evidence list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  observations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Observation'
+
+  /ledger/events:
+    get:
+      tags: [ledger]
+      summary: List ledger events
+      operationId: listLedgerEvents
+      parameters:
+        - name: since_checkpoint
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Ledger event list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LedgerEvent'
+                  checkpoint:
+                    type: integer
+
+  /secrets:
+    post:
+      tags: [secrets]
+      summary: Create secret handle
+      operationId: createSecret
+      description: |
+        Creates a brokered secret handle. Secrets are never returned in
+        plaintext; the handle is used to reference the secret in effect
+        dispatch (INV-006).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, scope]
+              properties:
+                name:
+                  type: string
+                scope:
+                  type: string
+                  enum: [mission, worker, global]
+                ttl_seconds:
+                  type: integer
+      responses:
+        '201':
+          description: Secret handle created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecretHandle'
+
+components:
+  parameters:
+    MissionId:
+      name: mission_id
+      in: path
+      required: true
+      schema:
+        type: string
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+        format: uuid
+      description: Idempotency key for mutation deduplication
+
+  schemas:
+    Mission:
+      type: object
+      properties:
+        mission_id:
+          type: string
+        state:
+          type: string
+          enum: [CREATED, READY, RUNNING, WAITING, APPROVAL_REQUIRED, PAUSED, DEGRADED, BLOCKED, SUCCEEDED, FAILED, CANCELLED, UNSATISFIABLE, REJECTED]
+        goal:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    MissionCreate:
+      type: object
+      required: [goal]
+      properties:
+        goal:
+          type: string
+          minLength: 1
+        context:
+          type: object
+        priority:
+          type: string
+          enum: [low, normal, high, critical]
+
+    EffectIntent:
+      type: object
+      required: [effect_id, mission_id, capability_id, target_id, request_digest, effect_class, risk_class]
+      properties:
+        effect_id:
+          type: string
+        mission_id:
+          type: string
+        capability_id:
+          type: string
+        target_id:
+          type: string
+        request_digest:
+          type: string
+          description: Canonical request digest (SHA-256)
+        external_operation_id:
+          type: [string, 'null']
+        effect_class:
+          type: string
+        risk_class:
+          type: string
+        idempotency:
+          type: object
+        preconditions:
+          type: array
+          items:
+            type: object
+        postconditions:
+          type: array
+          items:
+            type: object
+        reconciliation:
+          type: object
+        compensation:
+          type: [object, 'null']
+        dependencies:
+          type: array
+          items:
+            type: string
+
+    EffectResult:
+      type: object
+      properties:
+        effect_id:
+          type: string
+        state:
+          type: string
+          enum: [PENDING, DISPATCHED, UNKNOWN_OUTCOME, SUCCEEDED, FAILED, COMPENSATING, COMPENSATED]
+        dispatched_at:
+          type: string
+          format: date-time
+        reconciled_at:
+          type: [string, 'null']
+          format: date-time
+
+    CapabilityGrant:
+      type: object
+      properties:
+        grant_id:
+          type: string
+        subject_id:
+          type: string
+        workload_id:
+          type: string
+        operations:
+          type: array
+          items:
+            type: string
+        resources:
+          type: object
+        validity:
+          type: object
+        delegation_depth:
+          type: integer
+        generation:
+          type: integer
+
+    Observation:
+      type: object
+      properties:
+        observation_id:
+          type: string
+        claim_id:
+          type: string
+        taint:
+          type: string
+          enum: [trusted, untrusted, adversarial]
+        content:
+          type: string
+        observed_at:
+          type: string
+          format: date-time
+        provenance:
+          type: object
+
+    LedgerEvent:
+      type: object
+      properties:
+        event_id:
+          type: integer
+        event_type:
+          type: string
+        payload_hash:
+          type: string
+        previous_hash:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    SecretHandle:
+      type: object
+      properties:
+        handle_id:
+          type: string
+        name:
+          type: string
+        scope:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: [string, 'null']
+          format: date-time
+
+    ProblemDetail:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+    KernelDenied:
+      description: Kernel authorization denied
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+    NotFound:
+      description: Resource not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'

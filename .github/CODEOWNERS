@@ -1,0 +1,46 @@
+# ATOM Code Owners
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything
+* @cryptyroot-ux
+
+# Spec and architecture
+/spec/ @cryptyroot-ux
+/spec/schemas/ @cryptyroot-ux
+/spec/security/ @cryptyroot-ux
+/spec/traceability.yaml @cryptyroot-ux
+/spec/g0-release-checklist.yaml @cryptyroot-ux
+
+# Sovereign kernel (security-critical)
+/crates/atom-kernel/ @cryptyroot-ux
+/crates/atom-capability/ @cryptyroot-ux
+/crates/atom-approval/ @cryptyroot-ux
+
+# Effect system (security-critical)
+/crates/atom-effect/ @cryptyroot-ux
+
+# Secrets and privilege (security-critical)
+/crates/atom-secret/ @cryptyroot-ux
+/crates/atom-privd/ @cryptyroot-ux
+/crates/atom-identity/ @cryptyroot-ux
+
+# Ledger (tamper-evidence)
+/crates/atom-ledger/ @cryptyroot-ux
+
+# Context and taint (security-critical)
+/crates/atom-context/ @cryptyroot-ux
+
+# Certification and supply chain
+/crates/atom-cert/ @cryptyroot-ux
+/crates/atom-artifact/ @cryptyroot-ux
+
+# Build and CI
+/Cargo.toml @cryptyroot-ux
+/Cargo.lock @cryptyroot-ux
+/.github/ @cryptyroot-ux
+
+# Governance and legal
+/LICENSE @cryptyroot-ux
+/GOVERNANCE.md @cryptyroot-ux
+/SECURITY.md @cryptyroot-ux
+/CONTRIBUTING.md @cryptyroot-ux
