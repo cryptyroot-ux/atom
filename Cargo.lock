@@ -146,6 +146,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "atom-benchmark"
+version = "0.0.0-alpha.0"
+dependencies = [
+ "chrono",
+ "hex",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror 1.0.69",
+]
+
+[[package]]
 name = "atom-capability"
 version = "0.0.0-alpha.0"
 dependencies = [
@@ -271,6 +283,17 @@ version = "0.0.0-alpha.0"
 name = "atom-evidence"
 version = "0.0.0-alpha.0"
 dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "atom-evolution"
+version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-capability",
  "chrono",
  "serde",
  "serde_json",

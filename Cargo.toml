@@ -39,6 +39,8 @@ members = [
     "adapters/openclaw",
     "cli/atom-cli",
     "sdk/atom-sdk",
+    "crates/atom-benchmark",
+    "crates/atom-evolution",
 ]
 
 [workspace.package]
