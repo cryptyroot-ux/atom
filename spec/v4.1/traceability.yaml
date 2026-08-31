@@ -1,0 +1,2053 @@
+spec_version: 4.1.0
+traceability:
+- requirement: ATOM-V4-KRN-001
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-014
+  decision: ATOM-ADR41-KRN
+  contracts:
+  - spec/schemas/capability-contract.schema.json
+  - spec/schemas/policy-decision.schema.json
+  test: ATOM-VT41-001
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-KRN-001.json
+- requirement: ATOM-V4-KRN-002
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-014
+  decision: ATOM-ADR41-KRN
+  contracts:
+  - spec/schemas/capability-contract.schema.json
+  - spec/schemas/policy-decision.schema.json
+  test: ATOM-VT41-002
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-KRN-002.json
+- requirement: ATOM-V4-AUT-001
+  invariants:
+  - ATOM-INV-003
+  - ATOM-INV-005
+  - ATOM-INV-012
+  - ATOM-INV-018
+  decision: ATOM-ADR41-AUT
+  contracts:
+  - spec/schemas/capability-grant.schema.json
+  - spec/schemas/approval-grant.schema.json
+  - spec/schemas/policy-decision.schema.json
+  - spec/schemas/obligation.schema.json
+  - spec/state-machines/grant.yaml
+  - spec/state-machines/approval.yaml
+  test: ATOM-VT41-003
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-AUT-001.json
+- requirement: ATOM-V4-AUT-002
+  invariants:
+  - ATOM-INV-003
+  - ATOM-INV-005
+  - ATOM-INV-012
+  - ATOM-INV-018
+  decision: ATOM-ADR41-AUT
+  contracts:
+  - spec/schemas/capability-grant.schema.json
+  - spec/schemas/approval-grant.schema.json
+  - spec/schemas/policy-decision.schema.json
+  - spec/schemas/obligation.schema.json
+  - spec/state-machines/grant.yaml
+  - spec/state-machines/approval.yaml
+  test: ATOM-VT41-004
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-AUT-002.json
+- requirement: ATOM-V4-AUT-003
+  invariants:
+  - ATOM-INV-003
+  - ATOM-INV-005
+  - ATOM-INV-012
+  - ATOM-INV-018
+  decision: ATOM-ADR41-AUT
+  contracts:
+  - spec/schemas/capability-grant.schema.json
+  - spec/schemas/approval-grant.schema.json
+  - spec/schemas/policy-decision.schema.json
+  - spec/schemas/obligation.schema.json
+  - spec/state-machines/grant.yaml
+  - spec/state-machines/approval.yaml
+  test: ATOM-VT41-005
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-AUT-003.json
+- requirement: ATOM-V4-EFX-001
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-004
+  - ATOM-INV-005
+  - ATOM-INV-010
+  - ATOM-INV-013
+  decision: ATOM-ADR41-EFX
+  contracts:
+  - spec/schemas/effect-intent.schema.json
+  - spec/schemas/commit-permit.schema.json
+  - spec/schemas/connector-receipt.schema.json
+  - spec/schemas/resource-precondition.schema.json
+  - spec/state-machines/effect.yaml
+  test: ATOM-VT41-006
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-EFX-001.json
+- requirement: ATOM-V4-EFX-002
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-004
+  - ATOM-INV-005
+  - ATOM-INV-010
+  - ATOM-INV-013
+  decision: ATOM-ADR41-EFX
+  contracts:
+  - spec/schemas/effect-intent.schema.json
+  - spec/schemas/commit-permit.schema.json
+  - spec/schemas/connector-receipt.schema.json
+  - spec/schemas/resource-precondition.schema.json
+  - spec/state-machines/effect.yaml
+  test: ATOM-VT41-007
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-EFX-002.json
+- requirement: ATOM-V4-EFX-003
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-004
+  - ATOM-INV-005
+  - ATOM-INV-010
+  - ATOM-INV-013
+  decision: ATOM-ADR41-EFX
+  contracts:
+  - spec/schemas/effect-intent.schema.json
+  - spec/schemas/commit-permit.schema.json
+  - spec/schemas/connector-receipt.schema.json
+  - spec/schemas/resource-precondition.schema.json
+  - spec/state-machines/effect.yaml
+  test: ATOM-VT41-008
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-EFX-003.json
+- requirement: ATOM-V4-EFX-004
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-004
+  - ATOM-INV-005
+  - ATOM-INV-010
+  - ATOM-INV-013
+  decision: ATOM-ADR41-EFX
+  contracts:
+  - spec/schemas/effect-intent.schema.json
+  - spec/schemas/commit-permit.schema.json
+  - spec/schemas/connector-receipt.schema.json
+  - spec/schemas/resource-precondition.schema.json
+  - spec/state-machines/effect.yaml
+  test: ATOM-VT41-009
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-EFX-004.json
+- requirement: ATOM-V4-LED-001
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-018
+  decision: ATOM-ADR41-LED
+  contracts:
+  - spec/schemas/ledger-event.schema.json
+  - spec/schemas/ledger-checkpoint.schema.json
+  - spec/state-machines/restore.yaml
+  test: ATOM-VT41-010
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-LED-001.json
+- requirement: ATOM-V4-MSN-001
+  invariants:
+  - ATOM-INV-013
+  - ATOM-INV-015
+  decision: ATOM-ADR41-MSN
+  contracts:
+  - spec/schemas/mission-spec.schema.json
+  - spec/schemas/mission-snapshot.schema.json
+  - spec/schemas/mission-graph.schema.json
+  - spec/schemas/commitment.schema.json
+  - spec/state-machines/mission.yaml
+  test: ATOM-VT41-011
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-MSN-001.json
+- requirement: ATOM-V4-MSN-002
+  invariants:
+  - ATOM-INV-013
+  - ATOM-INV-015
+  decision: ATOM-ADR41-MSN
+  contracts:
+  - spec/schemas/mission-spec.schema.json
+  - spec/schemas/mission-snapshot.schema.json
+  - spec/schemas/mission-graph.schema.json
+  - spec/schemas/commitment.schema.json
+  - spec/state-machines/mission.yaml
+  test: ATOM-VT41-012
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-MSN-002.json
+- requirement: ATOM-V4-MSN-003
+  invariants:
+  - ATOM-INV-013
+  - ATOM-INV-015
+  decision: ATOM-ADR41-MSN
+  contracts:
+  - spec/schemas/mission-spec.schema.json
+  - spec/schemas/mission-snapshot.schema.json
+  - spec/schemas/mission-graph.schema.json
+  - spec/schemas/commitment.schema.json
+  - spec/state-machines/mission.yaml
+  test: ATOM-VT41-013
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-MSN-003.json
+- requirement: ATOM-V4-COG-001
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  - ATOM-INV-017
+  decision: ATOM-ADR41-COG
+  contracts:
+  - spec/schemas/architecture-decision.schema.json
+  - spec/schemas/context-bundle.schema.json
+  test: ATOM-VT41-014
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-COG-001.json
+- requirement: ATOM-V4-CXT-001
+  invariants:
+  - ATOM-INV-009
+  - ATOM-INV-019
+  decision: ATOM-ADR41-CXT
+  contracts:
+  - spec/schemas/context-bundle.schema.json
+  - spec/schemas/context-item.schema.json
+  test: ATOM-VT41-015
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-CXT-001.json
+- requirement: ATOM-V4-SEC-001
+  invariants:
+  - ATOM-INV-006
+  - ATOM-INV-014
+  decision: ATOM-ADR41-SEC
+  contracts:
+  - spec/schemas/secret-handle.schema.json
+  - spec/schemas/policy-decision.schema.json
+  test: ATOM-VT41-016
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-SEC-001.json
+- requirement: ATOM-V4-SCH-001
+  invariants:
+  - ATOM-INV-004
+  - ATOM-INV-018
+  decision: ATOM-ADR41-SCH
+  contracts:
+  - spec/schemas/schedule-spec.schema.json
+  - spec/schemas/schedule-run.schema.json
+  - spec/state-machines/schedule-run.yaml
+  test: ATOM-VT41-017
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-SCH-001.json
+- requirement: ATOM-V4-OBS-001
+  invariants:
+  - ATOM-INV-009
+  - ATOM-INV-015
+  decision: ATOM-ADR41-OBS
+  contracts:
+  - spec/schemas/observation.schema.json
+  - spec/schemas/evidence.schema.json
+  - spec/schemas/claim.schema.json
+  - spec/schemas/telemetry-envelope.schema.json
+  test: ATOM-VT41-018
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-OBS-001.json
+- requirement: ATOM-V4-RPL-001
+  invariants:
+  - ATOM-INV-010
+  - ATOM-INV-015
+  decision: ATOM-ADR41-RPL
+  contracts:
+  - spec/schemas/replay-request.schema.json
+  test: ATOM-VT41-019
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-RPL-001.json
+- requirement: ATOM-V4-OPS-001
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-018
+  decision: ATOM-ADR41-OPS
+  contracts:
+  - spec/schemas/release-manifest.schema.json
+  - spec/schemas/backup-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-020
+  gates:
+  - G0
+  - G5
+  evidence: evidence/G5/ATOM-V4-OPS-001.json
+- requirement: ATOM-V4-UI-001
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-013
+  decision: ATOM-ADR41-UI
+  contracts:
+  - spec/schemas/mission-snapshot.schema.json
+  - spec/schemas/approval-grant.schema.json
+  test: ATOM-VT41-021
+  gates:
+  - G0
+  - G6
+  evidence: evidence/G6/ATOM-V4-UI-001.json
+- requirement: ATOM-V4-EXT-001
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-014
+  decision: ATOM-ADR41-EXT
+  contracts:
+  - spec/schemas/extension-manifest.schema.json
+  - spec/schemas/capability-contract.schema.json
+  test: ATOM-VT41-022
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-EXT-001.json
+- requirement: ATOM-V4-SUP-001
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-011
+  decision: ATOM-ADR41-SUP
+  contracts:
+  - spec/schemas/artifact-attestation.schema.json
+  - spec/schemas/release-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-023
+  gates:
+  - G0
+  - G1
+  evidence: evidence/G1/ATOM-V4-SUP-001.json
+- requirement: ATOM-V4-EPI-001
+  invariants:
+  - ATOM-INV-009
+  - ATOM-INV-019
+  decision: ATOM-ADR41-EPI
+  contracts:
+  - spec/schemas/claim.schema.json
+  - spec/schemas/evidence.schema.json
+  - spec/schemas/observation.schema.json
+  - spec/schemas/context-item.schema.json
+  test: ATOM-VT41-024
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-EPI-001.json
+- requirement: ATOM-V4-EPI-002
+  invariants:
+  - ATOM-INV-009
+  - ATOM-INV-019
+  decision: ATOM-ADR41-EPI
+  contracts:
+  - spec/schemas/claim.schema.json
+  - spec/schemas/evidence.schema.json
+  - spec/schemas/observation.schema.json
+  - spec/schemas/context-item.schema.json
+  test: ATOM-VT41-025
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-EPI-002.json
+- requirement: ATOM-V4-FND-001
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-011
+  - ATOM-INV-017
+  decision: ATOM-ADR41-FND
+  contracts:
+  - spec/schemas/behavior-manifest-v2.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/schemas/extension-manifest.schema.json
+  - spec/state-machines/artifact.yaml
+  test: ATOM-VT41-026
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-FND-001.json
+- requirement: ATOM-V4-FND-002
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-011
+  - ATOM-INV-017
+  decision: ATOM-ADR41-FND
+  contracts:
+  - spec/schemas/behavior-manifest-v2.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/schemas/extension-manifest.schema.json
+  - spec/state-machines/artifact.yaml
+  test: ATOM-VT41-027
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-FND-002.json
+- requirement: ATOM-V4-FND-003
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-011
+  - ATOM-INV-017
+  decision: ATOM-ADR41-FND
+  contracts:
+  - spec/schemas/behavior-manifest-v2.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/schemas/extension-manifest.schema.json
+  - spec/state-machines/artifact.yaml
+  test: ATOM-VT41-028
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-FND-003.json
+- requirement: ATOM-V4-EXP-001
+  invariants:
+  - ATOM-INV-011
+  - ATOM-INV-016
+  - ATOM-INV-017
+  decision: ATOM-ADR41-EXP
+  contracts:
+  - spec/schemas/task-signature.schema.json
+  - spec/schemas/behavior-manifest-v2.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/state-machines/artifact.yaml
+  test: ATOM-VT41-029
+  gates:
+  - G0
+  - G8
+  evidence: evidence/G8/ATOM-V4-EXP-001.json
+- requirement: ATOM-V4-EXP-002
+  invariants:
+  - ATOM-INV-011
+  - ATOM-INV-016
+  - ATOM-INV-017
+  decision: ATOM-ADR41-EXP
+  contracts:
+  - spec/schemas/task-signature.schema.json
+  - spec/schemas/behavior-manifest-v2.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/state-machines/artifact.yaml
+  test: ATOM-VT41-030
+  gates:
+  - G0
+  - G8
+  evidence: evidence/G8/ATOM-V4-EXP-002.json
+- requirement: ATOM-V4-JIT-001
+  invariants:
+  - ATOM-INV-011
+  - ATOM-INV-017
+  decision: ATOM-ADR41-JIT
+  contracts:
+  - spec/schemas/behavior-manifest-v2.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/state-machines/artifact.yaml
+  test: ATOM-VT41-031
+  gates:
+  - G0
+  - G8
+  evidence: evidence/G8/ATOM-V4-JIT-001.json
+- requirement: ATOM-V4-ARC-001
+  invariants:
+  - ATOM-INV-012
+  - ATOM-INV-016
+  decision: ATOM-ADR41-ARC
+  contracts:
+  - spec/schemas/architecture-decision.schema.json
+  test: ATOM-VT41-032
+  gates:
+  - G0
+  - G8
+  evidence: evidence/G8/ATOM-V4-ARC-001.json
+- requirement: ATOM-V4-FLT-001
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-013
+  decision: ATOM-ADR41-FLT
+  contracts:
+  - spec/schemas/fault-record.schema.json
+  - spec/schemas/recovery-plan.schema.json
+  - spec/state-machines/effect.yaml
+  - spec/state-machines/mission.yaml
+  test: ATOM-VT41-033
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-FLT-001.json
+- requirement: ATOM-V4-RST-001
+  invariants:
+  - ATOM-INV-018
+  decision: ATOM-ADR41-RST
+  contracts:
+  - spec/schemas/ledger-checkpoint.schema.json
+  - spec/schemas/lease-epoch.schema.json
+  - spec/state-machines/restore.yaml
+  test: ATOM-VT41-034
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-RST-001.json
+- requirement: ATOM-V4-EVO-001
+  invariants:
+  - ATOM-INV-016
+  - ATOM-INV-017
+  decision: ATOM-ADR41-EVO
+  contracts:
+  - spec/schemas/promotion-decision.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/state-machines/promotion.yaml
+  test: ATOM-VT41-035
+  gates:
+  - G0
+  - G9
+  evidence: evidence/G9/ATOM-V4-EVO-001.json
+- requirement: ATOM-V4-EVO-002
+  invariants:
+  - ATOM-INV-016
+  - ATOM-INV-017
+  decision: ATOM-ADR41-EVO
+  contracts:
+  - spec/schemas/promotion-decision.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/state-machines/promotion.yaml
+  test: ATOM-VT41-036
+  gates:
+  - G0
+  - G9
+  evidence: evidence/G9/ATOM-V4-EVO-002.json
+- requirement: ATOM-V4-CER-001
+  invariants:
+  - ATOM-INV-011
+  - ATOM-INV-017
+  decision: ATOM-ADR41-CER
+  contracts:
+  - spec/schemas/certificate.schema.json
+  - spec/schemas/behavior-manifest-v2.schema.json
+  test: ATOM-VT41-037
+  gates:
+  - G0
+  - G8
+  evidence: evidence/G8/ATOM-V4-CER-001.json
+- requirement: ATOM-V4-BMK-001
+  invariants:
+  - ATOM-INV-020
+  decision: ATOM-ADR41-BMK
+  contracts:
+  - spec/schemas/benchmark-contract.schema.json
+  - spec/schemas/claim-record.schema.json
+  test: ATOM-VT41-038
+  gates:
+  - G0
+  - G8
+  evidence: evidence/G8/ATOM-V4-BMK-001.json
+- requirement: ATOM-V4-INT-001
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  - ATOM-INV-014
+  decision: ATOM-ADR41-INT
+  contracts:
+  - spec/schemas/compatibility-profile.schema.json
+  - spec/schemas/capability-contract.schema.json
+  test: ATOM-VT41-039
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-INT-001.json
+- requirement: ATOM-V4-API-001
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-004
+  - ATOM-INV-005
+  decision: ATOM-ADR41-API
+  contracts:
+  - spec/schemas/problem-detail.schema.json
+  - spec/schemas/operation-status.schema.json
+  test: ATOM-VT41-040
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-API-001.json
+- requirement: ATOM-V4-BAS-001
+  invariants:
+  - ATOM-INV-020
+  decision: ATOM-ADR41-BAS
+  contracts:
+  - spec/schemas/release-manifest.schema.json
+  test: ATOM-VT41-041
+  gates:
+  - G0
+  evidence: evidence/G0/ATOM-V4-BAS-001.json
+- requirement: ATOM-V4-BAS-002
+  invariants:
+  - ATOM-INV-020
+  decision: ATOM-ADR41-BAS
+  contracts:
+  - spec/schemas/release-manifest.schema.json
+  test: ATOM-VT41-042
+  gates:
+  - G0
+  evidence: evidence/G0/ATOM-V4-BAS-002.json
+- requirement: ATOM-V4-BAS-003
+  invariants:
+  - ATOM-INV-020
+  decision: ATOM-ADR41-BAS
+  contracts:
+  - spec/schemas/release-manifest.schema.json
+  test: ATOM-VT41-043
+  gates:
+  - G0
+  evidence: evidence/G0/ATOM-V4-BAS-003.json
+- requirement: ATOM-V4-TRC-001
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-020
+  decision: ATOM-ADR41-TRC
+  contracts:
+  - spec/schemas/trace-link.schema.json
+  - spec/schemas/test-evidence.schema.json
+  test: ATOM-VT41-044
+  gates:
+  - G0
+  evidence: evidence/G0/ATOM-V4-TRC-001.json
+- requirement: ATOM-V4-TRC-002
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-020
+  decision: ATOM-ADR41-TRC
+  contracts:
+  - spec/schemas/trace-link.schema.json
+  - spec/schemas/test-evidence.schema.json
+  test: ATOM-VT41-045
+  gates:
+  - G0
+  evidence: evidence/G0/ATOM-V4-TRC-002.json
+- requirement: ATOM-V4-TRC-003
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-020
+  decision: ATOM-ADR41-TRC
+  contracts:
+  - spec/schemas/trace-link.schema.json
+  - spec/schemas/test-evidence.schema.json
+  test: ATOM-VT41-046
+  gates:
+  - G0
+  evidence: evidence/G0/ATOM-V4-TRC-003.json
+- requirement: ATOM-V4-SCM-001
+  invariants:
+  - ATOM-INV-004
+  - ATOM-INV-005
+  decision: ATOM-ADR41-SCM
+  contracts:
+  - spec/schemas/schema-inventory.schema.json
+  test: ATOM-VT41-047
+  gates:
+  - G0
+  evidence: evidence/G0/ATOM-V4-SCM-001.json
+- requirement: ATOM-V4-SCM-002
+  invariants:
+  - ATOM-INV-004
+  - ATOM-INV-005
+  decision: ATOM-ADR41-SCM
+  contracts:
+  - spec/schemas/schema-inventory.schema.json
+  test: ATOM-VT41-048
+  gates:
+  - G0
+  evidence: evidence/G0/ATOM-V4-SCM-002.json
+- requirement: ATOM-V4-KRN-003
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-014
+  decision: ATOM-ADR41-KRN
+  contracts:
+  - spec/schemas/capability-contract.schema.json
+  - spec/schemas/policy-decision.schema.json
+  test: ATOM-VT41-049
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-KRN-003.json
+- requirement: ATOM-V4-KRN-004
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-014
+  decision: ATOM-ADR41-KRN
+  contracts:
+  - spec/schemas/capability-contract.schema.json
+  - spec/schemas/policy-decision.schema.json
+  test: ATOM-VT41-050
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-KRN-004.json
+- requirement: ATOM-V4-AUT-004
+  invariants:
+  - ATOM-INV-003
+  - ATOM-INV-005
+  - ATOM-INV-012
+  - ATOM-INV-018
+  decision: ATOM-ADR41-AUT
+  contracts:
+  - spec/schemas/capability-grant.schema.json
+  - spec/schemas/approval-grant.schema.json
+  - spec/schemas/policy-decision.schema.json
+  - spec/schemas/obligation.schema.json
+  - spec/state-machines/grant.yaml
+  - spec/state-machines/approval.yaml
+  test: ATOM-VT41-051
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-AUT-004.json
+- requirement: ATOM-V4-AUT-005
+  invariants:
+  - ATOM-INV-003
+  - ATOM-INV-005
+  - ATOM-INV-012
+  - ATOM-INV-018
+  decision: ATOM-ADR41-AUT
+  contracts:
+  - spec/schemas/capability-grant.schema.json
+  - spec/schemas/approval-grant.schema.json
+  - spec/schemas/policy-decision.schema.json
+  - spec/schemas/obligation.schema.json
+  - spec/state-machines/grant.yaml
+  - spec/state-machines/approval.yaml
+  test: ATOM-VT41-052
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-AUT-005.json
+- requirement: ATOM-V4-AUT-006
+  invariants:
+  - ATOM-INV-003
+  - ATOM-INV-005
+  - ATOM-INV-012
+  - ATOM-INV-018
+  decision: ATOM-ADR41-AUT
+  contracts:
+  - spec/schemas/capability-grant.schema.json
+  - spec/schemas/approval-grant.schema.json
+  - spec/schemas/policy-decision.schema.json
+  - spec/schemas/obligation.schema.json
+  - spec/state-machines/grant.yaml
+  - spec/state-machines/approval.yaml
+  test: ATOM-VT41-053
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-AUT-006.json
+- requirement: ATOM-V4-AUT-007
+  invariants:
+  - ATOM-INV-003
+  - ATOM-INV-005
+  - ATOM-INV-012
+  - ATOM-INV-018
+  decision: ATOM-ADR41-AUT
+  contracts:
+  - spec/schemas/capability-grant.schema.json
+  - spec/schemas/approval-grant.schema.json
+  - spec/schemas/policy-decision.schema.json
+  - spec/schemas/obligation.schema.json
+  - spec/state-machines/grant.yaml
+  - spec/state-machines/approval.yaml
+  test: ATOM-VT41-054
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-AUT-007.json
+- requirement: ATOM-V4-EFX-005
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-004
+  - ATOM-INV-005
+  - ATOM-INV-010
+  - ATOM-INV-013
+  decision: ATOM-ADR41-EFX
+  contracts:
+  - spec/schemas/effect-intent.schema.json
+  - spec/schemas/commit-permit.schema.json
+  - spec/schemas/connector-receipt.schema.json
+  - spec/schemas/resource-precondition.schema.json
+  - spec/state-machines/effect.yaml
+  test: ATOM-VT41-055
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-EFX-005.json
+- requirement: ATOM-V4-EFX-006
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-004
+  - ATOM-INV-005
+  - ATOM-INV-010
+  - ATOM-INV-013
+  decision: ATOM-ADR41-EFX
+  contracts:
+  - spec/schemas/effect-intent.schema.json
+  - spec/schemas/commit-permit.schema.json
+  - spec/schemas/connector-receipt.schema.json
+  - spec/schemas/resource-precondition.schema.json
+  - spec/state-machines/effect.yaml
+  test: ATOM-VT41-056
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-EFX-006.json
+- requirement: ATOM-V4-EFX-007
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-004
+  - ATOM-INV-005
+  - ATOM-INV-010
+  - ATOM-INV-013
+  decision: ATOM-ADR41-EFX
+  contracts:
+  - spec/schemas/effect-intent.schema.json
+  - spec/schemas/commit-permit.schema.json
+  - spec/schemas/connector-receipt.schema.json
+  - spec/schemas/resource-precondition.schema.json
+  - spec/state-machines/effect.yaml
+  test: ATOM-VT41-057
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-EFX-007.json
+- requirement: ATOM-V4-EFX-008
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-004
+  - ATOM-INV-005
+  - ATOM-INV-010
+  - ATOM-INV-013
+  decision: ATOM-ADR41-EFX
+  contracts:
+  - spec/schemas/effect-intent.schema.json
+  - spec/schemas/commit-permit.schema.json
+  - spec/schemas/connector-receipt.schema.json
+  - spec/schemas/resource-precondition.schema.json
+  - spec/state-machines/effect.yaml
+  test: ATOM-VT41-058
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-EFX-008.json
+- requirement: ATOM-V4-EFX-009
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-004
+  - ATOM-INV-005
+  - ATOM-INV-010
+  - ATOM-INV-013
+  decision: ATOM-ADR41-EFX
+  contracts:
+  - spec/schemas/effect-intent.schema.json
+  - spec/schemas/commit-permit.schema.json
+  - spec/schemas/connector-receipt.schema.json
+  - spec/schemas/resource-precondition.schema.json
+  - spec/state-machines/effect.yaml
+  test: ATOM-VT41-059
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-EFX-009.json
+- requirement: ATOM-V4-LED-002
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-018
+  decision: ATOM-ADR41-LED
+  contracts:
+  - spec/schemas/ledger-event.schema.json
+  - spec/schemas/ledger-checkpoint.schema.json
+  - spec/state-machines/restore.yaml
+  test: ATOM-VT41-060
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-LED-002.json
+- requirement: ATOM-V4-LED-003
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-018
+  decision: ATOM-ADR41-LED
+  contracts:
+  - spec/schemas/ledger-event.schema.json
+  - spec/schemas/ledger-checkpoint.schema.json
+  - spec/state-machines/restore.yaml
+  test: ATOM-VT41-061
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-LED-003.json
+- requirement: ATOM-V4-LED-004
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-018
+  decision: ATOM-ADR41-LED
+  contracts:
+  - spec/schemas/ledger-event.schema.json
+  - spec/schemas/ledger-checkpoint.schema.json
+  - spec/state-machines/restore.yaml
+  test: ATOM-VT41-062
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-LED-004.json
+- requirement: ATOM-V4-LED-005
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-018
+  decision: ATOM-ADR41-LED
+  contracts:
+  - spec/schemas/ledger-event.schema.json
+  - spec/schemas/ledger-checkpoint.schema.json
+  - spec/state-machines/restore.yaml
+  test: ATOM-VT41-063
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-LED-005.json
+- requirement: ATOM-V4-MSN-004
+  invariants:
+  - ATOM-INV-013
+  - ATOM-INV-015
+  decision: ATOM-ADR41-MSN
+  contracts:
+  - spec/schemas/mission-spec.schema.json
+  - spec/schemas/mission-snapshot.schema.json
+  - spec/schemas/mission-graph.schema.json
+  - spec/schemas/commitment.schema.json
+  - spec/state-machines/mission.yaml
+  test: ATOM-VT41-064
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-MSN-004.json
+- requirement: ATOM-V4-MSN-005
+  invariants:
+  - ATOM-INV-013
+  - ATOM-INV-015
+  decision: ATOM-ADR41-MSN
+  contracts:
+  - spec/schemas/mission-spec.schema.json
+  - spec/schemas/mission-snapshot.schema.json
+  - spec/schemas/mission-graph.schema.json
+  - spec/schemas/commitment.schema.json
+  - spec/state-machines/mission.yaml
+  test: ATOM-VT41-065
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-MSN-005.json
+- requirement: ATOM-V4-MSN-006
+  invariants:
+  - ATOM-INV-013
+  - ATOM-INV-015
+  decision: ATOM-ADR41-MSN
+  contracts:
+  - spec/schemas/mission-spec.schema.json
+  - spec/schemas/mission-snapshot.schema.json
+  - spec/schemas/mission-graph.schema.json
+  - spec/schemas/commitment.schema.json
+  - spec/state-machines/mission.yaml
+  test: ATOM-VT41-066
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-MSN-006.json
+- requirement: ATOM-V4-MSN-007
+  invariants:
+  - ATOM-INV-013
+  - ATOM-INV-015
+  decision: ATOM-ADR41-MSN
+  contracts:
+  - spec/schemas/mission-spec.schema.json
+  - spec/schemas/mission-snapshot.schema.json
+  - spec/schemas/mission-graph.schema.json
+  - spec/schemas/commitment.schema.json
+  - spec/state-machines/mission.yaml
+  test: ATOM-VT41-067
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-MSN-007.json
+- requirement: ATOM-V4-COG-002
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  - ATOM-INV-017
+  decision: ATOM-ADR41-COG
+  contracts:
+  - spec/schemas/architecture-decision.schema.json
+  - spec/schemas/context-bundle.schema.json
+  test: ATOM-VT41-068
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-COG-002.json
+- requirement: ATOM-V4-COG-003
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  - ATOM-INV-017
+  decision: ATOM-ADR41-COG
+  contracts:
+  - spec/schemas/architecture-decision.schema.json
+  - spec/schemas/context-bundle.schema.json
+  test: ATOM-VT41-069
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-COG-003.json
+- requirement: ATOM-V4-COG-004
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  - ATOM-INV-017
+  decision: ATOM-ADR41-COG
+  contracts:
+  - spec/schemas/architecture-decision.schema.json
+  - spec/schemas/context-bundle.schema.json
+  test: ATOM-VT41-070
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-COG-004.json
+- requirement: ATOM-V4-COG-005
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  - ATOM-INV-017
+  decision: ATOM-ADR41-COG
+  contracts:
+  - spec/schemas/architecture-decision.schema.json
+  - spec/schemas/context-bundle.schema.json
+  test: ATOM-VT41-071
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-COG-005.json
+- requirement: ATOM-V4-CXT-002
+  invariants:
+  - ATOM-INV-009
+  - ATOM-INV-019
+  decision: ATOM-ADR41-CXT
+  contracts:
+  - spec/schemas/context-bundle.schema.json
+  - spec/schemas/context-item.schema.json
+  test: ATOM-VT41-072
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-CXT-002.json
+- requirement: ATOM-V4-SEC-002
+  invariants:
+  - ATOM-INV-006
+  - ATOM-INV-014
+  decision: ATOM-ADR41-SEC
+  contracts:
+  - spec/schemas/secret-handle.schema.json
+  - spec/schemas/policy-decision.schema.json
+  test: ATOM-VT41-073
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-SEC-002.json
+- requirement: ATOM-V4-SEC-003
+  invariants:
+  - ATOM-INV-006
+  - ATOM-INV-014
+  decision: ATOM-ADR41-SEC
+  contracts:
+  - spec/schemas/secret-handle.schema.json
+  - spec/schemas/policy-decision.schema.json
+  test: ATOM-VT41-074
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-SEC-003.json
+- requirement: ATOM-V4-SEC-004
+  invariants:
+  - ATOM-INV-006
+  - ATOM-INV-014
+  decision: ATOM-ADR41-SEC
+  contracts:
+  - spec/schemas/secret-handle.schema.json
+  - spec/schemas/policy-decision.schema.json
+  test: ATOM-VT41-075
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-SEC-004.json
+- requirement: ATOM-V4-SEC-005
+  invariants:
+  - ATOM-INV-006
+  - ATOM-INV-014
+  decision: ATOM-ADR41-SEC
+  contracts:
+  - spec/schemas/secret-handle.schema.json
+  - spec/schemas/policy-decision.schema.json
+  test: ATOM-VT41-076
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-SEC-005.json
+- requirement: ATOM-V4-SCH-002
+  invariants:
+  - ATOM-INV-004
+  - ATOM-INV-018
+  decision: ATOM-ADR41-SCH
+  contracts:
+  - spec/schemas/schedule-spec.schema.json
+  - spec/schemas/schedule-run.schema.json
+  - spec/state-machines/schedule-run.yaml
+  test: ATOM-VT41-077
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-SCH-002.json
+- requirement: ATOM-V4-OBS-002
+  invariants:
+  - ATOM-INV-009
+  - ATOM-INV-015
+  decision: ATOM-ADR41-OBS
+  contracts:
+  - spec/schemas/observation.schema.json
+  - spec/schemas/evidence.schema.json
+  - spec/schemas/claim.schema.json
+  - spec/schemas/telemetry-envelope.schema.json
+  test: ATOM-VT41-078
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-OBS-002.json
+- requirement: ATOM-V4-OBS-003
+  invariants:
+  - ATOM-INV-009
+  - ATOM-INV-015
+  decision: ATOM-ADR41-OBS
+  contracts:
+  - spec/schemas/observation.schema.json
+  - spec/schemas/evidence.schema.json
+  - spec/schemas/claim.schema.json
+  - spec/schemas/telemetry-envelope.schema.json
+  test: ATOM-VT41-079
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-OBS-003.json
+- requirement: ATOM-V4-OBS-004
+  invariants:
+  - ATOM-INV-009
+  - ATOM-INV-015
+  decision: ATOM-ADR41-OBS
+  contracts:
+  - spec/schemas/observation.schema.json
+  - spec/schemas/evidence.schema.json
+  - spec/schemas/claim.schema.json
+  - spec/schemas/telemetry-envelope.schema.json
+  test: ATOM-VT41-080
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-OBS-004.json
+- requirement: ATOM-V4-RPL-002
+  invariants:
+  - ATOM-INV-010
+  - ATOM-INV-015
+  decision: ATOM-ADR41-RPL
+  contracts:
+  - spec/schemas/replay-request.schema.json
+  test: ATOM-VT41-081
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-RPL-002.json
+- requirement: ATOM-V4-OPS-002
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-018
+  decision: ATOM-ADR41-OPS
+  contracts:
+  - spec/schemas/release-manifest.schema.json
+  - spec/schemas/backup-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-082
+  gates:
+  - G0
+  - G5
+  evidence: evidence/G5/ATOM-V4-OPS-002.json
+- requirement: ATOM-V4-OPS-003
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-018
+  decision: ATOM-ADR41-OPS
+  contracts:
+  - spec/schemas/release-manifest.schema.json
+  - spec/schemas/backup-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-083
+  gates:
+  - G0
+  - G5
+  evidence: evidence/G5/ATOM-V4-OPS-003.json
+- requirement: ATOM-V4-OPS-004
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-018
+  decision: ATOM-ADR41-OPS
+  contracts:
+  - spec/schemas/release-manifest.schema.json
+  - spec/schemas/backup-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-084
+  gates:
+  - G0
+  - G5
+  evidence: evidence/G5/ATOM-V4-OPS-004.json
+- requirement: ATOM-V4-OPS-005
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-018
+  decision: ATOM-ADR41-OPS
+  contracts:
+  - spec/schemas/release-manifest.schema.json
+  - spec/schemas/backup-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-085
+  gates:
+  - G0
+  - G5
+  evidence: evidence/G5/ATOM-V4-OPS-005.json
+- requirement: ATOM-V4-OPS-006
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-018
+  decision: ATOM-ADR41-OPS
+  contracts:
+  - spec/schemas/release-manifest.schema.json
+  - spec/schemas/backup-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-086
+  gates:
+  - G0
+  - G5
+  evidence: evidence/G5/ATOM-V4-OPS-006.json
+- requirement: ATOM-V4-OPS-007
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-018
+  decision: ATOM-ADR41-OPS
+  contracts:
+  - spec/schemas/release-manifest.schema.json
+  - spec/schemas/backup-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-087
+  gates:
+  - G0
+  - G5
+  evidence: evidence/G5/ATOM-V4-OPS-007.json
+- requirement: ATOM-V4-OPS-008
+  invariants:
+  - ATOM-INV-007
+  - ATOM-INV-018
+  decision: ATOM-ADR41-OPS
+  contracts:
+  - spec/schemas/release-manifest.schema.json
+  - spec/schemas/backup-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-088
+  gates:
+  - G0
+  - G5
+  evidence: evidence/G5/ATOM-V4-OPS-008.json
+- requirement: ATOM-V4-UI-002
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-013
+  decision: ATOM-ADR41-UI
+  contracts:
+  - spec/schemas/mission-snapshot.schema.json
+  - spec/schemas/approval-grant.schema.json
+  test: ATOM-VT41-089
+  gates:
+  - G0
+  - G6
+  evidence: evidence/G6/ATOM-V4-UI-002.json
+- requirement: ATOM-V4-EXT-002
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-014
+  decision: ATOM-ADR41-EXT
+  contracts:
+  - spec/schemas/extension-manifest.schema.json
+  - spec/schemas/capability-contract.schema.json
+  test: ATOM-VT41-090
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-EXT-002.json
+- requirement: ATOM-V4-EXT-003
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-014
+  decision: ATOM-ADR41-EXT
+  contracts:
+  - spec/schemas/extension-manifest.schema.json
+  - spec/schemas/capability-contract.schema.json
+  test: ATOM-VT41-091
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-EXT-003.json
+- requirement: ATOM-V4-EXT-004
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-014
+  decision: ATOM-ADR41-EXT
+  contracts:
+  - spec/schemas/extension-manifest.schema.json
+  - spec/schemas/capability-contract.schema.json
+  test: ATOM-VT41-092
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-EXT-004.json
+- requirement: ATOM-V4-EXT-005
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-014
+  decision: ATOM-ADR41-EXT
+  contracts:
+  - spec/schemas/extension-manifest.schema.json
+  - spec/schemas/capability-contract.schema.json
+  test: ATOM-VT41-093
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-EXT-005.json
+- requirement: ATOM-V4-SUP-002
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-011
+  decision: ATOM-ADR41-SUP
+  contracts:
+  - spec/schemas/artifact-attestation.schema.json
+  - spec/schemas/release-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-094
+  gates:
+  - G0
+  - G1
+  evidence: evidence/G1/ATOM-V4-SUP-002.json
+- requirement: ATOM-V4-SUP-003
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-011
+  decision: ATOM-ADR41-SUP
+  contracts:
+  - spec/schemas/artifact-attestation.schema.json
+  - spec/schemas/release-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-095
+  gates:
+  - G0
+  - G1
+  evidence: evidence/G1/ATOM-V4-SUP-003.json
+- requirement: ATOM-V4-SUP-004
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-011
+  decision: ATOM-ADR41-SUP
+  contracts:
+  - spec/schemas/artifact-attestation.schema.json
+  - spec/schemas/release-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-096
+  gates:
+  - G0
+  - G1
+  evidence: evidence/G1/ATOM-V4-SUP-004.json
+- requirement: ATOM-V4-EPI-003
+  invariants:
+  - ATOM-INV-009
+  - ATOM-INV-019
+  decision: ATOM-ADR41-EPI
+  contracts:
+  - spec/schemas/claim.schema.json
+  - spec/schemas/evidence.schema.json
+  - spec/schemas/observation.schema.json
+  - spec/schemas/context-item.schema.json
+  test: ATOM-VT41-097
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-EPI-003.json
+- requirement: ATOM-V4-EPI-004
+  invariants:
+  - ATOM-INV-009
+  - ATOM-INV-019
+  decision: ATOM-ADR41-EPI
+  contracts:
+  - spec/schemas/claim.schema.json
+  - spec/schemas/evidence.schema.json
+  - spec/schemas/observation.schema.json
+  - spec/schemas/context-item.schema.json
+  test: ATOM-VT41-098
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-EPI-004.json
+- requirement: ATOM-V4-EPI-005
+  invariants:
+  - ATOM-INV-009
+  - ATOM-INV-019
+  decision: ATOM-ADR41-EPI
+  contracts:
+  - spec/schemas/claim.schema.json
+  - spec/schemas/evidence.schema.json
+  - spec/schemas/observation.schema.json
+  - spec/schemas/context-item.schema.json
+  test: ATOM-VT41-099
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-EPI-005.json
+- requirement: ATOM-V4-FND-004
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-011
+  - ATOM-INV-017
+  decision: ATOM-ADR41-FND
+  contracts:
+  - spec/schemas/behavior-manifest-v2.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/schemas/extension-manifest.schema.json
+  - spec/state-machines/artifact.yaml
+  test: ATOM-VT41-100
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-FND-004.json
+- requirement: ATOM-V4-FND-005
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-011
+  - ATOM-INV-017
+  decision: ATOM-ADR41-FND
+  contracts:
+  - spec/schemas/behavior-manifest-v2.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/schemas/extension-manifest.schema.json
+  - spec/state-machines/artifact.yaml
+  test: ATOM-VT41-101
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-FND-005.json
+- requirement: ATOM-V4-FND-006
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-011
+  - ATOM-INV-017
+  decision: ATOM-ADR41-FND
+  contracts:
+  - spec/schemas/behavior-manifest-v2.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/schemas/extension-manifest.schema.json
+  - spec/state-machines/artifact.yaml
+  test: ATOM-VT41-102
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-FND-006.json
+- requirement: ATOM-V4-FND-007
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-011
+  - ATOM-INV-017
+  decision: ATOM-ADR41-FND
+  contracts:
+  - spec/schemas/behavior-manifest-v2.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/schemas/extension-manifest.schema.json
+  - spec/state-machines/artifact.yaml
+  test: ATOM-VT41-103
+  gates:
+  - G0
+  - G2
+  evidence: evidence/G2/ATOM-V4-FND-007.json
+- requirement: ATOM-V4-EXP-003
+  invariants:
+  - ATOM-INV-011
+  - ATOM-INV-016
+  - ATOM-INV-017
+  decision: ATOM-ADR41-EXP
+  contracts:
+  - spec/schemas/task-signature.schema.json
+  - spec/schemas/behavior-manifest-v2.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/state-machines/artifact.yaml
+  test: ATOM-VT41-104
+  gates:
+  - G0
+  - G8
+  evidence: evidence/G8/ATOM-V4-EXP-003.json
+- requirement: ATOM-V4-EXP-004
+  invariants:
+  - ATOM-INV-011
+  - ATOM-INV-016
+  - ATOM-INV-017
+  decision: ATOM-ADR41-EXP
+  contracts:
+  - spec/schemas/task-signature.schema.json
+  - spec/schemas/behavior-manifest-v2.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/state-machines/artifact.yaml
+  test: ATOM-VT41-105
+  gates:
+  - G0
+  - G8
+  evidence: evidence/G8/ATOM-V4-EXP-004.json
+- requirement: ATOM-V4-EXP-005
+  invariants:
+  - ATOM-INV-011
+  - ATOM-INV-016
+  - ATOM-INV-017
+  decision: ATOM-ADR41-EXP
+  contracts:
+  - spec/schemas/task-signature.schema.json
+  - spec/schemas/behavior-manifest-v2.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/state-machines/artifact.yaml
+  test: ATOM-VT41-106
+  gates:
+  - G0
+  - G8
+  evidence: evidence/G8/ATOM-V4-EXP-005.json
+- requirement: ATOM-V4-JIT-002
+  invariants:
+  - ATOM-INV-011
+  - ATOM-INV-017
+  decision: ATOM-ADR41-JIT
+  contracts:
+  - spec/schemas/behavior-manifest-v2.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/state-machines/artifact.yaml
+  test: ATOM-VT41-107
+  gates:
+  - G0
+  - G8
+  evidence: evidence/G8/ATOM-V4-JIT-002.json
+- requirement: ATOM-V4-ARC-002
+  invariants:
+  - ATOM-INV-012
+  - ATOM-INV-016
+  decision: ATOM-ADR41-ARC
+  contracts:
+  - spec/schemas/architecture-decision.schema.json
+  test: ATOM-VT41-108
+  gates:
+  - G0
+  - G8
+  evidence: evidence/G8/ATOM-V4-ARC-002.json
+- requirement: ATOM-V4-FLT-002
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-013
+  decision: ATOM-ADR41-FLT
+  contracts:
+  - spec/schemas/fault-record.schema.json
+  - spec/schemas/recovery-plan.schema.json
+  - spec/state-machines/effect.yaml
+  - spec/state-machines/mission.yaml
+  test: ATOM-VT41-109
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-FLT-002.json
+- requirement: ATOM-V4-FLT-003
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-013
+  decision: ATOM-ADR41-FLT
+  contracts:
+  - spec/schemas/fault-record.schema.json
+  - spec/schemas/recovery-plan.schema.json
+  - spec/state-machines/effect.yaml
+  - spec/state-machines/mission.yaml
+  test: ATOM-VT41-110
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-FLT-003.json
+- requirement: ATOM-V4-RST-002
+  invariants:
+  - ATOM-INV-018
+  decision: ATOM-ADR41-RST
+  contracts:
+  - spec/schemas/ledger-checkpoint.schema.json
+  - spec/schemas/lease-epoch.schema.json
+  - spec/state-machines/restore.yaml
+  test: ATOM-VT41-111
+  gates:
+  - G0
+  - G3
+  evidence: evidence/G3/ATOM-V4-RST-002.json
+- requirement: ATOM-V4-EVO-003
+  invariants:
+  - ATOM-INV-016
+  - ATOM-INV-017
+  decision: ATOM-ADR41-EVO
+  contracts:
+  - spec/schemas/promotion-decision.schema.json
+  - spec/schemas/certificate.schema.json
+  - spec/state-machines/promotion.yaml
+  test: ATOM-VT41-112
+  gates:
+  - G0
+  - G9
+  evidence: evidence/G9/ATOM-V4-EVO-003.json
+- requirement: ATOM-V4-CER-002
+  invariants:
+  - ATOM-INV-011
+  - ATOM-INV-017
+  decision: ATOM-ADR41-CER
+  contracts:
+  - spec/schemas/certificate.schema.json
+  - spec/schemas/behavior-manifest-v2.schema.json
+  test: ATOM-VT41-113
+  gates:
+  - G0
+  - G8
+  evidence: evidence/G8/ATOM-V4-CER-002.json
+- requirement: ATOM-V4-BMK-002
+  invariants:
+  - ATOM-INV-020
+  decision: ATOM-ADR41-BMK
+  contracts:
+  - spec/schemas/benchmark-contract.schema.json
+  - spec/schemas/claim-record.schema.json
+  test: ATOM-VT41-114
+  gates:
+  - G0
+  - G8
+  evidence: evidence/G8/ATOM-V4-BMK-002.json
+- requirement: ATOM-V4-BMK-003
+  invariants:
+  - ATOM-INV-020
+  decision: ATOM-ADR41-BMK
+  contracts:
+  - spec/schemas/benchmark-contract.schema.json
+  - spec/schemas/claim-record.schema.json
+  test: ATOM-VT41-115
+  gates:
+  - G0
+  - G8
+  evidence: evidence/G8/ATOM-V4-BMK-003.json
+- requirement: ATOM-V4-BMK-004
+  invariants:
+  - ATOM-INV-020
+  decision: ATOM-ADR41-BMK
+  contracts:
+  - spec/schemas/benchmark-contract.schema.json
+  - spec/schemas/claim-record.schema.json
+  test: ATOM-VT41-116
+  gates:
+  - G0
+  - G8
+  evidence: evidence/G8/ATOM-V4-BMK-004.json
+- requirement: ATOM-V4-INT-002
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  - ATOM-INV-014
+  decision: ATOM-ADR41-INT
+  contracts:
+  - spec/schemas/compatibility-profile.schema.json
+  - spec/schemas/capability-contract.schema.json
+  test: ATOM-VT41-117
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-INT-002.json
+- requirement: ATOM-V4-INT-003
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  - ATOM-INV-014
+  decision: ATOM-ADR41-INT
+  contracts:
+  - spec/schemas/compatibility-profile.schema.json
+  - spec/schemas/capability-contract.schema.json
+  test: ATOM-VT41-118
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-INT-003.json
+- requirement: ATOM-V4-INT-004
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  - ATOM-INV-014
+  decision: ATOM-ADR41-INT
+  contracts:
+  - spec/schemas/compatibility-profile.schema.json
+  - spec/schemas/capability-contract.schema.json
+  test: ATOM-VT41-119
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-INT-004.json
+- requirement: ATOM-V4-INT-005
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  - ATOM-INV-014
+  decision: ATOM-ADR41-INT
+  contracts:
+  - spec/schemas/compatibility-profile.schema.json
+  - spec/schemas/capability-contract.schema.json
+  test: ATOM-VT41-120
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-INT-005.json
+- requirement: ATOM-V4-INT-006
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  - ATOM-INV-014
+  decision: ATOM-ADR41-INT
+  contracts:
+  - spec/schemas/compatibility-profile.schema.json
+  - spec/schemas/capability-contract.schema.json
+  test: ATOM-VT41-121
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-INT-006.json
+- requirement: ATOM-V4-API-002
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-004
+  - ATOM-INV-005
+  decision: ATOM-ADR41-API
+  contracts:
+  - spec/schemas/problem-detail.schema.json
+  - spec/schemas/operation-status.schema.json
+  test: ATOM-VT41-122
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-API-002.json
+- requirement: ATOM-V4-API-003
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-004
+  - ATOM-INV-005
+  decision: ATOM-ADR41-API
+  contracts:
+  - spec/schemas/problem-detail.schema.json
+  - spec/schemas/operation-status.schema.json
+  test: ATOM-VT41-123
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-API-003.json
+- requirement: ATOM-V4-API-004
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-004
+  - ATOM-INV-005
+  decision: ATOM-ADR41-API
+  contracts:
+  - spec/schemas/problem-detail.schema.json
+  - spec/schemas/operation-status.schema.json
+  test: ATOM-VT41-124
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-API-004.json
+- requirement: ATOM-V4-API-005
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-004
+  - ATOM-INV-005
+  decision: ATOM-ADR41-API
+  contracts:
+  - spec/schemas/problem-detail.schema.json
+  - spec/schemas/operation-status.schema.json
+  test: ATOM-VT41-125
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-API-005.json
+- requirement: ATOM-V4-PRV-001
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  decision: ATOM-ADR41-PRV
+  contracts:
+  - spec/schemas/provider-profile.schema.json
+  - spec/schemas/provider-call.schema.json
+  test: ATOM-VT41-126
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-PRV-001.json
+- requirement: ATOM-V4-PRV-002
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  decision: ATOM-ADR41-PRV
+  contracts:
+  - spec/schemas/provider-profile.schema.json
+  - spec/schemas/provider-call.schema.json
+  test: ATOM-VT41-127
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-PRV-002.json
+- requirement: ATOM-V4-PRV-003
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  decision: ATOM-ADR41-PRV
+  contracts:
+  - spec/schemas/provider-profile.schema.json
+  - spec/schemas/provider-call.schema.json
+  test: ATOM-VT41-128
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-PRV-003.json
+- requirement: ATOM-V4-PRV-004
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  decision: ATOM-ADR41-PRV
+  contracts:
+  - spec/schemas/provider-profile.schema.json
+  - spec/schemas/provider-call.schema.json
+  test: ATOM-VT41-129
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-PRV-004.json
+- requirement: ATOM-V4-PRV-005
+  invariants:
+  - ATOM-INV-001
+  - ATOM-INV-012
+  decision: ATOM-ADR41-PRV
+  contracts:
+  - spec/schemas/provider-profile.schema.json
+  - spec/schemas/provider-call.schema.json
+  test: ATOM-VT41-130
+  gates:
+  - G0
+  - G4
+  evidence: evidence/G4/ATOM-V4-PRV-005.json
+- requirement: ATOM-V4-PRI-001
+  invariants:
+  - ATOM-INV-006
+  - ATOM-INV-009
+  decision: ATOM-ADR41-PRI
+  contracts:
+  - spec/schemas/data-policy.schema.json
+  - spec/schemas/deletion-receipt.schema.json
+  test: ATOM-VT41-131
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-PRI-001.json
+- requirement: ATOM-V4-PRI-002
+  invariants:
+  - ATOM-INV-006
+  - ATOM-INV-009
+  decision: ATOM-ADR41-PRI
+  contracts:
+  - spec/schemas/data-policy.schema.json
+  - spec/schemas/deletion-receipt.schema.json
+  test: ATOM-VT41-132
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-PRI-002.json
+- requirement: ATOM-V4-PRI-003
+  invariants:
+  - ATOM-INV-006
+  - ATOM-INV-009
+  decision: ATOM-ADR41-PRI
+  contracts:
+  - spec/schemas/data-policy.schema.json
+  - spec/schemas/deletion-receipt.schema.json
+  test: ATOM-VT41-133
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-PRI-003.json
+- requirement: ATOM-V4-PRI-004
+  invariants:
+  - ATOM-INV-006
+  - ATOM-INV-009
+  decision: ATOM-ADR41-PRI
+  contracts:
+  - spec/schemas/data-policy.schema.json
+  - spec/schemas/deletion-receipt.schema.json
+  test: ATOM-VT41-134
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-PRI-004.json
+- requirement: ATOM-V4-SLO-001
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-007
+  - ATOM-INV-020
+  decision: ATOM-ADR41-SLO
+  contracts:
+  - spec/schemas/slo-definition.schema.json
+  - spec/schemas/test-evidence.schema.json
+  test: ATOM-VT41-135
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-SLO-001.json
+- requirement: ATOM-V4-SLO-002
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-007
+  - ATOM-INV-020
+  decision: ATOM-ADR41-SLO
+  contracts:
+  - spec/schemas/slo-definition.schema.json
+  - spec/schemas/test-evidence.schema.json
+  test: ATOM-VT41-136
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-SLO-002.json
+- requirement: ATOM-V4-SLO-003
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-007
+  - ATOM-INV-020
+  decision: ATOM-ADR41-SLO
+  contracts:
+  - spec/schemas/slo-definition.schema.json
+  - spec/schemas/test-evidence.schema.json
+  test: ATOM-VT41-137
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-SLO-003.json
+- requirement: ATOM-V4-SLO-004
+  invariants:
+  - ATOM-INV-002
+  - ATOM-INV-007
+  - ATOM-INV-020
+  decision: ATOM-ADR41-SLO
+  contracts:
+  - spec/schemas/slo-definition.schema.json
+  - spec/schemas/test-evidence.schema.json
+  test: ATOM-VT41-138
+  gates:
+  - G0
+  - G7
+  evidence: evidence/G7/ATOM-V4-SLO-004.json
+- requirement: ATOM-V4-GOV-001
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-016
+  - ATOM-INV-020
+  decision: ATOM-ADR41-GOV
+  contracts:
+  - spec/schemas/decision-record.schema.json
+  - spec/schemas/release-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-139
+  gates:
+  - G0
+  - G9
+  evidence: evidence/G9/ATOM-V4-GOV-001.json
+- requirement: ATOM-V4-GOV-002
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-016
+  - ATOM-INV-020
+  decision: ATOM-ADR41-GOV
+  contracts:
+  - spec/schemas/decision-record.schema.json
+  - spec/schemas/release-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-140
+  gates:
+  - G0
+  - G9
+  evidence: evidence/G9/ATOM-V4-GOV-002.json
+- requirement: ATOM-V4-GOV-003
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-016
+  - ATOM-INV-020
+  decision: ATOM-ADR41-GOV
+  contracts:
+  - spec/schemas/decision-record.schema.json
+  - spec/schemas/release-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-141
+  gates:
+  - G0
+  - G9
+  evidence: evidence/G9/ATOM-V4-GOV-003.json
+- requirement: ATOM-V4-GOV-004
+  invariants:
+  - ATOM-INV-008
+  - ATOM-INV-016
+  - ATOM-INV-020
+  decision: ATOM-ADR41-GOV
+  contracts:
+  - spec/schemas/decision-record.schema.json
+  - spec/schemas/release-manifest.schema.json
+  - spec/state-machines/release.yaml
+  test: ATOM-VT41-142
+  gates:
+  - G0
+  - G9
+  evidence: evidence/G9/ATOM-V4-GOV-004.json

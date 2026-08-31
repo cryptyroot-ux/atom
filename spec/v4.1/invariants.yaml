@@ -1,0 +1,121 @@
+spec_version: 4.1.0
+source_document: ATOM_Architecture_Constitution_v4.1
+note: "30 constitutional invariants. INV-001..020 are requirement-linked (each referenced by >=1 traceability\
+  \ row). INV-021..030 are global/meta invariants enforced at the release/gate/governance layer (G0/G1/G9),\
+  \ not per requirement \u2014 see spec/v4.1/README.md 'M-NEW-01 finding'."
+invariants:
+- id: ATOM-INV-001
+  statement: Probabilistic cognition cannot directly mutate authoritative state.
+  class: requirement-linked
+- id: ATOM-INV-002
+  statement: UNKNOWN_OUTCOME is first-class and is never coerced to success, failure, or safe-to-retry.
+  class: requirement-linked
+- id: ATOM-INV-003
+  statement: Capability delegation can only attenuate authority; child authority is never broader than
+    parent authority.
+  class: requirement-linked
+- id: ATOM-INV-004
+  statement: Every consequential effect has durable intent before dispatch and commit-time authorization
+    bound to the exact effect digest.
+  class: requirement-linked
+- id: ATOM-INV-005
+  statement: Proof scope must equal mutation scope, including principal, target set, generation, resource
+    witness, and effect digest.
+  class: requirement-linked
+- id: ATOM-INV-006
+  statement: Secrets are brokered handles, not ambient model or worker environment state.
+  class: requirement-linked
+- id: ATOM-INV-007
+  statement: Authoritative projections are rebuildable from the tamper-evident ledger; projections never
+    override the ledger.
+  class: requirement-linked
+- id: ATOM-INV-008
+  statement: Generated or third-party executable capability cannot become ACTIVE without the policy-required
+    certificate and supply-chain evidence.
+  class: requirement-linked
+- id: ATOM-INV-009
+  statement: Untrusted information cannot increase its source authority through model transformation,
+    summarization, or memory consolidation.
+  class: requirement-linked
+- id: ATOM-INV-010
+  statement: Replay cannot re-emit consequential external effects unless an explicit live-fork policy
+    authorizes a new effect identity.
+  class: requirement-linked
+- id: ATOM-INV-011
+  statement: Behavior certificates bind exact behavior-relevant inputs and become stale when incompatible
+    inputs change.
+  class: requirement-linked
+- id: ATOM-INV-012
+  statement: Resource pressure, urgency, model recommendation, or repeated success never increases authority.
+  class: requirement-linked
+- id: ATOM-INV-013
+  statement: 'Cancellation is truthful: a mission is not terminal-cancelled while owned consequential
+    effects remain unreconciled.'
+  class: requirement-linked
+- id: ATOM-INV-014
+  statement: Read-only observation paths cannot implicitly provision, install, start, mutate, or obtain
+    write credentials.
+  class: requirement-linked
+- id: ATOM-INV-015
+  statement: Simulation and prediction are never stored as direct observations of reality.
+  class: requirement-linked
+- id: ATOM-INV-016
+  statement: Self-improvement may recursively increase capability but cannot self-promote trusted-core
+    changes or authority expansion.
+  class: requirement-linked
+- id: ATOM-INV-017
+  statement: Learning/promotion decisions require separated evaluation evidence and cannot rely only on
+    training trajectories.
+  class: requirement-linked
+- id: ATOM-INV-018
+  statement: A stale instance, worker, lease, grant generation, or restore epoch cannot commit a new authoritative
+    mutation.
+  class: requirement-linked
+- id: ATOM-INV-019
+  statement: Memory retrieval, context eligibility, decision eligibility, and effect eligibility are separate
+    policy gates.
+  class: requirement-linked
+- id: ATOM-INV-020
+  statement: No superiority claim is valid without pinned versions, comparable budgets, reproducible harnesses,
+    and published failure traces.
+  class: requirement-linked
+- id: ATOM-INV-021
+  statement: 'Release status is truthful: unexecuted or missing evidence is never represented as pass,
+    certified, baseline, or generally available.'
+  class: global-meta
+- id: ATOM-INV-022
+  statement: No normative requirement or acceptance test may exist without bidirectional traceability
+    and an explicit owner and gate.
+  class: global-meta
+- id: ATOM-INV-023
+  statement: A schema-valid object is not authoritative until all applicable semantic rules, policy checks,
+    and state guards pass.
+  class: global-meta
+- id: ATOM-INV-024
+  statement: An external peer, provider, extension, skill, model, or adapter cannot create local authority
+    by assertion or advertisement.
+  class: global-meta
+- id: ATOM-INV-025
+  statement: A verified update never accepts older, expired, inconsistent, wrong-target, unbounded, or
+    insufficiently signed release material.
+  class: global-meta
+- id: ATOM-INV-026
+  statement: Data may leave a trust boundary only after purpose, sensitivity, residency, minimization,
+    destination, and secret-exclusion checks pass.
+  class: global-meta
+- id: ATOM-INV-027
+  statement: Sealed gate evidence is immutable; corrections append a superseding evidence record and preserve
+    the original decision history.
+  class: global-meta
+- id: ATOM-INV-028
+  statement: Provider or route fallback cannot silently reduce safety, privacy, verification, authority,
+    or data-residency guarantees.
+  class: global-meta
+- id: ATOM-INV-029
+  statement: The default privileged surface contains no generic shell; emergency authority is separate,
+    short-lived, two-person, transcripted, and revocable.
+  class: global-meta
+- id: ATOM-INV-030
+  statement: A gate decision is a deterministic function of pinned inputs, declared thresholds, complete
+    evidence, and an identified decision authority.
+  class: global-meta

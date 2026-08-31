@@ -1,0 +1,312 @@
+spec_version: 4.1.0
+source_document: ATOM_Verification_Traceability_and_Acceptance_v4.1
+count: 51
+note: 51 canonical schema contracts referenced by traceability. G0 requires each to have a body plus one
+  valid and one invalid fixture.
+schemas:
+- id: approval-grant
+  contract: spec/schemas/approval-grant.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: architecture-decision
+  contract: spec/schemas/architecture-decision.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: artifact-attestation
+  contract: spec/schemas/artifact-attestation.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: backup-manifest
+  contract: spec/schemas/backup-manifest.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: behavior-manifest-v2
+  contract: spec/schemas/behavior-manifest-v2.schema.json
+  body_status: authored_v40_pending_v41_review
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: benchmark-contract
+  contract: spec/schemas/benchmark-contract.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: capability-contract
+  contract: spec/schemas/capability-contract.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: capability-grant
+  contract: spec/schemas/capability-grant.schema.json
+  body_status: authored_v40_pending_v41_review
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: certificate
+  contract: spec/schemas/certificate.schema.json
+  body_status: authored_v40_pending_v41_review
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: claim-record
+  contract: spec/schemas/claim-record.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: claim
+  contract: spec/schemas/claim.schema.json
+  body_status: authored_v40_pending_v41_review
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: commit-permit
+  contract: spec/schemas/commit-permit.schema.json
+  body_status: authored_v40_pending_v41_review
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: commitment
+  contract: spec/schemas/commitment.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: compatibility-profile
+  contract: spec/schemas/compatibility-profile.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: connector-receipt
+  contract: spec/schemas/connector-receipt.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: context-bundle
+  contract: spec/schemas/context-bundle.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: context-item
+  contract: spec/schemas/context-item.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: data-policy
+  contract: spec/schemas/data-policy.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: decision-record
+  contract: spec/schemas/decision-record.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: deletion-receipt
+  contract: spec/schemas/deletion-receipt.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: effect-intent
+  contract: spec/schemas/effect-intent.schema.json
+  body_status: authored_v40_pending_v41_review
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: evidence
+  contract: spec/schemas/evidence.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: extension-manifest
+  contract: spec/schemas/extension-manifest.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: fault-record
+  contract: spec/schemas/fault-record.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: lease-epoch
+  contract: spec/schemas/lease-epoch.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: ledger-checkpoint
+  contract: spec/schemas/ledger-checkpoint.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: ledger-event
+  contract: spec/schemas/ledger-event.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: mission-graph
+  contract: spec/schemas/mission-graph.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: mission-snapshot
+  contract: spec/schemas/mission-snapshot.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: mission-spec
+  contract: spec/schemas/mission-spec.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: obligation
+  contract: spec/schemas/obligation.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: observation
+  contract: spec/schemas/observation.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: operation-status
+  contract: spec/schemas/operation-status.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: policy-decision
+  contract: spec/schemas/policy-decision.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: problem-detail
+  contract: spec/schemas/problem-detail.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: promotion-decision
+  contract: spec/schemas/promotion-decision.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: provider-call
+  contract: spec/schemas/provider-call.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: provider-profile
+  contract: spec/schemas/provider-profile.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: recovery-plan
+  contract: spec/schemas/recovery-plan.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: release-manifest
+  contract: spec/schemas/release-manifest.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: replay-request
+  contract: spec/schemas/replay-request.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: resource-precondition
+  contract: spec/schemas/resource-precondition.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: schedule-run
+  contract: spec/schemas/schedule-run.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: schedule-spec
+  contract: spec/schemas/schedule-spec.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: schema-inventory
+  contract: spec/schemas/schema-inventory.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: secret-handle
+  contract: spec/schemas/secret-handle.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: slo-definition
+  contract: spec/schemas/slo-definition.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: task-signature
+  contract: spec/schemas/task-signature.schema.json
+  body_status: authored_v40_pending_v41_review
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: telemetry-envelope
+  contract: spec/schemas/telemetry-envelope.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: test-evidence
+  contract: spec/schemas/test-evidence.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored
+- id: trace-link
+  contract: spec/schemas/trace-link.schema.json
+  body_status: declared_not_authored
+  fixtures:
+    valid: declared_not_authored
+    invalid: declared_not_authored

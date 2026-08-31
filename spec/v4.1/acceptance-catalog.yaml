@@ -1,0 +1,1155 @@
+spec_version: 4.1.0
+tests:
+- id: ATOM-VT41-001
+  requirement: ATOM-V4-KRN-001
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'Architecture path test plus adversarial bypass suite. Oracle: No
+    authoritative state or external mutation is committed.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-001 --root .
+  evidence: evidence/G2/ATOM-V4-KRN-001.json
+- id: ATOM-VT41-002
+  requirement: ATOM-V4-KRN-002
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'Privilege boundary integration test. Oracle: No authoritative state
+    or external mutation is committed.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-002 --root .
+  evidence: evidence/G2/ATOM-V4-KRN-002.json
+- id: ATOM-VT41-003
+  requirement: ATOM-V4-AUT-001
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Schema/property tests and escalation attempts. Oracle: Every unsafe
+    request is denied before permit issue or consumption.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-003 --root .
+  evidence: evidence/G2/ATOM-V4-AUT-001.json
+- id: ATOM-VT41-004
+  requirement: ATOM-V4-AUT-002
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Capability lattice property test. Oracle: Every unsafe request is
+    denied before permit issue or consumption.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-004 --root .
+  evidence: evidence/G2/ATOM-V4-AUT-002.json
+- id: ATOM-VT41-005
+  requirement: ATOM-V4-AUT-003
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Changed-payload, expiry, revocation tests. Oracle: Every unsafe
+    request is denied before permit issue or consumption.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-005 --root .
+  evidence: evidence/G2/ATOM-V4-AUT-003.json
+- id: ATOM-VT41-006
+  requirement: ATOM-V4-EFX-001
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Kill-before/after-dispatch fault matrix. Oracle: No blind duplicate
+    occurs; uncertainty is explicit and dependencies block.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-006 --root .
+  evidence: evidence/G2/ATOM-V4-EFX-001.json
+- id: ATOM-VT41-007
+  requirement: ATOM-V4-EFX-002
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Connector conformance suite. Oracle: No blind duplicate occurs;
+    uncertainty is explicit and dependencies block.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-007 --root .
+  evidence: evidence/G2/ATOM-V4-EFX-002.json
+- id: ATOM-VT41-008
+  requirement: ATOM-V4-EFX-003
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Remote-commit/drop-response test. Oracle: No blind duplicate occurs;
+    uncertainty is explicit and dependencies block.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-008 --root .
+  evidence: evidence/G2/ATOM-V4-EFX-003.json
+- id: ATOM-VT41-009
+  requirement: ATOM-V4-EFX-004
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'TOCTOU and permit replay tests. Oracle: No blind duplicate occurs;
+    uncertainty is explicit and dependencies block.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-009 --root .
+  evidence: evidence/G2/ATOM-V4-EFX-004.json
+- id: ATOM-VT41-010
+  requirement: ATOM-V4-LED-001
+  gate: G3
+  tier: FAULT_INJECTION
+  intent_oracle: 'Delete/reorder/bit-flip/truncation tests. Oracle: Integrity or epoch
+    verification detects every injected defect.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-010 --root .
+  evidence: evidence/G3/ATOM-V4-LED-001.json
+- id: ATOM-VT41-011
+  requirement: ATOM-V4-MSN-001
+  gate: G3
+  tier: INTEGRATION
+  intent_oracle: 'MissionSpec schema and rejection tests. Oracle: Goal, evidence,
+    budgets, commitments, and uncertainty are preserved.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-011 --root .
+  evidence: evidence/G3/ATOM-V4-MSN-001.json
+- id: ATOM-VT41-012
+  requirement: ATOM-V4-MSN-002
+  gate: G3
+  tier: INTEGRATION
+  intent_oracle: 'Generated enum conformance and reducer tests. Oracle: Goal, evidence,
+    budgets, commitments, and uncertainty are preserved.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-012 --root .
+  evidence: evidence/G3/ATOM-V4-MSN-002.json
+- id: ATOM-VT41-013
+  requirement: ATOM-V4-MSN-003
+  gate: G3
+  tier: INTEGRATION
+  intent_oracle: 'Replay identical-state digest test. Oracle: Goal, evidence, budgets,
+    commitments, and uncertainty are preserved.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-013 --root .
+  evidence: evidence/G3/ATOM-V4-MSN-003.json
+- id: ATOM-VT41-014
+  requirement: ATOM-V4-COG-001
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'Native-only independence test. Oracle: Topology remains bounded
+    and verifier separation is evidenced.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-014 --root .
+  evidence: evidence/G2/ATOM-V4-COG-001.json
+- id: ATOM-VT41-015
+  requirement: ATOM-V4-CXT-001
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'Prompt-injection laundering tests. Oracle: Taint and provenance
+    survive; no unauthorized declassification occurs.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-015 --root .
+  evidence: evidence/G2/ATOM-V4-CXT-001.json
+- id: ATOM-VT41-016
+  requirement: ATOM-V4-SEC-001
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Canary secret and cross-principal redemption tests. Oracle: No secret
+    leaks or unauthorized effect commits.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-016 --root .
+  evidence: evidence/G2/ATOM-V4-SEC-001.json
+- id: ATOM-VT41-017
+  requirement: ATOM-V4-SCH-001
+  gate: G3
+  tier: INTEGRATION
+  intent_oracle: 'Restart/DST/overlap matrix. Oracle: Admission and dedupe semantics
+    match the schedule contract.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-017 --root .
+  evidence: evidence/G3/ATOM-V4-SCH-001.json
+- id: ATOM-VT41-018
+  requirement: ATOM-V4-OBS-001
+  gate: G7
+  tier: INTEGRATION
+  intent_oracle: 'Stale-resource reobserve test. Oracle: Freshness, type, provenance,
+    and privacy gates are enforced.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-018 --root .
+  evidence: evidence/G7/ATOM-V4-OBS-001.json
+- id: ATOM-VT41-019
+  requirement: ATOM-V4-RPL-001
+  gate: G3
+  tier: INTEGRATION
+  intent_oracle: 'Replay class conformance tests. Oracle: Only an explicitly authorized
+    R4 fork can create new effect identities.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-019 --root .
+  evidence: evidence/G3/ATOM-V4-RPL-001.json
+- id: ATOM-VT41-020
+  requirement: ATOM-V4-OPS-001
+  gate: G5
+  tier: INTEGRATION
+  intent_oracle: 'Clean Ubuntu/Debian VM E2E. Oracle: Each operation converges or
+    fails safely with preserved data and evidence.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-020 --root .
+  evidence: evidence/G5/ATOM-V4-OPS-001.json
+- id: ATOM-VT41-021
+  requirement: ATOM-V4-UI-001
+  gate: G6
+  tier: INTEGRATION
+  intent_oracle: 'Mobile E2E and visual fixtures. Oracle: Risk and uncertainty remain
+    visible and all actions are accessible.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-021 --root .
+  evidence: evidence/G6/ATOM-V4-UI-001.json
+- id: ATOM-VT41-022
+  requirement: ATOM-V4-EXT-001
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Malicious extension isolation suite. Oracle: Undeclared capabilities
+    are denied and sovereign state remains isolated.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-022 --root .
+  evidence: evidence/G4/ATOM-V4-EXT-001.json
+- id: ATOM-VT41-023
+  requirement: ATOM-V4-SUP-001
+  gate: G1
+  tier: FAULT_INJECTION
+  intent_oracle: 'Tamper/install verification. Oracle: Signature, digest, policy,
+    or freshness validation blocks promotion.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-023 --root .
+  evidence: evidence/G1/ATOM-V4-SUP-001.json
+- id: ATOM-VT41-024
+  requirement: ATOM-V4-EPI-001
+  gate: G7
+  tier: FAULT_INJECTION
+  intent_oracle: 'Schema, contradiction and time-travel tests. Oracle: Lifecycle gates
+    block effects and selective repair removes influence.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-024 --root .
+  evidence: evidence/G7/ATOM-V4-EPI-001.json
+- id: ATOM-VT41-025
+  requirement: ATOM-V4-EPI-002
+  gate: G7
+  tier: FAULT_INJECTION
+  intent_oracle: 'Memory poisoning lifecycle test. Oracle: Lifecycle gates block effects
+    and selective repair removes influence.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-025 --root .
+  evidence: evidence/G7/ATOM-V4-EPI-002.json
+- id: ATOM-VT41-026
+  requirement: ATOM-V4-FND-001
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'Tool-Genesis-style benchmark. Oracle: Quarantine and hidden holdout
+    prevent activation.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-026 --root .
+  evidence: evidence/G2/ATOM-V4-FND-001.json
+- id: ATOM-VT41-027
+  requirement: ATOM-V4-FND-002
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'Crash/replay holdout suite. Oracle: Quarantine and hidden holdout
+    prevent activation.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-027 --root .
+  evidence: evidence/G2/ATOM-V4-FND-002.json
+- id: ATOM-VT41-028
+  requirement: ATOM-V4-FND-003
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'Separated-context and oracle provenance tests. Oracle: Quarantine
+    and hidden holdout prevent activation.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-028 --root .
+  evidence: evidence/G2/ATOM-V4-FND-003.json
+- id: ATOM-VT41-029
+  requirement: ATOM-V4-EXP-001
+  gate: G8
+  tier: INTEGRATION
+  intent_oracle: 'Repeated-task corpus with contamination controls. Oracle: Only evidence-approved
+    data is promoted and regression triggers fallback.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-029 --root .
+  evidence: evidence/G8/ATOM-V4-EXP-001.json
+- id: ATOM-VT41-030
+  requirement: ATOM-V4-EXP-002
+  gate: G8
+  tier: INTEGRATION
+  intent_oracle: 'Authority self-expansion adversarial test. Oracle: Only evidence-approved
+    data is promoted and regression triggers fallback.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-030 --root .
+  evidence: evidence/G8/ATOM-V4-EXP-002.json
+- id: ATOM-VT41-031
+  requirement: ATOM-V4-JIT-001
+  gate: G8
+  tier: INTEGRATION
+  intent_oracle: 'Tokens/model-calls per verified success trend. Oracle: Certificate
+    becomes stale and deliberative fallback activates.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-031 --root .
+  evidence: evidence/G8/ATOM-V4-JIT-001.json
+- id: ATOM-VT41-032
+  requirement: ATOM-V4-ARC-001
+  gate: G8
+  tier: INTEGRATION
+  intent_oracle: 'Offline/canary contextual-bandit evaluation. Oracle: The external
+    constraint rejects it and records evidence.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-032 --root .
+  evidence: evidence/G8/ATOM-V4-ARC-001.json
+- id: ATOM-VT41-033
+  requirement: ATOM-V4-FLT-001
+  gate: G3
+  tier: INTEGRATION
+  intent_oracle: 'Fault-class campaign. Oracle: Recovery action and operator queue
+    match fault semantics.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-033 --root .
+  evidence: evidence/G3/ATOM-V4-FLT-001.json
+- id: ATOM-VT41-034
+  requirement: ATOM-V4-RST-001
+  gate: G3
+  tier: FAULT_INJECTION
+  intent_oracle: 'Snapshot clone/fencing test. Oracle: Only the current witnessed
+    epoch can commit.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-034 --root .
+  evidence: evidence/G3/ATOM-V4-RST-001.json
+- id: ATOM-VT41-035
+  requirement: ATOM-V4-EVO-001
+  gate: G9
+  tier: INTEGRATION
+  intent_oracle: 'Promotion and rollback test. Oracle: The attempt is blocked and
+    routed to governed release.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-035 --root .
+  evidence: evidence/G9/ATOM-V4-EVO-001.json
+- id: ATOM-VT41-036
+  requirement: ATOM-V4-EVO-002
+  gate: G9
+  tier: INTEGRATION
+  intent_oracle: 'Adversarial self-modification test. Oracle: The attempt is blocked
+    and routed to governed release.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-036 --root .
+  evidence: evidence/G9/ATOM-V4-EVO-002.json
+- id: ATOM-VT41-037
+  requirement: ATOM-V4-CER-001
+  gate: G8
+  tier: INTEGRATION
+  intent_oracle: 'Material-change stale-certificate test. Oracle: BehaviorId changes
+    or the certificate becomes stale.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-037 --root .
+  evidence: evidence/G8/ATOM-V4-CER-001.json
+- id: ATOM-VT41-038
+  requirement: ATOM-V4-BMK-001
+  gate: G8
+  tier: INTEGRATION
+  intent_oracle: 'Benchmark contract audit. Oracle: Predeclared decision rules handle
+    uncertainty without overclaiming.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-038 --root .
+  evidence: evidence/G8/ATOM-V4-BMK-001.json
+- id: ATOM-VT41-039
+  requirement: ATOM-V4-INT-001
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Interop conformance matrix. Oracle: Data is imported as untrusted
+    and no local authority is created.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-039 --root .
+  evidence: evidence/G4/ATOM-V4-INT-001.json
+- id: ATOM-VT41-040
+  requirement: ATOM-V4-API-001
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'API duplicate and unknown-state tests. Oracle: Typed HTTP/CLI outcomes
+    preserve idempotency and uncertainty.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-040 --root .
+  evidence: evidence/G4/ATOM-V4-API-001.json
+- id: ATOM-VT41-041
+  requirement: ATOM-V4-BAS-001
+  gate: G0
+  tier: CONTRACT
+  intent_oracle: 'Validate release manifest and every document-control block against
+    the status vocabulary. Oracle: The validator fails closed and names both sources.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-041 --root .
+  evidence: evidence/G0/ATOM-V4-BAS-001.json
+- id: ATOM-VT41-042
+  requirement: ATOM-V4-BAS-002
+  gate: G0
+  tier: CONTRACT
+  intent_oracle: 'Inject a conflicting normative statement and require the collision
+    linter to fail. Oracle: The validator fails closed and names both sources.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-042 --root .
+  evidence: evidence/G0/ATOM-V4-BAS-002.json
+- id: ATOM-VT41-043
+  requirement: ATOM-V4-BAS-003
+  gate: G0
+  tier: CONTRACT
+  intent_oracle: 'Rebuild twice in a normalized environment and compare logical manifests;
+    verify every listed hash. Oracle: The validator fails closed and names both sources.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-043 --root .
+  evidence: evidence/G0/ATOM-V4-BAS-003.json
+- id: ATOM-VT41-044
+  requirement: ATOM-V4-TRC-001
+  gate: G0
+  tier: CONTRACT
+  intent_oracle: 'Run the bidirectional traceability validator and require 100 percent
+    coverage with no dangling identifiers. Oracle: Coverage is below 100% and G0 fails.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-044 --root .
+  evidence: evidence/G0/ATOM-V4-TRC-001.json
+- id: ATOM-VT41-045
+  requirement: ATOM-V4-TRC-002
+  gate: G0
+  tier: CONTRACT
+  intent_oracle: 'Require exact set equality between extracted v3.1 IDs and migration
+    ledger IDs. Oracle: Coverage is below 100% and G0 fails.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-045 --root .
+  evidence: evidence/G0/ATOM-V4-TRC-002.json
+- id: ATOM-VT41-046
+  requirement: ATOM-V4-TRC-003
+  gate: G0
+  tier: CONTRACT
+  intent_oracle: 'Modify sealed evidence and require verification failure; add superseding
+    evidence and require chain validity. Oracle: Coverage is below 100% and G0 fails.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-046 --root .
+  evidence: evidence/G0/ATOM-V4-TRC-003.json
+- id: ATOM-VT41-047
+  requirement: ATOM-V4-SCM-001
+  gate: G0
+  tier: CONTRACT
+  intent_oracle: 'Schema inventory coverage plus positive and negative fixture validation.
+    Oracle: All valid fixtures pass; every invalid fixture fails for the declared
+    rule.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-047 --root .
+  evidence: evidence/G0/ATOM-V4-SCM-001.json
+- id: ATOM-VT41-048
+  requirement: ATOM-V4-SCM-002
+  gate: G0
+  tier: CONTRACT
+  intent_oracle: 'Run semantic rules and RFC 8785 digest vectors in two independent
+    runtimes before G1. Oracle: All valid fixtures pass; every invalid fixture fails
+    for the declared rule.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-048 --root .
+  evidence: evidence/G0/ATOM-V4-SCM-002.json
+- id: ATOM-VT41-049
+  requirement: ATOM-V4-KRN-003
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'Native-only mission, removal, and adapter-failure isolation tests.
+    Oracle: No authoritative state or external mutation is committed.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-049 --root .
+  evidence: evidence/G2/ATOM-V4-KRN-003.json
+- id: ATOM-VT41-050
+  requirement: ATOM-V4-KRN-004
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'API enumeration, bypass, shell metacharacter, network, expiry, revocation,
+    and transcript tests. Oracle: No authoritative state or external mutation is committed.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-050 --root .
+  evidence: evidence/G2/ATOM-V4-KRN-004.json
+- id: ATOM-VT41-051
+  requirement: ATOM-V4-AUT-004
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Schema, changed-payload, replay, expiry, audience, and revocation
+    tests. Oracle: Every unsafe request is denied before permit issue or consumption.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-051 --root .
+  evidence: evidence/G2/ATOM-V4-AUT-004.json
+- id: ATOM-VT41-052
+  requirement: ATOM-V4-AUT-005
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Cedar-style PARC vectors, obligation failure, and decision replay
+    tests. Oracle: Every unsafe request is denied before permit issue or consumption.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-052 --root .
+  evidence: evidence/G2/ATOM-V4-AUT-005.json
+- id: ATOM-VT41-053
+  requirement: ATOM-V4-AUT-006
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Concurrent revocation, stale cache, descendant, and partition recovery
+    tests. Oracle: Every unsafe request is denied before permit issue or consumption.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-053 --root .
+  evidence: evidence/G2/ATOM-V4-AUT-006.json
+- id: ATOM-VT41-054
+  requirement: ATOM-V4-AUT-007
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Identity rotation, workload substitution, restore epoch, and JWT
+    replay tests. Oracle: Every unsafe request is denied before permit issue or consumption.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-054 --root .
+  evidence: evidence/G2/ATOM-V4-AUT-007.json
+- id: ATOM-VT41-055
+  requirement: ATOM-V4-EFX-005
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Schema and semantic tests reject request_digest alias, absent authority
+    bindings, and unconstrained preconditions. Oracle: No blind duplicate occurs;
+    uncertainty is explicit and dependencies block.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-055 --root .
+  evidence: evidence/G2/ATOM-V4-EFX-005.json
+- id: ATOM-VT41-056
+  requirement: ATOM-V4-EFX-006
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Connector conformance tests for success, timeout, dropped response,
+    malformed receipt, and version drift. Oracle: No blind duplicate occurs; uncertainty
+    is explicit and dependencies block.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-056 --root .
+  evidence: evidence/G2/ATOM-V4-EFX-006.json
+- id: ATOM-VT41-057
+  requirement: ATOM-V4-EFX-007
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'TOCTOU matrix across version, ETag, balance, ownership, and permission
+    witnesses. Oracle: No blind duplicate occurs; uncertainty is explicit and dependencies
+    block.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-057 --root .
+  evidence: evidence/G2/ATOM-V4-EFX-007.json
+- id: ATOM-VT41-058
+  requirement: ATOM-V4-EFX-008
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Remote commit plus response loss, duplicate key, and non-idempotent
+    connector tests. Oracle: No blind duplicate occurs; uncertainty is explicit and
+    dependencies block.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-058 --root .
+  evidence: evidence/G2/ATOM-V4-EFX-008.json
+- id: ATOM-VT41-059
+  requirement: ATOM-V4-EFX-009
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Dependency graph and failed compensation fault campaign. Oracle:
+    No blind duplicate occurs; uncertainty is explicit and dependencies block.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-059 --root .
+  evidence: evidence/G2/ATOM-V4-EFX-009.json
+- id: ATOM-VT41-060
+  requirement: ATOM-V4-LED-002
+  gate: G3
+  tier: FAULT_INJECTION
+  intent_oracle: 'Cross-language canonical hash vectors and tamper/fork tests. Oracle:
+    Integrity or epoch verification detects every injected defect.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-060 --root .
+  evidence: evidence/G3/ATOM-V4-LED-002.json
+- id: ATOM-VT41-061
+  requirement: ATOM-V4-LED-003
+  gate: G3
+  tier: FAULT_INJECTION
+  intent_oracle: 'Truncation, missing-stream, stale-epoch, wrong-signer, and quorum
+    tests. Oracle: Integrity or epoch verification detects every injected defect.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-061 --root .
+  evidence: evidence/G3/ATOM-V4-LED-003.json
+- id: ATOM-VT41-062
+  requirement: ATOM-V4-LED-004
+  gate: G3
+  tier: FAULT_INJECTION
+  intent_oracle: 'Snapshot clone, dual-start, stale worker, pending-effect, and lease
+    loss tests. Oracle: Integrity or epoch verification detects every injected defect.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-062 --root .
+  evidence: evidence/G3/ATOM-V4-LED-004.json
+- id: ATOM-VT41-063
+  requirement: ATOM-V4-LED-005
+  gate: G3
+  tier: FAULT_INJECTION
+  intent_oracle: 'Archive-restore, proof continuity, legal-hold, and stale evidence
+    tests. Oracle: Integrity or epoch verification detects every injected defect.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-063 --root .
+  evidence: evidence/G3/ATOM-V4-LED-005.json
+- id: ATOM-VT41-064
+  requirement: ATOM-V4-MSN-004
+  gate: G3
+  tier: INTEGRATION
+  intent_oracle: 'Graph schema, cycle policy, missing evidence, and dependency execution
+    tests. Oracle: Goal, evidence, budgets, commitments, and uncertainty are preserved.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-064 --root .
+  evidence: evidence/G3/ATOM-V4-MSN-004.json
+- id: ATOM-VT41-065
+  requirement: ATOM-V4-MSN-005
+  gate: G3
+  tier: INTEGRATION
+  intent_oracle: 'Blocked-plan replan with restart and evidence continuity. Oracle:
+    Goal, evidence, budgets, commitments, and uncertainty are preserved.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-065 --root .
+  evidence: evidence/G3/ATOM-V4-MSN-005.json
+- id: ATOM-VT41-066
+  requirement: ATOM-V4-MSN-006
+  gate: G3
+  tier: INTEGRATION
+  intent_oracle: 'Impossible-constraint and missing-authority scenarios. Oracle: Goal,
+    evidence, budgets, commitments, and uncertainty are preserved.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-066 --root .
+  evidence: evidence/G3/ATOM-V4-MSN-006.json
+- id: ATOM-VT41-067
+  requirement: ATOM-V4-MSN-007
+  gate: G3
+  tier: INTEGRATION
+  intent_oracle: 'Restart, overdue, incompatible completion, and authorized cancellation
+    tests. Oracle: Goal, evidence, budgets, commitments, and uncertainty are preserved.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-067 --root .
+  evidence: evidence/G3/ATOM-V4-MSN-007.json
+- id: ATOM-VT41-068
+  requirement: ATOM-V4-COG-002
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'Architecture decision fixtures and adversarial swarm request tests.
+    Oracle: Topology remains bounded and verifier separation is evidenced.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-068 --root .
+  evidence: evidence/G2/ATOM-V4-COG-002.json
+- id: ATOM-VT41-069
+  requirement: ATOM-V4-COG-003
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'Prediction schema and post-run calibration report. Oracle: Topology
+    remains bounded and verifier separation is evidenced.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-069 --root .
+  evidence: evidence/G2/ATOM-V4-COG-003.json
+- id: ATOM-VT41-070
+  requirement: ATOM-V4-COG-004
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'Context-separation, oracle provenance, and anchoring tests. Oracle:
+    Topology remains bounded and verifier separation is evidenced.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-070 --root .
+  evidence: evidence/G2/ATOM-V4-COG-004.json
+- id: ATOM-VT41-071
+  requirement: ATOM-V4-COG-005
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'Policy trace and redaction tests on representative decisions. Oracle:
+    Topology remains bounded and verifier separation is evidenced.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-071 --root .
+  evidence: evidence/G2/ATOM-V4-COG-005.json
+- id: ATOM-VT41-072
+  requirement: ATOM-V4-CXT-002
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'Taint propagation, summarization laundering, budget, and declassification
+    tests. Oracle: Taint and provenance survive; no unauthorized declassification
+    occurs.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-072 --root .
+  evidence: evidence/G2/ATOM-V4-CXT-002.json
+- id: ATOM-VT41-073
+  requirement: ATOM-V4-SEC-002
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Canary secret campaign across model, worker, telemetry, crash, and
+    error paths. Oracle: No secret leaks or unauthorized effect commits.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-073 --root .
+  evidence: evidence/G2/ATOM-V4-SEC-002.json
+- id: ATOM-VT41-074
+  requirement: ATOM-V4-SEC-003
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Crosswalk completeness and red-team evidence coverage. Oracle: No
+    secret leaks or unauthorized effect commits.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-074 --root .
+  evidence: evidence/G2/ATOM-V4-SEC-003.json
+- id: ATOM-VT41-075
+  requirement: ATOM-V4-SEC-004
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'WASI/container escape, DNS rebinding, loopback, metadata service,
+    and covert output tests. Oracle: No secret leaks or unauthorized effect commits.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-075 --root .
+  evidence: evidence/G2/ATOM-V4-SEC-004.json
+- id: ATOM-VT41-076
+  requirement: ATOM-V4-SEC-005
+  gate: G2
+  tier: FAULT_INJECTION
+  intent_oracle: 'Concurrent config edit, lockout prevention, rollback, and privilege
+    tests. Oracle: No secret leaks or unauthorized effect commits.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-076 --root .
+  evidence: evidence/G2/ATOM-V4-SEC-005.json
+- id: ATOM-VT41-077
+  requirement: ATOM-V4-SCH-002
+  gate: G3
+  tier: INTEGRATION
+  intent_oracle: 'DST, restart-window, clock jump, overlap, duplicate, and revoked-authority
+    matrix. Oracle: Admission and dedupe semantics match the schedule contract.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-077 --root .
+  evidence: evidence/G3/ATOM-V4-SCH-002.json
+- id: ATOM-VT41-078
+  requirement: ATOM-V4-OBS-002
+  gate: G7
+  tier: INTEGRATION
+  intent_oracle: 'Schema, stale evidence, model-assertion confusion, and provenance
+    tests. Oracle: Freshness, type, provenance, and privacy gates are enforced.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-078 --root .
+  evidence: evidence/G7/ATOM-V4-OBS-002.json
+- id: ATOM-VT41-079
+  requirement: ATOM-V4-OBS-003
+  gate: G7
+  tier: INTEGRATION
+  intent_oracle: 'OpenTelemetry semantic-convention and sensitive-content leakage
+    tests. Oracle: Freshness, type, provenance, and privacy gates are enforced.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-079 --root .
+  evidence: evidence/G7/ATOM-V4-OBS-003.json
+- id: ATOM-VT41-080
+  requirement: ATOM-V4-OBS-004
+  gate: G7
+  tier: INTEGRATION
+  intent_oracle: 'Distributed trace continuity and cross-tenant leakage tests. Oracle:
+    Freshness, type, provenance, and privacy gates are enforced.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-080 --root .
+  evidence: evidence/G7/ATOM-V4-OBS-004.json
+- id: ATOM-VT41-081
+  requirement: ATOM-V4-RPL-002
+  gate: G3
+  tier: INTEGRATION
+  intent_oracle: 'Class-specific output and forbidden effect tests. Oracle: Only an
+    explicitly authorized R4 fork can create new effect identities.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-081 --root .
+  evidence: evidence/G3/ATOM-V4-RPL-002.json
+- id: ATOM-VT41-082
+  requirement: ATOM-V4-OPS-002
+  gate: G5
+  tier: INTEGRATION
+  intent_oracle: 'Matrix schema and clean-image installation runs. Oracle: Each operation
+    converges or fails safely with preserved data and evidence.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-082 --root .
+  evidence: evidence/G5/ATOM-V4-OPS-002.json
+- id: ATOM-VT41-083
+  requirement: ATOM-V4-OPS-003
+  gate: G5
+  tier: INTEGRATION
+  intent_oracle: 'Fresh, interrupted, rerun, offline-cache, proxy, disk-full, and
+    bad-signature tests. Oracle: Each operation converges or fails safely with preserved
+    data and evidence.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-083 --root .
+  evidence: evidence/G5/ATOM-V4-OPS-003.json
+- id: ATOM-VT41-084
+  requirement: ATOM-V4-OPS-004
+  gate: G5
+  tier: INTEGRATION
+  intent_oracle: 'Precedence, unknown key, redaction, restart, and migration tests.
+    Oracle: Each operation converges or fails safely with preserved data and evidence.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-084 --root .
+  evidence: evidence/G5/ATOM-V4-OPS-004.json
+- id: ATOM-VT41-085
+  requirement: ATOM-V4-OPS-005
+  gate: G5
+  tier: INTEGRATION
+  intent_oracle: 'Repository attack simulation matrix. Oracle: Each operation converges
+    or fails safely with preserved data and evidence.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-085 --root .
+  evidence: evidence/G5/ATOM-V4-OPS-005.json
+- id: ATOM-VT41-086
+  requirement: ATOM-V4-OPS-006
+  gate: G5
+  tier: INTEGRATION
+  intent_oracle: 'N-1 upgrade, failed migration, binary rollback, data-forward incompatibility,
+    and recovery tests. Oracle: Each operation converges or fails safely with preserved
+    data and evidence.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-086 --root .
+  evidence: evidence/G5/ATOM-V4-OPS-006.json
+- id: ATOM-VT41-087
+  requirement: ATOM-V4-OPS-007
+  gate: G5
+  tier: INTEGRATION
+  intent_oracle: 'Encrypted backup, restore to clean host, tamper, missing key, and
+    pending-effect tests. Oracle: Each operation converges or fails safely with preserved
+    data and evidence.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-087 --root .
+  evidence: evidence/G5/ATOM-V4-OPS-007.json
+- id: ATOM-VT41-088
+  requirement: ATOM-V4-OPS-008
+  gate: G5
+  tier: INTEGRATION
+  intent_oracle: 'Default uninstall preservation and explicit purge tests. Oracle:
+    Each operation converges or fails safely with preserved data and evidence.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-088 --root .
+  evidence: evidence/G5/ATOM-V4-OPS-008.json
+- id: ATOM-VT41-089
+  requirement: ATOM-V4-UI-002
+  gate: G6
+  tier: INTEGRATION
+  intent_oracle: 'Accessibility, mobile, risk confirmation, and queue workflow tests.
+    Oracle: Risk and uncertainty remain visible and all actions are accessible.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-089 --root .
+  evidence: evidence/G6/ATOM-V4-UI-002.json
+- id: ATOM-VT41-090
+  requirement: ATOM-V4-EXT-002
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Schema, signature, undeclared capability, dependency, and revocation
+    tests. Oracle: Undeclared capabilities are denied and sovereign state remains
+    isolated.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-090 --root .
+  evidence: evidence/G4/ATOM-V4-EXT-002.json
+- id: ATOM-VT41-091
+  requirement: ATOM-V4-EXT-003
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Cross-sandbox conformance and capability equivalence tests. Oracle:
+    Undeclared capabilities are denied and sovereign state remains isolated.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-091 --root .
+  evidence: evidence/G4/ATOM-V4-EXT-003.json
+- id: ATOM-VT41-092
+  requirement: ATOM-V4-EXT-004
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Malformed frontmatter, path traversal, prompt injection, lazy loading,
+    and script capability tests. Oracle: Undeclared capabilities are denied and sovereign
+    state remains isolated.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-092 --root .
+  evidence: evidence/G4/ATOM-V4-EXT-004.json
+- id: ATOM-VT41-093
+  requirement: ATOM-V4-EXT-005
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Hostile peer and adapter removal tests. Oracle: Undeclared capabilities
+    are denied and sovereign state remains isolated.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-093 --root .
+  evidence: evidence/G4/ATOM-V4-EXT-005.json
+- id: ATOM-VT41-094
+  requirement: ATOM-V4-SUP-002
+  gate: G1
+  tier: FAULT_INJECTION
+  intent_oracle: 'Provenance subject digest, signer, builder identity, SBOM, license,
+    and tamper tests. Oracle: Signature, digest, policy, or freshness validation blocks
+    promotion.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-094 --root .
+  evidence: evidence/G1/ATOM-V4-SUP-002.json
+- id: ATOM-VT41-095
+  requirement: ATOM-V4-SUP-003
+  gate: G1
+  tier: FAULT_INJECTION
+  intent_oracle: 'Dependency manifest linter and substitution attack tests. Oracle:
+    Signature, digest, policy, or freshness validation blocks promotion.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-095 --root .
+  evidence: evidence/G1/ATOM-V4-SUP-003.json
+- id: ATOM-VT41-096
+  requirement: ATOM-V4-SUP-004
+  gate: G1
+  tier: FAULT_INJECTION
+  intent_oracle: 'Known vulnerable dependency and waiver expiry tests. Oracle: Signature,
+    digest, policy, or freshness validation blocks promotion.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-096 --root .
+  evidence: evidence/G1/ATOM-V4-SUP-004.json
+- id: ATOM-VT41-097
+  requirement: ATOM-V4-EPI-003
+  gate: G7
+  tier: FAULT_INJECTION
+  intent_oracle: 'Lifecycle poisoning test with selective gate failures. Oracle: Lifecycle
+    gates block effects and selective repair removes influence.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-097 --root .
+  evidence: evidence/G7/ATOM-V4-EPI-003.json
+- id: ATOM-VT41-098
+  requirement: ATOM-V4-EPI-004
+  gate: G7
+  tier: FAULT_INJECTION
+  intent_oracle: 'Contradiction, time-travel, laundering, and source deletion tests.
+    Oracle: Lifecycle gates block effects and selective repair removes influence.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-098 --root .
+  evidence: evidence/G7/ATOM-V4-EPI-004.json
+- id: ATOM-VT41-099
+  requirement: ATOM-V4-EPI-005
+  gate: G7
+  tier: FAULT_INJECTION
+  intent_oracle: 'Influence graph repair and replay comparison tests. Oracle: Lifecycle
+    gates block effects and selective repair removes influence.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-099 --root .
+  evidence: evidence/G7/ATOM-V4-EPI-005.json
+- id: ATOM-VT41-100
+  requirement: ATOM-V4-FND-004
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'State-machine reachability and forbidden transition tests. Oracle:
+    Quarantine and hidden holdout prevent activation.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-100 --root .
+  evidence: evidence/G2/ATOM-V4-FND-004.json
+- id: ATOM-VT41-101
+  requirement: ATOM-V4-FND-005
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'Calibration, out-of-domain, and observation-confusion tests. Oracle:
+    Quarantine and hidden holdout prevent activation.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-101 --root .
+  evidence: evidence/G2/ATOM-V4-FND-005.json
+- id: ATOM-VT41-102
+  requirement: ATOM-V4-FND-006
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'One-task overfit, authority escalation, runaway, and holdout tests.
+    Oracle: Quarantine and hidden holdout prevent activation.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-102 --root .
+  evidence: evidence/G2/ATOM-V4-FND-006.json
+- id: ATOM-VT41-103
+  requirement: ATOM-V4-FND-007
+  gate: G2
+  tier: INTEGRATION
+  intent_oracle: 'No-training deployment, rights denial, holdout access, provenance,
+    and regression tests. Oracle: Quarantine and hidden holdout prevent activation.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-103 --root .
+  evidence: evidence/G2/ATOM-V4-FND-007.json
+- id: ATOM-VT41-104
+  requirement: ATOM-V4-EXP-003
+  gate: G8
+  tier: INTEGRATION
+  intent_oracle: 'Eligibility corpus with negative examples and contamination controls.
+    Oracle: Only evidence-approved data is promoted and regression triggers fallback.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-104 --root .
+  evidence: evidence/G8/ATOM-V4-EXP-003.json
+- id: ATOM-VT41-105
+  requirement: ATOM-V4-EXP-004
+  gate: G8
+  tier: INTEGRATION
+  intent_oracle: 'Multi-form candidate tournament with hidden cases. Oracle: Only
+    evidence-approved data is promoted and regression triggers fallback.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-105 --root .
+  evidence: evidence/G8/ATOM-V4-EXP-004.json
+- id: ATOM-VT41-106
+  requirement: ATOM-V4-EXP-005
+  gate: G8
+  tier: INTEGRATION
+  intent_oracle: 'Pre/post evaluation, drift, revocation, and fallback tests. Oracle:
+    Only evidence-approved data is promoted and regression triggers fallback.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-106 --root .
+  evidence: evidence/G8/ATOM-V4-EXP-005.json
+- id: ATOM-VT41-107
+  requirement: ATOM-V4-JIT-002
+  gate: G8
+  tier: INTEGRATION
+  intent_oracle: 'Staleness matrix and route fallback tests. Oracle: Certificate becomes
+    stale and deliberative fallback activates.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-107 --root .
+  evidence: evidence/G8/ATOM-V4-JIT-002.json
+- id: ATOM-VT41-108
+  requirement: ATOM-V4-ARC-002
+  gate: G8
+  tier: INTEGRATION
+  intent_oracle: 'Offline policy evaluation, unsafe recommendation, canary, and rollback
+    tests. Oracle: The external constraint rejects it and records evidence.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-108 --root .
+  evidence: evidence/G8/ATOM-V4-ARC-002.json
+- id: ATOM-VT41-109
+  requirement: ATOM-V4-FLT-002
+  gate: G3
+  tier: INTEGRATION
+  intent_oracle: 'Fault taxonomy completeness and incorrect-retry tests. Oracle: Recovery
+    action and operator queue match fault semantics.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-109 --root .
+  evidence: evidence/G3/ATOM-V4-FLT-002.json
+- id: ATOM-VT41-110
+  requirement: ATOM-V4-FLT-003
+  gate: G3
+  tier: INTEGRATION
+  intent_oracle: 'Queue restart, redaction, authorization, and resume tests. Oracle:
+    Recovery action and operator queue match fault semantics.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-110 --root .
+  evidence: evidence/G3/ATOM-V4-FLT-003.json
+- id: ATOM-VT41-111
+  requirement: ATOM-V4-RST-002
+  gate: G3
+  tier: FAULT_INJECTION
+  intent_oracle: 'Dual-primary, lease expiry, partition, clock skew, and stale connector
+    token tests. Oracle: Only the current witnessed epoch can commit.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-111 --root .
+  evidence: evidence/G3/ATOM-V4-RST-002.json
+- id: ATOM-VT41-112
+  requirement: ATOM-V4-EVO-003
+  gate: G9
+  tier: INTEGRATION
+  intent_oracle: 'Adversarial self-modification and approval-bypass tests. Oracle:
+    The attempt is blocked and routed to governed release.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-112 --root .
+  evidence: evidence/G9/ATOM-V4-EVO-003.json
+- id: ATOM-VT41-113
+  requirement: ATOM-V4-CER-002
+  gate: G8
+  tier: INTEGRATION
+  intent_oracle: 'RFC 8785 cross-language vectors, redaction stability, Merkle substitution,
+    and algorithm migration tests. Oracle: BehaviorId changes or the certificate becomes
+    stale.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-113 --root .
+  evidence: evidence/G8/ATOM-V4-CER-002.json
+- id: ATOM-VT41-114
+  requirement: ATOM-V4-BMK-002
+  gate: G8
+  tier: INTEGRATION
+  intent_oracle: 'Benchmark contract schema and independent protocol audit. Oracle:
+    Predeclared decision rules handle uncertainty without overclaiming.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-114 --root .
+  evidence: evidence/G8/ATOM-V4-BMK-002.json
+- id: ATOM-VT41-115
+  requirement: ATOM-V4-BMK-003
+  gate: G8
+  tier: INTEGRATION
+  intent_oracle: 'Synthetic benchmark decisions including contradictory endpoint results.
+    Oracle: Predeclared decision rules handle uncertainty without overclaiming.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-115 --root .
+  evidence: evidence/G8/ATOM-V4-BMK-003.json
+- id: ATOM-VT41-116
+  requirement: ATOM-V4-BMK-004
+  gate: G8
+  tier: INTEGRATION
+  intent_oracle: 'Claim registry schema, stale comparator, missing trace, and replication
+    tests. Oracle: Predeclared decision rules handle uncertainty without overclaiming.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-116 --root .
+  evidence: evidence/G8/ATOM-V4-BMK-004.json
+- id: ATOM-VT41-117
+  requirement: ATOM-V4-INT-002
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Stateless negotiation, hostile metadata, consent, authorization,
+    and extension tests. Oracle: Data is imported as untrusted and no local authority
+    is created.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-117 --root .
+  evidence: evidence/G4/ATOM-V4-INT-002.json
+- id: ATOM-VT41-118
+  requirement: ATOM-V4-INT-003
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Version, card tamper, IDOR, AUTH_REQUIRED, revocation, and task-state
+    mapping tests. Oracle: Data is imported as untrusted and no local authority is
+    created.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-118 --root .
+  evidence: evidence/G4/ATOM-V4-INT-003.json
+- id: ATOM-VT41-119
+  requirement: ATOM-V4-INT-004
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Official format fixtures plus malicious resource cases. Oracle:
+    Data is imported as untrusted and no local authority is created.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-119 --root .
+  evidence: evidence/G4/ATOM-V4-INT-004.json
+- id: ATOM-VT41-120
+  requirement: ATOM-V4-INT-005
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Pinned-version adapter matrix and native removal test. Oracle: Data
+    is imported as untrusted and no local authority is created.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-120 --root .
+  evidence: evidence/G4/ATOM-V4-INT-005.json
+- id: ATOM-VT41-121
+  requirement: ATOM-V4-INT-006
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Hostile peer authority escalation suite. Oracle: Data is imported
+    as untrusted and no local authority is created.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-121 --root .
+  evidence: evidence/G4/ATOM-V4-INT-006.json
+- id: ATOM-VT41-122
+  requirement: ATOM-V4-API-002
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'OpenAPI validation and generated client smoke tests. Oracle: Typed
+    HTTP/CLI outcomes preserve idempotency and uncertainty.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-122 --root .
+  evidence: evidence/G4/ATOM-V4-API-002.json
+- id: ATOM-VT41-123
+  requirement: ATOM-V4-API-003
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Pagination mutation, stale cursor, duplicate request, and concurrency
+    tests. Oracle: Typed HTTP/CLI outcomes preserve idempotency and uncertainty.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-123 --root .
+  evidence: evidence/G4/ATOM-V4-API-003.json
+- id: ATOM-VT41-124
+  requirement: ATOM-V4-API-004
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Disconnect/resume, cursor expiry, slow consumer, auth revocation,
+    and webhook replay tests. Oracle: Typed HTTP/CLI outcomes preserve idempotency
+    and uncertainty.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-124 --root .
+  evidence: evidence/G4/ATOM-V4-API-004.json
+- id: ATOM-VT41-125
+  requirement: ATOM-V4-API-005
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Golden CLI contract and exit-code matrix. Oracle: Typed HTTP/CLI
+    outcomes preserve idempotency and uncertainty.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-125 --root .
+  evidence: evidence/G4/ATOM-V4-API-005.json
+- id: ATOM-VT41-126
+  requirement: ATOM-V4-PRV-001
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Schema and Tier 1 provider conformance matrix. Oracle: Routing fails
+    closed or selects a policy-equivalent certified provider.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-126 --root .
+  evidence: evidence/G4/ATOM-V4-PRV-001.json
+- id: ATOM-VT41-127
+  requirement: ATOM-V4-PRV-002
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Capability drift, stale discovery, false advertisement, and fallback
+    tests. Oracle: Routing fails closed or selects a policy-equivalent certified provider.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-127 --root .
+  evidence: evidence/G4/ATOM-V4-PRV-002.json
+- id: ATOM-VT41-128
+  requirement: ATOM-V4-PRV-003
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Policy-sensitive routing and unsafe fallback tests. Oracle: Routing
+    fails closed or selects a policy-equivalent certified provider.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-128 --root .
+  evidence: evidence/G4/ATOM-V4-PRV-003.json
+- id: ATOM-VT41-129
+  requirement: ATOM-V4-PRV-004
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Usage mismatch, missing usage, retry, streaming cancel, and budget
+    tests. Oracle: Routing fails closed or selects a policy-equivalent certified provider.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-129 --root .
+  evidence: evidence/G4/ATOM-V4-PRV-004.json
+- id: ATOM-VT41-130
+  requirement: ATOM-V4-PRV-005
+  gate: G4
+  tier: INTEGRATION
+  intent_oracle: 'Seven-profile inventory and per-capability certification tests.
+    Oracle: Routing fails closed or selects a policy-equivalent certified provider.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-130 --root .
+  evidence: evidence/G4/ATOM-V4-PRV-005.json
+- id: ATOM-VT41-131
+  requirement: ATOM-V4-PRI-001
+  gate: G7
+  tier: INTEGRATION
+  intent_oracle: 'Missing metadata, inheritance, cross-tenant, and policy change tests.
+    Oracle: Egress is blocked and data lifecycle evidence is complete.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-131 --root .
+  evidence: evidence/G7/ATOM-V4-PRI-001.json
+- id: ATOM-VT41-132
+  requirement: ATOM-V4-PRI-002
+  gate: G7
+  tier: INTEGRATION
+  intent_oracle: 'Sensitive context, wrong region, excessive fields, and secret exfiltration
+    tests. Oracle: Egress is blocked and data lifecycle evidence is complete.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-132 --root .
+  evidence: evidence/G7/ATOM-V4-PRI-002.json
+- id: ATOM-VT41-133
+  requirement: ATOM-V4-PRI-003
+  gate: G7
+  tier: INTEGRATION
+  intent_oracle: 'Delete/export, derived data, backup expiry, legal hold, and proof
+    continuity tests. Oracle: Egress is blocked and data lifecycle evidence is complete.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-133 --root .
+  evidence: evidence/G7/ATOM-V4-PRI-003.json
+- id: ATOM-VT41-134
+  requirement: ATOM-V4-PRI-004
+  gate: G7
+  tier: INTEGRATION
+  intent_oracle: 'Fresh install, upgrade, consent withdrawal, and dark-pattern review.
+    Oracle: Egress is blocked and data lifecycle evidence is complete.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-134 --root .
+  evidence: evidence/G7/ATOM-V4-PRI-004.json
+- id: ATOM-VT41-135
+  requirement: ATOM-V4-SLO-001
+  gate: G7
+  tier: INTEGRATION
+  intent_oracle: 'Crash matrix and recovery benchmark with declared environment. Oracle:
+    Metrics include uncertainty; missing data cannot be reported as pass.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-135 --root .
+  evidence: evidence/G7/ATOM-V4-SLO-001.json
+- id: ATOM-VT41-136
+  requirement: ATOM-V4-SLO-002
+  gate: G7
+  tier: INTEGRATION
+  intent_oracle: 'Load test with confidence intervals and resource saturation points.
+    Oracle: Metrics include uncertainty; missing data cannot be reported as pass.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-136 --root .
+  evidence: evidence/G7/ATOM-V4-SLO-002.json
+- id: ATOM-VT41-137
+  requirement: ATOM-V4-SLO-003
+  gate: G7
+  tier: INTEGRATION
+  intent_oracle: 'Adversarial corpus and timed revocation tests. Oracle: Metrics include
+    uncertainty; missing data cannot be reported as pass.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-137 --root .
+  evidence: evidence/G7/ATOM-V4-SLO-003.json
+- id: ATOM-VT41-138
+  requirement: ATOM-V4-SLO-004
+  gate: G7
+  tier: INTEGRATION
+  intent_oracle: 'Missing-data and exclusion-manipulation tests. Oracle: Metrics include
+    uncertainty; missing data cannot be reported as pass.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-138 --root .
+  evidence: evidence/G7/ATOM-V4-SLO-004.json
+- id: ATOM-VT41-139
+  requirement: ATOM-V4-GOV-001
+  gate: G9
+  tier: INTEGRATION
+  intent_oracle: 'Required-file and license compatibility gate. Oracle: Release blocks
+    until governance and migration requirements are met.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-139 --root .
+  evidence: evidence/G9/ATOM-V4-GOV-001.json
+- id: ATOM-VT41-140
+  requirement: ATOM-V4-GOV-002
+  gate: G9
+  tier: INTEGRATION
+  intent_oracle: 'Decision record schema and unratified emergency change test. Oracle:
+    Release blocks until governance and migration requirements are met.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-140 --root .
+  evidence: evidence/G9/ATOM-V4-GOV-002.json
+- id: ATOM-VT41-141
+  requirement: ATOM-V4-GOV-003
+  gate: G9
+  tier: INTEGRATION
+  intent_oracle: 'N-1 compatibility, deprecation expiry, and migration tests. Oracle:
+    Release blocks until governance and migration requirements are met.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-141 --root .
+  evidence: evidence/G9/ATOM-V4-GOV-003.json
+- id: ATOM-VT41-142
+  requirement: ATOM-V4-GOV-004
+  gate: G9
+  tier: INTEGRATION
+  intent_oracle: 'Tabletop disclosure and emergency update drill. Oracle: Release
+    blocks until governance and migration requirements are met.'
+  command: python tools/gate.py verify-evidence --test ATOM-VT41-142 --root .
+  evidence: evidence/G9/ATOM-V4-GOV-004.json

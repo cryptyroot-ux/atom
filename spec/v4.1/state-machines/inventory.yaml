@@ -1,0 +1,130 @@
+spec_version: 4.1.0
+source_document: ATOM_Verification_Traceability_and_Acceptance_v4.1
+count: 9
+machines:
+- id: effect
+  states: 17
+  transitions: 29
+  contract: spec/state-machines/effect.yaml
+  verification_obligations:
+  - unique transition IDs
+  - valid endpoints
+  - initial reachability
+  - terminal policy
+  - guard/action/event present
+  - CAS generation
+  - timer events
+  - forbidden edges
+  body_status: authored_v40_pending_v41_review
+- id: mission
+  states: 13
+  transitions: 16
+  contract: spec/state-machines/mission.yaml
+  verification_obligations:
+  - unique transition IDs
+  - valid endpoints
+  - initial reachability
+  - terminal policy
+  - guard/action/event present
+  - CAS generation
+  - timer events
+  - forbidden edges
+  body_status: authored_v40_pending_v41_review
+- id: approval
+  states: 7
+  transitions: 7
+  contract: spec/state-machines/approval.yaml
+  verification_obligations:
+  - unique transition IDs
+  - valid endpoints
+  - initial reachability
+  - terminal policy
+  - guard/action/event present
+  - CAS generation
+  - timer events
+  - forbidden edges
+  body_status: declared_not_authored
+- id: grant
+  states: 6
+  transitions: 5
+  contract: spec/state-machines/grant.yaml
+  verification_obligations:
+  - unique transition IDs
+  - valid endpoints
+  - initial reachability
+  - terminal policy
+  - guard/action/event present
+  - CAS generation
+  - timer events
+  - forbidden edges
+  body_status: declared_not_authored
+- id: artifact
+  states: 8
+  transitions: 10
+  contract: spec/state-machines/artifact.yaml
+  verification_obligations:
+  - unique transition IDs
+  - valid endpoints
+  - initial reachability
+  - terminal policy
+  - guard/action/event present
+  - CAS generation
+  - timer events
+  - forbidden edges
+  body_status: declared_not_authored
+- id: schedule-run
+  states: 6
+  transitions: 5
+  contract: spec/state-machines/schedule-run.yaml
+  verification_obligations:
+  - unique transition IDs
+  - valid endpoints
+  - initial reachability
+  - terminal policy
+  - guard/action/event present
+  - CAS generation
+  - timer events
+  - forbidden edges
+  body_status: declared_not_authored
+- id: restore
+  states: 6
+  transitions: 7
+  contract: spec/state-machines/restore.yaml
+  verification_obligations:
+  - unique transition IDs
+  - valid endpoints
+  - initial reachability
+  - terminal policy
+  - guard/action/event present
+  - CAS generation
+  - timer events
+  - forbidden edges
+  body_status: declared_not_authored
+- id: release
+  states: 7
+  transitions: 6
+  contract: spec/state-machines/release.yaml
+  verification_obligations:
+  - unique transition IDs
+  - valid endpoints
+  - initial reachability
+  - terminal policy
+  - guard/action/event present
+  - CAS generation
+  - timer events
+  - forbidden edges
+  body_status: declared_not_authored
+- id: promotion
+  states: 7
+  transitions: 8
+  contract: spec/state-machines/promotion.yaml
+  verification_obligations:
+  - unique transition IDs
+  - valid endpoints
+  - initial reachability
+  - terminal policy
+  - guard/action/event present
+  - CAS generation
+  - timer events
+  - forbidden edges
+  body_status: declared_not_authored
