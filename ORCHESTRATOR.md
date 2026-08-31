@@ -18,10 +18,10 @@ Orkestrasi 3 worker membangun crate ATOM, lalu jaga merge gate.
 ## Cara operasi (via orchestration CLI dari sesi ini)
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
-aoe status --json                       # status semua worker
-aoe session capture atom-ledger --json  # baca output worker
-aoe send atom-ledger "<instruksi>"      # kirim task/koreksi
-aoe list --json --state=live
+<orchestrator> status --json                       # status semua worker
+<orchestrator> session capture atom-ledger --json  # baca output worker
+<orchestrator> send atom-ledger "<instruksi>"      # kirim task/koreksi
+<orchestrator> list --json --state=live
 ```
 
 ## Merge gate (WAJIB sebelum merge ke master/ATOM main)

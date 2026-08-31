@@ -280,6 +280,7 @@ dependencies = [
  "atom-capability",
  "atom-effect",
  "chrono",
+ "serde",
  "thiserror",
 ]
 

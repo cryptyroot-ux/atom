@@ -9,6 +9,7 @@ description = "ATOM sovereign kernel: the single unbypassable door for consequen
 atom-capability = { path = "../atom-capability" }
 atom-effect = { path = "../atom-effect" }
 chrono = { version = "0.4" }
+serde = { workspace = true, features = ["derive"] }
 thiserror = { workspace = true }
 
 [dev-dependencies]

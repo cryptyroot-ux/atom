@@ -20,6 +20,7 @@ use atom_effect::{
     NonceRegistry, PermitError, PermitRequest, ResourceWitness,
 };
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 /// Why the kernel refused a mutation at either gate.
