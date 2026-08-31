@@ -381,8 +381,7 @@ mod tests {
     fn minimal_effect_needs_only_the_base_contract() {
         // A connector that only supports the request digest is enough for a
         // non-idempotent, never-retry, ledger-replay, uncompensable effect.
-        let connector =
-            ConnectorContract::new("conn-min", "kv", [Capability::RequestDigest]);
+        let connector = ConnectorContract::new("conn-min", "kv", [Capability::RequestDigest]);
         let effect = minimal_effect();
         let required = required_capabilities(&effect);
         assert_eq!(required, BTreeSet::from([Capability::RequestDigest]));

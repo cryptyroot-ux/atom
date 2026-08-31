@@ -2,9 +2,7 @@
 //! subset_check returns OK, the child's authority MUST be ⊆ parent across
 //! every dimension.
 
-use atom_capability::{
-    subset_check, Budget, CapabilityGrant, ResourceSelector, RevocationState,
-};
+use atom_capability::{subset_check, Budget, CapabilityGrant, ResourceSelector, RevocationState};
 use chrono::{Duration, Utc};
 use proptest::prelude::*;
 

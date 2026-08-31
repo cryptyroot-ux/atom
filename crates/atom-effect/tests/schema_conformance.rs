@@ -119,10 +119,19 @@ fn the_intent_carries_every_efx_002_field() {
         "dependencies",
         "state",
     ] {
-        assert!(!planned[field].is_null(), "EFX-002 field {field} is missing");
+        assert!(
+            !planned[field].is_null(),
+            "EFX-002 field {field} is missing"
+        );
     }
-    assert_eq!(planned["dependencies"], serde_json::json!([UPSTREAM_EFFECT_ID]));
-    assert!(planned["external_operation_id"].is_null(), "not dispatched yet");
+    assert_eq!(
+        planned["dependencies"],
+        serde_json::json!([UPSTREAM_EFFECT_ID])
+    );
+    assert!(
+        planned["external_operation_id"].is_null(),
+        "not dispatched yet"
+    );
 
     let dispatched = serde_json::to_value(intent_in(EffectState::Dispatched))
         .expect("dispatched intent serializes");
@@ -366,8 +375,7 @@ fn a_condition_without_an_identity_is_rejected() {
         ),
         (
             "postcondition",
-            builder_without("nothing")
-                .postcondition(Condition::new("post/row-archived", "   ")),
+            builder_without("nothing").postcondition(Condition::new("post/row-archived", "   ")),
         ),
     ] {
         let error = builder

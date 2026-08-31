@@ -309,7 +309,10 @@ impl RecordingExecutor {
 impl HostExecutor for RecordingExecutor {
     fn execute(&mut self, op: &HostOp) -> Result<OpOutcome, ExecError> {
         if self.fail {
-            return Err(ExecError::failed(op.kind(), "mock executor was told to fail"));
+            return Err(ExecError::failed(
+                op.kind(),
+                "mock executor was told to fail",
+            ));
         }
         self.executed.push(op.clone());
         Ok(OpOutcome::new(

@@ -8,12 +8,12 @@
 mod support;
 
 use atom_effect::PermitError;
+use atom_privd::PrivilegeBroker;
 use atom_privd::{AdmissionRequest, DenyReason};
 use support::{
-    at, broker, drifted_witness, foreign_intent_for, regenerated, revoked, Scenario, RecordingExecutor,
-    all_ops, NONCE, PERMIT_ID,
+    all_ops, at, broker, drifted_witness, foreign_intent_for, regenerated, revoked,
+    RecordingExecutor, Scenario, NONCE, PERMIT_ID,
 };
-use atom_privd::PrivilegeBroker;
 
 #[test]
 fn a_valid_permit_admits_the_op_and_reaches_the_executor_once() {
@@ -53,7 +53,9 @@ fn a_replayed_permit_is_denied_and_runs_the_op_only_once() {
     let scenario = Scenario::new(all_ops()[0].clone());
     let mut broker = broker();
 
-    broker.admit(scenario.request()).expect("the first crossing");
+    broker
+        .admit(scenario.request())
+        .expect("the first crossing");
     let denied = broker
         .admit(scenario.request())
         .expect_err("EFX-004: a commit permit is one-shot");
@@ -217,7 +219,10 @@ fn a_host_failure_after_a_valid_crossing_still_burns_the_permit() {
     let denied = broker
         .admit(scenario.request())
         .expect_err("the host refused the op");
-    assert!(matches!(denied, DenyReason::ExecutionFailed(_)), "{denied:?}");
+    assert!(
+        matches!(denied, DenyReason::ExecutionFailed(_)),
+        "{denied:?}"
+    );
     assert_eq!(broker.spent(), 1, "the permit was consumed before dispatch");
 
     let retried = broker

@@ -6,7 +6,7 @@
 //! certificate presented against the wrong verifier is denied.
 
 use atom_cert::{
-    BehaviorManifestV2, BindingParams, Certificate, CertError, CertificateBinding,
+    BehaviorManifestV2, BindingParams, CertError, Certificate, CertificateBinding,
     EnvironmentScope, EvaluationContext, EvaluationSuite, HmacSha256CertVerifier, StaleReason,
     VerifierLevel,
 };
@@ -96,7 +96,10 @@ fn manifest_requires_all_bmv2_fields() {
 
     // drop one required field → rejected
     let mut broken = manifest_value();
-    broken.as_object_mut().unwrap().remove("environment_fingerprint");
+    broken
+        .as_object_mut()
+        .unwrap()
+        .remove("environment_fingerprint");
     assert!(matches!(
         BehaviorManifestV2::new(broken),
         Err(CertError::MissingManifestField { .. })
@@ -115,7 +118,9 @@ fn valid_certificate_verifies() {
     assert!(cert
         .verify(&verifier(), &matching_context(VerifierLevel::V0))
         .is_ok());
-    assert!(cert.stale_reason(&matching_context(VerifierLevel::V0)).is_none());
+    assert!(cert
+        .stale_reason(&matching_context(VerifierLevel::V0))
+        .is_none());
 }
 
 #[test]
@@ -188,7 +193,9 @@ fn manifest_material_change_makes_cert_stale() {
     assert_eq!(cert.stale_reason(&ctx), Some(StaleReason::ManifestChanged));
     assert!(matches!(
         cert.verify(&verifier(), &ctx),
-        Err(CertError::Stale { reason: StaleReason::ManifestChanged })
+        Err(CertError::Stale {
+            reason: StaleReason::ManifestChanged
+        })
     ));
 }
 
@@ -211,7 +218,9 @@ fn eval_suite_material_change_makes_cert_stale() {
     );
     assert!(matches!(
         cert.verify(&verifier(), &ctx),
-        Err(CertError::Stale { reason: StaleReason::EvaluationSuiteChanged })
+        Err(CertError::Stale {
+            reason: StaleReason::EvaluationSuiteChanged
+        })
     ));
 }
 
@@ -231,7 +240,9 @@ fn environment_drift_makes_cert_stale() {
     assert_eq!(cert.stale_reason(&ctx), Some(StaleReason::EnvironmentDrift));
     assert!(matches!(
         cert.verify(&verifier(), &ctx),
-        Err(CertError::Stale { reason: StaleReason::EnvironmentDrift })
+        Err(CertError::Stale {
+            reason: StaleReason::EnvironmentDrift
+        })
     ));
 }
 

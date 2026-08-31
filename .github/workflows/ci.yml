@@ -35,7 +35,8 @@ jobs:
             "AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z\-_]{35}|sk-[A-Za-z0-9]{20,}|-----BEGIN (RSA|DSA|EC|OPENSSH|PGP) PRIVATE KEY-----|-----BEGIN OPENSSH PRIVATE KEY-----|-----BEGIN PRIVATE KEY-----" \
             . --exclude-dir=target --exclude-dir=.git || true
           echo "== env / credential leakage =="
-          grep -RInE "^[A-Z_]*SECRET|^[A-Z_]*PASSWORD|^[A-Z_]*TOKEN|^[A-Z_]*KEY\s*=\s*.{6,}" \
-            . --exclude-dir=target --exclude-dir=.git --include='*.rs' --include='*.toml' --include='*.md' --include='*.json' --include='*.yaml' --include='*.yml' --include='*.sh' || true
+          grep -RInE "^[A-Z_]*SECRET|^[A-Z_]*PASSWORD|^[A-Z_]*TOKEN|^[A-Z_]*KEY\\s*=\\s*.{6,}" \
+            . --exclude-dir=target --exclude-dir=.git \
+            -I --include='*.rs' --include='*.toml' --include='*.md' --include='*.json' --include='*.yaml' --include='*.yml' --include='*.sh' || true
           echo "== .env / secret files =="
           find . -maxdepth 3 \( -name '.env' -o -name '*.pem' -o -name '*.key' -o -name '*.p12' -o -name '*.pfx' \) -not -path './target/*' -not -path './.git/*' || true

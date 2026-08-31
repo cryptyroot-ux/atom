@@ -131,8 +131,8 @@ impl WorkloadIdentity {
         public_key: impl Into<Vec<u8>>,
         evidence: &Evidence,
     ) -> Result<Self, IdentityError> {
-        let value =
-            serde_json::to_value(evidence).map_err(|e| IdentityError::Attestation(e.to_string()))?;
+        let value = serde_json::to_value(evidence)
+            .map_err(|e| IdentityError::Attestation(e.to_string()))?;
         let bytes = canonicalize(&value).map_err(|e| IdentityError::Attestation(e.to_string()))?;
         let attestation = domain_digest(ATTESTATION_DOMAIN, &bytes);
         Ok(Self::derive(public_key, attestation))

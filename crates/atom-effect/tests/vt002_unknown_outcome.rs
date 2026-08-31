@@ -68,7 +68,10 @@ fn remote_that_commits_then_drops_the_response_lands_in_unknown_outcome() {
         !effect.state.is_retryable_failure(),
         "INV-002: UNKNOWN_OUTCOME is not a retryable failure"
     );
-    assert!(!effect.state.is_terminal(), "UNKNOWN_OUTCOME must be resolvable");
+    assert!(
+        !effect.state.is_terminal(),
+        "UNKNOWN_OUTCOME must be resolvable"
+    );
 }
 
 #[test]
@@ -76,7 +79,8 @@ fn no_blind_duplicate_is_emitted_while_the_outcome_is_unknown() {
     let mut remote = FlakyRemote::default();
     let effect = dispatch_once(&mut remote, &intent_in(EffectState::Dispatching));
 
-    let denied = admit_dispatch(&effect, &[]).expect_err("an ambiguous effect must not re-dispatch");
+    let denied =
+        admit_dispatch(&effect, &[]).expect_err("an ambiguous effect must not re-dispatch");
     assert!(
         matches!(denied, AdmissionError::AmbiguousOutcome { .. }),
         "{denied:?}"
@@ -224,7 +228,9 @@ fn every_ambiguity_source_lands_in_unknown_outcome() {
 #[test]
 fn a_definite_rejection_is_a_retryable_failure_unlike_an_unknown() {
     let effect = intent_in(EffectState::Dispatching)
-        .try_advance(&EffectEvent::dispatch_rejected("target rejected the request"))
+        .try_advance(&EffectEvent::dispatch_rejected(
+            "target rejected the request",
+        ))
         .expect("DISPATCHING -> CONFIRMED_FAILURE is in spec");
 
     assert_eq!(effect.state, EffectState::ConfirmedFailure);

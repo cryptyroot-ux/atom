@@ -32,7 +32,9 @@ impl SecretBroker {
     pub fn with_secrets(secrets: Vec<(SecretHandle, SecretValue)>) -> Self {
         let broker = Self::new();
         for (handle, secret) in secrets {
-            broker.plant(handle, secret).expect("failed to plant initial secret");
+            broker
+                .plant(handle, secret)
+                .expect("failed to plant initial secret");
         }
         broker
     }
@@ -40,15 +42,16 @@ impl SecretBroker {
 
 impl SecretVault for SecretBroker {
     fn redeem(&self, handle: &SecretHandle) -> Result<SecretValue, SecretVaultError> {
-        let mut inner = self.inner.write().map_err(|_| {
-            SecretVaultError::Internal("lock poisoned".to_string())
-        })?;
+        let mut inner = self
+            .inner
+            .write()
+            .map_err(|_| SecretVaultError::Internal("lock poisoned".to_string()))?;
 
-        let entry = inner.get_mut(&handle.secret_id).ok_or_else(|| {
-            SecretVaultError::NotFound {
+        let entry = inner
+            .get_mut(&handle.secret_id)
+            .ok_or_else(|| SecretVaultError::NotFound {
                 secret_id: handle.secret_id.clone(),
-            }
-        })?;
+            })?;
 
         // Validate all constraints per SEC-001
         validate_constraints(handle, &entry.handle)?;
@@ -77,9 +80,10 @@ impl SecretVault for SecretBroker {
     }
 
     fn plant(&self, handle: SecretHandle, secret: SecretValue) -> Result<(), SecretVaultError> {
-        let mut inner = self.inner.write().map_err(|_| {
-            SecretVaultError::Internal("lock poisoned".to_string())
-        })?;
+        let mut inner = self
+            .inner
+            .write()
+            .map_err(|_| SecretVaultError::Internal("lock poisoned".to_string()))?;
 
         if inner.contains_key(&handle.secret_id) {
             return Err(SecretVaultError::Internal(format!(
@@ -100,10 +104,11 @@ impl SecretVault for SecretBroker {
     }
 
     fn redemption_count(&self, secret_id: &str) -> Option<u32> {
-        self.inner
-            .read()
-            .ok()
-            .and_then(|inner| inner.get(secret_id).map(|entry| entry.handle.redemptions_used))
+        self.inner.read().ok().and_then(|inner| {
+            inner
+                .get(secret_id)
+                .map(|entry| entry.handle.redemptions_used)
+        })
     }
 }
 
@@ -175,7 +180,7 @@ fn validate_constraints(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::{Utc, Duration};
+    use chrono::{Duration, Utc};
 
     fn make_handle(
         secret_id: &str,
@@ -338,7 +343,10 @@ mod tests {
         wrong_handle.capability_grant_id = Some("cg2".to_string());
 
         let err = broker.redeem(&wrong_handle).unwrap_err();
-        assert!(matches!(err, SecretVaultError::CapabilityGrantMismatch { .. }));
+        assert!(matches!(
+            err,
+            SecretVaultError::CapabilityGrantMismatch { .. }
+        ));
     }
 
     #[test]

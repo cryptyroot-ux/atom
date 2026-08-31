@@ -14,8 +14,8 @@
 use atom_effect::{try_project, EffectEvent, EffectState};
 use sha2::{Digest, Sha256};
 
-use crate::class::ReplayClass;
 use crate::cassette::Cassette;
+use crate::class::ReplayClass;
 use crate::digest::{component, finish};
 use crate::error::ReplayError;
 
@@ -191,7 +191,10 @@ pub fn replay(class: ReplayClass, input: &ReplayInput) -> Result<ReplayReport, R
                     outcome: recorded.outcome.clone(),
                 });
             }
-            (cassette_replay_digest(&trajectory, &resolutions), resolutions)
+            (
+                cassette_replay_digest(&trajectory, &resolutions),
+                resolutions,
+            )
         }
         // Unreachable: guarded by is_supported above, but exhaustive by design.
         ReplayClass::LiveForkModelReexecution | ReplayClass::StatisticalReproduction => {

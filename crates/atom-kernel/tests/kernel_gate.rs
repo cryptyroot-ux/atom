@@ -368,8 +368,7 @@ fn stale_permit_generation_drift_denies_commit() {
     let mut kernel = Kernel::new();
     let grant_at_authorize = base_grant(now, 7);
     let planned = witness("v1");
-    let (auth, revalidating) =
-        authorized_at_boundary(&kernel, &grant_at_authorize, &planned, now);
+    let (auth, revalidating) = authorized_at_boundary(&kernel, &grant_at_authorize, &planned, now);
 
     // Grant re-issued: generation moved from 7 to 8 in the window.
     let grant_now = base_grant(now, 8);

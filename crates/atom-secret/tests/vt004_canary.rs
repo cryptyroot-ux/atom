@@ -5,7 +5,7 @@
 //! > Canary secret and cross-principal redemption tests.
 
 use atom_secret::{SecretBroker, SecretHandle, SecretValue, SecretVault};
-use chrono::{Utc, Duration};
+use chrono::{Duration, Utc};
 
 /// Test that a canary secret planted in the broker cannot be observed
 /// through any ambient channel — model context, standard telemetry,
@@ -29,7 +29,9 @@ fn vt004_canary_not_in_model_context() {
         .generation(0)
         .build();
 
-    broker.plant(handle.clone(), SecretValue::from_string(canary_value)).unwrap();
+    broker
+        .plant(handle.clone(), SecretValue::from_string(canary_value))
+        .unwrap();
 
     // Simulate model context / telemetry collection by checking
     // various places where the secret might leak:
@@ -53,7 +55,10 @@ fn vt004_canary_not_in_model_context() {
         .build();
 
     let err = broker.redeem(&wrong_principal).unwrap_err();
-    assert!(matches!(err, atom_secret::SecretVaultError::PrincipalMismatch { .. }));
+    assert!(matches!(
+        err,
+        atom_secret::SecretVaultError::PrincipalMismatch { .. }
+    ));
 
     // 3. The secret value itself is never exposed in Debug output
     let secret = broker.redeem(&handle).unwrap();
@@ -67,7 +72,10 @@ fn vt004_canary_not_in_model_context() {
 
     // 5. Second redemption fails (exhausted)
     let err = broker.redeem(&handle).unwrap_err();
-    assert!(matches!(err, atom_secret::SecretVaultError::Exhausted { .. }));
+    assert!(matches!(
+        err,
+        atom_secret::SecretVaultError::Exhausted { .. }
+    ));
 
     // 6. The secret value zeroizes on drop - after this test,
     //    the canary value should not be recoverable from memory
@@ -93,7 +101,9 @@ fn vt004_canary_not_in_telemetry() {
         .generation(0)
         .build();
 
-    broker.plant(handle.clone(), SecretValue::from_string(canary_value)).unwrap();
+    broker
+        .plant(handle.clone(), SecretValue::from_string(canary_value))
+        .unwrap();
 
     // Simulate telemetry collection - check that no secret material
     // appears in any observable state
@@ -131,7 +141,9 @@ fn vt004_cross_principal_isolation() {
         .build();
 
     let secret_a = "PRINCIPAL-A-SECRET-CANARY-111";
-    broker.plant(handle_a.clone(), SecretValue::from_string(secret_a)).unwrap();
+    broker
+        .plant(handle_a.clone(), SecretValue::from_string(secret_a))
+        .unwrap();
 
     // Principal B's secret
     let handle_b = SecretHandle::builder()
@@ -145,7 +157,9 @@ fn vt004_cross_principal_isolation() {
         .build();
 
     let secret_b = "PRINCIPAL-B-SECRET-CANARY-222";
-    broker.plant(handle_b.clone(), SecretValue::from_string(secret_b)).unwrap();
+    broker
+        .plant(handle_b.clone(), SecretValue::from_string(secret_b))
+        .unwrap();
 
     // A can redeem A's secret
     let redeemed_a = broker.redeem(&handle_a).unwrap();
@@ -161,13 +175,19 @@ fn vt004_cross_principal_isolation() {
     let mut a_tries_b = handle_b.clone();
     a_tries_b.principal_id = "principal-A".to_string();
     let err = broker.redeem(&a_tries_b).unwrap_err();
-    assert!(matches!(err, atom_secret::SecretVaultError::PrincipalMismatch { .. }));
+    assert!(matches!(
+        err,
+        atom_secret::SecretVaultError::PrincipalMismatch { .. }
+    ));
 
     // B CANNOT redeem A's secret
     let mut b_tries_a = handle_a.clone();
     b_tries_a.principal_id = "principal-B".to_string();
     let err = broker.redeem(&b_tries_a).unwrap_err();
-    assert!(matches!(err, atom_secret::SecretVaultError::PrincipalMismatch { .. }));
+    assert!(matches!(
+        err,
+        atom_secret::SecretVaultError::PrincipalMismatch { .. }
+    ));
 }
 
 /// Test that canary is not accessible in unrelated worker environment.
@@ -190,7 +210,9 @@ fn vt004_canary_not_in_unrelated_worker_env() {
         .generation(0)
         .build();
 
-    worker1_broker.plant(handle1.clone(), SecretValue::from_string(canary)).unwrap();
+    worker1_broker
+        .plant(handle1.clone(), SecretValue::from_string(canary))
+        .unwrap();
 
     // Worker 2 has no knowledge of the secret
     assert!(!worker2_broker.exists(&handle1.secret_id));
@@ -199,7 +221,10 @@ fn vt004_canary_not_in_unrelated_worker_env() {
     // Even if Worker 2 somehow gets the handle, they can't redeem
     // because the secret doesn't exist in their broker
     let err = worker2_broker.redeem(&handle1).unwrap_err();
-    assert!(matches!(err, atom_secret::SecretVaultError::NotFound { .. }));
+    assert!(matches!(
+        err,
+        atom_secret::SecretVaultError::NotFound { .. }
+    ));
 
     // Worker 1 can redeem normally
     let secret = worker1_broker.redeem(&handle1).unwrap();
@@ -252,7 +277,9 @@ fn vt004_multiple_canaries_isolated() {
             .max_redemptions(1)
             .generation(0)
             .build();
-        broker.plant(handle.clone(), SecretValue::from_string(value)).unwrap();
+        broker
+            .plant(handle.clone(), SecretValue::from_string(value))
+            .unwrap();
         handles.push(handle);
     }
 
@@ -273,7 +300,10 @@ fn vt004_multiple_canaries_isolated() {
     // All exhausted
     for handle in &handles {
         let err = broker.redeem(handle).unwrap_err();
-        assert!(matches!(err, atom_secret::SecretVaultError::Exhausted { .. }));
+        assert!(matches!(
+            err,
+            atom_secret::SecretVaultError::Exhausted { .. }
+        ));
     }
 }
 
@@ -296,7 +326,9 @@ fn vt004_audit_metadata_preserved() {
         .generation(5)
         .build();
 
-    broker.plant(handle.clone(), SecretValue::from_string("AUDIT-SECRET")).unwrap();
+    broker
+        .plant(handle.clone(), SecretValue::from_string("AUDIT-SECRET"))
+        .unwrap();
 
     // Verify all metadata is preserved
     assert_eq!(handle.secret_id, "audit-test-001");
@@ -320,7 +352,10 @@ fn vt004_audit_metadata_preserved() {
 
     // Fourth fails
     let err = broker.redeem(&handle).unwrap_err();
-    assert!(matches!(err, atom_secret::SecretVaultError::Exhausted { .. }));
+    assert!(matches!(
+        err,
+        atom_secret::SecretVaultError::Exhausted { .. }
+    ));
 }
 
 /// Test memory poisoning lifecycle - VT-009
@@ -343,7 +378,9 @@ fn vt009_memory_poisoning_lifecycle() {
         .build();
 
     let poison_value = b"POISON-MEMORY-DEADBEEF-CANARY";
-    broker.plant(handle1.clone(), SecretValue::new(poison_value)).unwrap();
+    broker
+        .plant(handle1.clone(), SecretValue::new(poison_value))
+        .unwrap();
 
     // Redeem the secret
     let secret = broker.redeem(&handle1).unwrap();
@@ -354,7 +391,10 @@ fn vt009_memory_poisoning_lifecycle() {
 
     // Attempting to redeem again should fail (selective repair - redemption tracking)
     let err = broker.redeem(&handle1).unwrap_err();
-    assert!(matches!(err, atom_secret::SecretVaultError::Exhausted { .. }));
+    assert!(matches!(
+        err,
+        atom_secret::SecretVaultError::Exhausted { .. }
+    ));
 
     // Test 2: Taint gates - wrong generation blocked (stale generation)
     let handle2_stored = SecretHandle::builder()
@@ -365,10 +405,12 @@ fn vt009_memory_poisoning_lifecycle() {
         .operation("read")
         .expiry(Utc::now() + Duration::hours(1))
         .max_redemptions(1)
-        .generation(1)  // Current generation
+        .generation(1) // Current generation
         .build();
 
-    broker.plant(handle2_stored.clone(), SecretValue::new(b"SECRET-TWO")).unwrap();
+    broker
+        .plant(handle2_stored.clone(), SecretValue::new(b"SECRET-TWO"))
+        .unwrap();
 
     // Try to redeem with a stale generation (0) - should fail
     let handle2_stale = SecretHandle::builder()
@@ -379,11 +421,14 @@ fn vt009_memory_poisoning_lifecycle() {
         .operation("read")
         .expiry(Utc::now() + Duration::hours(1))
         .max_redemptions(1)
-        .generation(0)  // Stale generation
+        .generation(0) // Stale generation
         .build();
 
     let err = broker.redeem(&handle2_stale).unwrap_err();
-    assert!(matches!(err, atom_secret::SecretVaultError::StaleGeneration { .. }));
+    assert!(matches!(
+        err,
+        atom_secret::SecretVaultError::StaleGeneration { .. }
+    ));
 
     // Test 3: Taint gates - exhausted redemptions blocked
     let handle3 = SecretHandle::builder()
@@ -393,14 +438,19 @@ fn vt009_memory_poisoning_lifecycle() {
         .target("test-target")
         .operation("read")
         .expiry(Utc::now() + Duration::hours(1))
-        .max_redemptions(0)  // Already exhausted
+        .max_redemptions(0) // Already exhausted
         .generation(0)
         .build();
 
-    broker.plant(handle3.clone(), SecretValue::new(b"SECRET-THREE")).unwrap();
+    broker
+        .plant(handle3.clone(), SecretValue::new(b"SECRET-THREE"))
+        .unwrap();
 
     let err = broker.redeem(&handle3).unwrap_err();
-    assert!(matches!(err, atom_secret::SecretVaultError::Exhausted { .. }));
+    assert!(matches!(
+        err,
+        atom_secret::SecretVaultError::Exhausted { .. }
+    ));
 
     // Test 4: Cross-principal taint transfer - principal A's poison cannot affect principal B
     let handle_a = SecretHandle::builder()
@@ -426,17 +476,24 @@ fn vt009_memory_poisoning_lifecycle() {
         .build();
 
     // Plant poison for principal A
-    broker.plant(handle_a.clone(), SecretValue::new(b"POISON-PRINCIPAL-A")).unwrap();
+    broker
+        .plant(handle_a.clone(), SecretValue::new(b"POISON-PRINCIPAL-A"))
+        .unwrap();
     // Redeem it - should work
     let secret_a = broker.redeem(&handle_a).unwrap();
     assert_eq!(secret_a.bytes(), b"POISON-PRINCIPAL-A");
     drop(secret_a);
     // Principal A's secret exhausted
     let err_a = broker.redeem(&handle_a).unwrap_err();
-    assert!(matches!(err_a, atom_secret::SecretVaultError::Exhausted { .. }));
+    assert!(matches!(
+        err_a,
+        atom_secret::SecretVaultError::Exhausted { .. }
+    ));
 
     // Principal B's secret is clean and works independently
-    broker.plant(handle_b.clone(), SecretValue::new(b"CLEAN-PRINCIPAL-B")).unwrap();
+    broker
+        .plant(handle_b.clone(), SecretValue::new(b"CLEAN-PRINCIPAL-B"))
+        .unwrap();
     let secret_b = broker.redeem(&handle_b).unwrap();
     assert_eq!(secret_b.bytes(), b"CLEAN-PRINCIPAL-B");
     // Note: In production, revocation would clear the poison attempt
@@ -452,11 +509,16 @@ fn vt009_memory_poisoning_lifecycle() {
         .operation("gen-op")
         .expiry(Utc::now() + Duration::hours(1))
         .max_redemptions(1)
-        .generation(5)  // Current generation
+        .generation(5) // Current generation
         .build();
 
-    broker.plant(handle_current.clone(), SecretValue::new(b"CURRENT-GENERATION")).unwrap();
-    
+    broker
+        .plant(
+            handle_current.clone(),
+            SecretValue::new(b"CURRENT-GENERATION"),
+        )
+        .unwrap();
+
     // Redeem current generation - should work
     let secret_current = broker.redeem(&handle_current).unwrap();
     assert_eq!(secret_current.bytes(), b"CURRENT-GENERATION");
@@ -472,11 +534,13 @@ fn vt009_memory_poisoning_lifecycle() {
         .operation("gen-op")
         .expiry(Utc::now() + Duration::hours(1))
         .max_redemptions(1)
-        .generation(5)  // Current generation
+        .generation(5) // Current generation
         .build();
 
-    broker.plant(handle_gen5.clone(), SecretValue::new(b"CURRENT-GENERATION")).unwrap();
-    
+    broker
+        .plant(handle_gen5.clone(), SecretValue::new(b"CURRENT-GENERATION"))
+        .unwrap();
+
     // Try to redeem with OLD generation (4) - should fail
     let handle_gen4 = SecretHandle::builder()
         .secret_id("generation-validation")
@@ -486,11 +550,14 @@ fn vt009_memory_poisoning_lifecycle() {
         .operation("gen-op")
         .expiry(Utc::now() + Duration::hours(1))
         .max_redemptions(1)
-        .generation(4)  // Old generation - same secret_id, different generation
+        .generation(4) // Old generation - same secret_id, different generation
         .build();
 
     let err_gen4 = broker.redeem(&handle_gen4).unwrap_err();
-    assert!(matches!(err_gen4, atom_secret::SecretVaultError::StaleGeneration { .. }));
+    assert!(matches!(
+        err_gen4,
+        atom_secret::SecretVaultError::StaleGeneration { .. }
+    ));
 
     // Try to use FUTURE generation (6) - should fail (future generation not yet valid)
     let handle_gen6 = SecretHandle::builder()
@@ -501,11 +568,14 @@ fn vt009_memory_poisoning_lifecycle() {
         .operation("gen-op")
         .expiry(Utc::now() + Duration::hours(1))
         .max_redemptions(1)
-        .generation(6)  // Future generation - same secret_id, different generation
+        .generation(6) // Future generation - same secret_id, different generation
         .build();
 
     let err_gen6 = broker.redeem(&handle_gen6).unwrap_err();
-    assert!(matches!(err_gen6, atom_secret::SecretVaultError::StaleGeneration { .. }));
+    assert!(matches!(
+        err_gen6,
+        atom_secret::SecretVaultError::StaleGeneration { .. }
+    ));
 
     // Test 6: Selective repair with concurrent access patterns
     let handle_concurrent = SecretHandle::builder()
@@ -519,7 +589,12 @@ fn vt009_memory_poisoning_lifecycle() {
         .generation(0)
         .build();
 
-    broker.plant(handle_concurrent.clone(), SecretValue::new(b"CONCURRENT-SECRET")).unwrap();
+    broker
+        .plant(
+            handle_concurrent.clone(),
+            SecretValue::new(b"CONCURRENT-SECRET"),
+        )
+        .unwrap();
 
     // Redeem 1
     let s1 = broker.redeem(&handle_concurrent).unwrap();
@@ -533,8 +608,8 @@ fn vt009_memory_poisoning_lifecycle() {
     drop(s2);
     assert_eq!(broker.redemption_count("concurrent-test"), Some(2));
 
-// Attempt poison write after partial use (should not affect remaining redemptions)
-// This simulates a memory poisoning attack during the secret's lifecycle
+    // Attempt poison write after partial use (should not affect remaining redemptions)
+    // This simulates a memory poisoning attack during the secret's lifecycle
     let poison_attempt = SecretHandle::builder()
         .secret_id("concurrent-test")
         .audience("concurrent-audience")
@@ -543,20 +618,28 @@ fn vt009_memory_poisoning_lifecycle() {
         .operation("concurrent-op")
         .expiry(Utc::now() + Duration::hours(1))
         .max_redemptions(3)
-        .generation(999)  // Different generation - poison attempt
+        .generation(999) // Different generation - poison attempt
         .build();
 
     // Plant poison with same secret_id but wrong generation - should fail to plant (secret already exists)
-    let plant_err = broker.plant(poison_attempt.clone(), SecretValue::new(b"POISON-ATTEMPT")).unwrap_err();
-    assert!(matches!(plant_err, atom_secret::SecretVaultError::Internal { .. }));
-    
-// Legitimate redemption should still work (selective repair isolated the poison)
+    let plant_err = broker
+        .plant(poison_attempt.clone(), SecretValue::new(b"POISON-ATTEMPT"))
+        .unwrap_err();
+    assert!(matches!(
+        plant_err,
+        atom_secret::SecretVaultError::Internal { .. }
+    ));
+
+    // Legitimate redemption should still work (selective repair isolated the poison)
     let s3 = broker.redeem(&handle_concurrent).unwrap();
     assert_eq!(s3.bytes(), b"CONCURRENT-SECRET");
     drop(s3);
     assert_eq!(broker.redemption_count("concurrent-test"), Some(3));
-    
+
     // Final redemption should fail (exhausted)
     let err_final = broker.redeem(&handle_concurrent).unwrap_err();
-    assert!(matches!(err_final, atom_secret::SecretVaultError::Exhausted { .. }));
+    assert!(matches!(
+        err_final,
+        atom_secret::SecretVaultError::Exhausted { .. }
+    ));
 }

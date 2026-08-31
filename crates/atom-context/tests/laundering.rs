@@ -72,7 +72,10 @@ fn cxt001_untrusted_external_cannot_claim_authority() {
         TaintLabels::from([TaintLabel::UntrustedExternal]),
         "x",
     );
-    assert!(bad.is_err(), "untrusted-external taint cannot be authoritative");
+    assert!(
+        bad.is_err(),
+        "untrusted-external taint cannot be authoritative"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -99,7 +102,9 @@ fn cxt001_summarize_cannot_launder_injection_risk() {
     let item = high_risk_item();
     let summary = item.transform(TransformKind::Summarize, "a short summary");
     assert_eq!(summary.injection_risk(), InjectionRisk::High);
-    assert!(summary.taint_labels().contains(&TaintLabel::UntrustedExternal));
+    assert!(summary
+        .taint_labels()
+        .contains(&TaintLabel::UntrustedExternal));
     assert_eq!(summary.sensitivity(), Sensitivity::UntrustedExternal);
 }
 

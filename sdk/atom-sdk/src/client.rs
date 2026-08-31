@@ -6,8 +6,8 @@
 
 use std::time::Duration;
 
-use serde::Serialize;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 
 use crate::error::{SdkError, SdkResult};
 use crate::types::{
@@ -39,7 +39,11 @@ impl AtomClient {
         match &self.inner {
             ClientInner::Async(c) => {
                 let url = self.url(path);
-                let resp = c.get(&url).send().await.map_err(|e| SdkError::Transport(e.to_string()))?;
+                let resp = c
+                    .get(&url)
+                    .send()
+                    .await
+                    .map_err(|e| SdkError::Transport(e.to_string()))?;
                 self.parse_response(resp.status(), resp.json::<T>().await)
             }
             ClientInner::Blocking(_) => Err(SdkError::InvalidConfig(
@@ -57,9 +61,17 @@ impl AtomClient {
         match &self.inner {
             ClientInner::Async(c) => {
                 let url = self.url(path);
-                let resp = c.post(&url).json(body).send().await.map_err(|e| SdkError::Transport(e.to_string()))?;
+                let resp = c
+                    .post(&url)
+                    .json(body)
+                    .send()
+                    .await
+                    .map_err(|e| SdkError::Transport(e.to_string()))?;
                 let status = resp.status();
-                let bytes = resp.bytes().await.map_err(|e| SdkError::Transport(e.to_string()))?;
+                let bytes = resp
+                    .bytes()
+                    .await
+                    .map_err(|e| SdkError::Transport(e.to_string()))?;
                 self.parse_bytes(status, &bytes)
             }
             ClientInner::Blocking(_) => Err(SdkError::InvalidConfig(
@@ -73,7 +85,10 @@ impl AtomClient {
         match &self.inner {
             ClientInner::Blocking(a) => {
                 let url = self.url(path);
-                let resp = a.get(&url).call().map_err(|e| SdkError::Transport(e.to_string()))?;
+                let resp = a
+                    .get(&url)
+                    .call()
+                    .map_err(|e| SdkError::Transport(e.to_string()))?;
                 self.parse_ureq(resp)
             }
             ClientInner::Async(_) => Err(SdkError::InvalidConfig(
@@ -83,7 +98,11 @@ impl AtomClient {
     }
 
     /// Blocking POST with a JSON body.
-    pub fn post_json<B: Serialize, T: DeserializeOwned>(&self, path: &str, body: &B) -> SdkResult<T> {
+    pub fn post_json<B: Serialize, T: DeserializeOwned>(
+        &self,
+        path: &str,
+        body: &B,
+    ) -> SdkResult<T> {
         match &self.inner {
             ClientInner::Blocking(a) => {
                 let url = self.url(path);
@@ -133,7 +152,10 @@ impl AtomClient {
     }
 
     /// Blocking `POST /v1/artifacts/verify`.
-    pub fn verify_artifact(&self, req: &VerifyArtifactRequest) -> SdkResult<VerifyArtifactResponse> {
+    pub fn verify_artifact(
+        &self,
+        req: &VerifyArtifactRequest,
+    ) -> SdkResult<VerifyArtifactResponse> {
         self.post_json("/v1/artifacts/verify", req)
     }
 
@@ -167,12 +189,19 @@ impl AtomClient {
         }
     }
 
-    fn parse_response<T: DeserializeOwned>(&self, status: reqwest::StatusCode, body: reqwest::Result<T>) -> SdkResult<T> {
+    fn parse_response<T: DeserializeOwned>(
+        &self,
+        status: reqwest::StatusCode,
+        body: reqwest::Result<T>,
+    ) -> SdkResult<T> {
         let status_u16 = status.as_u16();
         if (200..300).contains(&status_u16) {
             body.map_err(|e| SdkError::Transport(e.to_string()))
         } else {
-            let message = body.err().map(|e| e.to_string()).unwrap_or_else(|| status.to_string());
+            let message = body
+                .err()
+                .map(|e| e.to_string())
+                .unwrap_or_else(|| status.to_string());
             Err(SdkError::Api {
                 status: status_u16,
                 message,
@@ -180,7 +209,11 @@ impl AtomClient {
         }
     }
 
-    fn parse_bytes<T: DeserializeOwned>(&self, status: reqwest::StatusCode, bytes: &[u8]) -> SdkResult<T> {
+    fn parse_bytes<T: DeserializeOwned>(
+        &self,
+        status: reqwest::StatusCode,
+        bytes: &[u8],
+    ) -> SdkResult<T> {
         let status_u16 = status.as_u16();
         if (200..300).contains(&status_u16) {
             serde_json::from_slice(bytes).map_err(|e| SdkError::Deserialize(e.to_string()))
@@ -197,7 +230,9 @@ impl AtomClient {
         let status = resp.status();
         let status_u16 = status;
         if (200..300).contains(&status_u16) {
-            let body = resp.into_string().map_err(|e| SdkError::Transport(e.to_string()))?;
+            let body = resp
+                .into_string()
+                .map_err(|e| SdkError::Transport(e.to_string()))?;
             serde_json::from_str(&body).map_err(|e| SdkError::Deserialize(e.to_string()))
         } else {
             let message = resp.into_string().unwrap_or_else(|_| status.to_string());
@@ -281,9 +316,7 @@ impl AtomClientBuilder {
                 headers.insert(reqwest::header::AUTHORIZATION, val);
                 b = b.default_headers(headers);
             }
-            let c = b
-                .build()
-                .map_err(|e| SdkError::Transport(e.to_string()))?;
+            let c = b.build().map_err(|e| SdkError::Transport(e.to_string()))?;
             ClientInner::Async(c)
         } else {
             let a = ureq::AgentBuilder::new()
@@ -292,7 +325,10 @@ impl AtomClientBuilder {
                 .build();
             ClientInner::Blocking(a)
         };
-        Ok(AtomClient { inner, base_url: self.base_url })
+        Ok(AtomClient {
+            inner,
+            base_url: self.base_url,
+        })
     }
 }
 

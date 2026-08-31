@@ -199,8 +199,7 @@ mod tests {
             &cfg,
         );
         let json = artifact_ops::to_json(&artifact).expect("serializes");
-        let restored: atom_artifact::Artifact =
-            serde_json::from_str(&json).expect("deserializes");
+        let restored: atom_artifact::Artifact = serde_json::from_str(&json).expect("deserializes");
         assert_eq!(restored.id(), artifact.id());
         assert!(artifact_ops::verify_artifact(&restored, &cfg).is_ok());
     }

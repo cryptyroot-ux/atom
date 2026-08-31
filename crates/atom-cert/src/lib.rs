@@ -185,7 +185,12 @@ fn required_manifest_fields() -> Vec<String> {
         .as_array()
         .expect("manifest schema has a `required` array")
         .iter()
-        .map(|field| field.as_str().expect("`required` entries are strings").to_owned())
+        .map(|field| {
+            field
+                .as_str()
+                .expect("`required` entries are strings")
+                .to_owned()
+        })
         .collect()
 }
 

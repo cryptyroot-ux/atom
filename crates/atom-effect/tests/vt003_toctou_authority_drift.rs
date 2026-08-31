@@ -8,8 +8,9 @@ mod support;
 
 use atom_capability::CapabilityGrant;
 use atom_effect::{
-    issue_commit_permit, CommitPermit, ConsumeRequest, DurabilityWitness, EffectEvent, EffectIntent,
-    EffectState, NonceRegistry, PermitError, PermitRequest, ResourceWitness, MAX_PERMIT_TTL_SECONDS,
+    issue_commit_permit, CommitPermit, ConsumeRequest, DurabilityWitness, EffectEvent,
+    EffectIntent, EffectState, NonceRegistry, PermitError, PermitRequest, ResourceWitness,
+    MAX_PERMIT_TTL_SECONDS,
 };
 use support::{
     advanced, at, drifted_witness, durability, grant, intent_in, now, planned_witness,
@@ -223,8 +224,7 @@ fn a_grant_that_does_not_cover_the_operation_or_resource_blocks_issuance() {
 /// EFX-001: no permit without proof that the intent was persisted first.
 #[test]
 fn an_effect_that_was_never_made_durable_blocks_issuance() {
-    const LEDGER_HASH: &str =
-        "b9c1f0d7e5a34c2f8de1b6a90c74f3e2118d5c6b7a09e4d3c2b1a0f9e8d7c6b5";
+    const LEDGER_HASH: &str = "b9c1f0d7e5a34c2f8de1b6a90c74f3e2118d5c6b7a09e4d3c2b1a0f9e8d7c6b5";
     let gate = Gate::new();
 
     for broken in [
@@ -359,7 +359,11 @@ fn authority_that_drifts_after_issuance_blocks_consumption() {
         "{error:?}"
     );
 
-    assert_eq!(registry.len(), 0, "a refused attempt must not burn the nonce");
+    assert_eq!(
+        registry.len(),
+        0,
+        "a refused attempt must not burn the nonce"
+    );
     registry
         .consume(gate.consume(&permit))
         .expect("the undrifted permit is still consumable exactly once");

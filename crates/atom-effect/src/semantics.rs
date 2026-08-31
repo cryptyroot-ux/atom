@@ -200,7 +200,10 @@ impl ReconciliationClass {
 
     /// Whether this class needs a probe to name what it would read.
     const fn needs_probe(self) -> bool {
-        matches!(self, Self::ExternalOperationLookup | Self::ResourceStateRead)
+        matches!(
+            self,
+            Self::ExternalOperationLookup | Self::ResourceStateRead
+        )
     }
 }
 

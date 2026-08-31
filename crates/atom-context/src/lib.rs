@@ -19,7 +19,10 @@
 #![forbid(unsafe_code)]
 
 use atom_capability::{CapabilityGrant, RevocationState};
-use atom_evidence::{validate_metadata, MetadataError, Sensitivity, SourceAuthority, TaintCarrier, TaintLabel, TaintLabels};
+use atom_evidence::{
+    validate_metadata, MetadataError, Sensitivity, SourceAuthority, TaintCarrier, TaintLabel,
+    TaintLabels,
+};
 use chrono::{DateTime, Utc};
 use serde::de::Error as _;
 use serde::{Deserialize, Deserializer, Serialize};
@@ -511,10 +514,7 @@ fn grant_authorizes_declassify(grant: &CapabilityGrant, at: DateTime<Utc>) -> bo
     if at < grant.not_before || at > grant.expires_at {
         return false;
     }
-    grant
-        .operations
-        .iter()
-        .any(|op| op == DECLASSIFY_OPERATION)
+    grant.operations.iter().any(|op| op == DECLASSIFY_OPERATION)
 }
 
 /// Marks this crate as the Phase 4 context-labelling core.

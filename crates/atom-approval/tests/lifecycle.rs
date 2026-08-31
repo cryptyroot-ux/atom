@@ -13,7 +13,7 @@
 //! identical decisions.
 
 use atom_approval::{
-    ApprovalGrant, ApprovalStore, CapabilityEnvelope, ApprovalScope, RedeemError, RedeemTarget,
+    ApprovalGrant, ApprovalScope, ApprovalStore, CapabilityEnvelope, RedeemError, RedeemTarget,
     ValidityInterval,
 };
 use atom_capability::{Budget, ResourceSelector};
@@ -62,7 +62,10 @@ fn intent_with_request(request_digest: &str) -> EffectIntent {
         .with_probe("GET /orders/8842"),
     )
     .precondition(Condition::new("pre/row-exists", "orders.id == 8842"))
-    .postcondition(Condition::new("post/row-archived", "orders.state == 'ARCHIVED'"))
+    .postcondition(Condition::new(
+        "post/row-archived",
+        "orders.state == 'ARCHIVED'",
+    ))
     .compensation(
         Compensation::new(CompensationStrategy::InverseOperation)
             .with_operation("POST /orders/8842/restore"),
@@ -115,7 +118,9 @@ fn changed_payload_is_denied() {
         .expect("record durable grant");
 
     // Redeeming for the digest that was approved works.
-    assert!(store.redeem(&effect_target(&approved.digest()), now()).is_ok());
+    assert!(store
+        .redeem(&effect_target(&approved.digest()), now())
+        .is_ok());
 
     // Redeeming for the mutated payload's digest is denied: the approval was
     // bound to exactly one effect identity.
@@ -166,7 +171,9 @@ fn revoked_grant_is_denied_before_expiry() {
         .expect("record durable grant");
 
     // Valid before revocation.
-    assert!(store.redeem(&effect_target(&intent.digest()), now()).is_ok());
+    assert!(store
+        .redeem(&effect_target(&intent.digest()), now())
+        .is_ok());
 
     store.revoke("approval/effect-1").expect("revoke grant");
 
@@ -315,7 +322,9 @@ fn effect_target_never_matches_capability_scope_and_vice_versa() {
 fn store_round_trips_through_serialization() {
     let intent = intent_with_request("sha256:aaaa");
     let mut store = ApprovalStore::new();
-    store.record(effect_grant(&intent.digest())).expect("record");
+    store
+        .record(effect_grant(&intent.digest()))
+        .expect("record");
     store.revoke("approval/effect-1").expect("revoke");
 
     let json = serde_json::to_string(&store).expect("serialize");
@@ -334,7 +343,9 @@ fn store_round_trips_through_serialization() {
 fn recording_duplicate_grant_id_is_rejected() {
     let intent = intent_with_request("sha256:aaaa");
     let mut store = ApprovalStore::new();
-    store.record(effect_grant(&intent.digest())).expect("record");
+    store
+        .record(effect_grant(&intent.digest()))
+        .expect("record");
     let dup = store.record(effect_grant(&intent.digest()));
     assert!(dup.is_err());
 }

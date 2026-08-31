@@ -235,7 +235,10 @@ fn subsystem_inventory(
     Ok(vec![
         Subsystem::new(
             "atom-kernel",
-            format!("double gate closed; nonces spent: {}", kernel.nonces_spent()),
+            format!(
+                "double gate closed; nonces spent: {}",
+                kernel.nonces_spent()
+            ),
         ),
         Subsystem::new(
             "atom-runtime",
@@ -249,11 +252,17 @@ fn subsystem_inventory(
         Subsystem::new("atom-identity", atom_identity::CRATE_STAGE),
         Subsystem::new(
             "atom-capability",
-            format!("grant `{}` bound (gen {})", grant.grant_id, grant.generation),
+            format!(
+                "grant `{}` bound (gen {})",
+                grant.grant_id, grant.generation
+            ),
         ),
         Subsystem::new(
             "atom-policy",
-            format!("deterministic engine ready: {:?}", atom_policy::PolicyEngine),
+            format!(
+                "deterministic engine ready: {:?}",
+                atom_policy::PolicyEngine
+            ),
         ),
         Subsystem::new(
             "atom-approval",
@@ -271,7 +280,10 @@ fn subsystem_inventory(
             ),
         ),
         Subsystem::new("atom-ledger", "append-only, HMAC-SHA256 signed checkpoints"),
-        Subsystem::new("atom-effect", "typed effect lifecycle (intent → dispatching)"),
+        Subsystem::new(
+            "atom-effect",
+            "typed effect lifecycle (intent → dispatching)",
+        ),
         Subsystem::new("atom-context", atom_context::CRATE_STAGE),
         Subsystem::new("atom-claim", atom_claim::CRATE_STAGE),
         Subsystem::new("atom-evidence", atom_evidence::CRATE_STAGE),
@@ -348,6 +360,3 @@ impl std::fmt::Display for BootReport {
         Ok(())
     }
 }
-
-
-

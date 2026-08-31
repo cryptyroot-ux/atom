@@ -70,10 +70,7 @@ pub enum CapabilityError {
     ResourcesNotContained { extra: Vec<String> },
 
     #[error("budget exceeds parent remaining: child={child}, parent_remaining={parent_remaining}")]
-    BudgetExceeded {
-        child: u64,
-        parent_remaining: u64,
-    },
+    BudgetExceeded { child: u64, parent_remaining: u64 },
 
     #[error("time window not inside parent: child not_before ({child_nb}) < parent not_before ({parent_nb}) or child expires_at ({child_ea}) > parent expires_at ({parent_ea})")]
     TimeWindowOutside {
@@ -194,12 +191,7 @@ impl AuthorityProfile {
     ///
     /// The caller must set `parent_grant_id` and adjust `delegation_depth` /
     /// time window / budget when delegating from a parent.
-    pub fn compile(
-        self,
-        subject_id: &str,
-        workload_id: &str,
-        audience: &str,
-    ) -> CapabilityGrant {
+    pub fn compile(self, subject_id: &str, workload_id: &str, audience: &str) -> CapabilityGrant {
         let now = Utc::now();
         let (operations, purpose, max_cost, max_seconds, delegation_depth) = match self {
             AuthorityProfile::Observe => (
@@ -449,7 +441,12 @@ mod tests {
         }
     }
 
-    fn make_child(parent: &CapabilityGrant, ops: Vec<&str>, budget: u64, depth: u32) -> CapabilityGrant {
+    fn make_child(
+        parent: &CapabilityGrant,
+        ops: Vec<&str>,
+        budget: u64,
+        depth: u32,
+    ) -> CapabilityGrant {
         CapabilityGrant {
             grant_id: uuid::Uuid::new_v4().to_string(),
             subject_id: "s1".into(),
@@ -598,15 +595,18 @@ mod tests {
         // delegation chain (leaf.parent == mid, not root — that is enforced separately).
         let root_ops: std::collections::HashSet<&str> =
             root.operations.iter().map(|s| s.as_str()).collect();
-        assert!(leaf.operations.iter().all(|o| root_ops.contains(o.as_str())));
+        assert!(leaf
+            .operations
+            .iter()
+            .all(|o| root_ops.contains(o.as_str())));
         assert!(leaf.budget.max_cost <= root.budget.max_cost);
         assert!(leaf.delegation_depth < root.delegation_depth);
         // a grant derived from root but wider than mid is allowed by root,
         // yet rejected when checked against mid (ops wider than mid's scope)
         let sibling = make_child(&root, vec!["read", "write", "execute"], 50_000, 5);
         assert!(subset_check(&root, &sibling).is_ok()); // allowed by root
-        // tighten sibling's window so it sits strictly inside mid's, isolating the
-        // operation-width check (otherwise the equal expiry trips TimeWindowOutside)
+                                                        // tighten sibling's window so it sits strictly inside mid's, isolating the
+                                                        // operation-width check (otherwise the equal expiry trips TimeWindowOutside)
         let mut sibling = sibling;
         sibling.expires_at = mid.expires_at - chrono::Duration::minutes(1);
         assert!(subset_check(&mid, &sibling).is_err()); // NOT allowed by mid (ops wider)

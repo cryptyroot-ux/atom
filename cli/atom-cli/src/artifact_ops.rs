@@ -21,7 +21,13 @@ fn cli_sbom() -> Sbom {
 /// Seals `content` into an immutable, signed artifact under the process key.
 #[must_use]
 pub fn seal_bytes(content: Vec<u8>, provenance: Provenance, cfg: &SigningConfig) -> Artifact {
-    Artifact::seal(content, provenance, cli_sbom(), cfg.key_id.as_str(), &cfg.secret)
+    Artifact::seal(
+        content,
+        provenance,
+        cli_sbom(),
+        cfg.key_id.as_str(),
+        &cfg.secret,
+    )
 }
 
 /// Renders an artifact as pretty JSON for on-disk or stdout delivery.

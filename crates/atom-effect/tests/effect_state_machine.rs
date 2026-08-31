@@ -68,7 +68,11 @@ fn state(name: &str) -> EffectState {
 fn the_spec_file_parses_into_the_shape_this_suite_assumes() {
     let (states, transitions) = spec_machine();
 
-    assert_eq!(states.len(), 16, "spec/state-machines/effect.yaml: {states:?}");
+    assert_eq!(
+        states.len(),
+        16,
+        "spec/state-machines/effect.yaml: {states:?}"
+    );
     assert_eq!(transitions.len(), 11, "source states: {transitions:?}");
     assert_eq!(
         transitions.values().map(Vec::len).sum::<usize>(),
@@ -82,7 +86,10 @@ fn the_state_enum_is_exactly_the_spec_state_list() {
     let (states, _) = spec_machine();
 
     let declared: Vec<&str> = EffectState::ALL.iter().map(|s| s.as_str()).collect();
-    assert_eq!(declared, states, "16 states, in spec order, no redefinition");
+    assert_eq!(
+        declared, states,
+        "16 states, in spec order, no redefinition"
+    );
 
     let unique: BTreeSet<&str> = declared.iter().copied().collect();
     assert_eq!(unique.len(), EffectState::ALL.len());
@@ -132,9 +139,7 @@ fn every_spec_edge_is_reachable_through_at_least_one_event() {
         let from = state(source);
         for target in targets {
             let to = state(target);
-            let reached = events
-                .iter()
-                .any(|event| try_reduce(from, event) == Ok(to));
+            let reached = events.iter().any(|event| try_reduce(from, event) == Ok(to));
             assert!(reached, "no event drives {source} -> {target}");
         }
     }
@@ -193,7 +198,10 @@ fn terminal_states_accept_no_further_events() {
 #[test]
 fn unknown_outcome_leaves_only_through_reconciliation() {
     let (_, transitions) = spec_machine();
-    assert_eq!(transitions["UNKNOWN_OUTCOME"], vec!["RECONCILING".to_owned()]);
+    assert_eq!(
+        transitions["UNKNOWN_OUTCOME"],
+        vec!["RECONCILING".to_owned()]
+    );
     assert_eq!(
         EffectState::UnknownOutcome.allowed_transitions(),
         &[EffectState::Reconciling]

@@ -22,10 +22,21 @@ pub use error::{SdkError, SdkResult};
 /// Re-exports of canonical wire types so callers don't need to import
 /// individual crates. These are the exact types that go on the wire.
 pub mod wire {
-    pub use atom_artifact::{Artifact, ArtifactError, ArtifactId, Provenance, Sbom, SbomComponent, Signature};
-    pub use atom_claim::{Claim, ClaimBuilder, ClaimError, ClaimId, ClaimKind, ClaimState, Confidence, ProvenanceGraph, Proposition, RetrievalPolicy, RetentionPolicy};
-    pub use atom_effect::{EffectIntent, EffectIntentBuilder, EffectState, EffectEvent, IntentError, Idempotency, IdempotencyMode, Reconciliation, ReconciliationClass, RetryClass, Compensation, CompensationStrategy};
-    pub use atom_kernel::{Authorization, CommitToken, AuthorizeRequest, CommitRequest, KernelError};
+    pub use atom_artifact::{
+        Artifact, ArtifactError, ArtifactId, Provenance, Sbom, SbomComponent, Signature,
+    };
+    pub use atom_claim::{
+        Claim, ClaimBuilder, ClaimError, ClaimId, ClaimKind, ClaimState, Confidence, Proposition,
+        ProvenanceGraph, RetentionPolicy, RetrievalPolicy,
+    };
+    pub use atom_effect::{
+        Compensation, CompensationStrategy, EffectEvent, EffectIntent, EffectIntentBuilder,
+        EffectState, Idempotency, IdempotencyMode, IntentError, Reconciliation,
+        ReconciliationClass, RetryClass,
+    };
+    pub use atom_kernel::{
+        Authorization, AuthorizeRequest, CommitRequest, CommitToken, KernelError,
+    };
 }
 
 /// Current crate stage marker (used by conformance tooling).

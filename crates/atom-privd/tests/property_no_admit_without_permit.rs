@@ -87,12 +87,20 @@ fn no_tampered_crossing_ever_reaches_the_executor_or_spends_the_permit() {
                 ),
             }
             assert_eq!(broker.executor().count(), 0, "{}/{label}", op.kind());
-            assert_eq!(broker.spent(), 0, "{}/{label} must not burn the permit", op.kind());
+            assert_eq!(
+                broker.spent(),
+                0,
+                "{}/{label} must not burn the permit",
+                op.kind()
+            );
         }
 
-        broker
-            .admit(scenario.request())
-            .unwrap_or_else(|error| panic!("{}: the undrifted permit is still good: {error:?}", op.kind()));
+        broker.admit(scenario.request()).unwrap_or_else(|error| {
+            panic!(
+                "{}: the undrifted permit is still good: {error:?}",
+                op.kind()
+            )
+        });
         assert_eq!(broker.executor().count(), 1, "{}", op.kind());
         assert_eq!(broker.spent(), 1, "{}", op.kind());
     }
@@ -120,9 +128,7 @@ fn a_transiently_refused_permit_is_still_consumable_once() {
         .expect("the permit outlived a transient refusal");
     assert_eq!(broker.executor().count(), 1);
 
-    let replay = broker
-        .admit(scenario.request())
-        .expect_err("but only once");
+    let replay = broker.admit(scenario.request()).expect_err("but only once");
     assert!(
         matches!(
             replay,

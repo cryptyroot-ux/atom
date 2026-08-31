@@ -279,8 +279,8 @@ mod tests {
                 TaintLabel::custom("mcp:tool-output").unwrap(),
             ]),
         );
-        let msg = AdapterMessage::wrap(Protocol::AgentSkills, "peer-z", &content, [])
-            .expect("wraps");
+        let msg =
+            AdapterMessage::wrap(Protocol::AgentSkills, "peer-z", &content, []).expect("wraps");
         assert!(msg.taint_labels().contains(&TaintLabel::Internal));
         assert!(msg
             .taint_labels()

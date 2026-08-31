@@ -217,7 +217,12 @@ impl Worker {
         })?;
 
         // 2. Deny-by-default: the operation must be explicitly present.
-        if !self.grant.operations.iter().any(|op| op == request.operation) {
+        if !self
+            .grant
+            .operations
+            .iter()
+            .any(|op| op == request.operation)
+        {
             return Err(WorkerError::OperationNotGranted {
                 worker_id: self.worker_id.clone(),
                 operation: request.operation.to_owned(),
@@ -293,7 +298,12 @@ mod tests {
     // ─── WKR-001: no grant for the operation → DENY (deny-by-default) ────────
     #[test]
     fn ungranted_operation_is_denied() {
-        let grant = grant_for("s1", &["read"], scoped("db", "row-1"), RevocationState::Active);
+        let grant = grant_for(
+            "s1",
+            &["read"],
+            scoped("db", "row-1"),
+            RevocationState::Active,
+        );
         let worker = Worker::bind("wkr-1", "s1", grant).expect("binds");
         // "write" is not in the grant → deny.
         let err = worker
@@ -320,7 +330,12 @@ mod tests {
 
     #[test]
     fn ungranted_resource_is_denied() {
-        let grant = grant_for("s1", &["write"], scoped("db", "row-1"), RevocationState::Active);
+        let grant = grant_for(
+            "s1",
+            &["write"],
+            scoped("db", "row-1"),
+            RevocationState::Active,
+        );
         let worker = Worker::bind("wkr-1", "s1", grant).expect("binds");
         // resource row-2 is not covered.
         let err = worker
@@ -332,7 +347,12 @@ mod tests {
     // ─── no ambient authority: worker cannot borrow another subject's grant ──
     #[test]
     fn cannot_bind_grant_of_another_subject() {
-        let grant = grant_for("other", &["read"], scoped("db", "row-1"), RevocationState::Active);
+        let grant = grant_for(
+            "other",
+            &["read"],
+            scoped("db", "row-1"),
+            RevocationState::Active,
+        );
         let err = Worker::bind("wkr-1", "s1", grant).unwrap_err();
         assert!(matches!(err, WorkerError::SubjectMismatch { .. }));
     }

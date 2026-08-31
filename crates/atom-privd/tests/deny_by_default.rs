@@ -9,9 +9,7 @@
 mod support;
 
 use atom_privd::{AdmissionRequest, DenyReason, HostOp, OpError};
-use support::{
-    broker, grant_covering, intent_for, now, permit_for, planned_witness, Scenario,
-};
+use support::{broker, grant_covering, intent_for, now, permit_for, planned_witness, Scenario};
 
 #[test]
 fn an_unknown_operation_tag_is_rejected_at_the_type_boundary() {
@@ -20,10 +18,7 @@ fn an_unknown_operation_tag_is_rejected_at_the_type_boundary() {
     let unknown = r#"{"op":"run_arbitrary","program":"/bin/sh","args":["-c","rm -rf /"]}"#;
     let error = serde_json::from_str::<HostOp>(unknown)
         .expect_err("deny-by-default: an unknown op is not a HostOp");
-    assert!(
-        error.to_string().contains("unknown variant"),
-        "{error}"
-    );
+    assert!(error.to_string().contains("unknown variant"), "{error}");
 }
 
 #[test]
@@ -69,7 +64,10 @@ fn a_malformed_operation_is_denied_before_any_permit_is_spent() {
                 ..scenario.request()
             })
             .expect_err("a malformed op must be refused");
-        assert!(matches!(denied, DenyReason::InvalidOp(_)), "{op:?}: {denied:?}");
+        assert!(
+            matches!(denied, DenyReason::InvalidOp(_)),
+            "{op:?}: {denied:?}"
+        );
         assert_eq!(broker.executor().count(), 0, "{op:?}");
         assert_eq!(broker.spent(), 0, "{op:?} must not spend a permit");
     }
@@ -77,9 +75,11 @@ fn a_malformed_operation_is_denied_before_any_permit_is_spent() {
 
 #[test]
 fn a_blank_field_names_itself() {
-    let error = HostOp::RemoveFile { path: String::new() }
-        .validate()
-        .expect_err("an empty path is not a resource");
+    let error = HostOp::RemoveFile {
+        path: String::new(),
+    }
+    .validate()
+    .expect_err("an empty path is not a resource");
     assert!(matches!(error, OpError::BlankField { .. }), "{error:?}");
 }
 
@@ -107,7 +107,11 @@ fn a_write_permit_cannot_authorize_a_delete_on_the_same_file() {
         "{denied:?}"
     );
     assert_eq!(broker.executor().count(), 0);
-    assert_eq!(broker.spent(), 0, "a mismatched op must not burn a valid permit");
+    assert_eq!(
+        broker.spent(),
+        0,
+        "a mismatched op must not burn a valid permit"
+    );
 }
 
 #[test]

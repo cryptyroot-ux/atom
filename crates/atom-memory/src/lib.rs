@@ -343,7 +343,7 @@ mod tests {
     fn poisoned_memory_cannot_drive_effect_without_authorization() {
         let mut store = MemoryStore::new();
         store.ingest(poisoned("mem-evil")); // writing is allowed
-        // retrieving is allowed — the store must be able to hold the poison
+                                            // retrieving is allowed — the store must be able to hold the poison
         assert!(store.retrieve("mem-evil").is_some());
         // but it may NOT reach an effect on its own
         let err = store
@@ -423,7 +423,9 @@ mod tests {
     #[test]
     fn unknown_memory_is_refused() {
         let store = MemoryStore::new();
-        let err = store.effect_eligible("ghost", "effect-1", None).unwrap_err();
+        let err = store
+            .effect_eligible("ghost", "effect-1", None)
+            .unwrap_err();
         assert!(matches!(err, TaintGateError::UnknownMemory { .. }));
     }
 

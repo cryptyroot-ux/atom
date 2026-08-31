@@ -84,7 +84,9 @@ impl ValidityInterval {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
 pub enum IntervalError {
     /// `not_before` was at or after `expires_at`.
-    #[error("validity interval is empty or inverted: not_before={not_before}, expires_at={expires_at}")]
+    #[error(
+        "validity interval is empty or inverted: not_before={not_before}, expires_at={expires_at}"
+    )]
     NotBeforeAfterExpiry {
         /// The requested lower bound.
         not_before: DateTime<Utc>,
@@ -201,10 +203,12 @@ fn envelope_covers(
     if !envelope.operations.iter().any(|op| op == operation) {
         return false;
     }
-    if !resources
-        .iter()
-        .all(|resource| envelope.resources.iter().any(|allowed| resource_contains(allowed, resource)))
-    {
+    if !resources.iter().all(|resource| {
+        envelope
+            .resources
+            .iter()
+            .any(|allowed| resource_contains(allowed, resource))
+    }) {
         return false;
     }
     if let Some(ceiling) = envelope.budget {
@@ -562,6 +566,11 @@ mod tests {
                 max_seconds: 10,
             }),
         };
-        assert!(!envelope_covers(&envelope, "write", &envelope.resources, None));
+        assert!(!envelope_covers(
+            &envelope,
+            "write",
+            &envelope.resources,
+            None
+        ));
     }
 }

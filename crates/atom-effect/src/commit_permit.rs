@@ -388,8 +388,7 @@ pub fn issue_commit_permit(request: PermitRequest<'_>) -> Result<CommitPermit, P
         });
     }
     let covered = grant.resources.iter().any(|selector| {
-        selector.resource_type == request.resource_type
-            && selector.resource_id == intent.target_id
+        selector.resource_type == request.resource_type && selector.resource_id == intent.target_id
     });
     if !covered {
         return Err(PermitError::ResourceNotGranted {

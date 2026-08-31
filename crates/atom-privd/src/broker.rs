@@ -13,8 +13,8 @@
 //! good once the caller fixes the request.
 
 use atom_capability::CapabilityGrant;
-use atom_effect::{ConsumeRequest, NonceRegistry, PermitError, ResourceWitness};
 use atom_effect::{CommitPermit, EffectIntent};
+use atom_effect::{ConsumeRequest, NonceRegistry, PermitError, ResourceWitness};
 use chrono::{DateTime, Utc};
 use thiserror::Error;
 

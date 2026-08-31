@@ -9,9 +9,9 @@
 
 use atom_capability::{Budget, CapabilityGrant, ResourceSelector, RevocationState};
 use atom_effect::{
-    Compensation, CompensationStrategy, CommitPermitted, Condition, DurabilityWitness, EffectEvent,
-    EffectIntent, EffectState, Idempotency, ObservedOutcome, Reconciliation, ReconciliationClass,
-    ReconciledOutcome, ResourceWitness, RetryClass,
+    CommitPermitted, Compensation, CompensationStrategy, Condition, DurabilityWitness, EffectEvent,
+    EffectIntent, EffectState, Idempotency, ObservedOutcome, ReconciledOutcome, Reconciliation,
+    ReconciliationClass, ResourceWitness, RetryClass,
 };
 use chrono::{DateTime, TimeZone, Utc};
 
@@ -106,29 +106,34 @@ pub fn durability() -> DurabilityWitness {
 
 /// A complete EffectIntent carrying every EFX-002 field, in INTENT_DURABLE.
 pub fn intent() -> EffectIntent {
-    EffectIntent::builder(EFFECT_ID, "mission/01J8Z0MISSIONORDERS", GRANT_ID, RESOURCE_ID)
-        .request_digest("sha256:5f2c9e1d8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d")
-        .classes("RESOURCE_MUTATION", "HIGH")
-        .idempotency(Idempotency::keyed(RESOURCE_ID, "idem-8842"))
-        .reconciliation(
-            Reconciliation::new(
-                ReconciliationClass::ExternalOperationLookup,
-                RetryClass::ReconcileBeforeRetry,
-            )
-            .with_probe("GET /orders/8842"),
+    EffectIntent::builder(
+        EFFECT_ID,
+        "mission/01J8Z0MISSIONORDERS",
+        GRANT_ID,
+        RESOURCE_ID,
+    )
+    .request_digest("sha256:5f2c9e1d8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d")
+    .classes("RESOURCE_MUTATION", "HIGH")
+    .idempotency(Idempotency::keyed(RESOURCE_ID, "idem-8842"))
+    .reconciliation(
+        Reconciliation::new(
+            ReconciliationClass::ExternalOperationLookup,
+            RetryClass::ReconcileBeforeRetry,
         )
-        .precondition(Condition::new("pre/row-exists", "orders.id == 8842"))
-        .postcondition(Condition::new(
-            "post/row-archived",
-            "orders.state == 'ARCHIVED'",
-        ))
-        .compensation(
-            Compensation::new(CompensationStrategy::InverseOperation)
-                .with_operation("POST /orders/8842/restore"),
-        )
-        .dependency(UPSTREAM_EFFECT_ID)
-        .build()
-        .expect("fixture intent satisfies EFX-002")
+        .with_probe("GET /orders/8842"),
+    )
+    .precondition(Condition::new("pre/row-exists", "orders.id == 8842"))
+    .postcondition(Condition::new(
+        "post/row-archived",
+        "orders.state == 'ARCHIVED'",
+    ))
+    .compensation(
+        Compensation::new(CompensationStrategy::InverseOperation)
+            .with_operation("POST /orders/8842/restore"),
+    )
+    .dependency(UPSTREAM_EFFECT_ID)
+    .build()
+    .expect("fixture intent satisfies EFX-002")
 }
 
 /// The dependency of [`intent`]: same shape, no dependencies of its own.
@@ -200,7 +205,10 @@ pub fn path_to(state: EffectState) -> Vec<EffectEvent> {
     if state == S::AuthorizationPending {
         return events;
     }
-    events.push(EffectEvent::authorization_granted(GRANT_ID, GRANT_GENERATION));
+    events.push(EffectEvent::authorization_granted(
+        GRANT_ID,
+        GRANT_GENERATION,
+    ));
     if state == S::Authorized {
         return events;
     }
@@ -210,7 +218,9 @@ pub fn path_to(state: EffectState) -> Vec<EffectEvent> {
     }
     if state == S::ConfirmedFailure {
         events.push(sample_commit_permitted());
-        events.push(EffectEvent::dispatch_rejected("target rejected the request"));
+        events.push(EffectEvent::dispatch_rejected(
+            "target rejected the request",
+        ));
         return events;
     }
     events.push(sample_commit_permitted());

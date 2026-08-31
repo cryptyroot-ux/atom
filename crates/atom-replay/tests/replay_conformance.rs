@@ -59,7 +59,10 @@ fn intent() -> EffectIntent {
         .with_probe("GET /orders/8842"),
     )
     .precondition(Condition::new("pre/row-exists", "orders.id == 8842"))
-    .postcondition(Condition::new("post/row-archived", "orders.state == 'ARCHIVED'"))
+    .postcondition(Condition::new(
+        "post/row-archived",
+        "orders.state == 'ARCHIVED'",
+    ))
     .compensation(
         Compensation::new(CompensationStrategy::InverseOperation)
             .with_operation("POST /orders/8842/restore"),
@@ -170,7 +173,10 @@ fn a_different_route_to_the_same_state_replays_to_a_different_r1_digest() {
 
     assert_eq!(a.derived_state, EffectState::UnknownOutcome);
     assert_eq!(b.derived_state, EffectState::UnknownOutcome);
-    assert_ne!(a.digest, b.digest, "different routes must be distinguishable");
+    assert_ne!(
+        a.digest, b.digest,
+        "different routes must be distinguishable"
+    );
 }
 
 #[test]
@@ -204,7 +210,10 @@ fn r2_resolves_only_from_the_cassette() {
     assert_eq!(report.cassette_resolutions.len(), 1);
     assert_eq!(report.cassette_resolutions[0].request_digest, req);
     assert_eq!(report.cassette_resolutions[0].outcome, "SUCCESS");
-    assert!(!report.re_emitted(), "R2 resolves recordings, it does not act");
+    assert!(
+        !report.re_emitted(),
+        "R2 resolves recordings, it does not act"
+    );
 }
 
 #[test]
@@ -271,7 +280,8 @@ fn replay_never_re_emits_consequential_effects() {
     ] {
         let report = replay(class, &input).expect("supported class");
         assert_eq!(
-            report.consequential_in_log, 1,
+            report.consequential_in_log,
+            1,
             "{}: the log's dispatch must be re-derived and counted",
             class.code()
         );
@@ -319,16 +329,8 @@ fn live_fork_mints_a_new_effect_identity_that_differs_from_the_original() {
 #[test]
 fn two_forks_of_the_same_effect_have_distinct_identities() {
     let origin = intent();
-    let a = live_fork(
-        &origin,
-        &LiveForkPolicy::new("p", "reason", "fork-nonce-A"),
-    )
-    .unwrap();
-    let b = live_fork(
-        &origin,
-        &LiveForkPolicy::new("p", "reason", "fork-nonce-B"),
-    )
-    .unwrap();
+    let a = live_fork(&origin, &LiveForkPolicy::new("p", "reason", "fork-nonce-A")).unwrap();
+    let b = live_fork(&origin, &LiveForkPolicy::new("p", "reason", "fork-nonce-B")).unwrap();
     assert_ne!(a.forked_effect_id, b.forked_effect_id);
     assert_ne!(a.forked_digest(), b.forked_digest());
 }
@@ -366,9 +368,12 @@ fn r3_and_r4_return_the_typed_labeled_unsupported_result() {
         ReplayClass::LiveForkModelReexecution,
         ReplayClass::StatisticalReproduction,
     ] {
-        assert!(!class.is_supported(), "{} is out of scope for alpha", class.code());
-        let error = replay(class, &input)
-            .expect_err("R3/R4 must refuse, not fabricate a success");
+        assert!(
+            !class.is_supported(),
+            "{} is out of scope for alpha",
+            class.code()
+        );
+        let error = replay(class, &input).expect_err("R3/R4 must refuse, not fabricate a success");
         match error {
             ReplayError::Unsupported {
                 class: refused,

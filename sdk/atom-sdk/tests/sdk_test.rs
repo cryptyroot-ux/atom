@@ -1,5 +1,8 @@
 use atom_sdk::types::{SubmitEffectRequest, SubmitEffectResponse};
-use atom_sdk::wire::{EffectIntent, Idempotency, IdempotencyMode, Reconciliation, ReconciliationClass, Compensation, CompensationStrategy, RetryClass};
+use atom_sdk::wire::{
+    Compensation, CompensationStrategy, EffectIntent, Idempotency, IdempotencyMode, Reconciliation,
+    ReconciliationClass, RetryClass,
+};
 use atom_sdk::{AtomClient, SdkError};
 
 #[test]
@@ -13,7 +16,13 @@ fn test_request_serialization() {
             scope: "test-scope".to_owned(),
             key: None,
         })
-        .reconciliation(Reconciliation::new(ReconciliationClass::ExternalOperationLookup, RetryClass::Transient).with_probe("external-op"))
+        .reconciliation(
+            Reconciliation::new(
+                ReconciliationClass::ExternalOperationLookup,
+                RetryClass::Transient,
+            )
+            .with_probe("external-op"),
+        )
         .compensation(Compensation::new(CompensationStrategy::NotCompensable))
         .build()
         .unwrap();

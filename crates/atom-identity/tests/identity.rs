@@ -10,7 +10,7 @@
 
 use atom_capability::{Budget, CapabilityGrant, ResourceSelector, RevocationState};
 use atom_evidence::{Evidence, JsonObject, SourceAuthority, TaintLabels, VerifierLevel};
-use atom_identity::{verify_binding, stamp_grant, IdentityError, WorkloadIdentity};
+use atom_identity::{stamp_grant, verify_binding, IdentityError, WorkloadIdentity};
 use chrono::{TimeZone, Utc};
 
 fn sample_identity(pk: &[u8], attestation_seed: &str) -> WorkloadIdentity {
@@ -34,7 +34,10 @@ fn free_named_grant(subject: &str, workload: &str) -> CapabilityGrant {
         purpose: "test".into(),
         not_before,
         expires_at,
-        budget: Budget { max_cost: 1, max_seconds: 1 },
+        budget: Budget {
+            max_cost: 1,
+            max_seconds: 1,
+        },
         delegation_depth: 1,
         audience: "test".into(),
         generation: 0,
@@ -129,7 +132,8 @@ fn identity_can_be_anchored_to_an_attestation() {
     };
 
     let id1 = WorkloadIdentity::from_attestation(b"pk".to_vec(), &evidence("claim-a")).unwrap();
-    let id1_again = WorkloadIdentity::from_attestation(b"pk".to_vec(), &evidence("claim-a")).unwrap();
+    let id1_again =
+        WorkloadIdentity::from_attestation(b"pk".to_vec(), &evidence("claim-a")).unwrap();
     let id2 = WorkloadIdentity::from_attestation(b"pk".to_vec(), &evidence("claim-b")).unwrap();
 
     assert_eq!(id1.id(), id1_again.id());

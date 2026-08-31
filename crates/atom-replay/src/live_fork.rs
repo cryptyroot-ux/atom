@@ -129,7 +129,10 @@ pub fn live_fork(
         &origin.capability_id,
         &origin.target_id,
     )
-    .request_digest(&fork_request_digest(&origin.request_digest, &forked_effect_id))
+    .request_digest(&fork_request_digest(
+        &origin.request_digest,
+        &forked_effect_id,
+    ))
     .classes(&origin.effect_class, &origin.risk_class)
     .idempotency(origin.idempotency.clone())
     .reconciliation(origin.reconciliation.clone())
