@@ -1,0 +1,53 @@
+{
+  "test": "ATOM-VT41-002",
+  "requirement": "ATOM-V4-KRN-002",
+  "gate": "G2",
+  "outcome": "pass",
+  "generated_at": "2026-08-31T20:34:05.162435+00:00",
+  "harness": "tools/emit_g2_evidence.py",
+  "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "test_source_digest": "sha256:48412117ef5c38614fdafe71568029f701c78faeb294da657120bf2a70c23071",
+  "total_passed": 20,
+  "runs": [
+    {
+      "command": "cargo test -p atom-privd --test vt_privilege_boundary",
+      "package": "atom-privd",
+      "test_binary": "vt_privilege_boundary",
+      "name_filter": null,
+      "exit_code": 0,
+      "passed": 10,
+      "failed": 0,
+      "ok": true
+    },
+    {
+      "command": "cargo test -p atom-privd --test deny_by_default",
+      "package": "atom-privd",
+      "test_binary": "deny_by_default",
+      "name_filter": null,
+      "exit_code": 0,
+      "passed": 7,
+      "failed": 0,
+      "ok": true
+    },
+    {
+      "command": "cargo test -p atom-privd --test property_no_admit_without_permit",
+      "package": "atom-privd",
+      "test_binary": "property_no_admit_without_permit",
+      "name_filter": null,
+      "exit_code": 0,
+      "passed": 2,
+      "failed": 0,
+      "ok": true
+    },
+    {
+      "command": "cargo test -p atom-runtime --test native_loop host_operation_crosses_only_the_atom_privd_permit_gate",
+      "package": "atom-runtime",
+      "test_binary": "native_loop",
+      "name_filter": "host_operation_crosses_only_the_atom_privd_permit_gate",
+      "exit_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "ok": true
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "test": "ATOM-VT41-001",
+  "requirement": "ATOM-V4-KRN-001",
+  "gate": "G2",
+  "outcome": "pass",
+  "generated_at": "2026-08-31T20:34:04.190591+00:00",
+  "harness": "tools/emit_g2_evidence.py",
+  "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "test_source_digest": "sha256:8efde2870ff1e35d10311a3902701e5ea70097e8fe1edb30b612ce9da3ecdbe4",
+  "total_passed": 17,
+  "runs": [
+    {
+      "command": "cargo test -p atom-kernel --test kernel_gate",
+      "package": "atom-kernel",
+      "test_binary": "kernel_gate",
+      "name_filter": null,
+      "exit_code": 0,
+      "passed": 17,
+      "failed": 0,
+      "ok": true
+    }
+  ]
+}

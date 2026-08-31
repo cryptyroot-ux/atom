@@ -1,0 +1,33 @@
+{
+  "test": "ATOM-VT41-003",
+  "requirement": "ATOM-V4-AUT-001",
+  "gate": "G2",
+  "outcome": "pass",
+  "generated_at": "2026-08-31T20:34:05.714256+00:00",
+  "harness": "tools/emit_g2_evidence.py",
+  "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "test_source_digest": "sha256:cd41a9ae3461c223d213cf0827c5d2dbba54f8e699445d88d7a7170152c001fa",
+  "total_passed": 13,
+  "runs": [
+    {
+      "command": "cargo test -p atom-capability --test inv012_no_authority_escalation",
+      "package": "atom-capability",
+      "test_binary": "inv012_no_authority_escalation",
+      "name_filter": null,
+      "exit_code": 0,
+      "passed": 7,
+      "failed": 0,
+      "ok": true
+    },
+    {
+      "command": "cargo test -p atom-kernel --test kernel_gate wrong_",
+      "package": "atom-kernel",
+      "test_binary": "kernel_gate",
+      "name_filter": "wrong_",
+      "exit_code": 0,
+      "passed": 6,
+      "failed": 0,
+      "ok": true
+    }
+  ]
+}

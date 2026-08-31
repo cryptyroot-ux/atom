@@ -1,0 +1,23 @@
+{
+  "test": "ATOM-VT41-009",
+  "requirement": "ATOM-V4-EFX-004",
+  "gate": "G2",
+  "outcome": "pass",
+  "generated_at": "2026-08-31T20:34:07.625756+00:00",
+  "harness": "tools/emit_g2_evidence.py",
+  "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "test_source_digest": "sha256:641ef3c6c11f93b5130f9e831587933d2d06cc88efaf33a258977a53651bf690",
+  "total_passed": 15,
+  "runs": [
+    {
+      "command": "cargo test -p atom-effect --test vt003_toctou_authority_drift",
+      "package": "atom-effect",
+      "test_binary": "vt003_toctou_authority_drift",
+      "name_filter": null,
+      "exit_code": 0,
+      "passed": 15,
+      "failed": 0,
+      "ok": true
+    }
+  ]
+}

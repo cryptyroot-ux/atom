@@ -1,0 +1,43 @@
+{
+  "test": "ATOM-VT41-006",
+  "requirement": "ATOM-V4-EFX-001",
+  "gate": "G2",
+  "outcome": "pass",
+  "generated_at": "2026-08-31T20:34:07.308889+00:00",
+  "harness": "tools/emit_g2_evidence.py",
+  "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "test_source_digest": "sha256:7ff109a65c582fe0b3f3f2dd35717b681760051cb0c8fc20311be7ad238d597f",
+  "total_passed": 5,
+  "runs": [
+    {
+      "command": "cargo test -p atom-kernel --test kernel_gate no_permit_non_durable_intent_denies_commit",
+      "package": "atom-kernel",
+      "test_binary": "kernel_gate",
+      "name_filter": "no_permit_non_durable_intent_denies_commit",
+      "exit_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "ok": true
+    },
+    {
+      "command": "cargo test -p atom-effect --test vt003_toctou_authority_drift never_made_durable",
+      "package": "atom-effect",
+      "test_binary": "vt003_toctou_authority_drift",
+      "name_filter": "never_made_durable",
+      "exit_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "ok": true
+    },
+    {
+      "command": "cargo test -p atom-runtime --test native_loop",
+      "package": "atom-runtime",
+      "test_binary": "native_loop",
+      "name_filter": null,
+      "exit_code": 0,
+      "passed": 3,
+      "failed": 0,
+      "ok": true
+    }
+  ]
+}

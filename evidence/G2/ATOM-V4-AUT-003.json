@@ -1,0 +1,23 @@
+{
+  "test": "ATOM-VT41-005",
+  "requirement": "ATOM-V4-AUT-003",
+  "gate": "G2",
+  "outcome": "pass",
+  "generated_at": "2026-08-31T20:34:06.588690+00:00",
+  "harness": "tools/emit_g2_evidence.py",
+  "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "test_source_digest": "sha256:9ad12d0a4db296e3a501c325606b73bdc9c01b6212971c345c458718ec18a473",
+  "total_passed": 15,
+  "runs": [
+    {
+      "command": "cargo test -p atom-approval --test lifecycle",
+      "package": "atom-approval",
+      "test_binary": "lifecycle",
+      "name_filter": null,
+      "exit_code": 0,
+      "passed": 15,
+      "failed": 0,
+      "ok": true
+    }
+  ]
+}
