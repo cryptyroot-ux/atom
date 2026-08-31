@@ -3,7 +3,7 @@ name = "atom-identity"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ATOM v4 content-addressed workload/subject identity; grants bind a valid identity (AUT-001)"
+description = "ATOM content-addressed workload/subject identity; grants bind a valid identity (AUT-001)"
 
 [dependencies]
 atom-ledger = { path = "../atom-ledger" }

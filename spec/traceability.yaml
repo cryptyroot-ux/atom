@@ -16,18 +16,18 @@ status_legend:
   implemented-crate-no-explicit-ref: owning crate built & tested, id not yet cited in doc-comment
   designed-not-built: area defined in spec, no crate in workspace (P1 research track)
 not_built_areas:
-  - ATOM-V4-FND-001/002/003 Capability Foundry (atom-foundry)
-  - ATOM-V4-EXP-001/002 Experience Compiler (atom-experience)
-  - ATOM-V4-JIT-001 Cognition JIT (atom-jit)
-  - ATOM-V4-ARC-001 Architecture Learner (atom-learner)
-  - ATOM-V4-EVO-001/002 Evolution (atom-evolution)
-  - ATOM-V4-BMK-001 Benchmark (atom-benchmark)
-  - ATOM-V4-API-001 API/CLI (atom-api)
-  - ATOM-V4-UI-001 Mission Control (PWA — not in Rust workspace)
-  - ATOM-V4-INT-001 Interoperability (partial: atom-connector exists)
+  - ATOM-FND-001/002/003 Capability Foundry (atom-foundry)
+  - ATOM-EXP-001/002 Experience Compiler (atom-experience)
+  - ATOM-JIT-001 Cognition JIT (atom-jit)
+  - ATOM-ARC-001 Architecture Learner (atom-learner)
+  - ATOM-EVO-001/002 Evolution (atom-evolution)
+  - ATOM-BMK-001 Benchmark (atom-benchmark)
+  - ATOM-API-001 API/CLI (atom-api)
+  - ATOM-UI-001 Mission Control (PWA — not in Rust workspace)
+  - ATOM-INT-001 Interoperability (partial: atom-connector exists)
 
 requirements:
-  - id: ATOM-V4-KRN-001
+  - id: ATOM-KRN-001
     area: Sovereign Kernel
     priority: P0
     owner_crate: atom-kernel
@@ -35,7 +35,7 @@ requirements:
     acceptance_tests: []
     invariants: [ATOM-INV-001]
     code_citation: [atom-kernel]
-  - id: ATOM-V4-KRN-002
+  - id: ATOM-KRN-002
     area: Sovereign Kernel
     priority: P0
     owner_crate: atom-kernel
@@ -43,7 +43,7 @@ requirements:
     acceptance_tests: []
     invariants: []
     code_citation: []
-  - id: ATOM-V4-AUT-001
+  - id: ATOM-AUT-001
     area: Authority
     priority: P0
     owner_crate: atom-capability
@@ -51,7 +51,7 @@ requirements:
     acceptance_tests: []
     invariants: [ATOM-INV-012]
     code_citation: [atom-capability]
-  - id: ATOM-V4-AUT-002
+  - id: ATOM-AUT-002
     area: Authority
     priority: P0
     owner_crate: atom-capability
@@ -59,7 +59,7 @@ requirements:
     acceptance_tests: [ATOM-VT-005]
     invariants: [ATOM-INV-003]
     code_citation: [atom-capability]
-  - id: ATOM-V4-AUT-003
+  - id: ATOM-AUT-003
     area: Authority
     priority: P0
     owner_crate: atom-capability
@@ -67,7 +67,7 @@ requirements:
     acceptance_tests: [ATOM-VT-003]
     invariants: [ATOM-INV-005, ATOM-INV-018]
     code_citation: []
-  - id: ATOM-V4-EFX-001
+  - id: ATOM-EFX-001
     area: Effects
     priority: P0
     owner_crate: atom-effect
@@ -75,7 +75,7 @@ requirements:
     acceptance_tests: []
     invariants: [ATOM-INV-004]
     code_citation: [atom-effect]
-  - id: ATOM-V4-EFX-002
+  - id: ATOM-EFX-002
     area: Effects
     priority: P0
     owner_crate: atom-effect
@@ -83,7 +83,7 @@ requirements:
     acceptance_tests: []
     invariants: []
     code_citation: [atom-effect]
-  - id: ATOM-V4-EFX-003
+  - id: ATOM-EFX-003
     area: Effects
     priority: P0
     owner_crate: atom-effect
@@ -91,7 +91,7 @@ requirements:
     acceptance_tests: [ATOM-VT-002]
     invariants: [ATOM-INV-002]
     code_citation: []
-  - id: ATOM-V4-EFX-004
+  - id: ATOM-EFX-004
     area: Effects
     priority: P0
     owner_crate: atom-effect
@@ -99,7 +99,7 @@ requirements:
     acceptance_tests: [ATOM-VT-003]
     invariants: [ATOM-INV-004, ATOM-INV-005]
     code_citation: []
-  - id: ATOM-V4-LED-001
+  - id: ATOM-LED-001
     area: Ledger
     priority: P0
     owner_crate: atom-ledger
@@ -107,7 +107,7 @@ requirements:
     acceptance_tests: [ATOM-VT-001, ATOM-VT-006]
     invariants: [ATOM-INV-004, ATOM-INV-007]
     code_citation: [atom-ledger]
-  - id: ATOM-V4-MSN-001
+  - id: ATOM-MSN-001
     area: Mission
     priority: P0
     owner_crate: atom-mission
@@ -115,7 +115,7 @@ requirements:
     acceptance_tests: []
     invariants: [ATOM-INV-013]
     code_citation: []
-  - id: ATOM-V4-MSN-002
+  - id: ATOM-MSN-002
     area: Mission
     priority: P0
     owner_crate: atom-mission
@@ -123,7 +123,7 @@ requirements:
     acceptance_tests: []
     invariants: []
     code_citation: []
-  - id: ATOM-V4-MSN-003
+  - id: ATOM-MSN-003
     area: Mission
     priority: P0
     owner_crate: atom-mission
@@ -131,7 +131,7 @@ requirements:
     acceptance_tests: []
     invariants: []
     code_citation: []
-  - id: ATOM-V4-COG-001
+  - id: ATOM-COG-001
     area: Native Cognition
     priority: P0
     owner_crate: atom-runtime
@@ -139,7 +139,7 @@ requirements:
     acceptance_tests: [ATOM-VT-007]
     invariants: []
     code_citation: [atom-runtime]
-  - id: ATOM-V4-CXT-001
+  - id: ATOM-CXT-001
     area: Context
     priority: P0
     owner_crate: atom-context
@@ -147,7 +147,7 @@ requirements:
     acceptance_tests: [ATOM-VT-009]
     invariants: [ATOM-INV-009, ATOM-INV-019]
     code_citation: [atom-context]
-  - id: ATOM-V4-SEC-001
+  - id: ATOM-SEC-001
     area: Secrets
     priority: P0
     owner_crate: atom-secret
@@ -155,7 +155,7 @@ requirements:
     acceptance_tests: [ATOM-VT-004]
     invariants: [ATOM-INV-006]
     code_citation: [atom-secret]
-  - id: ATOM-V4-SCH-001
+  - id: ATOM-SCH-001
     area: Scheduler
     priority: P0
     owner_crate: atom-scheduler
@@ -163,7 +163,7 @@ requirements:
     acceptance_tests: [ATOM-VT-014]
     invariants: []
     code_citation: []
-  - id: ATOM-V4-OBS-001
+  - id: ATOM-OBS-001
     area: Evidence
     priority: P0
     owner_crate: atom-evidence
@@ -171,7 +171,7 @@ requirements:
     acceptance_tests: []
     invariants: [ATOM-INV-014, ATOM-INV-015]
     code_citation: [atom-evidence]
-  - id: ATOM-V4-RPL-001
+  - id: ATOM-RPL-001
     area: Replay
     priority: P0
     owner_crate: atom-replay
@@ -179,7 +179,7 @@ requirements:
     acceptance_tests: []
     invariants: [ATOM-INV-010]
     code_citation: [atom-replay]
-  - id: ATOM-V4-OPS-001
+  - id: ATOM-OPS-001
     area: Operations
     priority: P0
     owner_crate: atom-privd
@@ -187,7 +187,7 @@ requirements:
     acceptance_tests: []
     invariants: []
     code_citation: []
-  - id: ATOM-V4-UI-001
+  - id: ATOM-UI-001
     area: Mission Control
     priority: P0
     owner_crate: atom-ui (PWA NOT-BUILT)
@@ -195,7 +195,7 @@ requirements:
     acceptance_tests: []
     invariants: []
     code_citation: []
-  - id: ATOM-V4-EXT-001
+  - id: ATOM-EXT-001
     area: Extensions
     priority: P0
     owner_crate: atom-adapter
@@ -203,7 +203,7 @@ requirements:
     acceptance_tests: []
     invariants: []
     code_citation: []
-  - id: ATOM-V4-SUP-001
+  - id: ATOM-SUP-001
     area: Supply Chain
     priority: P0
     owner_crate: atom-artifact
@@ -211,7 +211,7 @@ requirements:
     acceptance_tests: []
     invariants: [ATOM-INV-008]
     code_citation: [atom-artifact]
-  - id: ATOM-V4-EPI-001
+  - id: ATOM-EPI-001
     area: Epistemics
     priority: P1
     owner_crate: atom-claim/atom-evidence
@@ -219,7 +219,7 @@ requirements:
     acceptance_tests: []
     invariants: [ATOM-INV-009, ATOM-INV-019]
     code_citation: [atom-claim]
-  - id: ATOM-V4-EPI-002
+  - id: ATOM-EPI-002
     area: Epistemics
     priority: P1
     owner_crate: atom-claim/atom-evidence
@@ -227,7 +227,7 @@ requirements:
     acceptance_tests: []
     invariants: []
     code_citation: []
-  - id: ATOM-V4-FND-001
+  - id: ATOM-FND-001
     area: Capability Foundry
     priority: P1
     owner_crate: atom-foundry (NOT-BUILT)
@@ -235,7 +235,7 @@ requirements:
     acceptance_tests: []
     invariants: []
     code_citation: []
-  - id: ATOM-V4-FND-002
+  - id: ATOM-FND-002
     area: Capability Foundry
     priority: P1
     owner_crate: atom-foundry (NOT-BUILT)
@@ -243,7 +243,7 @@ requirements:
     acceptance_tests: [ATOM-VT-010]
     invariants: []
     code_citation: []
-  - id: ATOM-V4-FND-003
+  - id: ATOM-FND-003
     area: Capability Foundry
     priority: P1
     owner_crate: atom-foundry (NOT-BUILT)
@@ -251,7 +251,7 @@ requirements:
     acceptance_tests: []
     invariants: [ATOM-INV-017]
     code_citation: []
-  - id: ATOM-V4-EXP-001
+  - id: ATOM-EXP-001
     area: Experience Compiler
     priority: P1
     owner_crate: atom-experience (NOT-BUILT)
@@ -259,7 +259,7 @@ requirements:
     acceptance_tests: [ATOM-VT-011]
     invariants: []
     code_citation: []
-  - id: ATOM-V4-EXP-002
+  - id: ATOM-EXP-002
     area: Experience Compiler
     priority: P1
     owner_crate: atom-experience (NOT-BUILT)
@@ -267,7 +267,7 @@ requirements:
     acceptance_tests: []
     invariants: []
     code_citation: []
-  - id: ATOM-V4-JIT-001
+  - id: ATOM-JIT-001
     area: Cognition JIT
     priority: P1
     owner_crate: atom-jit (NOT-BUILT)
@@ -275,7 +275,7 @@ requirements:
     acceptance_tests: []
     invariants: []
     code_citation: []
-  - id: ATOM-V4-ARC-001
+  - id: ATOM-ARC-001
     area: Architecture Learner
     priority: P1
     owner_crate: atom-learner (NOT-BUILT)
@@ -283,7 +283,7 @@ requirements:
     acceptance_tests: []
     invariants: []
     code_citation: []
-  - id: ATOM-V4-FLT-001
+  - id: ATOM-FLT-001
     area: Reliability
     priority: P1
     owner_crate: atom-fault
@@ -291,7 +291,7 @@ requirements:
     acceptance_tests: []
     invariants: []
     code_citation: [atom-fault]
-  - id: ATOM-V4-RST-001
+  - id: ATOM-RST-001
     area: Restore/Fencing
     priority: P0
     owner_crate: atom-restore
@@ -299,7 +299,7 @@ requirements:
     acceptance_tests: [ATOM-VT-008]
     invariants: [ATOM-INV-018]
     code_citation: []
-  - id: ATOM-V4-EVO-001
+  - id: ATOM-EVO-001
     area: Evolution
     priority: P1
     owner_crate: atom-evolution (NOT-BUILT)
@@ -307,7 +307,7 @@ requirements:
     acceptance_tests: []
     invariants: [ATOM-INV-016, ATOM-INV-017]
     code_citation: []
-  - id: ATOM-V4-EVO-002
+  - id: ATOM-EVO-002
     area: Evolution
     priority: P1
     owner_crate: atom-evolution (NOT-BUILT)
@@ -315,7 +315,7 @@ requirements:
     acceptance_tests: [ATOM-VT-012]
     invariants: [ATOM-INV-016]
     code_citation: []
-  - id: ATOM-V4-CER-001
+  - id: ATOM-CER-001
     area: Certification
     priority: P1
     owner_crate: atom-cert
@@ -323,7 +323,7 @@ requirements:
     acceptance_tests: []
     invariants: [ATOM-INV-008, ATOM-INV-011]
     code_citation: [atom-cert]
-  - id: ATOM-V4-BMK-001
+  - id: ATOM-BMK-001
     area: Benchmark
     priority: P0
     owner_crate: atom-benchmark (NOT-BUILT)
@@ -331,7 +331,7 @@ requirements:
     acceptance_tests: [ATOM-VT-015]
     invariants: [ATOM-INV-020]
     code_citation: []
-  - id: ATOM-V4-INT-001
+  - id: ATOM-INT-001
     area: Interoperability
     priority: P0
     owner_crate: atom-connector
@@ -339,7 +339,7 @@ requirements:
     acceptance_tests: [ATOM-VT-013]
     invariants: []
     code_citation: [atom-connector]
-  - id: ATOM-V4-API-001
+  - id: ATOM-API-001
     area: API/CLI
     priority: P0
     owner_crate: atom-api (NOT-BUILT)

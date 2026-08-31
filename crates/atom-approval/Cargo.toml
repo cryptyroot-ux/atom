@@ -3,7 +3,7 @@ name = "atom-approval"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ATOM v4 durable ApprovalGrant lifecycle store: effect-digest / capability-envelope scoping, validity intervals and revocation (AUT-003)"
+description = "ATOM durable ApprovalGrant lifecycle store: effect-digest / capability-envelope scoping, validity intervals and revocation (AUT-003)"
 
 [dependencies]
 atom-capability = { path = "../atom-capability" }

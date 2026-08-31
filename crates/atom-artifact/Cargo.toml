@@ -3,7 +3,7 @@ name = "atom-artifact"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ATOM v4 content-addressed artifacts: SHA-256 identity, provenance + SBOM + signature, and immutability verification with tamper detection (SUP-001, ATOM-VT-012)"
+description = "ATOM content-addressed artifacts: SHA-256 identity, provenance + SBOM + signature, and immutability verification with tamper detection (SUP-001, ATOM-VT-012)"
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }

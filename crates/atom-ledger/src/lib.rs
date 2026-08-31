@@ -1,8 +1,8 @@
-//! ATOM v4 authoritative event ledger: append-only, hash-chained, checkpoint-sealed.
+//! ATOM authoritative event ledger: append-only, hash-chained, checkpoint-sealed.
 //!
 //! Normative sources (`spec/`, precedence 1):
 //!
-//! * **ATOM-V4-LED-001** — an authoritative event stream carries a monotonic sequence, the
+//! * **ATOM-LED-001** — an authoritative event stream carries a monotonic sequence, the
 //!   previous event's hash and a canonical event hash; checkpoints seal stream heads.
 //! * **ATOM-INV-007** — projections are rebuilt from the ledger and never override it.
 //! * **ADR-020** — canonical encoding is RFC 8785 JCS over UTF-8, hashed with SHA-256 under

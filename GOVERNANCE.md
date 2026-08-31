@@ -49,7 +49,7 @@ Contributors are expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md) an
 2. Create feature branch from `main`
 3. Implement with tests (TDD preferred)
 4. Ensure `cargo test --workspace` and `cargo clippy --workspace` pass
-5. Submit PR with description linking to requirement ID (e.g., `ATOM-V4-KRN-001`)
+5. Submit PR with description linking to requirement ID (e.g., `ATOM-KRN-001`)
 6. Address review feedback
 7. Trusted Core merges after CI + review
 

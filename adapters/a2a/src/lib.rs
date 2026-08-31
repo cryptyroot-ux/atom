@@ -1,5 +1,5 @@
 //! atom-adapter-a2a: Compatibility adapter: a2a (versioned profile, cannot widen core authority).
-//! ATOM v4 — normative source is spec/ (precedence 1). This is a G0 skeleton crate.
+//! ATOM — normative source is spec/ (precedence 1). This is a G0 skeleton crate.
 
 #![forbid(unsafe_code)]
 

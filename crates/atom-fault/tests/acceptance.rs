@@ -1,4 +1,4 @@
-//! Acceptance tests for `atom-fault` (ATOM-V4-FLT-001, ATOM-INV-002).
+//! Acceptance tests for `atom-fault` (ATOM-FLT-001, ATOM-INV-002).
 //!
 //! These exercise the crate through its public API only, and cover the four
 //! properties the task fixes: an exhaustive total recovery mapping, the

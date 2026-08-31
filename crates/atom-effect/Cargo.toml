@@ -3,7 +3,7 @@ name = "atom-effect"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ATOM v4 effect kernel: durable EffectIntent, one-shot CommitPermit commit boundary and the pure 16-state effect reducer"
+description = "ATOM effect kernel: durable EffectIntent, one-shot CommitPermit commit boundary and the pure 16-state effect reducer"
 
 [dependencies]
 atom-capability = { path = "../atom-capability" }

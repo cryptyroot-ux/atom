@@ -1,13 +1,13 @@
-# ATOM v4.0-alpha Release Notes
+# ATOM.0-alpha Release Notes
 
 **Release Date:** 2026-08-31
-**Tag:** v4.0-alpha
+**Tag:** 0.0.0-alpha.0
 **Commit:** 14c7a7d
 **License:** Apache-2.0
 
 ## Summary
 
-ATOM v4.0-alpha is the first complete implementation of the Sovereign Recursive Agent Architecture — a Rust workspace implementing 26 crates that enforce the boundary between probabilistic cognition and authoritative state mutation.
+ATOM.0-alpha is the first complete implementation of the Sovereign Recursive Agent Architecture — a Rust workspace implementing 26 crates that enforce the boundary between probabilistic cognition and authoritative state mutation.
 
 This is an **alpha release** of the core runtime. Research tracks (Foundry, Evolution, Benchmark, Experience Compiler, JIT, Architecture Learner) and UI/API surface are deferred to future releases.
 

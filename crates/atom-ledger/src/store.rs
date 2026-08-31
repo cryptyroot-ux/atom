@@ -1,4 +1,4 @@
-//! The SQLite store: one file, append-only, WAL (ADR-004, ADR-006, ATOM-V4-LED-001).
+//! The SQLite store: one file, append-only, WAL (ADR-004, ADR-006, ATOM-LED-001).
 //!
 //! `synchronous=FULL` means a commit is not reported until SQLite has fsynced it — which is
 //! exactly what ATOM-VT-001 measures when it kills the process mid-flight. No external
@@ -68,12 +68,12 @@ CREATE TABLE IF NOT EXISTS ledger_checkpoint (
 
 CREATE TRIGGER IF NOT EXISTS ledger_event_no_update
 BEFORE UPDATE ON ledger_event BEGIN
-    SELECT RAISE(ABORT, 'atom-ledger: ledger_event is append-only (ATOM-V4-LED-001)');
+    SELECT RAISE(ABORT, 'atom-ledger: ledger_event is append-only (ATOM-LED-001)');
 END;
 
 CREATE TRIGGER IF NOT EXISTS ledger_event_no_delete
 BEFORE DELETE ON ledger_event BEGIN
-    SELECT RAISE(ABORT, 'atom-ledger: ledger_event is append-only (ATOM-V4-LED-001)');
+    SELECT RAISE(ABORT, 'atom-ledger: ledger_event is append-only (ATOM-LED-001)');
 END;
 
 CREATE TRIGGER IF NOT EXISTS ledger_checkpoint_no_update
@@ -113,7 +113,7 @@ impl Ledger {
         Ok(Self { conn, signer })
     }
 
-    /// Append one event and commit it before returning (ATOM-V4-LED-001).
+    /// Append one event and commit it before returning (ATOM-LED-001).
     ///
     /// `ts` is data, never a clock read: identities have to be reproducible.
     ///

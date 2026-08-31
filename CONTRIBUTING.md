@@ -25,7 +25,7 @@ cargo clippy --workspace
 
 - Check [existing issues](https://github.com/cryptyroot-ux/atom/issues)
 - For new features, create an issue describing the change
-- Reference requirement IDs from `spec/requirements.yaml` (e.g., `ATOM-V4-KRN-001`)
+- Reference requirement IDs from `spec/requirements.yaml` (e.g., `ATOM-KRN-001`)
 
 ### 2. Branch
 
@@ -48,7 +48,7 @@ Branch naming:
 - Reference requirement/invariant IDs in doc-comments:
 
 ```rust
-/// Implements ATOM-V4-KRN-001: sovereign kernel boundary.
+/// Implements ATOM-KRN-001: sovereign kernel boundary.
 ///
 /// INV-001: Probabilistic cognition cannot directly mutate authoritative state.
 pub fn authorize_proposal(...) -> Result<CommitPermit, KernelError> {
@@ -82,7 +82,7 @@ Zero warnings required. Fix all clippy suggestions before submitting PR.
 ```bash
 git commit -m "feat(kernel): add capability revalidation gate
 
-Implements ATOM-V4-KRN-001. Adds commit-time revalidation
+Implements ATOM-KRN-001. Adds commit-time revalidation
 against capability grant before effect dispatch.
 
 Closes #42"

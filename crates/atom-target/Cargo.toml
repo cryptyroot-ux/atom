@@ -3,7 +3,7 @@ name = "atom-target"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ATOM v4 execution target: typed target enum + mandatory idempotency key with duplicate-dispatch dedup (TGT-001, ATOM-VT-013)"
+description = "ATOM execution target: typed target enum + mandatory idempotency key with duplicate-dispatch dedup (TGT-001, ATOM-VT-013)"
 
 [dependencies]
 atom-effect = { path = "../atom-effect" }

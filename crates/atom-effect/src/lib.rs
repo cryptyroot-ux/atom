@@ -1,6 +1,6 @@
 //! atom-effect: EffectIntent, commit boundary, CommitPermit, UNKNOWN_OUTCOME.
 //!
-//! ATOM v4 — normative source is `spec/` (precedence 1). This crate implements
+//! ATOM — normative source is `spec/` (precedence 1). This crate implements
 //! EFX-001..004: durability-before-dispatch, the 16-state effect lifecycle,
 //! UNKNOWN_OUTCOME as a first-class state, and the one-shot commit permit that
 //! gates the dispatch boundary against TOCTOU and authority drift.

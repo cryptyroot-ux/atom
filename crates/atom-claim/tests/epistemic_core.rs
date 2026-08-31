@@ -1,4 +1,4 @@
-//! Acceptance tests for ATOM-V4-EPI-001's Claim surface.
+//! Acceptance tests for ATOM-EPI-001's Claim surface.
 
 use atom_claim::{
     as_of, link_contradiction, reduce, validate_provenance_dag, walk_provenance, Claim, ClaimEvent,

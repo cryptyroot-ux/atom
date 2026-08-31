@@ -2,7 +2,7 @@
 //!
 //! Normative sources (`spec/`, precedence 1):
 //!
-//! * **ATOM-V4-RPL-001** (P0, v4.0-alpha) — implement R0-R2 replay and label
+//! * **ATOM-RPL-001** (P0, 0.0.0-alpha.0) — implement R0-R2 replay and label
 //!   R3/R4 semantics explicitly. **No universal exact-replay claim is allowed.**
 //! * **ATOM-INV-010** — replay cannot re-emit consequential external effects
 //!   unless an explicit live-fork policy authorizes a NEW effect identity.
@@ -19,7 +19,7 @@
 //! # The three guarantees
 //!
 //! 1. **Determinism (R0/R1).** The same committed log replays to the same state
-//!    and trajectory digest — the ATOM-V4-RPL-001 verification.
+//!    and trajectory digest — the ATOM-RPL-001 verification.
 //! 2. **Bounded recording (R2).** A cassette miss is a typed
 //!    [`ReplayError::CassetteMiss`]; there is no live-call path and no
 //!    fabrication.
@@ -65,7 +65,7 @@ pub use engine::{replay, CassetteResolution, ReplayInput, ReplayReport};
 pub use error::ReplayError;
 pub use live_fork::{live_fork, ForkedEffect, LiveForkPolicy};
 
-/// The crate's explicit non-claim (ATOM-V4-RPL-001).
+/// The crate's explicit non-claim (ATOM-RPL-001).
 ///
 /// Exposed as a constant so a caller — or a test — can assert on the exact
 /// wording rather than trusting prose. No code path in this crate promises

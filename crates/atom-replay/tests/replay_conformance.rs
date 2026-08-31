@@ -1,4 +1,4 @@
-//! Conformance for atom-replay against ATOM-V4-RPL-001 and ATOM-INV-010.
+//! Conformance for atom-replay against ATOM-RPL-001 and ATOM-INV-010.
 //!
 //! Every acceptance bullet in TASK.md has a test here:
 //!
@@ -419,7 +419,7 @@ fn the_class_table_matches_spec_enums() {
     }
 }
 
-// --- The explicit non-claim (ATOM-V4-RPL-001) ------------------------------
+// --- The explicit non-claim (ATOM-RPL-001) ------------------------------
 
 #[test]
 fn there_is_no_universal_exact_replay_claim() {

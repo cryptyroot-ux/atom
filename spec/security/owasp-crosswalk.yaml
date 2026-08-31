@@ -95,4 +95,4 @@ residual_risk_acceptance:
   - id: ASI04-release
     disposition: deferred to signed release bundle (H-08 closure)
   - id: ASI05/08/10-tests
-    disposition: fault-injection test suite tracked in roadmap, not blocking v4.0-alpha core
+    disposition: fault-injection test suite tracked in roadmap, not blocking 0.0.0-alpha.0 core

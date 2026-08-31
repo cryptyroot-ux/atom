@@ -9,7 +9,7 @@
 //! Consequential effects in the log are counted (they are re-derived, because
 //! state depends on them) but never re-emitted. The only way to act on the
 //! world again is [`crate::live_fork`], which mints a NEW effect identity
-//! (INV-010, ATOM-V4-RPL-001).
+//! (INV-010, ATOM-RPL-001).
 
 use atom_effect::{try_project, EffectEvent, EffectState};
 use sha2::{Digest, Sha256};

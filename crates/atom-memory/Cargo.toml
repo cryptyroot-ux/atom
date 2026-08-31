@@ -3,7 +3,7 @@ name = "atom-memory"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ATOM v4 typed epistemic store: separately policy-gated ingest/retrieve/effect stages where a poisoned (untrusted-external) memory cannot trigger an unauthorized effect (EPI-002, ATOM-VT-009)"
+description = "ATOM typed epistemic store: separately policy-gated ingest/retrieve/effect stages where a poisoned (untrusted-external) memory cannot trigger an unauthorized effect (EPI-002, ATOM-VT-009)"
 
 [dependencies]
 atom-evidence = { path = "../atom-evidence" }

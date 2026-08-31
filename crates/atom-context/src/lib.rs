@@ -2,7 +2,7 @@
 //!
 //! Normative source is `spec/` (precedence 1):
 //!
-//! * **ATOM-V4-CXT-001** — Every context item MUST carry provenance, trust,
+//! * **ATOM-CXT-001** — Every context item MUST carry provenance, trust,
 //!   sensitivity and injection-risk labels, and transformations MUST preserve
 //!   taint unless governed declassification occurs.
 //! * **ATOM-INV-009** — Untrusted information cannot increase its source

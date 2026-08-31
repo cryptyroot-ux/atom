@@ -3,7 +3,7 @@ name = "atom-connector"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ATOM v4 connector contract + conformance suite: a connector to an external system is rejected unless it proves digest/idempotency/retry/reconcile/compensate support (CON-001, EFX-002)"
+description = "ATOM connector contract + conformance suite: a connector to an external system is rejected unless it proves digest/idempotency/retry/reconcile/compensate support (CON-001, EFX-002)"
 
 [dependencies]
 atom-effect = { path = "../atom-effect" }

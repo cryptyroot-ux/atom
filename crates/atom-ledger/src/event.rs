@@ -1,4 +1,4 @@
-//! Events: the only authoritative record in ATOM (ATOM-V4-LED-001, ADR-021).
+//! Events: the only authoritative record in ATOM (ATOM-LED-001, ADR-021).
 //!
 //! An event's identity binds its position (`seq`), its stream, its predecessor
 //! (`prev_hash`), its content (`payload_digest`) and its timestamp. Change any of those and

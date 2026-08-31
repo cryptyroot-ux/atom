@@ -1,4 +1,4 @@
-//! Checkpoints: signed seals over a stream head (ATOM-V4-LED-001, ADR-021).
+//! Checkpoints: signed seals over a stream head (ATOM-LED-001, ADR-021).
 //!
 //! A hash chain proves that nobody edited history *in place*. It cannot, on its own, prove
 //! that nobody rewrote the whole chain — a rewritten chain is internally consistent. A

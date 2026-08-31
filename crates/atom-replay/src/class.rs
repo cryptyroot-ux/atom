@@ -10,7 +10,7 @@
 //!
 //! Support status is a property of the class, not of the caller: R3/R4 are not
 //! "hard", they are out of scope for the alpha (see TASK.md boundary decisions
-//! and ATOM-V4-RPL-001). Calling replay at R3/R4 is a typed refusal, never a
+//! and ATOM-RPL-001). Calling replay at R3/R4 is a typed refusal, never a
 //! fabricated result — see [`crate::ReplayError::Unsupported`].
 
 use serde::{Deserialize, Serialize};
@@ -65,9 +65,9 @@ impl ReplayClass {
         }
     }
 
-    /// Whether this class is executed for the v4.0-alpha (R0/R1/R2 only).
+    /// Whether this class is executed for the 0.0.0-alpha.0 (R0/R1/R2 only).
     ///
-    /// R3/R4 return `false`: they are labeled, not implemented (ATOM-V4-RPL-001,
+    /// R3/R4 return `false`: they are labeled, not implemented (ATOM-RPL-001,
     /// TASK.md boundary decisions).
     #[must_use]
     pub const fn is_supported(self) -> bool {
@@ -80,7 +80,7 @@ impl ReplayClass {
     /// The bounded guarantee this class offers.
     ///
     /// Deliberately narrow: there is NO universal exact-replay claim
-    /// (ATOM-V4-RPL-001). R2 is bounded to the recorded cassette; R3/R4 make no
+    /// (ATOM-RPL-001). R2 is bounded to the recorded cassette; R3/R4 make no
     /// execution claim at all.
     #[must_use]
     pub const fn guarantee(self) -> &'static str {

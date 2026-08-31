@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: ATOM Sovereign Agent Runtime API
   description: |
-    ATOM v4.0-alpha — Sovereign Recursive Agent Architecture.
+    ATOM.0-alpha — Sovereign Recursive Agent Architecture.
     
     This API exposes the runtime surface for mission control, effect dispatch,
     capability management, and evidence retrieval. All mutation paths traverse

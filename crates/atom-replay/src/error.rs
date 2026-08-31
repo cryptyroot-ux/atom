@@ -7,7 +7,7 @@
 //!   fall through to a live call or fabricate one (INV-010, TASK.md item 4).
 //! * [`ReplayError::Unsupported`] — R3/R4 are labeled, not executed; the label
 //!   is carried so the caller sees the semantics, not a fabricated success
-//!   (ATOM-V4-RPL-001).
+//!   (ATOM-RPL-001).
 
 use thiserror::Error;
 
@@ -20,7 +20,7 @@ pub enum ReplayError {
     ///
     /// This is the typed labeled refusal: it names the class, its
     /// `SCREAMING_SNAKE_CASE` label and the bounded guarantee, so nothing is
-    /// silently treated as a success (ATOM-V4-RPL-001).
+    /// silently treated as a success (ATOM-RPL-001).
     #[error(
         "replay class {code} ({label}) is not implemented for alpha; semantics labeled {label}: {guarantee}"
     )]

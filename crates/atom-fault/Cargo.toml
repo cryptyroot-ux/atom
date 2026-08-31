@@ -3,7 +3,7 @@ name = "atom-fault"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ATOM v4 fault classifier: a pure, deterministic classify(FaultSignal) -> FaultClass and its recovery mapping onto atom_effect::RetryClass (ATOM-V4-FLT-001, ATOM-INV-002)"
+description = "ATOM fault classifier: a pure, deterministic classify(FaultSignal) -> FaultClass and its recovery mapping onto atom_effect::RetryClass (ATOM-FLT-001, ATOM-INV-002)"
 
 [dependencies]
 atom-effect = { path = "../atom-effect" }

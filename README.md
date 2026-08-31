@@ -1,4 +1,4 @@
-# ATOM v4 — Sovereign Recursive Agent Architecture
+# ATOM — Sovereign Recursive Agent Architecture
 
 > Capability may recursively grow; authority may not.
 > Cognition proposes. Sovereign authority permits. Reality determines outcome.

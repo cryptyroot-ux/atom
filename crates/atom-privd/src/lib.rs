@@ -6,7 +6,7 @@
 //! one-shot [`atom_effect::CommitPermit`] is spent through the real commit gate,
 //! and only an admitted op reaches the host through a [`HostExecutor`].
 //!
-//! ATOM v4 — the normative source is `spec/` (precedence 1); this crate is one
+//! ATOM — the normative source is `spec/` (precedence 1); this crate is one
 //! implementation of it.
 
 #![forbid(unsafe_code)]

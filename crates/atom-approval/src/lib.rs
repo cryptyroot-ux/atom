@@ -1,6 +1,6 @@
 //! atom-approval: durable [`ApprovalGrant`] lifecycle store (AUT-003).
 //!
-//! ATOM v4 — normative source is `spec/` (precedence 1).
+//! ATOM — normative source is `spec/` (precedence 1).
 //!
 //! This crate owns the **persistence and lifecycle** of approvals: it records
 //! durable grants, tracks their validity interval and revocation state, and

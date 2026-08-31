@@ -1,6 +1,6 @@
 //! `atom-fault`: classify a fault before choosing how to recover from it.
 //!
-//! ATOM v4 — the normative source is `spec/` (precedence 1); this crate is one
+//! ATOM — the normative source is `spec/` (precedence 1); this crate is one
 //! implementation of it.
 //!
 //! # What this crate is

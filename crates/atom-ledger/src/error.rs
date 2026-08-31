@@ -36,7 +36,7 @@ pub enum Error {
     InvalidHash { detail: String },
 
     /// A checkpoint was requested for a stream that holds no events; there is no head to
-    /// seal (ATOM-V4-LED-001).
+    /// seal (ATOM-LED-001).
     #[error("stream `{stream_id}` is empty: there is no head to seal")]
     EmptyStream { stream_id: String },
 

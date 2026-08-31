@@ -3,7 +3,7 @@ name = "atom-replay"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ATOM v4 replay classes: R0-R2 deterministic replay + recorded cassettes, R3/R4 labeled-unsupported; INV-010 no-re-emit without explicit live-fork"
+description = "ATOM replay classes: R0-R2 deterministic replay + recorded cassettes, R3/R4 labeled-unsupported; INV-010 no-re-emit without explicit live-fork"
 
 [dependencies]
 atom-effect = { path = "../atom-effect" }

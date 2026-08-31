@@ -1,4 +1,4 @@
-# ATOM v4.0-alpha SBOM
+# ATOM.0-alpha SBOM
 # Generated: 2026-08-31
 # Total dependencies: 249
 

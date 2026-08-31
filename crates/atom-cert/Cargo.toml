@@ -3,7 +3,7 @@ name = "atom-cert"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ATOM v4 behavior certificate binding manifest/eval/env/verifier; material-change → stale (CER-001)"
+description = "ATOM behavior certificate binding manifest/eval/env/verifier; material-change → stale (CER-001)"
 
 [dependencies]
 atom-ledger = { path = "../atom-ledger" }

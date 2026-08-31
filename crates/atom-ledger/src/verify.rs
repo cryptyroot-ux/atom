@@ -1,4 +1,4 @@
-//! Verification: what a walk over one stream found (ATOM-VT-006, ATOM-V4-LED-001).
+//! Verification: what a walk over one stream found (ATOM-VT-006, ATOM-LED-001).
 //!
 //! Judgement lives here, storage lives in [`crate::store`]. The walk is fed events exactly
 //! as they are stored — nothing is repaired or recomputed on the way in — because the whole

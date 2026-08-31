@@ -1,5 +1,5 @@
 //! atom-sdk: Public SDK: typed clients for /v1 API resources.
-//! ATOM v4 — normative source is spec/ (precedence 1). This is a G0 skeleton crate.
+//! ATOM — normative source is spec/ (precedence 1). This is a G0 skeleton crate.
 
 #![forbid(unsafe_code)]
 

@@ -1,7 +1,7 @@
 //! ATOM-VT-004: Canary secret test — verifies secrets never leak to
 //! model context, memory, standard telemetry, or unrelated worker env.
 //!
-//! From `spec/requirements.yaml` ATOM-V4-SEC-001 verification:
+//! From `spec/requirements.yaml` ATOM-SEC-001 verification:
 //! > Canary secret and cross-principal redemption tests.
 
 use atom_secret::{SecretBroker, SecretHandle, SecretValue, SecretVault};
