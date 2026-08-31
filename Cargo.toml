@@ -41,6 +41,7 @@ members = [
     "sdk/atom-sdk",
     "crates/atom-benchmark",
     "crates/atom-evolution",
+    "crates/atom-architecture-safety",
 ]
 
 [workspace.package]

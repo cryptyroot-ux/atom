@@ -1,0 +1,17 @@
+[package]
+name = "atom-architecture-safety"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "ATOM architecture-learner safety boundary, six-dimensional reward contract, and tamper-evident audit chain"
+
+[dependencies]
+atom-artifact = { path = "../atom-artifact" }
+atom-claim = { path = "../atom-claim" }
+atom-policy = { path = "../atom-policy" }
+serde = { workspace = true, features = ["derive"] }
+sha2 = "0.10"
+thiserror = { workspace = true }
+
+[lints.rust]
+unsafe_code = "forbid"
