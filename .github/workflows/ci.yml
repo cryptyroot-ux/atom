@@ -1,4 +1,7 @@
-version: "3"
+on:
+  push:
+    branches: [master]
+  pull_request:
 
 jobs:
   verify:
