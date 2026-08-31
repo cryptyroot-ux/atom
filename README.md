@@ -1,56 +1,89 @@
-# ATOM — Sovereign Recursive Agent Architecture
+# ⚛ ATOM
+
+**Sovereign Recursive Agent Architecture** — a provider-agnostic Sovereign Agentic Operating System written in Rust.
 
 > Capability may recursively grow; authority may not.
 > Cognition proposes. Sovereign authority permits. Reality determines outcome.
 
-Open-source, provider-agnostic **Sovereign Agentic Operating System** with a recursive
-capability compiler. Mission is the durable product primitive; verified experience is the
-compounding primitive.
+[![crates](https://img.shields.io/badge/crates-26-blue)](crates/)
+[![tests](https://img.shields.io/badge/tests-363%20passing-brightgreen)](https://github.com/cryptyroot-ux/atom/releases/tag/0.0.0-alpha.0)
+[![license](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+[![release](https://img.shields.io/badge/release-0.0.0--alpha.0-orange)](https://github.com/cryptyroot-ux/atom/releases/tag/0.0.0-alpha.0)
+[![rust](https://img.shields.io/badge/rust-edition%202022-93450a)](https://www.rust-lang.org/)
 
-## Normative precedence
+![ATOM logo](assets/logo.svg)
 
-1. `spec/` — canonical machine-readable schemas, state-machines, enums (**authoritative**)
-2. `spec/requirements.yaml` + `spec/invariants.yaml`
-3. ATOM ADR v1.0 (`/root/docs/atom-v4/ATOM_ADR_v1.0.docx`)
-4. PRD / Blueprint / Threat Model / Benchmark (explanatory)
+---
 
-Prose MUST NOT redefine the machine-readable contracts. When in doubt, `spec/` wins.
+## Why ATOM exists
 
-## Layout (Blueprint §19)
+Most agent frameworks let *any* component mutate state, call tools, and escalate
+privilege. That is fine until an agent is wrong — and agents are wrong often.
 
-```
-spec/                canonical contracts (precedence 1)
-crates/              26 Rust crates — sovereign core + planes
-evolution/           Evolution Lab (candidate-only): foundry, experience-compiler, jit, learner, evaluator
-adapters/            mcp, a2a, agent-skills, hermes, openclaw (versioned profiles; cannot widen authority)
-cli/atom-cli         `atom` CLI (Blueprint §17)
-sdk/atom-sdk         typed clients for /v1 API
-workers/ dashboard/ conformance/ chaos/ benchmarks/ domain-packs/
-```
+ATOM draws a hard constitutional line:
 
-## Milestones
+- **Cognition proposes.** The probabilistic brain explores, plans, and suggests.
+  It can *never* touch authoritative state.
+- **Sovereign authority permits.** A single, unbypassable kernel gates every
+  consequential mutation behind typed capabilities + effect revalidation.
+- **Reality determines outcome.** An append-only, hash-chained ledger is the
+  source of truth — not memory, not the model, not the last caller.
 
-| Gate | Scope |
+The result: an agent that can **grow its own capabilities recursively** without
+ever growing its own authority. That is the "sovereign" in the name.
+
+## What it gives you
+
+- **26 composable Rust crates** — a sovereign kernel, capability grants, an effect
+  reducer, a tamper-evident ledger, epistemic memory, taint tracking, deterministic
+  replay, a fault classifier, supply-chain artifact sealing, and more.
+- **Verified experience as a primitive** — claims, taint, and replay turn runtime
+  observations into compounding, auditable evidence instead of vibes.
+- **Provider-agnostic** — plug any model/runtime through versioned adapters
+  (MCP, A2A, agent-skills, Hermes, OpenClaw). Adapters *cannot* widen authority.
+- **Content-addressed artifacts** — `atom-artifact` seals builds with SHA-256
+  identity, provenance, SBOM, and signature; tampering is detectable.
+
+## Status (honest)
+
+| Gate | State |
 |---|---|
-| **G0 Spec Freeze** | canonical schemas/enums/state-machines + workspace skeleton (**current**) |
-| G1 Sovereign Core | ledger, mission reducer, grants/policy, SecretHandle, effect kernel, native cognition |
-| G2 Useful Operator | SSH/fs/shell/HTTP/Git/Docker, scheduler, PWA approvals/reconciliation |
-| G3 Epistemics | claim graph, taint, replay, fault classifier |
-| G4 Foundry | artifact build/test/cert/supply-chain |
-| G5 Compounding | Experience Compiler + JIT |
-| G6 Architecture Learning | constrained topology learner |
-| G7 Evolution Proof | recursive rings + public 2G benchmark |
+| G0 Spec Freeze | ✅ done |
+| G1 Sovereign Core | ✅ done |
+| G2 Useful Operator | 🔧 partial |
+| G3 Epistemics | ✅ done |
+| G4 Foundry | 🚧 in progress (artifact build/test/cert) |
+| G5–G7 Compounding / Learning / Evolution | 📋 designed, not built |
 
-## Build
+This is an **alpha**. The constitutional core is real and tested (363 passing
+tests, `cargo clippy` clean). Operator ergonomics (CLI, PWA, adapters) are partial.
+
+## Quick start
 
 ```sh
-cargo check --workspace     # G0 skeleton compiles
+# build the workspace
 cargo build --workspace
+
+# run the test suite (363 tests)
 cargo test --workspace
+
+# the `atom` CLI + `atom-sdk` are being finalized in the Foundry gate (G4)
 ```
 
-## Parallel development discipline
+See [`spec/`](spec/) for the authoritative machine-readable contracts
+(schemas, state-machines, enums, requirements, invariants).
 
-**ONE TASK = ONE SESSION = ONE GIT WORKTREE.** No two agents write the same checkout.
+## Layout
 
-License: MIT.
+```
+spec/          canonical contracts (authoritative)
+crates/        26 Rust crates — sovereign core + planes
+evolution/     Evolution Lab (candidate-only): foundry, experience-compiler, jit, learner, evaluator
+adapters/      mcp, a2a, agent-skills, hermes, openclaw (versioned, authority-safe)
+cli/atom-cli   `atom` CLI
+sdk/atom-sdk   typed clients for the /v1 API
+```
+
+## License
+
+Licensed under the [Apache License, Version 2.0](LICENSE).

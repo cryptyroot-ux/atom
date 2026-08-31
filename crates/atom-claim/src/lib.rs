@@ -983,6 +983,14 @@ pub struct ProvenanceGraph {
 }
 
 impl ProvenanceGraph {
+    /// Creates an empty provenance graph (no edges).
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
+            parents: BTreeMap::new(),
+        }
+    }
+
     /// Builds and validates a graph from Claim and Evidence records.
     ///
     /// # Errors
