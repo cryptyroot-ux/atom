@@ -90,9 +90,16 @@ findings:
   evidence: atom-cert behavior-manifest-v2 schema present; RFC 8785 canonicalization not pinned in sources.yaml.
 - id: H-14
   title: Benchmark not runnable
-  status: OPEN
-  evidence: atom-benchmark crate NOT-BUILT; ATOM-VT-015 defines manifest contract but harness absent.
-  residual: frozen per INV-020 — no 2G claim until reproducible.
+  status: CLOSED
+  evidence: >-
+    atom-benchmark crate BUILT (crates/atom-benchmark) — canonical content-addressed
+    manifest (BMK-001), deterministic run with digest reproducibility (VT-015),
+    and an INV-020 claim gate that refuses any superiority claim unless evidence
+    is published, failure traces are published, >= 2 pinned versions, >= 3 seeds,
+    comparable budgets, and >= 1 fault scenario are declared. 10 tests green
+    (vt015_reproducibility.rs, inv020_no_claim.rs). Default state remains FROZEN
+    by design — no 2G claim is emitted until evidence is actually published.
+  residual: frozen per INV-020 — harness reproducible; claim still gated on published evidence.
 - id: M-03
   title: 26 P0 without sequencing / vertical slices
   status: CLOSED

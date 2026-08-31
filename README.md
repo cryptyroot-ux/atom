@@ -55,7 +55,7 @@ ever growing its own authority. That is the "sovereign" in the name.
 | G2 Useful Operator | 🔧 partial |
 | G3 Epistemics | ✅ done |
 | G4 Foundry | ✅ done (CLI + SDK + packaging merged) |
-| G5–G7 Compounding / Learning / Evolution | 📋 designed, not built |
+| G5–G7 Compounding / Learning / Evolution | 🔧 G7 built (benchmark harness + evolution safety), not yet a trained learner |
 
 This is an **alpha**. The constitutional core is real and tested (374 passing
 tests, `cargo clippy` clean). CLI, SDK, and packaging (Docker, systemd) are
