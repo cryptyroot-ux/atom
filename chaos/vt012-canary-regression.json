@@ -1,0 +1,21 @@
+{
+  "schema_version": "ATOM-CHAOS-VT012-v1",
+  "scenario_id": "vt012-canary-regresses-after-promotion",
+  "description": "A certified baseline route is live at ACTIVE. A canary candidate is promoted CANARY->ACTIVE and then regresses. Autonomy must downgrade the candidate back to CANARY and restore the exact prior certified route to live traffic (ATOM-VT-012).",
+  "prior": {
+    "artifact_id": "atom-route-baseline",
+    "route_id": "certified-route-baseline-v3"
+  },
+  "candidate": {
+    "artifact_id": "atom-route-candidate",
+    "route_id": "certified-route-candidate-v4"
+  },
+  "expected": {
+    "observed_ring": "ACTIVE",
+    "downgraded_ring": "CANARY",
+    "restored_route": {
+      "artifact_id": "atom-route-baseline",
+      "route_id": "certified-route-baseline-v3"
+    }
+  }
+}

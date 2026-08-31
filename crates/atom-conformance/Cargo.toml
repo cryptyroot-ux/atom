@@ -1,0 +1,19 @@
+[package]
+name = "atom-conformance"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Executable acceptance-conformance harness: binds spec/acceptance/catalog.yaml to real VT-011/012/015 checks"
+
+[dependencies]
+atom-experience-compiler = { path = "../../evolution/experience-compiler" }
+atom-restore = { path = "../atom-restore" }
+atom-benchmark = { path = "../atom-benchmark" }
+atom-benchmark-runtime = { path = "../atom-benchmark-runtime" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+thiserror = { workspace = true }
+
+[lints.rust]
+unsafe_code = "forbid"

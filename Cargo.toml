@@ -41,6 +41,7 @@ members = [
     "sdk/atom-sdk",
     "crates/atom-benchmark",
     "crates/atom-benchmark-runtime",
+    "crates/atom-conformance",
     "crates/atom-evolution",
     "crates/atom-architecture-safety",
 ]

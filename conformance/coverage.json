@@ -1,0 +1,24 @@
+{
+  "schema_version": "ATOM-CONF-COVERAGE-v1",
+  "spec_version": "4.0.0",
+  "covered": [
+    {
+      "id": "ATOM-VT-011",
+      "name": "Repeated-task learning",
+      "crate_under_test": "atom-experience-compiler",
+      "pass_criterion": "A repeated task family yields an actionable, non-authoritative compiled capability whose holdout cost falls (cost_improvement_ratio < 1.0) while verified correctness stays within threshold (correctness_ratio >= 0.90)."
+    },
+    {
+      "id": "ATOM-VT-012",
+      "name": "Evolution rollback",
+      "crate_under_test": "atom-restore",
+      "pass_criterion": "When a promoted canary regresses at ACTIVE, the router downgrades it to CANARY and restores the exact prior certified route, matching the declared chaos expectation field-for-field."
+    },
+    {
+      "id": "ATOM-VT-015",
+      "name": "2G benchmark reproducibility",
+      "crate_under_test": "atom-benchmark + atom-benchmark-runtime",
+      "pass_criterion": "The checked-in native-runtime benchmark artifact loads from disk and two executions reproduce identical results and run digests. This does NOT open the frozen INV-020 superiority gate."
+    }
+  ]
+}

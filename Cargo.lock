@@ -295,6 +295,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "atom-conformance"
+version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-benchmark",
+ "atom-benchmark-runtime",
+ "atom-experience-compiler",
+ "atom-restore",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror 1.0.69",
+]
+
+[[package]]
 name = "atom-connector"
 version = "0.0.0-alpha.0"
 dependencies = [
