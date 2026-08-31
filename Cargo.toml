@@ -28,7 +28,7 @@ members = [
     "crates/atom-fault",
     "crates/atom-restore",
     "evolution/experience-compiler",
-    "evolution/capability-foundry",
+    "crates/atom-capability-foundry",
     "evolution/cognition-jit",
     "evolution/architecture-learner",
     "evolution/evaluator",

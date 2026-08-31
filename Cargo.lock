@@ -173,6 +173,18 @@ dependencies = [
 [[package]]
 name = "atom-capability-foundry"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-artifact",
+ "atom-capability",
+ "atom-cert",
+ "atom-claim",
+ "atom-ledger",
+ "chrono",
+ "proptest",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+]
 
 [[package]]
 name = "atom-cert"

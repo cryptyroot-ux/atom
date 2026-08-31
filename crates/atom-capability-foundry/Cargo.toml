@@ -1,0 +1,23 @@
+[package]
+name = "atom-capability-foundry"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "ATOM Capability Foundry: candidate synthesis, independent verification, and certificate-gated activation"
+
+[dependencies]
+atom-capability = { path = "../atom-capability" }
+atom-artifact = { path = "../atom-artifact" }
+atom-cert = { path = "../atom-cert" }
+atom-claim = { path = "../atom-claim" }
+atom-ledger = { path = "../atom-ledger" }
+chrono = { version = "0.4", features = ["serde"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+proptest = { version = "1", features = ["std"] }
+
+[lints.rust]
+unsafe_code = "forbid"
