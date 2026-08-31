@@ -11,7 +11,7 @@
 [![release](https://img.shields.io/badge/release-0.0.0--alpha.0-orange)](https://github.com/cryptyroot-ux/atom/releases/tag/0.0.0-alpha.0)
 [![rust](https://img.shields.io/badge/rust-edition%202022-93450a)](https://www.rust-lang.org/)
 
-![ATOM logo](assets/logo.svg)
+![ATOM logo](assets/logo.png)
 
 ---
 
