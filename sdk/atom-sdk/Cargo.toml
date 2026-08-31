@@ -3,5 +3,31 @@ name = "atom-sdk"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+description = "ATOM v4 public SDK — typed clients for the /v1 API. Re-uses canonical wire types from sibling crates so the SDK cannot drift from the in-process model."
 
 [dependencies]
+# Canonical wire types
+atom-artifact = { path = "../../crates/atom-artifact" }
+atom-claim = { path = "../../crates/atom-claim" }
+atom-evidence = { path = "../../crates/atom-evidence" }
+atom-effect = { path = "../../crates/atom-effect" }
+atom-kernel = { path = "../../crates/atom-kernel" }
+atom-mission = { path = "../../crates/atom-mission" }
+
+# Serialization (matches workspace)
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+
+# Error
+thiserror = { workspace = true }
+
+# Transport: async via reqwest, blocking via ureq
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+ureq = { version = "2.10", default-features = false }
+
+# Time
+chrono = { workspace = true }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+tempfile = "3"
