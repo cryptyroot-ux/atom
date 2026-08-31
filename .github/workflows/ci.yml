@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [master]
+    branches: [master, atom-v4.1-migration-hardening]
   pull_request:
 
 jobs:
@@ -18,6 +18,9 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
+      - name: Format (check)
+        run: cargo fmt --all -- --check
+
       - name: Build
         run: cargo build --workspace --verbose
 
@@ -27,16 +30,29 @@ jobs:
       - name: Clippy (strict, zero warnings)
         run: cargo clippy --workspace --all-targets -- -D warnings
 
-      - name: Secret scan
-        run: |
-          set -euo pipefail
-          echo "== high-entropy / key patterns =="
-          grep -RInE \
-            "AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z\-_]{35}|sk-[A-Za-z0-9]{20,}|-----BEGIN (RSA|DSA|EC|OPENSSH|PGP) PRIVATE KEY-----|-----BEGIN OPENSSH PRIVATE KEY-----|-----BEGIN PRIVATE KEY-----" \
-            . --exclude-dir=target --exclude-dir=.git || true
-          echo "== env / credential leakage =="
-          grep -RInE "^[A-Z_]*SECRET|^[A-Z_]*PASSWORD|^[A-Z_]*TOKEN|^[A-Z_]*KEY\\s*=\\s*.{6,}" \
-            . --exclude-dir=target --exclude-dir=.git \
-            -I --include='*.rs' --include='*.toml' --include='*.md' --include='*.json' --include='*.yaml' --include='*.yml' --include='*.sh' || true
-          echo "== .env / secret files =="
-          find . -maxdepth 3 \( -name '.env' -o -name '*.pem' -o -name '*.key' -o -name '*.p12' -o -name '*.pfx' \) -not -path './target/*' -not -path './.git/*' || true
+      - name: Secret scan (fail on match)
+        run: bash tools/secret_scan.sh .
+
+  spec-gate:
+    name: Spec G0 (repository, fail-closed)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pyyaml
+        run: pip install pyyaml
+
+      - name: Validate release (G0)
+        run: python tools/validate_release.py --root . --emit evidence/g0/gate-result.json
+
+      - name: Upload G0 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g0-gate-result
+          path: evidence/g0/gate-result.json
