@@ -1,0 +1,45 @@
+# atom.service — systemd unit for the ATOM sovereign process (G4 Foundry)
+#
+# Install: sudo cp atom.service /etc/systemd/system/atom.service
+# Configure: sudo mkdir -p /etc/atom && sudo tee /etc/atom/env <<'EOF'
+# ATOM_SIGNING_KEY_ID=prod-signing-key
+# ATOM_SIGNING_KEY=base64-secret-here
+# EOF
+# sudo chmod 600 /etc/atom/env
+
+[Unit]
+Description=ATOM v4 Sovereign Process
+Documentation=https://github.com/cryptyroot-ux/atom
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=atom
+Group=atom
+# Environment file with signing keys (never hardcode!)
+EnvironmentFile=-/etc/atom/env
+# Binary installed via `cargo install` or placed in /usr/local/bin
+ExecStart=/usr/local/bin/atom run
+# Restart policy
+Restart=on-failure
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=3
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/atom
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RemoveIPC=true
+
+[Install]
+WantedBy=multi-user.target

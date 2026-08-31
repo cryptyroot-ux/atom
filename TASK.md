@@ -1,36 +1,38 @@
-# TASK — atom-kernel (Claude Code · Architect/Reviewer)
+# TASK — G4 Foundry: packaging + install verification (OpenCode · Challenger/Verifier)
 
-Branch: `feat/kernel` · Crate: `crates/atom-kernel`
+Worktree: `feat/foundry-pkg` · Edit ONLY `pkg/` (new dir, untracked)
 
-## Requirement (spec/ AUTHORITATIVE — precedence 1)
-- **KRN-001** (P0): ALL consequential mutation paths MUST traverse typed **capability authorization** AND **Effect Kernel commit revalidation**.
-- Verification: architecture path test + **adversarial bypass suite**.
+## Objective
+Prove ATOM is actually installable and runnable end-to-end, and package it so a
+user can install it. You VERIFY the other two workers (Claude's CLI, Codex's SDK)
+and add packaging glue.
 
-## Peran
-Kamu Architect. Ini crate PALING kritis — kernel yang menyatukan capability + effect jadi satu jalur mutasi yang tidak bisa di-bypass. Semua crate G1-G4 (capability, effect, privd, approval) bertemu di sini.
+## Deliverables
+1. `pkg/INSTALL.md` — exact, copy-pasteable steps for a fresh machine:
+   - prerequisites (rust toolchain, version)
+   - `cargo install --path cli/atom-cli` (or `cargo build --release`)
+   - how to set signing key id + secret (env vars, NOT hardcoded)
+   - `atom --version`, `atom seal`, `atom verify` smoke test
+2. Release wrapper using `atom-artifact::Artifact::seal` (SUP-001): build the
+   binary, hash it, seal with provenance + SBOM, emit `sha256:` id. Provide
+   `pkg/scripts/release-artifact.sh` (or .rs) that does this.
+3. Optional: `pkg/Dockerfile` (distroless/static) + `pkg/atom.service` (systemd).
+4. Verify the other two workers' output actually compiles + tests + clippy and
+   report any gap. If Claude/Codex left something red, either fix it (say what)
+   or file a precise blocking note — do NOT silently pass.
 
-## Hard invariants
-- Kernel = SATU pintu untuk semua mutasi konsekuensial. Tidak ada jalan pintas.
-- Setiap mutasi WAJIB: (1) cek CapabilityGrant valid (atom-capability), (2) revalidasi CommitPermit di titik commit (atom-effect). Dua-duanya, urut.
-- Adversarial: mutasi tanpa grant → tolak. Grant valid tapi tanpa permit → tolak. Permit stale/replay → tolak.
-- Deny-by-default. Tidak ada `pub` API yang mutasi tanpa lewat gate ini.
+## Acceptance (you must DEMONSTRATE, not claim)
+- `cargo install --path cli/atom-cli` succeeds, OR you document exact
+  `cargo build --release` + binary path alternative.
+- Built `atom` runs `--version`, `seal`, `verify`; tamper detected (reuse atom-artifact).
+- `cargo test --workspace` GREEN after all three Foundry branches merge.
+- `cargo clippy --workspace --all-targets` 0 warnings.
+- Secret scan over push range: 0 hits (no key in source).
+- Sealed release artifact verifies with `atom verify` after `git fetch`.
 
-## TDD (tulis test dulu — RED → GREEN)
-- **Architecture path test**: mutasi sukses HANYA jika grant+permit dua-duanya valid & urut.
-- **Adversarial bypass suite**: coba semua jalur pintas (no grant / no permit / stale permit / grant-tapi-beda-resource) → SEMUA ditolak.
-- Property: tidak ada input yang bisa commit mutasi tanpa melewati gate ganda.
-
-## Dependency (semua sudah di master)
-- `atom-capability` (grant subset lattice)
-- `atom-effect` (CommitPermit, EffectIntent, revalidation)
-- `atom-privd` (kalau butuh host op), `atom-approval` (kalau butuh approval gate)
-- BACA API mereka dulu (grep pub fn) sebelum pakai. Jangan invent nama.
-
-## Larangan
-- JANGAN bikin jalur mutasi yang lewat gate. JANGAN merge ke master.
-- Commit hanya di feat/kernel, hanya crates/atom-kernel + Cargo.lock.
-
-## Definition of Done
-- `cargo test -p atom-kernel` hijau, `cargo clippy` bersih.
-- Bypass suite membuktikan TIDAK ada jalur mutasi tanpa grant+permit.
-- Commit di feat/kernel. Lapor: commit hash + test count + daftar bypass yang diuji.
+## Constraints
+- Never hardcode keys — signing secret from env/file only.
+- `#![forbid(unsafe_code)]` in any Rust you add.
+- Do NOT modify cli/ or sdk/ crates directly — verify them, fix via note or
+  coordinate with Luna if blocking.
+- Commit to `feat/foundry-pkg` when INSTALL.md + script ready. Then STOP.
