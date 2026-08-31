@@ -192,6 +192,38 @@ dependencies = [
 [[package]]
 name = "atom-cli"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "anyhow",
+ "atom-adapter",
+ "atom-approval",
+ "atom-artifact",
+ "atom-capability",
+ "atom-claim",
+ "atom-connector",
+ "atom-context",
+ "atom-effect",
+ "atom-evidence",
+ "atom-fault",
+ "atom-identity",
+ "atom-kernel",
+ "atom-ledger",
+ "atom-memory",
+ "atom-mission",
+ "atom-policy",
+ "atom-provider",
+ "atom-replay",
+ "atom-restore",
+ "atom-runtime",
+ "atom-scheduler",
+ "atom-secret",
+ "atom-target",
+ "atom-worker",
+ "chrono",
+ "clap",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
 
 [[package]]
 name = "atom-cognition-jit"

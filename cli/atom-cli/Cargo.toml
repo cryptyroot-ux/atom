@@ -3,5 +3,46 @@ name = "atom-cli"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+description = "ATOM v4 sovereign process: the `atom` binary that boots the runtime and lets an operator seal, verify and run ATOM from a terminal"
+
+[[bin]]
+name = "atom"
+path = "src/main.rs"
 
 [dependencies]
+# CLI surface + ergonomic errors (both already in the workspace lockfile).
+clap = { version = "4", features = ["derive"] }
+anyhow = "1"
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+# The kernel double gate and grant windows are timestamped (Phase A/B `now`).
+chrono = "0.4"
+
+# The subsystems the sovereign process wires together (Blueprint §17).
+atom-kernel = { path = "../../crates/atom-kernel" }
+atom-runtime = { path = "../../crates/atom-runtime" }
+atom-scheduler = { path = "../../crates/atom-scheduler" }
+atom-worker = { path = "../../crates/atom-worker" }
+atom-identity = { path = "../../crates/atom-identity" }
+atom-capability = { path = "../../crates/atom-capability" }
+atom-policy = { path = "../../crates/atom-policy" }
+atom-approval = { path = "../../crates/atom-approval" }
+atom-secret = { path = "../../crates/atom-secret" }
+atom-mission = { path = "../../crates/atom-mission" }
+atom-ledger = { path = "../../crates/atom-ledger" }
+atom-effect = { path = "../../crates/atom-effect" }
+atom-context = { path = "../../crates/atom-context" }
+atom-claim = { path = "../../crates/atom-claim" }
+atom-evidence = { path = "../../crates/atom-evidence" }
+atom-fault = { path = "../../crates/atom-fault" }
+atom-replay = { path = "../../crates/atom-replay" }
+atom-restore = { path = "../../crates/atom-restore" }
+atom-provider = { path = "../../crates/atom-provider" }
+atom-target = { path = "../../crates/atom-target" }
+atom-connector = { path = "../../crates/atom-connector" }
+atom-adapter = { path = "../../crates/atom-adapter" }
+atom-memory = { path = "../../crates/atom-memory" }
+atom-artifact = { path = "../../crates/atom-artifact" }
+
+[dev-dependencies]
+tempfile = "3"
