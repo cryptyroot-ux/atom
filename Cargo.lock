@@ -92,7 +92,7 @@ checksum = "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470"
 
 [[package]]
 name = "atom-adapter"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-evidence",
  "serde",
@@ -101,27 +101,27 @@ dependencies = [
 
 [[package]]
 name = "atom-adapter-a2a"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 
 [[package]]
 name = "atom-adapter-agent-skills"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 
 [[package]]
 name = "atom-adapter-hermes"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 
 [[package]]
 name = "atom-adapter-mcp"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 
 [[package]]
 name = "atom-adapter-openclaw"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 
 [[package]]
 name = "atom-approval"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-capability",
  "atom-effect",
@@ -133,7 +133,7 @@ dependencies = [
 
 [[package]]
 name = "atom-architecture-learner"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-capability",
  "atom-evidence",
@@ -146,7 +146,7 @@ dependencies = [
 
 [[package]]
 name = "atom-architecture-safety"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-artifact",
  "atom-claim",
@@ -158,7 +158,7 @@ dependencies = [
 
 [[package]]
 name = "atom-artifact"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "serde",
  "serde_json",
@@ -168,7 +168,7 @@ dependencies = [
 
 [[package]]
 name = "atom-benchmark"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "chrono",
  "hex",
@@ -180,7 +180,7 @@ dependencies = [
 
 [[package]]
 name = "atom-benchmark-runtime"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-benchmark",
  "atom-effect",
@@ -192,7 +192,7 @@ dependencies = [
 
 [[package]]
 name = "atom-capability"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "chrono",
  "jsonschema",
@@ -205,7 +205,7 @@ dependencies = [
 
 [[package]]
 name = "atom-capability-foundry"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-artifact",
  "atom-capability",
@@ -221,7 +221,7 @@ dependencies = [
 
 [[package]]
 name = "atom-cert"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-evidence",
  "atom-ledger",
@@ -236,7 +236,7 @@ dependencies = [
 
 [[package]]
 name = "atom-claim"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-evidence",
  "chrono",
@@ -248,7 +248,7 @@ dependencies = [
 
 [[package]]
 name = "atom-cli"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "anyhow",
  "atom-adapter",
@@ -284,7 +284,7 @@ dependencies = [
 
 [[package]]
 name = "atom-cognition-jit"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-evidence",
  "atom-evolution",
@@ -296,7 +296,7 @@ dependencies = [
 
 [[package]]
 name = "atom-conformance"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-benchmark",
  "atom-benchmark-runtime",
@@ -310,7 +310,7 @@ dependencies = [
 
 [[package]]
 name = "atom-connector"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-effect",
  "serde",
@@ -319,7 +319,7 @@ dependencies = [
 
 [[package]]
 name = "atom-context"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-capability",
  "atom-evidence",
@@ -331,9 +331,10 @@ dependencies = [
 
 [[package]]
 name = "atom-effect"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-capability",
+ "atom-ledger",
  "chrono",
  "jsonschema",
  "serde",
@@ -344,7 +345,7 @@ dependencies = [
 
 [[package]]
 name = "atom-evaluator"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-evidence",
  "atom-evolution",
@@ -356,7 +357,7 @@ dependencies = [
 
 [[package]]
 name = "atom-evidence"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "chrono",
  "serde",
@@ -366,7 +367,7 @@ dependencies = [
 
 [[package]]
 name = "atom-evolution"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-capability",
  "chrono",
@@ -377,7 +378,7 @@ dependencies = [
 
 [[package]]
 name = "atom-experience-compiler"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "proptest",
  "serde",
@@ -388,7 +389,7 @@ dependencies = [
 
 [[package]]
 name = "atom-fault"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-effect",
  "serde",
@@ -398,7 +399,7 @@ dependencies = [
 
 [[package]]
 name = "atom-identity"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-capability",
  "atom-evidence",
@@ -412,18 +413,20 @@ dependencies = [
 
 [[package]]
 name = "atom-kernel"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-capability",
  "atom-effect",
+ "atom-ledger",
  "chrono",
  "serde",
+ "serde_json",
  "thiserror 1.0.69",
 ]
 
 [[package]]
 name = "atom-ledger"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "hex",
  "hmac",
@@ -437,7 +440,7 @@ dependencies = [
 
 [[package]]
 name = "atom-memory"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-evidence",
  "serde",
@@ -446,7 +449,7 @@ dependencies = [
 
 [[package]]
 name = "atom-mission"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "jsonschema",
  "serde",
@@ -457,7 +460,7 @@ dependencies = [
 
 [[package]]
 name = "atom-policy"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-capability",
  "chrono",
@@ -468,10 +471,11 @@ dependencies = [
 
 [[package]]
 name = "atom-privd"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-capability",
  "atom-effect",
+ "atom-ledger",
  "chrono",
  "serde",
  "serde_json",
@@ -480,7 +484,7 @@ dependencies = [
 
 [[package]]
 name = "atom-provider"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-effect",
  "atom-ledger",
@@ -491,7 +495,7 @@ dependencies = [
 
 [[package]]
 name = "atom-replay"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-effect",
  "serde",
@@ -502,7 +506,7 @@ dependencies = [
 
 [[package]]
 name = "atom-restore"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-connector",
  "thiserror 1.0.69",
@@ -510,7 +514,7 @@ dependencies = [
 
 [[package]]
 name = "atom-runtime"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-capability",
  "atom-effect",
@@ -525,7 +529,7 @@ dependencies = [
 
 [[package]]
 name = "atom-scheduler"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-capability",
  "chrono",
@@ -537,7 +541,7 @@ dependencies = [
 
 [[package]]
 name = "atom-sdk"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-artifact",
  "atom-claim",
@@ -557,7 +561,7 @@ dependencies = [
 
 [[package]]
 name = "atom-secret"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "chrono",
  "serde",
@@ -569,7 +573,7 @@ dependencies = [
 
 [[package]]
 name = "atom-target"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-effect",
  "serde",
@@ -578,7 +582,7 @@ dependencies = [
 
 [[package]]
 name = "atom-worker"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 dependencies = [
  "atom-capability",
  "chrono",

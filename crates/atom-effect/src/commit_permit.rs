@@ -14,6 +14,7 @@
 use std::collections::BTreeSet;
 
 use atom_capability::{CapabilityGrant, RevocationState};
+use atom_ledger::DurabilityProof;
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -54,71 +55,44 @@ impl ResourceWitness {
         }
     }
 }
-/// Proof that the intent was written to the ledger before dispatch (EFX-001).
-#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[serde(deny_unknown_fields)]
-pub struct DurabilityWitness {
-    /// The ledger stream the intent was appended to.
-    pub stream_id: String,
-    /// The position of the append, counted from one.
-    pub sequence: u64,
-    /// The hash of the appended entry.
-    pub entry_hash: String,
-}
-
-impl DurabilityWitness {
-    /// A witness for entry `sequence` of `stream_id`, hashing to `entry_hash`.
-    #[must_use]
-    pub fn new(stream_id: &str, sequence: u64, entry_hash: &str) -> Self {
-        Self {
-            stream_id: stream_id.to_owned(),
-            sequence,
-            entry_hash: entry_hash.to_owned(),
-        }
-    }
-
-    /// Whether this really proves `effect_id` was persisted (EFX-001).
-    ///
-    /// The stream must be the effect's own, the append must have happened —
-    /// sequence zero is "nothing was written" — and the entry must be hashed,
-    /// or the proof is unfalsifiable.
-    fn proves(&self, effect_id: &str) -> bool {
-        self.stream_id == effect_id && self.sequence >= 1 && !self.entry_hash.trim().is_empty()
-    }
-}
+// Proof that the intent was written to the ledger before dispatch (EFX-001) is
+// no longer a caller-constructible `DurabilityWitness`. It is
+// [`atom_ledger::DurabilityProof`], minted only by the ledger's own append path
+// and re-exported by this crate. A permit therefore cannot be issued from a
+// hand-built claim of durability — the ledger must actually have appended the
+// intent (ATOM-INV-004, "no arbitrary caller manufactures a trusted proof").
 /// A permit to cross the commit boundary exactly once (EFX-004).
 ///
 /// The permit is bound to everything that could drift: the effect's identity
 /// digest, the principal, the grant and its generation, the resource and its
 /// observed version — plus, where policy demands it, an approval and the
 /// freshness of the evidence the decision rested on.
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[serde(deny_unknown_fields)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct CommitPermit {
     /// Stable identity of the permit, so its use can be named in the ledger.
-    pub permit_id: String,
+    permit_id: String,
     /// The identity digest of the effect this permit lets through.
-    pub effect_digest: String,
+    effect_digest: String,
     /// The principal the permit was issued to.
-    pub principal_id: String,
+    principal_id: String,
     /// The grant the authority was drawn from.
-    pub capability_grant_id: String,
+    capability_grant_id: String,
     /// The generation of that grant at issuance.
-    pub grant_generation: u64,
+    grant_generation: u64,
     /// The resource about to be written.
-    pub resource_id: String,
+    resource_id: String,
     /// The resource version observed at issuance.
-    pub resource_version_witness: ResourceWitness,
+    resource_version_witness: ResourceWitness,
     /// The human approval, when the risk class required one.
-    pub approval_id: Option<String>,
+    approval_id: Option<String>,
     /// How fresh the evidence behind the decision was.
-    pub evidence_freshness_digest: Option<String>,
+    evidence_freshness_digest: Option<String>,
     /// When the permit was issued.
-    pub issued_at: DateTime<Utc>,
+    issued_at: DateTime<Utc>,
     /// When it dies.
-    pub expires_at: DateTime<Utc>,
+    expires_at: DateTime<Utc>,
     /// The nonce burned on consumption, which makes the permit one-shot.
-    pub one_shot_nonce: String,
+    one_shot_nonce: String,
 }
 
 impl CommitPermit {
@@ -132,6 +106,78 @@ impl CommitPermit {
     #[must_use]
     pub fn is_valid_at(&self, instant: DateTime<Utc>) -> bool {
         instant >= self.issued_at && instant <= self.expires_at
+    }
+
+    /// Stable identity of the permit.
+    #[must_use]
+    pub fn permit_id(&self) -> &str {
+        &self.permit_id
+    }
+
+    /// The identity digest of the effect this permit lets through.
+    #[must_use]
+    pub fn effect_digest(&self) -> &str {
+        &self.effect_digest
+    }
+
+    /// The principal the permit was issued to.
+    #[must_use]
+    pub fn principal_id(&self) -> &str {
+        &self.principal_id
+    }
+
+    /// The grant the authority was drawn from.
+    #[must_use]
+    pub fn capability_grant_id(&self) -> &str {
+        &self.capability_grant_id
+    }
+
+    /// The generation of that grant at issuance.
+    #[must_use]
+    pub fn grant_generation(&self) -> u64 {
+        self.grant_generation
+    }
+
+    /// The resource about to be written.
+    #[must_use]
+    pub fn resource_id(&self) -> &str {
+        &self.resource_id
+    }
+
+    /// The resource version observed at issuance.
+    #[must_use]
+    pub fn resource_version_witness(&self) -> &ResourceWitness {
+        &self.resource_version_witness
+    }
+
+    /// The human approval, when the risk class required one.
+    #[must_use]
+    pub fn approval_id(&self) -> Option<&str> {
+        self.approval_id.as_deref()
+    }
+
+    /// How fresh the evidence behind the decision was.
+    #[must_use]
+    pub fn evidence_freshness_digest(&self) -> Option<&str> {
+        self.evidence_freshness_digest.as_deref()
+    }
+
+    /// When the permit was issued.
+    #[must_use]
+    pub fn issued_at(&self) -> DateTime<Utc> {
+        self.issued_at
+    }
+
+    /// When it dies.
+    #[must_use]
+    pub fn expires_at(&self) -> DateTime<Utc> {
+        self.expires_at
+    }
+
+    /// The nonce burned on consumption, which makes the permit one-shot.
+    #[must_use]
+    pub fn one_shot_nonce(&self) -> &str {
+        &self.one_shot_nonce
     }
 }
 /// Why a permit was refused, at either end of the commit boundary.
@@ -266,8 +312,9 @@ pub struct PermitRequest<'a> {
     pub planned_witness: &'a ResourceWitness,
     /// The resource version observed now.
     pub observed_witness: &'a ResourceWitness,
-    /// Proof the intent was persisted first (EFX-001).
-    pub durability: &'a DurabilityWitness,
+    /// Proof the intent was persisted first (EFX-001). Only the ledger can mint
+    /// one, so this cannot be a hand-built claim of durability.
+    pub durability: &'a DurabilityProof,
     /// The identity the permit will carry.
     pub permit_id: &'a str,
     /// The nonce that will make it one-shot.
@@ -487,7 +534,9 @@ impl NonceRegistry {
         // values that were true when authority was granted, so any difference
         // is drift inside the window (ATOM-VT-003). The operation and resource
         // selectors are not re-checked here because they cannot change without
-        // a new grant generation, which is checked.
+        // a new grant generation, which is checked. Durability is not re-checked
+        // either: it is monotonic — once the ledger has appended the intent it
+        // stays appended, so a proof that held at issuance still holds now.
         revalidate_authority(grant, &permit.principal_id, permit.grant_generation, now)?;
         revalidate_witness(&permit.resource_version_witness, observed_witness)?;
 

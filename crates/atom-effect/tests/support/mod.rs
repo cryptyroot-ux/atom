@@ -9,10 +9,11 @@
 
 use atom_capability::{Budget, CapabilityGrant, ResourceSelector, RevocationState};
 use atom_effect::{
-    CommitPermitted, Compensation, CompensationStrategy, Condition, DurabilityWitness, EffectEvent,
+    CommitPermitted, Compensation, CompensationStrategy, Condition, DurabilityProof, EffectEvent,
     EffectIntent, EffectState, Idempotency, ObservedOutcome, ReconciledOutcome, Reconciliation,
     ReconciliationClass, ResourceWitness, RetryClass,
 };
+use atom_ledger::{HmacSha256Signer, Ledger};
 use chrono::{DateTime, TimeZone, Utc};
 
 pub const PRINCIPAL: &str = "principal/atom-operator";
@@ -96,12 +97,36 @@ pub fn drifted_witness() -> ResourceWitness {
 }
 
 /// Proof that the EffectIntent was persisted before dispatch (EFX-001).
-pub fn durability() -> DurabilityWitness {
-    DurabilityWitness::new(
-        "effect/01J8ZPEFFECTORDERS",
-        4,
-        "b9c1f0d7e5a34c2f8de1b6a90c74f3e2118d5c6b7a09e4d3c2b1a0f9e8d7c6b5",
-    )
+///
+/// Minted the only way a real proof can be: by actually appending the intent to
+/// a ledger stream named for the effect. There is no `DurabilityProof`
+/// constructor a test could call directly, which is the point — a forged proof
+/// is inexpressible, so the tests exercise the same durability path production
+/// does.
+pub fn durability() -> DurabilityProof {
+    durability_for(EFFECT_ID)
+}
+
+/// A real durability proof minted on the stream named for `effect_id`.
+///
+/// A proof only proves durability of the effect whose stream it was appended
+/// to, so passing one effect's proof to another effect's commit gate is a
+/// cross-effect forgery the sealed proof refuses — without any way to hand-build
+/// the mismatch.
+pub fn durability_for(effect_id: &str) -> DurabilityProof {
+    let signer = Box::new(HmacSha256Signer::new(
+        "atom-effect-test-seal",
+        b"atom-effect-test-key-not-for-production",
+    ));
+    let mut ledger = Ledger::open_in_memory(signer).expect("in-memory ledger opens");
+    let (_event, proof) = ledger
+        .append_durable(
+            effect_id,
+            &serde_json::json!({ "kind": "EFFECT_INTENT", "effect_id": effect_id }),
+            1_756_512_000_000,
+        )
+        .expect("appending the intent seals a durability proof");
+    proof
 }
 
 /// A complete EffectIntent carrying every EFX-002 field, in INTENT_DURABLE.

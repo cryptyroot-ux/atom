@@ -25,6 +25,7 @@ use crate::error::{Error, Result};
 use crate::event::{Event, EventRecord};
 use crate::hash::{domain_digest, payload_digest_bytes, Hash, HASH_LEN, STREAM_DIGEST_DOMAIN};
 use crate::jcs::canonicalize;
+use crate::proof::DurabilityProof;
 use crate::verify::{StreamWalk, VerifyReport};
 
 /// Columns of one stored event, in the order [`RawEvent::read`] expects them.
@@ -127,6 +128,24 @@ impl Ledger {
         let event = append_in(&tx, stream_id, payload, ts)?;
         tx.commit()?;
         Ok(event)
+    }
+
+    /// Append one event and return it together with a [`DurabilityProof`] the
+    /// ledger mints over it (ATOM-LED-001, EFX-001).
+    ///
+    /// The proof is the only trustworthy way for a downstream gate to learn that an
+    /// intent was persisted: it is sealed here, after the append commits, and a
+    /// caller cannot construct one by any other route. This is the production path
+    /// for "durable before dispatch" (ATOM-INV-004).
+    pub fn append_durable(
+        &mut self,
+        stream_id: &str,
+        payload: &Value,
+        ts: i64,
+    ) -> Result<(Event, DurabilityProof)> {
+        let event = self.append(stream_id, payload, ts)?;
+        let proof = DurabilityProof::seal(&event);
+        Ok((event, proof))
     }
 
     /// Seal the current head of `stream_id` (ADR-021).
@@ -300,6 +319,22 @@ impl LedgerTx<'_> {
     /// already appended.
     pub fn append(&mut self, stream_id: &str, payload: &Value, ts: i64) -> Result<Event> {
         append_in(&self.tx, stream_id, payload, ts)
+    }
+
+    /// Append one event inside the transaction and mint its [`DurabilityProof`].
+    ///
+    /// The proof is sealed from the appended event; it becomes trustworthy only
+    /// once the enclosing transaction commits, which is the same guarantee the
+    /// batch itself carries.
+    pub fn append_durable(
+        &mut self,
+        stream_id: &str,
+        payload: &Value,
+        ts: i64,
+    ) -> Result<(Event, DurabilityProof)> {
+        let event = append_in(&self.tx, stream_id, payload, ts)?;
+        let proof = DurabilityProof::seal(&event);
+        Ok((event, proof))
     }
 
     /// Seal the head the transaction has reached, committing seal and events together.
@@ -574,6 +609,23 @@ mod tests {
         assert_eq!(second.prev_hash, first.canonical_hash);
         assert_eq!(second.canonical_hash, second.recompute_canonical_hash());
         assert!(ledger.verify_stream("s").unwrap().is_intact());
+    }
+
+    #[test]
+    fn append_durable_seals_a_proof_over_the_appended_event() {
+        let mut ledger = ledger();
+        let (event, proof) = ledger
+            .append_durable("effect/xyz", &json!({"n": 1}), 10)
+            .unwrap();
+
+        assert_eq!(proof.stream_id(), "effect/xyz");
+        assert_eq!(proof.sequence(), event.seq);
+        assert_eq!(proof.entry_hash(), &event.canonical_hash);
+        assert!(proof.proves("effect/xyz"), "proof binds its own stream");
+        assert!(
+            !proof.proves("effect/other"),
+            "a proof for one effect does not prove another"
+        );
     }
 
     #[test]

@@ -8,8 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use atom_artifact::Artifact;
 use atom_claim::{Claim, ClaimId, ProvenanceGraph};
-use atom_effect::EffectIntent;
-use atom_kernel::{Authorization, CommitToken};
+use atom_effect::{EffectIntent, ResourceWitness};
 
 /// Successful health-check response.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -37,6 +36,53 @@ pub struct SubmitEffectRequest {
     pub intent: EffectIntent,
 }
 
+/// Client-side, read-only view of the kernel's Phase A `Authorization`.
+///
+/// The canonical [`atom_kernel::Authorization`] is a sealed trust-boundary
+/// object: only the kernel can mint one, and it is deliberately *not*
+/// reconstructible from the wire. A client that deserialized one would be
+/// holding a forgery. This view is honest plain data — the server's audit
+/// JSON, for a caller to read, never to be mistaken for authority.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct AuthorizationView {
+    /// The effect this authorization is bound to.
+    pub effect_id: String,
+    /// The identity digest of that effect.
+    pub effect_digest: String,
+    /// The grant the authority was drawn from.
+    pub grant_id: String,
+    /// The grant generation pinned at authorization time.
+    pub grant_generation: u64,
+    /// The principal the authorization was minted for.
+    pub principal_id: String,
+    /// The operation the authorization covers.
+    pub operation: String,
+    /// The resource type the authorization covers.
+    pub resource_type: String,
+    /// The resource version observed while planning.
+    pub planned_witness: ResourceWitness,
+}
+
+/// Client-side, read-only view of the kernel's Phase B `CommitToken`.
+///
+/// Same rationale as [`AuthorizationView`]: the sealed
+/// [`atom_kernel::CommitToken`] is mint-only and non-deserializable by design.
+/// This is its wire shape for a client to inspect (e.g. the burned one-shot
+/// nonce), not a spendable token.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct CommitTokenView {
+    /// The effect cleared for dispatch.
+    pub effect_id: String,
+    /// The grant the authority was drawn from.
+    pub grant_id: String,
+    /// The grant generation at commit time.
+    pub grant_generation: u64,
+    /// The resource that may be written.
+    pub resource_id: String,
+    /// The one-shot nonce that was burned to mint the token.
+    pub one_shot_nonce: String,
+}
+
 /// Response from `submit_effect`: the kernel's authorization + the one-shot
 /// commit token, or a structured error reason.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -45,10 +91,10 @@ pub struct SubmitEffectResponse {
     pub request_id: String,
     /// The idempotency key echoed back.
     pub idempotency_key: String,
-    /// Phase A output — proof that capability authorized this effect.
-    pub authorization: Authorization,
-    /// Phase B output — proof that a one-shot commit was issued.
-    pub commit_token: CommitToken,
+    /// Phase A output — a read-only view proving capability authorized this effect.
+    pub authorization: AuthorizationView,
+    /// Phase B output — a read-only view proving a one-shot commit was issued.
+    pub commit_token: CommitTokenView,
 }
 
 /// Wrapper for verifying a content-addressed artifact.

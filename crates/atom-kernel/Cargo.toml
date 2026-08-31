@@ -13,4 +13,6 @@ serde = { workspace = true, features = ["derive"] }
 thiserror = { workspace = true }
 
 [dev-dependencies]
+atom-ledger = { path = "../atom-ledger" }
 chrono = { version = "0.4" }
+serde_json = { workspace = true }

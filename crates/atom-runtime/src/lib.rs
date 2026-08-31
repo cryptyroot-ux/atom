@@ -10,7 +10,7 @@ use std::collections::BTreeMap;
 
 use atom_capability::CapabilityGrant;
 use atom_effect::{
-    CommitPermit, DurabilityWitness, EffectEvent, EffectIntent, EffectState,
+    CommitPermit, DurabilityProof, EffectEvent, EffectIntent, EffectState,
     ReduceError as EffectReduceError, ResourceWitness,
 };
 use atom_ledger::Ledger;
@@ -399,8 +399,8 @@ pub struct TrackedEffect {
     pub activity: ActivityKind,
     /// Current reducer-derived intent.
     pub intent: EffectIntent,
-    /// Witness used by atom-effect permit issuance.
-    pub durability: DurabilityWitness,
+    /// Ledger-issued proof the intent was appended before dispatch (EFX-001).
+    pub durability: DurabilityProof,
 }
 
 /// One phase of a cognition cycle.
@@ -1031,17 +1031,16 @@ where
             return Err(RuntimeError::DuplicateEffect { effect_id });
         }
 
-        // atom-effect validates a DurabilityWitness only when the stream id is
-        // exactly the effect id, so each intent gets its own ledger stream.
-        let append = self.append_event(
+        // The intent is appended to its own ledger stream (named for the effect
+        // id) and the ledger itself seals the durability proof. Only the ledger
+        // can mint one, so nothing downstream can forge durable-before-dispatch.
+        let (_event, durability) = self.append_event_durable(
             &effect_id,
             RuntimeLedgerEvent::EffectIntent {
                 intent: Box::new(intent.clone()),
             },
             at,
         )?;
-        let durability =
-            DurabilityWitness::new(&effect_id, append.seq, &append.canonical_hash.to_string());
         self.effects.insert(
             effect_id.clone(),
             TrackedEffect {
@@ -1219,6 +1218,22 @@ where
         Ok(self
             .ledger
             .append(stream_id, &payload, at.timestamp_millis())?)
+    }
+
+    /// Appends `event` and returns the ledger-sealed durability proof with it.
+    ///
+    /// Used for the intent append, which must yield a proof no downstream code
+    /// could have forged (EFX-001).
+    fn append_event_durable(
+        &mut self,
+        stream_id: &str,
+        event: RuntimeLedgerEvent,
+        at: DateTime<Utc>,
+    ) -> Result<(atom_ledger::Event, DurabilityProof), RuntimeError> {
+        let payload = serde_json::to_value(event)?;
+        Ok(self
+            .ledger
+            .append_durable(stream_id, &payload, at.timestamp_millis())?)
     }
 }
 

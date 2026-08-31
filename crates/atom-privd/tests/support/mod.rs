@@ -9,10 +9,11 @@
 
 use atom_capability::{Budget, CapabilityGrant, ResourceSelector, RevocationState};
 use atom_effect::{
-    issue_commit_permit, CommitPermit, Compensation, CompensationStrategy, DurabilityWitness,
+    issue_commit_permit, CommitPermit, Compensation, CompensationStrategy, DurabilityProof,
     EffectEvent, EffectIntent, EffectState, Idempotency, PermitRequest, Reconciliation,
     ReconciliationClass, ResourceWitness, RetryClass,
 };
+use atom_ledger::{HmacSha256Signer, Ledger};
 use atom_privd::{AdmissionRequest, ExecError, HostExecutor, HostOp, OpOutcome, PrivilegeBroker};
 use chrono::{DateTime, TimeZone, Utc};
 
@@ -154,9 +155,26 @@ pub fn drifted_witness(op: &HostOp) -> ResourceWitness {
 }
 
 /// Proof the intent `effect_id` was persisted before dispatch (EFX-001).
+///
+/// Minted the only way a real proof can be: by appending the intent to a ledger
+/// stream named for the effect. There is no `DurabilityProof` constructor a test
+/// could call, so a forged proof is inexpressible — passing one effect's proof
+/// to another effect's boundary is a mismatch the sealed proof refuses.
 #[must_use]
-pub fn durability(effect_id: &str) -> DurabilityWitness {
-    DurabilityWitness::new(effect_id, 4, LEDGER_HASH)
+pub fn durability(effect_id: &str) -> DurabilityProof {
+    let signer = Box::new(HmacSha256Signer::new(
+        "atom-privd-test-seal",
+        b"atom-privd-test-key-not-for-production",
+    ));
+    let mut ledger = Ledger::open_in_memory(signer).expect("in-memory ledger opens");
+    let (_event, proof) = ledger
+        .append_durable(
+            effect_id,
+            &serde_json::json!({ "kind": "EFFECT_INTENT", "effect_id": effect_id }),
+            1_756_512_000_000,
+        )
+        .expect("appending the intent seals a durability proof");
+    proof
 }
 
 /// A minimal EFX-002 intent for `op`, driven to `COMMIT_REVALIDATING`.

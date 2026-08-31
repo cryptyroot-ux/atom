@@ -6,7 +6,7 @@
 use atom_capability::{Budget, CapabilityGrant, ResourceSelector, RevocationState};
 use atom_effect::{
     issue_commit_permit, CommitPermitted, Compensation, CompensationStrategy, Condition,
-    DurabilityWitness, EffectEvent, EffectIntent, Idempotency, PermitRequest, ReconciledOutcome,
+    DurabilityProof, EffectEvent, EffectIntent, Idempotency, PermitRequest, ReconciledOutcome,
     Reconciliation, ReconciliationClass, ResourceWitness, RetryClass,
 };
 use atom_ledger::{HmacSha256Signer, Ledger};
@@ -31,6 +31,22 @@ fn ledger() -> Ledger {
         b"runtime-test-secret",
     )))
     .expect("in-memory ledger")
+}
+
+/// Mints a real, ledger-sealed durability proof on `effect_id`'s own stream.
+///
+/// There is no `DurabilityProof` constructor a test could call, so this is the
+/// only way to obtain one: append the intent to a ledger stream named for the
+/// effect and take the proof the ledger seals over it.
+fn durable_proof(effect_id: &str) -> DurabilityProof {
+    let (_event, proof) = ledger()
+        .append_durable(
+            effect_id,
+            &serde_json::json!({ "kind": "EFFECT_INTENT", "effect_id": effect_id }),
+            1_756_512_000_000,
+        )
+        .expect("appending the intent seals a durability proof");
+    proof
 }
 
 fn reference_effect(effect_id: &str, mission_id: &str, target_id: &str) -> EffectIntent {
@@ -221,7 +237,7 @@ fn unknown_effect_outcome_stays_unknown_and_never_blindly_retries() {
             .effect(effect_id)
             .expect("tracked effect")
             .durability
-            .stream_id,
+            .stream_id(),
         effect_id,
         "the effect intent was durable before action",
     );
@@ -314,7 +330,7 @@ fn host_operation_crosses_only_the_atom_privd_permit_gate() {
         planned_grant_generation: grant.generation,
         planned_witness: &witness,
         observed_witness: &witness,
-        durability: &DurabilityWitness::new(&intent.effect_id, 1, "durable-entry-hash"),
+        durability: &durable_proof(&intent.effect_id),
         permit_id: "host-permit",
         one_shot_nonce: "host-nonce",
         ttl_seconds: 10,

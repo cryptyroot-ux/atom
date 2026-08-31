@@ -15,8 +15,8 @@ use chrono::{DateTime, Duration, Utc};
 
 use atom_capability::{Budget, CapabilityGrant, ResourceSelector, RevocationState};
 use atom_effect::{
-    Compensation, CompensationStrategy, DurabilityWitness, EffectEvent, EffectIntent, Idempotency,
-    Reconciliation, ReconciliationClass, ResourceWitness,
+    Compensation, CompensationStrategy, EffectEvent, EffectIntent, Idempotency, Reconciliation,
+    ReconciliationClass, ResourceWitness,
 };
 use atom_kernel::{AuthorizeRequest, CommitRequest, Kernel};
 
@@ -157,8 +157,23 @@ pub fn boot(cfg: &SigningConfig) -> Result<BootReport> {
         .try_advance(&EffectEvent::CommitRevalidationStarted)
         .map_err(|e| anyhow!("opening the commit boundary: {e}"))?;
 
+    // ── Runtime ledger, signed with the process key, opened up front ─────────
+    // The same append-only ledger that will back the runtime is opened here so
+    // the intent can be made durable *before* the commit gate is asked to spend
+    // a permit for it (EFX-001). The ledger — not this caller — seals the proof.
+    let signer = Box::new(atom_ledger::HmacSha256Signer::new(
+        cfg.key_id.as_str(),
+        &cfg.secret,
+    ));
+    let mut ledger =
+        atom_ledger::Ledger::open_in_memory(signer).map_err(|e| anyhow!("opening ledger: {e}"))?;
+    let intent_payload =
+        serde_json::to_value(&pending).map_err(|e| anyhow!("serializing boot intent: {e}"))?;
+    let (_intent_event, durability) = ledger
+        .append_durable(EFFECT_ID, &intent_payload, now.timestamp_millis())
+        .map_err(|e| anyhow!("sealing durability proof: {e}"))?;
+
     let observed = ResourceWitness::new("etag", TARGET_ID, "v1");
-    let durability = DurabilityWitness::new(EFFECT_ID, 1, "boot-entry-hash");
     let (token, dispatching) = kernel
         .commit(CommitRequest {
             authorization: &authorization,
@@ -175,13 +190,7 @@ pub fn boot(cfg: &SigningConfig) -> Result<BootReport> {
         })
         .map_err(|e| anyhow!("phase B commit: {e}"))?;
 
-    // ── Runtime + append-only ledger, signed with the process key ────────────
-    let signer = Box::new(atom_ledger::HmacSha256Signer::new(
-        cfg.key_id.as_str(),
-        &cfg.secret,
-    ));
-    let ledger =
-        atom_ledger::Ledger::open_in_memory(signer).map_err(|e| anyhow!("opening ledger: {e}"))?;
+    // ── Runtime over the same ledger that already holds the durable intent ───
     let clock = atom_runtime::FixedClock::new(now);
     let random = atom_runtime::CounterRng::new(0x0A70_1D00);
     let runtime = atom_runtime::Runtime::native(MISSION_ID, ledger, clock, random)

@@ -19,9 +19,10 @@ pub mod state;
 mod digest;
 
 pub use admission::{admit_dispatch, AdmissionError};
+pub use atom_ledger::DurabilityProof;
 pub use commit_permit::{
-    issue_commit_permit, CommitPermit, ConsumeRequest, DurabilityWitness, NonceRegistry,
-    PermitError, PermitRequest, ResourceWitness, MAX_PERMIT_TTL_SECONDS,
+    issue_commit_permit, CommitPermit, ConsumeRequest, NonceRegistry, PermitError, PermitRequest,
+    ResourceWitness, MAX_PERMIT_TTL_SECONDS,
 };
 pub use event::{CommitPermitted, EffectEvent, ObservedOutcome, ReconciledOutcome};
 pub use intent::{EffectIntent, EffectIntentBuilder, IntentError};
