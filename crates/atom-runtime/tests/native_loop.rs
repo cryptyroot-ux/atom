@@ -92,7 +92,7 @@ fn vt007_native_reference_mission_reaches_terminal_without_external_runtime() {
         ],
     );
     assert_eq!(runtime.trace().len(), 20, "five complete cognition cycles");
-    for cycle in runtime.trace().chunks_exact(4) {
+    for cycle in runtime.trace().as_chunks::<4>().0 {
         assert_eq!(
             cycle.iter().map(|entry| entry.phase).collect::<Vec<_>>(),
             vec![
