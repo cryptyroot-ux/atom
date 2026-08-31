@@ -1120,6 +1120,13 @@ impl ProvenanceGraph {
     }
 }
 
+/// Default impl for ProvenanceGraph (empty graph).
+impl Default for ProvenanceGraph {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum VisitMark {
     Visiting,

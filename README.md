@@ -6,7 +6,7 @@
 > Cognition proposes. Sovereign authority permits. Reality determines outcome.
 
 [![crates](https://img.shields.io/badge/crates-26-blue)](crates/)
-[![tests](https://img.shields.io/badge/tests-363%20passing-brightgreen)](https://github.com/cryptyroot-ux/atom/releases/tag/0.0.0-alpha.0)
+[![tests](https://img.shields.io/badge/tests-371%20passing-brightgreen)](https://github.com/cryptyroot-ux/atom/releases/tag/0.0.0-alpha.0)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![release](https://img.shields.io/badge/release-0.0.0--alpha.0-orange)](https://github.com/cryptyroot-ux/atom/releases/tag/0.0.0-alpha.0)
 [![rust](https://img.shields.io/badge/rust-edition%202022-93450a)](https://www.rust-lang.org/)
@@ -60,14 +60,34 @@ tests, `cargo clippy` clean). Operator ergonomics (CLI, PWA, adapters) are parti
 
 ## Quick start
 
+**Prerequisites:** Rust edition 2022 toolchain (`rustup`).
+
 ```sh
-# build the workspace
-cargo build --workspace
+# install the `atom` CLI from this repo
+cargo install --path cli/atom-cli
+# or build from a checkout:
+cargo build --release -p atom-cli
 
-# run the test suite (363 tests)
+# run the test suite (371 tests)
 cargo test --workspace
+```
 
-# the `atom` CLI + `atom-sdk` are being finalized in the Foundry gate (G4)
+**Try the sovereign binary:**
+
+```sh
+# signing identity (required for artifact seal/verify — keep the secret out of source)
+export ATOM_SIGNING_KEY_ID="my-key"
+export ATOM_SIGNING_SECRET="$(openssl rand -hex 32)"   # demo only; use a real secret
+
+# seal bytes into a content-addressed, signed artifact (SUP-001)
+echo "hello sovereignty" | atom seal --input /dev/stdin --out artifact.json
+cat artifact.json
+
+# verify it — exits non-zero if the artifact was tampered with
+atom verify artifact.json
+
+# boot the runtime and drive one real mutation
+atom run
 ```
 
 See [`spec/`](spec/) for the authoritative machine-readable contracts
