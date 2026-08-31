@@ -9,22 +9,20 @@ counts:
   requirements: 40
   acceptance_tests: 15
   invariants: 20
-  crates_implemented: 26
-  crates_not_built: 9   # P1 research/UI/API areas below
+  crates_implemented: 43   # workspace members (verified: version.workspace=true x43)
+  crates_not_built: 2      # API server + UI PWA (no crate in workspace)
 status_legend:
   implemented-code-ref: requirement id cited in crate source doc-comment/test
   implemented-crate-no-explicit-ref: owning crate built & tested, id not yet cited in doc-comment
   designed-not-built: area defined in spec, no crate in workspace (P1 research track)
 not_built_areas:
-  - ATOM-FND-001/002/003 Capability Foundry (atom-foundry)
-  - ATOM-EXP-001/002 Experience Compiler (atom-experience)
-  - ATOM-JIT-001 Cognition JIT (atom-jit)
-  - ATOM-ARC-001 Architecture Learner (atom-learner)
-  - ATOM-EVO-001/002 Evolution (atom-evolution)
-  - ATOM-BMK-001 Benchmark (atom-benchmark)
-  - ATOM-API-001 API/CLI (atom-api)
+  - ATOM-API-001 API server (atom-api — persistent /v1 daemon; the `atom` CLI exists, the server does not)
   - ATOM-UI-001 Mission Control (PWA — not in Rust workspace)
-  - ATOM-INT-001 Interoperability (partial: atom-connector exists)
+  # NOTE 2026-08-31: the former research not_built_areas (Foundry, Experience
+  # Compiler, JIT, Architecture Learner, Evolution, Benchmark) are now BUILT and
+  # merged to master (candidate-only). Their entries below are updated in place.
+  # Interop (ATOM-INT-001) owner atom-connector is built; the protocol adapters
+  # (adapters/mcp,a2a,hermes,openclaw) are still G0 skeletons.
 
 requirements:
   - id: ATOM-KRN-001
@@ -230,59 +228,59 @@ requirements:
   - id: ATOM-FND-001
     area: Capability Foundry
     priority: P1
-    owner_crate: atom-foundry (NOT-BUILT)
-    status: designed-not-built
+    owner_crate: atom-capability-foundry
+    status: implemented-code-ref
     acceptance_tests: []
     invariants: []
-    code_citation: []
+    code_citation: [atom-capability-foundry]
   - id: ATOM-FND-002
     area: Capability Foundry
     priority: P1
-    owner_crate: atom-foundry (NOT-BUILT)
-    status: designed-not-built
+    owner_crate: atom-capability-foundry
+    status: implemented-code-ref
     acceptance_tests: [ATOM-VT-010]
     invariants: []
-    code_citation: []
+    code_citation: [atom-capability-foundry]
   - id: ATOM-FND-003
     area: Capability Foundry
     priority: P1
-    owner_crate: atom-foundry (NOT-BUILT)
-    status: designed-not-built
+    owner_crate: atom-capability-foundry
+    status: implemented-code-ref
     acceptance_tests: []
     invariants: [ATOM-INV-017]
-    code_citation: []
+    code_citation: [atom-capability-foundry, atom-evaluator]
   - id: ATOM-EXP-001
     area: Experience Compiler
     priority: P1
-    owner_crate: atom-experience (NOT-BUILT)
-    status: designed-not-built
+    owner_crate: atom-experience-compiler
+    status: implemented-code-ref
     acceptance_tests: [ATOM-VT-011]
-    invariants: []
-    code_citation: []
+    invariants: [ATOM-INV-016]
+    code_citation: [atom-experience-compiler, atom-conformance]
   - id: ATOM-EXP-002
     area: Experience Compiler
     priority: P1
-    owner_crate: atom-experience (NOT-BUILT)
-    status: designed-not-built
+    owner_crate: atom-experience-compiler
+    status: implemented-crate-no-explicit-ref
     acceptance_tests: []
     invariants: []
     code_citation: []
   - id: ATOM-JIT-001
     area: Cognition JIT
     priority: P1
-    owner_crate: atom-jit (NOT-BUILT)
-    status: designed-not-built
+    owner_crate: atom-cognition-jit
+    status: implemented-code-ref
     acceptance_tests: []
-    invariants: []
-    code_citation: []
+    invariants: [ATOM-INV-016]
+    code_citation: [atom-cognition-jit]
   - id: ATOM-ARC-001
     area: Architecture Learner
     priority: P1
-    owner_crate: atom-learner (NOT-BUILT)
-    status: designed-not-built
+    owner_crate: atom-architecture-learner
+    status: implemented-code-ref
     acceptance_tests: []
-    invariants: []
-    code_citation: []
+    invariants: [ATOM-INV-016]
+    code_citation: [atom-architecture-learner, atom-architecture-safety]
   - id: ATOM-FLT-001
     area: Reliability
     priority: P1
@@ -302,19 +300,19 @@ requirements:
   - id: ATOM-EVO-001
     area: Evolution
     priority: P1
-    owner_crate: atom-evolution (NOT-BUILT)
-    status: designed-not-built
+    owner_crate: atom-evolution
+    status: implemented-code-ref
     acceptance_tests: []
     invariants: [ATOM-INV-016, ATOM-INV-017]
-    code_citation: []
+    code_citation: [atom-evolution, atom-architecture-safety]
   - id: ATOM-EVO-002
     area: Evolution
     priority: P1
-    owner_crate: atom-evolution (NOT-BUILT)
-    status: designed-not-built
+    owner_crate: atom-evolution
+    status: implemented-code-ref
     acceptance_tests: [ATOM-VT-012]
     invariants: [ATOM-INV-016]
-    code_citation: []
+    code_citation: [atom-evolution, atom-architecture-safety, atom-conformance]
   - id: ATOM-CER-001
     area: Certification
     priority: P1
@@ -326,11 +324,11 @@ requirements:
   - id: ATOM-BMK-001
     area: Benchmark
     priority: P0
-    owner_crate: atom-benchmark (NOT-BUILT)
-    status: designed-not-built
+    owner_crate: atom-benchmark
+    status: implemented-code-ref
     acceptance_tests: [ATOM-VT-015]
     invariants: [ATOM-INV-020]
-    code_citation: []
+    code_citation: [atom-benchmark, atom-benchmark-runtime, atom-conformance]
   - id: ATOM-INT-001
     area: Interoperability
     priority: P0
