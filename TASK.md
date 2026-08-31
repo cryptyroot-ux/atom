@@ -1,35 +1,38 @@
-# TASK — G4 Foundry: atom-sdk (Codex · Engineer)
+# TASK — G4 Foundry: packaging + install verification (OpenCode · Challenger/Verifier)
 
-Worktree: `feat/foundry-sdk` · Edit ONLY `sdk/atom-sdk/`
+Worktree: `feat/foundry-pkg` · Edit ONLY `pkg/` (new dir, untracked)
 
 ## Objective
-Ship `atom-sdk`: a typed Rust client for ATOM's `/v1` API so external tools and
-the CLI can drive a running ATOM node over HTTP without hand-rolling JSON.
+Prove ATOM is actually installable and runnable end-to-end, and package it so a
+user can install it. You VERIFY the other two workers (Claude's CLI, Codex's SDK)
+and add packaging glue.
 
 ## Deliverables
-1. `sdk/atom-sdk/src/lib.rs` — REAL client (replace the G0 skeleton stub).
-2. Typed client with methods covering at least:
-   - `submit_effect(EffectIntent)` → returns CommitToken-shaped response
-   - `verify_artifact(Artifact)` → bool / result
-   - `get_claim(id)` / `put_claim(Claim)` against atom-claim/atom-evidence
-   - `health()` → node status
-   Define endpoint paths/structs yourself; keep consistent with the OpenAPI 3.1
-   stub in repo root (`spec/openapi.yaml`) and structs in atom-effect, atom-kernel,
-   atom-artifact, atom-claim.
-3. JSON via serde; HTTP via reqwest (async preferred) or ureq.
-4. Error type wrapping transport + API errors.
-5. `#![forbid(unsafe_code)]`.
+1. `pkg/INSTALL.md` — exact, copy-pasteable steps for a fresh machine:
+   - prerequisites (rust toolchain, version)
+   - `cargo install --path cli/atom-cli` (or `cargo build --release`)
+   - how to set signing key id + secret (env vars, NOT hardcoded)
+   - `atom --version`, `atom seal`, `atom verify` smoke test
+2. Release wrapper using `atom-artifact::Artifact::seal` (SUP-001): build the
+   binary, hash it, seal with provenance + SBOM, emit `sha256:` id. Provide
+   `pkg/scripts/release-artifact.sh` (or .rs) that does this.
+3. Optional: `pkg/Dockerfile` (distroless/static) + `pkg/atom.service` (systemd).
+4. Verify the other two workers' output actually compiles + tests + clippy and
+   report any gap. If Claude/Codex left something red, either fix it (say what)
+   or file a precise blocking note — do NOT silently pass.
 
-## Acceptance
-- `cargo build -p atom-sdk` compiles.
-- `cargo test -p atom-sdk` passes (client constructs, request serializes to
-  expected shape, mock/recorded response deserializes, error path works).
-- `cargo clippy -p atom-sdk --all-targets` clean (0 warnings).
-- Public API documented (`///`) enough to use without reading internals.
-- No API key/secret hardcoded; caller supplies auth via client builder.
+## Acceptance (you must DEMONSTRATE, not claim)
+- `cargo install --path cli/atom-cli` succeeds, OR you document exact
+  `cargo build --release` + binary path alternative.
+- Built `atom` runs `--version`, `seal`, `verify`; tamper detected (reuse atom-artifact).
+- `cargo test --workspace` GREEN after all three Foundry branches merge.
+- `cargo clippy --workspace --all-targets` 0 warnings.
+- Secret scan over push range: 0 hits (no key in source).
+- Sealed release artifact verifies with `atom verify` after `git fetch`.
 
 ## Constraints
-- Read-only vs other crates: depend on them, do NOT change them.
-- Types must match canonical structs (reuse atom_effect::EffectIntent,
-  atom_artifact::Artifact, atom_kernel::CommitToken) so wire format can't drift.
-- Commit to `feat/foundry-sdk` when tests pass. Then STOP (wait for merge gate).
+- Never hardcode keys — signing secret from env/file only.
+- `#![forbid(unsafe_code)]` in any Rust you add.
+- Do NOT modify cli/ or sdk/ crates directly — verify them, fix via note or
+  coordinate with Luna if blocking.
+- Commit to `feat/foundry-pkg` when INSTALL.md + script ready. Then STOP.
