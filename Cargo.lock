@@ -136,6 +136,18 @@ name = "atom-architecture-learner"
 version = "0.0.0-alpha.0"
 
 [[package]]
+name = "atom-architecture-safety"
+version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-artifact",
+ "atom-claim",
+ "atom-policy",
+ "serde",
+ "sha2",
+ "thiserror 1.0.69",
+]
+
+[[package]]
 name = "atom-artifact"
 version = "0.0.0-alpha.0"
 dependencies = [
