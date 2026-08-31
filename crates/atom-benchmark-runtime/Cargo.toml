@@ -1,0 +1,17 @@
+[package]
+name = "atom-benchmark-runtime"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Real SystemUnderTest for atom-benchmark, backed by the atom-runtime G1 mission runtime (same-model track)"
+
+[dependencies]
+atom-benchmark = { path = "../atom-benchmark" }
+atom-runtime = { path = "../atom-runtime" }
+atom-ledger = { path = "../atom-ledger" }
+atom-mission = { path = "../atom-mission" }
+atom-effect = { path = "../atom-effect" }
+chrono = { workspace = true }
+
+[lints.rust]
+unsafe_code = "forbid"

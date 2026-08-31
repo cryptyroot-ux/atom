@@ -1,0 +1,43 @@
+{
+  "schema_version": "ATOM-BMK-001-task-suite-v1",
+  "suite_id": "atom-vt015-native-runtime-scenarios-v1",
+  "description": "Provider-free atom-runtime lifecycle scenarios with known RunStatus classifications.",
+  "tasks": [
+    {
+      "id": "orchestrate-clean",
+      "prompt": "Drive a native ATOM mission through compile, prepare, start, execute, and verify with successful observations.",
+      "expected": "SUCCEEDED",
+      "cost_tokens": 100
+    },
+    {
+      "id": "fail-on-compile",
+      "prompt": "Drive a native ATOM mission whose compile activity returns a failed observation and report its RunStatus classification.",
+      "expected": "FAILED",
+      "cost_tokens": 110
+    },
+    {
+      "id": "fail-on-execute",
+      "prompt": "Drive a native ATOM mission whose execute activity returns a failed observation and report its RunStatus classification.",
+      "expected": "FAILED",
+      "cost_tokens": 120
+    },
+    {
+      "id": "cancel-on-prepare",
+      "prompt": "Drive a native ATOM mission whose prepare activity returns a cancelled observation and report its RunStatus classification.",
+      "expected": "CANCELLED",
+      "cost_tokens": 130
+    },
+    {
+      "id": "block-on-start",
+      "prompt": "Drive a native ATOM mission whose start activity returns a blocked observation and report its RunStatus classification.",
+      "expected": "BLOCKED",
+      "cost_tokens": 140
+    },
+    {
+      "id": "degrade-on-verify",
+      "prompt": "Drive a native ATOM mission whose verify activity returns a degraded observation and report its RunStatus classification.",
+      "expected": "BLOCKED",
+      "cost_tokens": 150
+    }
+  ]
+}

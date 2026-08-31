@@ -28,6 +28,8 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
+pub mod disk;
+
 /// Error type for benchmark construction, execution and claim evaluation.
 #[derive(Debug, PartialEq, Eq, thiserror::Error)]
 pub enum BenchmarkError {
@@ -99,10 +101,16 @@ pub struct BenchmarkManifest {
     pub evidence_published: bool,
     /// INV-020: public failure traces must be published.
     pub failure_traces_published: bool,
+    /// SHA-256 digest of the exact task-suite bytes referenced by a published
+    /// disk manifest. This makes task edits part of benchmark identity.
+    pub task_set_digest: String,
 }
 
 impl BenchmarkManifest {
-    /// A minimal, *frozen* example manifest (evidence not published).
+    /// A minimal, *frozen* in-memory fixture (evidence not published).
+    ///
+    /// This exists solely for isolated claim-gate tests. VT-015 must load the
+    /// checked-in benchmark artifact under `benchmarks/`, never this fixture.
     #[must_use]
     pub fn example() -> Self {
         let mut pinned = BTreeMap::new();
@@ -138,6 +146,7 @@ impl BenchmarkManifest {
             // Frozen by default — no 2G claim until evidence is published.
             evidence_published: false,
             failure_traces_published: false,
+            task_set_digest: "sha256:example-not-file-backed".to_string(),
         }
     }
 

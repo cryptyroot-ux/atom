@@ -179,6 +179,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "atom-benchmark-runtime"
+version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-benchmark",
+ "atom-effect",
+ "atom-ledger",
+ "atom-mission",
+ "atom-runtime",
+ "chrono",
+]
+
+[[package]]
 name = "atom-capability"
 version = "0.0.0-alpha.0"
 dependencies = [

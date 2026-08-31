@@ -1,0 +1,38 @@
+{
+  "name": "atom-vt015-native-runtime-same-model",
+  "schema_version": "ATOM-BMK-001-v1",
+  "pinned_versions": {
+    "atom-benchmark": "0.0.0-alpha.0",
+    "atom-runtime": "0.0.0-alpha.0",
+    "task-suite": "atom-vt015-native-runtime-scenarios-v1"
+  },
+  "tracks": [
+    {
+      "name": "atom-runtime-same-model",
+      "track_type": "same_model",
+      "model": "provider-free-native-runtime"
+    }
+  ],
+  "budgets": {
+    "per_task_tokens": 4000,
+    "comparable_across_tracks": true
+  },
+  "seeds": [11, 29, 47],
+  "fault_scenarios": [
+    "terminal-failure-classification",
+    "terminal-cancellation-classification",
+    "blocked-state-classification"
+  ],
+  "metrics": ["verified_runtime_outcome_rate"],
+  "tolerance": {
+    "metric": "verified_runtime_outcome_rate",
+    "abs": 0.0
+  },
+  "evidence_published": false,
+  "failure_traces_published": false,
+  "task_set_digest": "sha256:d78a923dd8e30b7c71b49d078077e14ef9612be83cca63324c9560b5674f489a",
+  "task_suite": {
+    "path": "tasks.json",
+    "format": "ATOM-BMK-001-task-suite-v1"
+  }
+}
