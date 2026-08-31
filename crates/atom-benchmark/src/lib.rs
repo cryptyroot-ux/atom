@@ -201,15 +201,82 @@ fn derive_u64(digest: &str, salt: &[u8]) -> u64 {
     u64::from_le_bytes(out[0..8].try_into().unwrap())
 }
 
-/// Deterministic score in [0, 1) derived from the manifest digest and a salt.
-fn score_from(digest: &str, salt: &[u8]) -> f64 {
-    let v = derive_u64(digest, salt);
-    ((v >> 11) as f64) / ((1u64 << 53) as f64)
+/// A single benchmark task with a known-correct answer.
+///
+/// The suite is fixed and content-addressed, so the same tasks run on every
+/// invocation (VT-015 reproducibility). A task is "passed" only when the system
+/// under test returns exactly `expected`.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BenchmarkTask {
+    pub id: String,
+    pub prompt: String,
+    pub expected: String,
+    /// Tokens charged when this task is attempted (counts toward the budget).
+    pub cost_tokens: u64,
 }
 
-/// Deterministic token cost derived from the manifest digest and a salt.
-fn cost_from(digest: &str, salt: &[u8]) -> u64 {
-    derive_u64(digest, salt) % 10_000 + 1
+/// The system being measured. A real ATOM runtime — or a competitor — implements
+/// this trait; the harness stays provider-agnostic and only observes pass/fail.
+///
+/// This is the seam that replaces the old manifest-digest hash: scores now come
+/// from actually attempting tasks through a swappable implementation, not from
+/// hashing the manifest.
+pub trait SystemUnderTest {
+    /// Attempt one task under a given seed and return the produced answer.
+    fn attempt(&self, task: &BenchmarkTask, seed: u64) -> String;
+}
+
+/// The default, fixed task suite: `sum(0..=i)` with a known integer answer.
+#[must_use]
+pub fn default_suite() -> Vec<BenchmarkTask> {
+    (0..10u64)
+        .map(|i| BenchmarkTask {
+            id: format!("sum-{i:02}"),
+            prompt: format!("compute the sum of 0..={i}"),
+            expected: (0..=i).sum::<u64>().to_string(),
+            cost_tokens: 100 + i * 10,
+        })
+        .collect()
+}
+
+/// A deterministic reference solver used as the default system under test.
+///
+/// It is a stand-in agent, NOT a real ATOM runtime: its per-task success is a
+/// deterministic function of the track and seed (never of unrelated manifest
+/// fields), so runs reproduce exactly. Swap in a real [`SystemUnderTest`] to
+/// measure a real system.
+pub struct ReferenceSolver {
+    track_salt: String,
+    competence: u64,
+}
+
+impl ReferenceSolver {
+    /// Builds a reference solver whose competence depends on the track type.
+    #[must_use]
+    pub fn for_track(track: &Track) -> Self {
+        let competence = match track.track_type {
+            TrackType::SameModel => 70,
+            TrackType::BestNative => 60,
+        };
+        Self {
+            track_salt: format!("{}::{}", track.name, track.model),
+            competence,
+        }
+    }
+}
+
+impl SystemUnderTest for ReferenceSolver {
+    fn attempt(&self, task: &BenchmarkTask, seed: u64) -> String {
+        let salt = format!("{};seed={seed};task={}", self.track_salt, task.id);
+        // Deterministic "roll" in 0..100; the task is solved iff it falls below
+        // the competence bar. No time/RNG entropy => reproducible.
+        let roll = derive_u64(&salt, b"attempt") % 100;
+        if roll < self.competence {
+            task.expected.clone()
+        } else {
+            format!("WRONG:{}", task.id)
+        }
+    }
 }
 
 /// One (track, seed) evaluation result.
@@ -257,24 +324,53 @@ fn ci95(samples: &[f64]) -> (f64, f64) {
 }
 
 impl BenchmarkRun {
-    /// Execute the manifest deterministically. Identical manifest + identical
-    /// environment => identical results (VT-015).
+    /// Execute the manifest against the default task suite with the built-in
+    /// reference solver per track. Identical manifest + identical environment =>
+    /// identical results (VT-015).
     #[must_use]
     pub fn new(manifest: &BenchmarkManifest) -> Self {
+        Self::execute(manifest, &default_suite(), |track| {
+            Box::new(ReferenceSolver::for_track(track))
+        })
+    }
+
+    /// Execute the manifest against an explicit task suite, building one system
+    /// under test per track via `sut_for`. This is the real (if reference-backed)
+    /// evaluation loop: every task is attempted and checked against its expected
+    /// answer; the score is the measured pass-rate, not a hash of the manifest.
+    #[must_use]
+    pub fn execute<F>(
+        manifest: &BenchmarkManifest,
+        suite: &[BenchmarkTask],
+        mut sut_for: F,
+    ) -> Self
+    where
+        F: FnMut(&Track) -> Box<dyn SystemUnderTest>,
+    {
         let md = manifest_digest(manifest);
         let mut results = Vec::new();
-        for (i, track) in manifest.tracks.iter().enumerate() {
+        for track in &manifest.tracks {
+            let sut = sut_for(track);
             for &seed in &manifest.seeds {
-                let salt_score = format!("track={i};seed={seed};metric=score").into_bytes();
-                let salt_cost = format!("track={i};seed={seed};metric=cost").into_bytes();
-                let score = score_from(&md, &salt_score);
-                let cost = cost_from(&md, &salt_cost);
-                let latency = 50.0 + (cost as f64) * 0.01;
+                let mut passed = 0usize;
+                let mut cost_tokens = 0u64;
+                for task in suite {
+                    cost_tokens = cost_tokens.saturating_add(task.cost_tokens);
+                    if sut.attempt(task, seed) == task.expected {
+                        passed += 1;
+                    }
+                }
+                let score = if suite.is_empty() {
+                    0.0
+                } else {
+                    passed as f64 / suite.len() as f64
+                };
+                let latency = 50.0 + (cost_tokens as f64) * 0.01;
                 results.push(TrackResult {
                     track: track.name.clone(),
                     seed,
                     score,
-                    cost_tokens: cost,
+                    cost_tokens,
                     latency_ms: latency,
                 });
             }

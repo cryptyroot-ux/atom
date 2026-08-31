@@ -5,11 +5,11 @@
 > Capability may recursively grow; authority may not.
 > Cognition proposes. Sovereign authority permits. Reality determines outcome.
 
-[![crates](https://img.shields.io/badge/crates-26-blue)](crates/)
-[![tests](https://img.shields.io/badge/tests-374%20passing-brightgreen)](https://github.com/cryptyroot-ux/atom/releases/tag/0.0.0-alpha.0)
+[![crates](https://img.shields.io/badge/crates-41-blue)](crates/)
+[![tests](https://img.shields.io/badge/tests-466%20passing-brightgreen)](https://github.com/cryptyroot-ux/atom/releases/tag/0.0.0-alpha.0)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![release](https://img.shields.io/badge/release-0.0.0--alpha.0-orange)](https://github.com/cryptyroot-ux/atom/releases/tag/0.0.0-alpha.0)
-[![rust](https://img.shields.io/badge/rust-edition%202022-93450a)](https://www.rust-lang.org/)
+[![rust](https://img.shields.io/badge/rust-edition%202021-93450a)](https://www.rust-lang.org/)
 [![CI](https://github.com/cryptyroot-ux/atom/actions/workflows/ci.yml/badge.svg)](https://github.com/cryptyroot-ux/atom/actions/workflows/ci.yml)
 [![CoC](https://img.shields.io/badge/code%20of%20conduct-Contributor%20Covenant-blueviolet)](CODE_OF_CONDUCT.md)
 

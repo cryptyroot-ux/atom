@@ -1,6 +1,5 @@
 use atom_experience_compiler::{
-    CompilerError, CostSnapshot, ExperienceCompiler, ExecutionTrajectory, Polarity, Subtrajectory,
-    TaskSignature, TrajectoryStep,
+    CompilerError, CostSnapshot, ExecutionTrajectory, ExperienceCompiler, TrajectoryStep,
 };
 
 /// A recurring, IDENTICAL 2-step trajectory shared by every example in a family.
@@ -56,8 +55,10 @@ fn mines_recurring_subtrajectory() {
 #[test]
 fn synthesized_recommendation_is_non_authoritative() {
     let c = ExperienceCompiler::new();
-    let subs = c.mine_subtrajectories(&family(20)).unwrap();
-    let rec = c.synthesize_candidate(&subs[0], "test-family").unwrap();
+    let fam = family(20);
+    let (_training, holdout) = c.split_holdout(&fam);
+    let subs = c.mine_subtrajectories(&fam).unwrap();
+    let rec = c.synthesize_candidate(&subs[0], "test-family", holdout).unwrap();
     // INV-016: no authority expansion — target must be None (no CapabilityGrant).
     assert!(rec.target_capability_id.is_none());
     assert!(!rec.proposed_operations.is_empty());
@@ -66,18 +67,28 @@ fn synthesized_recommendation_is_non_authoritative() {
 }
 
 #[test]
-fn holdout_blocks_low_correctness_single_occurrence() {
+fn holdout_blocks_low_correctness_on_failing_holdout() {
     let c = ExperienceCompiler::new();
-    let _subs = c.mine_subtrajectories(&family(20)).unwrap();
-    // A single-occurrence subtrajectory yields low corrected correctness -> rejected.
-    let low = Subtrajectory {
-        signature: TaskSignature::of(&family(1)[0]),
-        steps: vec![recurring_step()],
-        frequency: 1,
-        avg_cost_savings: CostSnapshot { tokens: 0, latency_ms: 0, cost_cents: 0 },
-        polarity: Polarity::Positive,
-    };
-    let err = c.synthesize_candidate(&low, "test");
+    let subs = c.mine_subtrajectories(&family(20)).unwrap();
+    // The mined pattern is present in the holdout, but every held-out run failed:
+    // it does not generalize to success, so promotion must be blocked (INV-016).
+    let failing: Vec<ExecutionTrajectory> = (0..5)
+        .map(|i| {
+            let mut t = recurring_trajectory(i);
+            t.success = false;
+            t
+        })
+        .collect();
+    let err = c.synthesize_candidate(&subs[0], "test", &failing);
+    assert!(matches!(err, Err(CompilerError::AuthorityExpansion { .. })));
+}
+
+#[test]
+fn holdout_blocks_absent_pattern() {
+    let c = ExperienceCompiler::new();
+    let subs = c.mine_subtrajectories(&family(20)).unwrap();
+    // No holdout evidence at all => the pattern cannot be certified => blocked.
+    let err = c.synthesize_candidate(&subs[0], "test", &[]);
     assert!(matches!(err, Err(CompilerError::AuthorityExpansion { .. })));
 }
 

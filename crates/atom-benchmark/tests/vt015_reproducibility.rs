@@ -2,7 +2,10 @@
 //! pinned versions, seeds, budgets, traces and metrics reproduce within
 //! declared tolerance.
 
-use atom_benchmark::{manifest_digest, BenchmarkManifest, BenchmarkRun};
+use atom_benchmark::{
+    default_suite, manifest_digest, BenchmarkManifest, BenchmarkRun, BenchmarkTask,
+    SystemUnderTest,
+};
 
 #[test]
 fn run_is_deterministic_across_calls() {
@@ -62,5 +65,36 @@ fn aggregates_have_correct_sample_sizes() {
     assert_eq!(r.results.len(), 6);
     for agg in &r.aggregates {
         assert_eq!(agg.n, 3);
+    }
+}
+
+/// The score is a REAL measured pass-rate, not a hash: a system that answers
+/// every task correctly scores exactly 1.0, and one that never does scores 0.0.
+#[test]
+fn score_reflects_real_pass_rate() {
+    struct Perfect;
+    impl SystemUnderTest for Perfect {
+        fn attempt(&self, task: &BenchmarkTask, _seed: u64) -> String {
+            task.expected.clone()
+        }
+    }
+    struct Hopeless;
+    impl SystemUnderTest for Hopeless {
+        fn attempt(&self, _task: &BenchmarkTask, _seed: u64) -> String {
+            "nonsense".to_owned()
+        }
+    }
+
+    let m = BenchmarkManifest::example();
+    let suite = default_suite();
+
+    let perfect = BenchmarkRun::execute(&m, &suite, |_track| Box::new(Perfect));
+    for r in &perfect.results {
+        assert_eq!(r.score, 1.0, "solving every task must score 1.0");
+    }
+
+    let hopeless = BenchmarkRun::execute(&m, &suite, |_track| Box::new(Hopeless));
+    for r in &hopeless.results {
+        assert_eq!(r.score, 0.0, "solving no task must score 0.0");
     }
 }
