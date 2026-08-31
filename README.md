@@ -52,6 +52,5 @@ cargo test --workspace
 ## Parallel development discipline
 
 **ONE TASK = ONE SESSION = ONE GIT WORKTREE.** No two agents write the same checkout.
-Orchestrated via Agent of Empires (AoE); Hermes/Luna acts as external supervisor.
 
 License: MIT.

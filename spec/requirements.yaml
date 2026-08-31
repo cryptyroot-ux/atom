@@ -162,66 +162,66 @@ requirements:
   requirement: Persistent critical knowledge MUST use typed Claim/Evidence/Observation records with provenance DAG, source
     authority, confidence, valid-time, transaction-time, contradiction and taint.
   verification: Schema, contradiction and time-travel tests.
-  release: v4.1
+  release: 0.0.0-alpha.1
 - id: ATOM-EPI-002
   area: Epistemics
   priority: P1
   requirement: Ingest, store, retrieve, context, decision and effect eligibility MUST be separately policy-gated.
   verification: Memory poisoning lifecycle test.
-  release: v4.1
+  release: 0.0.0-alpha.1
 - id: ATOM-FND-001
   area: Capability Foundry
   priority: P1
   requirement: Tool Foundry MUST synthesize multiple candidate interfaces/implementations and gate activation on hermetic
     build, tests, property/fuzz/adversarial checks, hidden holdout and certificate.
   verification: Tool-Genesis-style benchmark.
-  release: v4.2
+  release: 0.0.0-alpha.2
 - id: ATOM-FND-002
   area: Capability Foundry
   priority: P1
   requirement: Workflow Foundry MUST produce typed durable workflows with explicit failure, timeout, retry, reconciliation
     and compensation transitions.
   verification: Crash/replay holdout suite.
-  release: v4.2
+  release: 0.0.0-alpha.2
 - id: ATOM-FND-003
   area: Capability Foundry
   priority: P1
   requirement: Verifier Foundry MUST label verifier independence using canonical V0-V5 taxonomy.
   verification: Separated-context and oracle provenance tests.
-  release: v4.2
+  release: 0.0.0-alpha.2
 - id: ATOM-EXP-001
   area: Experience Compiler
   priority: P1
   requirement: Experience Compiler MUST generate TaskSignature, mine repeated subtrajectories, separate positive/negative
     examples, synthesize candidate artifacts and evaluate on hidden holdout before promotion.
   verification: Repeated-task corpus with contamination controls.
-  release: v4.3
+  release: 0.0.0-alpha.3
 - id: ATOM-EXP-002
   area: Experience Compiler
   priority: P1
   requirement: Experience Compiler MUST NOT emit autonomous authority expansion; it MAY emit non-authoritative PolicyRecommendation.
   verification: Authority self-expansion adversarial test.
-  release: v4.3
+  release: 0.0.0-alpha.3
 - id: ATOM-JIT-001
   area: Cognition JIT
   priority: P1
   requirement: Recurrent verified deliberative behavior SHOULD compile to cheaper workflow/tool/specialist capability when
     correctness is preserved within policy threshold.
   verification: Tokens/model-calls per verified success trend.
-  release: v4.4
+  release: 0.0.0-alpha.4
 - id: ATOM-ARC-001
   area: Architecture Learner
   priority: P1
   requirement: Architecture selection MUST be a constrained policy over topology actions with hard safety constraints outside
     the learner and vector reward including verified success, effect integrity, security, cost, latency and human attention.
   verification: Offline/canary contextual-bandit evaluation.
-  release: v4.5
+  release: 0.0.0-alpha.5
 - id: ATOM-FLT-001
   area: Reliability
   priority: P1
   requirement: Recovery MUST classify faults before selecting retry/reobserve/reauthorize/reconcile/replan behavior.
   verification: Fault-class campaign.
-  release: v4.1
+  release: 0.0.0-alpha.1
 - id: ATOM-RST-001
   area: Restore/Fencing
   priority: P0
@@ -235,20 +235,20 @@ requirements:
   requirement: Adaptive artifacts MUST move through LAB -> SIMULATION -> SHADOW -> CANARY -> ACTIVE and support automatic
     downgrade/rollback on regression.
   verification: Promotion and rollback test.
-  release: v4.6
+  release: 0.0.0-alpha.6
 - id: ATOM-EVO-002
   area: Evolution
   priority: P1
   requirement: E7 trusted-core changes and E8 authority/policy expansion MUST NOT self-promote from production cognition.
   verification: Adversarial self-modification test.
-  release: v4.6
+  release: 0.0.0-alpha.6
 - id: ATOM-CER-001
   area: Certification
   priority: P1
   requirement: Certificate MUST bind exact BehaviorManifestV2 digest, evaluation suite digest, environment scope, verifier
     class, validity and stale conditions.
   verification: Material-change stale-certificate test.
-  release: v4.2
+  release: 0.0.0-alpha.2
 - id: ATOM-BMK-001
   area: Benchmark
   priority: P0
@@ -261,7 +261,7 @@ requirements:
   priority: P1
   requirement: MCP/A2A/Agent Skills/Hermes/OpenClaw compatibility MUST be versioned profiles outside sovereign core semantics.
   verification: Interop conformance matrix.
-  release: v4.1
+  release: 0.0.0-alpha.1
 - id: ATOM-API-001
   area: API/CLI
   priority: P0

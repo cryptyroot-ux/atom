@@ -95,7 +95,7 @@ pub enum KernelError {
 /// Unforgeable: fields are private and the only mint site is [`Kernel::authorize`].
 /// It pins the grant generation and the resource witness observed while planning,
 /// so Phase B can detect any drift that happened in the window (ATOM-VT-003).
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Authorization {
     effect_id: String,
     effect_digest: String,
@@ -131,7 +131,7 @@ impl Authorization {
 ///
 /// Unforgeable: fields are private and the only mint site is [`Kernel::commit`],
 /// which reaches it only after both gates passed and a one-shot permit was spent.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct CommitToken {
     effect_id: String,
     grant_id: String,
