@@ -448,6 +448,16 @@ impl CertificateBinding {
         self.digest
     }
 
+    /// Content-address of the exact subject/workload this certificate binds.
+    ///
+    /// Consumers that activate generated artifacts use this accessor to ensure
+    /// a valid seal cannot be replayed for a different subject that happens to
+    /// share a manifest or evaluation suite.
+    #[must_use]
+    pub fn subject_digest(&self) -> Hash {
+        self.subject_digest
+    }
+
     /// Id of the verifier bound to this certificate.
     #[must_use]
     pub fn verifier_id(&self) -> &str {
