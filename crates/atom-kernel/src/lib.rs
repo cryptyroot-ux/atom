@@ -20,6 +20,7 @@ use atom_effect::{
     NonceRegistry, PermitError, PermitRequest, ResourceWitness,
 };
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 /// Why the kernel refused a mutation at either gate.
@@ -95,16 +96,16 @@ pub enum KernelError {
 /// Unforgeable: fields are private and the only mint site is [`Kernel::authorize`].
 /// It pins the grant generation and the resource witness observed while planning,
 /// so Phase B can detect any drift that happened in the window (ATOM-VT-003).
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Authorization {
-    effect_id: String,
-    effect_digest: String,
-    grant_id: String,
-    grant_generation: u64,
-    principal_id: String,
-    operation: String,
-    resource_type: String,
-    planned_witness: ResourceWitness,
+    pub effect_id: String,
+    pub effect_digest: String,
+    pub grant_id: String,
+    pub grant_generation: u64,
+    pub principal_id: String,
+    pub operation: String,
+    pub resource_type: String,
+    pub planned_witness: ResourceWitness,
 }
 
 impl Authorization {
@@ -131,13 +132,13 @@ impl Authorization {
 ///
 /// Unforgeable: fields are private and the only mint site is [`Kernel::commit`],
 /// which reaches it only after both gates passed and a one-shot permit was spent.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct CommitToken {
-    effect_id: String,
-    grant_id: String,
-    grant_generation: u64,
-    resource_id: String,
-    one_shot_nonce: String,
+    pub effect_id: String,
+    pub grant_id: String,
+    pub grant_generation: u64,
+    pub resource_id: String,
+    pub one_shot_nonce: String,
 }
 
 impl CommitToken {

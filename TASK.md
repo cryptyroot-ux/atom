@@ -1,36 +1,35 @@
-# TASK — atom-kernel (Claude Code · Architect/Reviewer)
+# TASK — G4 Foundry: atom-sdk (Codex · Engineer)
 
-Branch: `feat/kernel` · Crate: `crates/atom-kernel`
+Worktree: `feat/foundry-sdk` · Edit ONLY `sdk/atom-sdk/`
 
-## Requirement (spec/ AUTHORITATIVE — precedence 1)
-- **KRN-001** (P0): ALL consequential mutation paths MUST traverse typed **capability authorization** AND **Effect Kernel commit revalidation**.
-- Verification: architecture path test + **adversarial bypass suite**.
+## Objective
+Ship `atom-sdk`: a typed Rust client for ATOM's `/v1` API so external tools and
+the CLI can drive a running ATOM node over HTTP without hand-rolling JSON.
 
-## Peran
-Kamu Architect. Ini crate PALING kritis — kernel yang menyatukan capability + effect jadi satu jalur mutasi yang tidak bisa di-bypass. Semua crate G1-G4 (capability, effect, privd, approval) bertemu di sini.
+## Deliverables
+1. `sdk/atom-sdk/src/lib.rs` — REAL client (replace the G0 skeleton stub).
+2. Typed client with methods covering at least:
+   - `submit_effect(EffectIntent)` → returns CommitToken-shaped response
+   - `verify_artifact(Artifact)` → bool / result
+   - `get_claim(id)` / `put_claim(Claim)` against atom-claim/atom-evidence
+   - `health()` → node status
+   Define endpoint paths/structs yourself; keep consistent with the OpenAPI 3.1
+   stub in repo root (`spec/openapi.yaml`) and structs in atom-effect, atom-kernel,
+   atom-artifact, atom-claim.
+3. JSON via serde; HTTP via reqwest (async preferred) or ureq.
+4. Error type wrapping transport + API errors.
+5. `#![forbid(unsafe_code)]`.
 
-## Hard invariants
-- Kernel = SATU pintu untuk semua mutasi konsekuensial. Tidak ada jalan pintas.
-- Setiap mutasi WAJIB: (1) cek CapabilityGrant valid (atom-capability), (2) revalidasi CommitPermit di titik commit (atom-effect). Dua-duanya, urut.
-- Adversarial: mutasi tanpa grant → tolak. Grant valid tapi tanpa permit → tolak. Permit stale/replay → tolak.
-- Deny-by-default. Tidak ada `pub` API yang mutasi tanpa lewat gate ini.
+## Acceptance
+- `cargo build -p atom-sdk` compiles.
+- `cargo test -p atom-sdk` passes (client constructs, request serializes to
+  expected shape, mock/recorded response deserializes, error path works).
+- `cargo clippy -p atom-sdk --all-targets` clean (0 warnings).
+- Public API documented (`///`) enough to use without reading internals.
+- No API key/secret hardcoded; caller supplies auth via client builder.
 
-## TDD (tulis test dulu — RED → GREEN)
-- **Architecture path test**: mutasi sukses HANYA jika grant+permit dua-duanya valid & urut.
-- **Adversarial bypass suite**: coba semua jalur pintas (no grant / no permit / stale permit / grant-tapi-beda-resource) → SEMUA ditolak.
-- Property: tidak ada input yang bisa commit mutasi tanpa melewati gate ganda.
-
-## Dependency (semua sudah di master)
-- `atom-capability` (grant subset lattice)
-- `atom-effect` (CommitPermit, EffectIntent, revalidation)
-- `atom-privd` (kalau butuh host op), `atom-approval` (kalau butuh approval gate)
-- BACA API mereka dulu (grep pub fn) sebelum pakai. Jangan invent nama.
-
-## Larangan
-- JANGAN bikin jalur mutasi yang lewat gate. JANGAN merge ke master.
-- Commit hanya di feat/kernel, hanya crates/atom-kernel + Cargo.lock.
-
-## Definition of Done
-- `cargo test -p atom-kernel` hijau, `cargo clippy` bersih.
-- Bypass suite membuktikan TIDAK ada jalur mutasi tanpa grant+permit.
-- Commit di feat/kernel. Lapor: commit hash + test count + daftar bypass yang diuji.
+## Constraints
+- Read-only vs other crates: depend on them, do NOT change them.
+- Types must match canonical structs (reuse atom_effect::EffectIntent,
+  atom_artifact::Artifact, atom_kernel::CommitToken) so wire format can't drift.
+- Commit to `feat/foundry-sdk` when tests pass. Then STOP (wait for merge gate).
