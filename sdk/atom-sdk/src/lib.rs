@@ -1,11 +1,10 @@
 //! atom-sdk: Public SDK — typed clients for the ATOM /v1 API.
 //!
 //! This crate provides a Rust client that serializes/deserializes the exact
-//! wire types defined in the canonical crates (atom-effect, atom-artifact,
-//! atom-kernel, atom-claim) so the SDK cannot drift from the in-process model.
+//! wire types matching the OpenAPI spec v4.0.
 //!
 //! # Design
-//! - Re-uses canonical types from sibling crates (no duplicate definitions)
+//! - Uses hand-written DTOs that match the spec (no kernel authority types on wire)
 //! - serde + reqwest for HTTP/JSON
 //! - Async-first (blocking helper provided)
 //! - No API keys or secrets in source — caller supplies auth via builder
@@ -34,10 +33,7 @@ pub mod wire {
         EffectState, Idempotency, IdempotencyMode, IntentError, Reconciliation,
         ReconciliationClass, RetryClass,
     };
-    pub use atom_kernel::{
-        Authorization, AuthorizeRequest, CommitRequest, CommitToken, KernelError,
-    };
 }
 
 /// Current crate stage marker (used by conformance tooling).
-pub const CRATE_STAGE: &str = "G4-Foundry";
+pub const CRATE_STAGE: &str = "G4-public-sdk";

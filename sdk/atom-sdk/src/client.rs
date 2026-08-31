@@ -1,8 +1,6 @@
 //! Typed client for the ATOM /v1 API.
 //!
-//! Re-uses canonical wire types from sibling crates so the SDK cannot drift
-//! from the in-process model. Supports async via `reqwest` and blocking via
-//! `ureq`.
+//! Matches OpenAPI spec v4.0. Supports async via `reqwest` and blocking via `ureq`.
 
 use std::time::Duration;
 
@@ -11,8 +9,8 @@ use serde::Serialize;
 
 use crate::error::{SdkError, SdkResult};
 use crate::types::{
-    GetClaimResponse, HealthStatus, PutClaimRequest, PutClaimResponse, SubmitEffectRequest,
-    SubmitEffectResponse, VerifyArtifactRequest, VerifyArtifactResponse,
+    GetClaimResponse, HealthStatus, ProblemDetail, PutClaimRequest, PutClaimResponse,
+    SubmitEffectRequest, SubmitEffectResponse, VerifyArtifactRequest, VerifyArtifactResponse,
 };
 
 /// The async client. Use [`AtomClientBuilder`] to construct one.
@@ -20,6 +18,8 @@ use crate::types::{
 pub struct AtomClient {
     inner: ClientInner,
     base_url: String,
+    auth_token: Option<String>,
+    user_agent: String,
 }
 
 #[derive(Debug, Clone)]
@@ -39,8 +39,9 @@ impl AtomClient {
         match &self.inner {
             ClientInner::Async(c) => {
                 let url = self.url(path);
-                let resp = c
-                    .get(&url)
+                let mut req = c.get(&url);
+                req = self.apply_async_headers(req);
+                let resp = req
                     .send()
                     .await
                     .map_err(|e| SdkError::Transport(e.to_string()))?;
@@ -57,13 +58,17 @@ impl AtomClient {
         &self,
         path: &str,
         body: &B,
+        idempotency_key: Option<&str>,
     ) -> SdkResult<T> {
         match &self.inner {
             ClientInner::Async(c) => {
                 let url = self.url(path);
-                let resp = c
-                    .post(&url)
-                    .json(body)
+                let mut req = c.post(&url).json(body);
+                if let Some(key) = idempotency_key {
+                    req = req.header("Idempotency-Key", key);
+                }
+                req = self.apply_async_headers(req);
+                let resp = req
                     .send()
                     .await
                     .map_err(|e| SdkError::Transport(e.to_string()))?;
@@ -80,15 +85,42 @@ impl AtomClient {
         }
     }
 
+    /// Perform a PUT with a JSON body and deserialize the JSON response.
+    pub async fn put_json_async<B: Serialize, T: DeserializeOwned>(
+        &self,
+        path: &str,
+        body: &B,
+    ) -> SdkResult<T> {
+        match &self.inner {
+            ClientInner::Async(c) => {
+                let url = self.url(path);
+                let mut req = c.put(&url).json(body);
+                req = self.apply_async_headers(req);
+                let resp = req
+                    .send()
+                    .await
+                    .map_err(|e| SdkError::Transport(e.to_string()))?;
+                let status = resp.status();
+                let bytes = resp
+                    .bytes()
+                    .await
+                    .map_err(|e| SdkError::Transport(e.to_string()))?;
+                self.parse_bytes(status, &bytes)
+            }
+            ClientInner::Blocking(_) => Err(SdkError::InvalidConfig(
+                "this client is blocking-only; call put_json instead".into(),
+            )),
+        }
+    }
+
     /// Blocking GET against `path`.
     pub fn get_json<T: DeserializeOwned>(&self, path: &str) -> SdkResult<T> {
         match &self.inner {
             ClientInner::Blocking(a) => {
                 let url = self.url(path);
-                let resp = a
-                    .get(&url)
-                    .call()
-                    .map_err(|e| SdkError::Transport(e.to_string()))?;
+                let mut req = a.get(&url);
+                req = self.apply_blocking_headers(req);
+                let resp = req.call().map_err(|e| SdkError::Transport(e.to_string()))?;
                 self.parse_ureq(resp)
             }
             ClientInner::Async(_) => Err(SdkError::InvalidConfig(
@@ -102,14 +134,20 @@ impl AtomClient {
         &self,
         path: &str,
         body: &B,
+        idempotency_key: Option<&str>,
     ) -> SdkResult<T> {
         match &self.inner {
             ClientInner::Blocking(a) => {
                 let url = self.url(path);
                 let body_str = serde_json::to_string(body).map_err(SdkError::Serialize)?;
-                let resp = a
+                let mut req = a
                     .post(&url)
-                    .set("Content-Type", "application/json")
+                    .set("Content-Type", "application/json");
+                if let Some(key) = idempotency_key {
+                    req = req.set("Idempotency-Key", key);
+                }
+                req = self.apply_blocking_headers(req);
+                let resp = req
                     .send_string(&body_str)
                     .map_err(|e| SdkError::Transport(e.to_string()))?;
                 self.parse_ureq(resp)
@@ -118,6 +156,47 @@ impl AtomClient {
                 "this client is async-only; call post_json_async instead".into(),
             )),
         }
+    }
+
+    /// Blocking PUT with a JSON body.
+    pub fn put_json<B: Serialize, T: DeserializeOwned>(
+        &self,
+        path: &str,
+        body: &B,
+    ) -> SdkResult<T> {
+        match &self.inner {
+            ClientInner::Blocking(a) => {
+                let url = self.url(path);
+                let body_str = serde_json::to_string(body).map_err(SdkError::Serialize)?;
+                let mut req = a
+                    .put(&url)
+                    .set("Content-Type", "application/json");
+                req = self.apply_blocking_headers(req);
+                let resp = req
+                    .send_string(&body_str)
+                    .map_err(|e| SdkError::Transport(e.to_string()))?;
+                self.parse_ureq(resp)
+            }
+            ClientInner::Async(_) => Err(SdkError::InvalidConfig(
+                "this client is async-only; call put_json_async instead".into(),
+            )),
+        }
+    }
+
+    fn apply_async_headers(&self, mut req: reqwest::RequestBuilder) -> reqwest::RequestBuilder {
+        if let Some(ref token) = self.auth_token {
+            req = req.bearer_auth(token);
+        }
+        req = req.header("User-Agent", &self.user_agent);
+        req
+    }
+
+    fn apply_blocking_headers(&self, mut req: ureq::Request) -> ureq::Request {
+        if let Some(ref token) = self.auth_token {
+            req = req.set("Authorization", &format!("Bearer {token}"));
+        }
+        req = req.set("User-Agent", &self.user_agent);
+        req
     }
 
     /// `GET /v1/health` — typed health check.
@@ -135,12 +214,13 @@ impl AtomClient {
         &self,
         req: &SubmitEffectRequest,
     ) -> SdkResult<SubmitEffectResponse> {
-        self.post_json_async("/v1/effects/submit", req).await
+        self.post_json_async("/v1/effects/submit", req, Some(&req.idempotency_key))
+            .await
     }
 
     /// Blocking `POST /v1/effects/submit`.
     pub fn submit_effect(&self, req: &SubmitEffectRequest) -> SdkResult<SubmitEffectResponse> {
-        self.post_json("/v1/effects/submit", req)
+        self.post_json("/v1/effects/submit", req, Some(&req.idempotency_key))
     }
 
     /// `POST /v1/artifacts/verify` — verify a content-addressed artifact.
@@ -148,7 +228,7 @@ impl AtomClient {
         &self,
         req: &VerifyArtifactRequest,
     ) -> SdkResult<VerifyArtifactResponse> {
-        self.post_json_async("/v1/artifacts/verify", req).await
+        self.post_json_async("/v1/artifacts/verify", req, None).await
     }
 
     /// Blocking `POST /v1/artifacts/verify`.
@@ -156,7 +236,7 @@ impl AtomClient {
         &self,
         req: &VerifyArtifactRequest,
     ) -> SdkResult<VerifyArtifactResponse> {
-        self.post_json("/v1/artifacts/verify", req)
+        self.post_json("/v1/artifacts/verify", req, None)
     }
 
     /// `GET /v1/claims/{id}` — fetch a claim + its provenance.
@@ -172,13 +252,13 @@ impl AtomClient {
     /// `PUT /v1/claims/{id}` — create or replace a claim.
     pub async fn put_claim_async(&self, req: &PutClaimRequest) -> SdkResult<PutClaimResponse> {
         let path = format!("/v1/claims/{}", req.claim_id);
-        self.post_json_async(&path, req).await
+        self.put_json_async(&path, req).await
     }
 
     /// Blocking `PUT /v1/claims/{id}`.
     pub fn put_claim(&self, req: &PutClaimRequest) -> SdkResult<PutClaimResponse> {
         let path = format!("/v1/claims/{}", req.claim_id);
-        self.post_json(&path, req)
+        self.put_json(&path, req)
     }
 
     fn url(&self, path: &str) -> String {
@@ -198,13 +278,12 @@ impl AtomClient {
         if (200..300).contains(&status_u16) {
             body.map_err(|e| SdkError::Transport(e.to_string()))
         } else {
-            let message = body
-                .err()
-                .map(|e| e.to_string())
-                .unwrap_or_else(|| status.to_string());
             Err(SdkError::Api {
                 status: status_u16,
-                message,
+                message: body
+                    .err()
+                    .map(|e| e.to_string())
+                    .unwrap_or_else(|| status.to_string()),
             })
         }
     }
@@ -218,28 +297,42 @@ impl AtomClient {
         if (200..300).contains(&status_u16) {
             serde_json::from_slice(bytes).map_err(|e| SdkError::Deserialize(e.to_string()))
         } else {
-            let message = String::from_utf8_lossy(bytes).into_owned();
-            Err(SdkError::Api {
-                status: status_u16,
-                message,
-            })
+            // Try to parse as RFC 9457 ProblemDetail
+            if let Ok(problem) = serde_json::from_slice::<ProblemDetail>(bytes) {
+                Err(SdkError::Problem(problem))
+            } else {
+                let message = String::from_utf8_lossy(bytes).into_owned();
+                Err(SdkError::Api {
+                    status: status_u16,
+                    message,
+                })
+            }
         }
     }
 
     fn parse_ureq<T: DeserializeOwned>(&self, resp: ureq::Response) -> SdkResult<T> {
         let status = resp.status();
-        let status_u16 = status;
-        if (200..300).contains(&status_u16) {
+        if (200..300).contains(&status) {
             let body = resp
                 .into_string()
                 .map_err(|e| SdkError::Transport(e.to_string()))?;
             serde_json::from_str(&body).map_err(|e| SdkError::Deserialize(e.to_string()))
         } else {
-            let message = resp.into_string().unwrap_or_else(|_| status.to_string());
-            Err(SdkError::Api {
-                status: status_u16,
-                message,
-            })
+            // Try to parse as ProblemDetail
+            if let Ok(body) = resp.into_string() {
+                if let Ok(problem) = serde_json::from_str::<ProblemDetail>(&body) {
+                    return Err(SdkError::Problem(problem));
+                }
+                Err(SdkError::Api {
+                    status,
+                    message: body,
+                })
+            } else {
+                Err(SdkError::Api {
+                    status,
+                    message: status.to_string(),
+                })
+            }
         }
     }
 }
@@ -247,7 +340,7 @@ impl AtomClient {
 /// Builder for [`AtomClient`].
 ///
 /// Caller decides async vs blocking by setting `async_mode(true|false)`.
-/// Defaults: async, 30s timeout, no auth.
+/// Defaults: async, 30s timeout, base_url=http://localhost:8420, no auth.
 #[derive(Debug)]
 pub struct AtomClientBuilder {
     base_url: String,
@@ -260,7 +353,7 @@ pub struct AtomClientBuilder {
 impl Default for AtomClientBuilder {
     fn default() -> Self {
         Self {
-            base_url: "http://localhost:8080".to_owned(),
+            base_url: "http://localhost:8420".to_owned(),
             timeout: Duration::from_secs(30),
             auth_token: None,
             async_mode: true,
@@ -328,6 +421,8 @@ impl AtomClientBuilder {
         Ok(AtomClient {
             inner,
             base_url: self.base_url,
+            auth_token: self.auth_token,
+            user_agent: self.user_agent,
         })
     }
 }

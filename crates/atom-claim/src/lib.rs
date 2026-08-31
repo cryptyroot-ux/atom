@@ -10,7 +10,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use chrono::{DateTime, Utc};
 use serde::de::Error as _;
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
 pub use atom_evidence::{
@@ -1124,6 +1124,35 @@ impl ProvenanceGraph {
 impl Default for ProvenanceGraph {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+/// Serialize ProvenanceGraph as a map of record_id -> [parent_ids].
+impl Serialize for ProvenanceGraph {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        use serde::ser::SerializeMap;
+        let mut map = serializer.serialize_map(Some(self.parents.len()))?;
+        for (record_id, parents) in &self.parents {
+            map.serialize_entry(record_id, parents)?;
+        }
+        map.end()
+    }
+}
+
+/// Deserialize ProvenanceGraph from a map, then validate the DAG structure.
+impl<'de> Deserialize<'de> for ProvenanceGraph {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let parents: BTreeMap<RecordId, Vec<ProvenanceRef>> =
+            BTreeMap::deserialize(deserializer)?;
+        let graph = Self { parents };
+        graph.validate().map_err(|e| D::Error::custom(e.to_string()))?;
+        Ok(graph)
     }
 }
 

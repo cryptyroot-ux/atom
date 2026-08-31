@@ -41,36 +41,22 @@ fn test_request_serialization() {
 
 #[test]
 fn test_response_deserialization() {
-    // Verify we can deserialize a server response envelope
+    // Verify we can deserialize a server response envelope (new opaque receipt format)
     let raw_resp = r#"{
         "request_id": "req-111",
         "idempotency_key": "idem-222",
-        "authorization": {
-            "effect_id": "eff-123",
-            "effect_digest": "digest",
-            "grant_id": "grant-abc",
-            "grant_generation": 1,
-            "principal_id": "root",
-            "operation": "mutate",
-            "resource_type": "file",
-            "planned_witness": {
-                "kind": "etag",
-                "resource_id": "tgt-abc",
-                "value": "v1"
-            }
-        },
-        "commit_token": {
-            "effect_id": "eff-123",
-            "grant_id": "grant-abc",
-            "grant_generation": 1,
-            "resource_id": "tgt-abc",
-            "one_shot_nonce": "nonce-999"
-        }
+        "effect_id": "eff-123",
+        "state": "CONFIRMED_SUCCESS",
+        "grant_generation": 1,
+        "committed": true
     }"#;
 
     let resp: SubmitEffectResponse = serde_json::from_str(raw_resp).expect("must deserialize");
     assert_eq!(resp.request_id, "req-111");
-    assert_eq!(resp.commit_token.one_shot_nonce, "nonce-999");
+    assert_eq!(resp.effect_id, "eff-123");
+    assert_eq!(resp.state, "CONFIRMED_SUCCESS");
+    assert_eq!(resp.grant_generation, 1);
+    assert!(resp.committed);
 }
 
 #[tokio::test]

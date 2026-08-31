@@ -1,5 +1,6 @@
-//! SDK error types — transport + API + serialization.
+//! SDK error types — transport + API + serialization + RFC 9457 ProblemDetail.
 
+use crate::types::ProblemDetail;
 use thiserror::Error;
 
 /// Result alias for SDK operations.
@@ -20,7 +21,11 @@ pub enum SdkError {
     #[error("transport: {0}")]
     Transport(String),
 
-    /// The server returned a structured error (non-2xx).
+    /// The server returned a structured RFC 9457 ProblemDetail error (non-2xx).
+    #[error("api problem: {0}")]
+    Problem(ProblemDetail),
+
+    /// The server returned an error but it could not be parsed as ProblemDetail.
     #[error("api status {status}: {message}")]
     Api {
         /// HTTP status code.

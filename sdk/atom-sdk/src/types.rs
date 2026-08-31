@@ -1,23 +1,24 @@
-//! Wire request/response envelopes.
+//! Wire request/response envelopes for the ATOM /v1 API.
 //!
-//! These types are SDK-side DTOs that wrap the canonical crate types. They
-//! exist to give callers a stable shape independent of internal crate
-//! additions and to make the API contract explicit.
+//! These types are SDK-side DTOs that match the OpenAPI spec v4.0 exactly.
+
+use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
 use atom_artifact::Artifact;
 use atom_claim::{Claim, ClaimId, ProvenanceGraph};
 use atom_effect::EffectIntent;
-use atom_kernel::{Authorization, CommitToken};
 
-/// Successful health-check response.
+/// Successful health-check response (matches spec: getHealth 200).
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct HealthStatus {
-    /// Stable node identifier.
-    pub node_id: String,
+    /// Health status enum.
+    pub status: String,
     /// ATOM protocol version this node speaks.
-    pub protocol_version: String,
+    pub version: String,
+    /// Uptime in seconds.
+    pub uptime_seconds: u64,
     /// Number of crates linked into the node (sanity check).
     pub crates_loaded: usize,
 }
@@ -30,25 +31,29 @@ pub struct HealthStatus {
 pub struct SubmitEffectRequest {
     /// Client-generated request id; echoed in the response for traceability.
     pub request_id: String,
-    /// Idempotency key — same key + same intent MUST return same `CommitToken`.
+    /// Idempotency key — sent as `Idempotency-Key` header; same key + same intent MUST return same receipt.
     pub idempotency_key: String,
     /// The intent to authorize and commit.
     #[serde(flatten)]
     pub intent: EffectIntent,
 }
 
-/// Response from `submit_effect`: the kernel's authorization + the one-shot
-/// commit token, or a structured error reason.
+/// Opaque receipt from `submit_effect` — confirms authorization + commit without exposing
+/// kernel authority types (Authorization, CommitToken) which must remain unforgeable.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct SubmitEffectResponse {
     /// The request id echoed back.
     pub request_id: String,
     /// The idempotency key echoed back.
     pub idempotency_key: String,
-    /// Phase A output — proof that capability authorized this effect.
-    pub authorization: Authorization,
-    /// Phase B output — proof that a one-shot commit was issued.
-    pub commit_token: CommitToken,
+    /// The effect that was authorized and committed.
+    pub effect_id: String,
+    /// Lifecycle state of the effect after commit (from EffectState enum).
+    pub state: String,
+    /// Grant generation at commit time.
+    pub grant_generation: u64,
+    /// Whether a commit token was issued (effect is committed).
+    pub committed: bool,
 }
 
 /// Wrapper for verifying a content-addressed artifact.
@@ -72,48 +77,13 @@ pub struct VerifyArtifactResponse {
 
 /// Response from `get_claim` — returns the claim + its provenance DAG.
 ///
-/// Note: ProvenanceGraph is not Serialize by the canonical crate. We provide
-/// a custom Serialize impl that converts it to JSON via its Debug representation
-/// as a fallback. This is a limitation of the canonical crate's current design.
-#[derive(Clone, Debug, PartialEq)]
+/// ProvenanceGraph now implements Serialize/Deserialize with validation.
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct GetClaimResponse {
     /// The claim itself.
     pub claim: Claim,
     /// The provenance DAG the claim references.
     pub provenance: ProvenanceGraph,
-}
-
-impl serde::Serialize for GetClaimResponse {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        use serde::ser::SerializeStruct;
-        let mut state = serializer.serialize_struct("GetClaimResponse", 2)?;
-        state.serialize_field("claim", &self.claim)?;
-        // ProvenanceGraph doesn't implement Serialize; use a placeholder
-        state.serialize_field("provenance", &format!("{:?}", self.provenance))?;
-        state.end()
-    }
-}
-
-impl<'de> serde::Deserialize<'de> for GetClaimResponse {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        #[derive(Deserialize)]
-        struct Helper {
-            claim: Claim,
-            #[allow(dead_code)]
-            provenance: serde_json::Value,
-        }
-        let h = Helper::deserialize(deserializer)?;
-        Ok(Self {
-            claim: h.claim,
-            provenance: ProvenanceGraph::new(),
-        })
-    }
 }
 
 /// Request body for `put_claim` — create or replace a claim.
@@ -134,13 +104,27 @@ pub struct PutClaimResponse {
     pub state: String,
 }
 
-/// Generic error envelope returned by /v1.
+/// RFC 9457 ProblemDetail error envelope returned by /v1.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-pub struct ApiError {
-    /// Stable error code (e.g. `EFFECT_NOT_AUTHORIZED`).
-    pub code: String,
-    /// Human-readable explanation.
-    pub message: String,
-    /// Optional structured detail (validation failures, missing fields, etc.).
-    pub detail: Option<serde_json::Value>,
+pub struct ProblemDetail {
+    /// A URI reference that identifies the problem type.
+    pub r#type: String,
+    /// A short, human-readable summary of the problem type.
+    pub title: String,
+    /// The HTTP status code generated by the origin server.
+    pub status: u16,
+    /// A human-readable explanation specific to this occurrence.
+    pub detail: String,
+    /// A URI reference that identifies the specific occurrence of the problem.
+    pub instance: String,
+}
+
+impl fmt::Display for ProblemDetail {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{} (status {}): {}",
+            self.title, self.status, self.detail
+        )
+    }
 }
