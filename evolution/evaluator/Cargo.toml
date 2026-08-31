@@ -3,5 +3,15 @@ name = "atom-evaluator"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+description = "ATOM evaluator: separated eval evidence, holdout suite, V0-V5 labeling (INV-017, VT-010, INV-016)"
 
 [dependencies]
+atom-evolution = { path = "../../crates/atom-evolution" }
+atom-evidence = { path = "../../crates/atom-evidence" }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+chrono = { version = "0.4", features = ["serde"] }
+
+[lints.rust]
+unsafe_code = "forbid"
