@@ -134,6 +134,15 @@ dependencies = [
 [[package]]
 name = "atom-architecture-learner"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-capability",
+ "atom-evidence",
+ "atom-evolution",
+ "chrono",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+]
 
 [[package]]
 name = "atom-architecture-safety"
@@ -264,6 +273,14 @@ dependencies = [
 [[package]]
 name = "atom-cognition-jit"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-evidence",
+ "atom-evolution",
+ "chrono",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+]
 
 [[package]]
 name = "atom-connector"
@@ -302,6 +319,14 @@ dependencies = [
 [[package]]
 name = "atom-evaluator"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "atom-evidence",
+ "atom-evolution",
+ "chrono",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+]
 
 [[package]]
 name = "atom-evidence"
@@ -327,6 +352,13 @@ dependencies = [
 [[package]]
 name = "atom-experience-compiler"
 version = "0.0.0-alpha.0"
+dependencies = [
+ "proptest",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror 1.0.69",
+]
 
 [[package]]
 name = "atom-fault"
