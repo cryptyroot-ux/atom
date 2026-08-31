@@ -109,3 +109,18 @@ summary:
   medium_low: 1/2 CLOSED (M-03), 1 OPEN (M-04)
   verdict: BUILD complete and G0-conformance core closed; G0 release-signing + research/UI/API tracks
     remain deferred (not blocking v4.0-alpha core).
+formal_release_decision:
+  decision: v4.0-alpha released
+  date: '2026-08-31'
+  commit: a60e60dd4fbc49648e67141eedb60cee91fee2ca
+  tag: v4.0-alpha
+  github_release: https://github.com/cryptyroot-ux/atom/releases/tag/v4.0-alpha
+  signed_by: Crypty Root
+  evidence:
+    test_result: 363 passed, 0 failed
+    clippy: 0 warnings
+    crates: 26/26 implemented
+    spec_files: 23 files
+    dependencies: 249 (see sbom.txt)
+  scope: Core runtime (26 crates). P1 research tracks deferred.
+  claims_policy: No 2G superiority claim (INV-020 frozen).
