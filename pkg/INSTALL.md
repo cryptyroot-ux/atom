@@ -142,6 +142,6 @@ cargo uninstall atom-cli
 - [ ] `atom seal file` produces JSON with `sha256:` ID
 - [ ] `atom verify file.atom.json` returns `OK`
 - [ ] Tampered artifact is rejected with `SignatureInvalid`
-- [ ] `cargo test --workspace` → 363+ tests pass
+- [ ] `cargo test --workspace` → 374+ tests pass
 - [ ] `cargo clippy --workspace --all-targets -- -D warnings` → clean
 - [ ] Secret scan: no `sk-` keys, no private keys in source

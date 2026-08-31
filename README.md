@@ -6,7 +6,7 @@
 > Cognition proposes. Sovereign authority permits. Reality determines outcome.
 
 [![crates](https://img.shields.io/badge/crates-26-blue)](crates/)
-[![tests](https://img.shields.io/badge/tests-371%20passing-brightgreen)](https://github.com/cryptyroot-ux/atom/releases/tag/0.0.0-alpha.0)
+[![tests](https://img.shields.io/badge/tests-374%20passing-brightgreen)](https://github.com/cryptyroot-ux/atom/releases/tag/0.0.0-alpha.0)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![release](https://img.shields.io/badge/release-0.0.0--alpha.0-orange)](https://github.com/cryptyroot-ux/atom/releases/tag/0.0.0-alpha.0)
 [![rust](https://img.shields.io/badge/rust-edition%202022-93450a)](https://www.rust-lang.org/)
@@ -52,11 +52,12 @@ ever growing its own authority. That is the "sovereign" in the name.
 | G1 Sovereign Core | ✅ done |
 | G2 Useful Operator | 🔧 partial |
 | G3 Epistemics | ✅ done |
-| G4 Foundry | 🚧 in progress (artifact build/test/cert) |
+| G4 Foundry | ✅ done (CLI + SDK + packaging merged) |
 | G5–G7 Compounding / Learning / Evolution | 📋 designed, not built |
 
-This is an **alpha**. The constitutional core is real and tested (363 passing
-tests, `cargo clippy` clean). Operator ergonomics (CLI, PWA, adapters) are partial.
+This is an **alpha**. The constitutional core is real and tested (374 passing
+tests, `cargo clippy` clean). CLI, SDK, and packaging (Docker, systemd) are
+merged. Operator ergonomics (PWA, adapters) are partial.
 
 ## Quick start
 
@@ -68,7 +69,7 @@ cargo install --path cli/atom-cli
 # or build from a checkout:
 cargo build --release -p atom-cli
 
-# run the test suite (371 tests)
+# run the test suite (374 tests)
 cargo test --workspace
 ```
 
