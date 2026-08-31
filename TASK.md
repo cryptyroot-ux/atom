@@ -1,36 +1,40 @@
-# TASK — atom-kernel (Claude Code · Architect/Reviewer)
+# TASK — G4 Foundry: atom-cli (Claude · Architect)
 
-Branch: `feat/kernel` · Crate: `crates/atom-kernel`
+Worktree: `feat/foundry-cli` · Edit ONLY `cli/atom-cli/`
 
-## Requirement (spec/ AUTHORITATIVE — precedence 1)
-- **KRN-001** (P0): ALL consequential mutation paths MUST traverse typed **capability authorization** AND **Effect Kernel commit revalidation**.
-- Verification: architecture path test + **adversarial bypass suite**.
+## Objective
+Turn ATOM from a library collection into a real, installable executable. The `atom`
+binary is the sovereign process that boots the runtime and lets an operator drive
+ATOM from a terminal / as a daemon.
 
-## Peran
-Kamu Architect. Ini crate PALING kritis — kernel yang menyatukan capability + effect jadi satu jalur mutasi yang tidak bisa di-bypass. Semua crate G1-G4 (capability, effect, privd, approval) bertemu di sini.
+## Deliverables (all MUST land, all tests MUST pass)
+1. `cli/atom-cli/src/main.rs` — REAL binary (replace the G0 skeleton stub).
+2. Wire these crates into the CLI as a coherent process:
+   atom-kernel, atom-runtime, atom-scheduler, atom-worker, atom-identity,
+   atom-capability, atom-policy, atom-approval, atom-secret, atom-mission,
+   atom-ledger, atom-effect, atom-context, atom-claim, atom-evidence,
+   atom-fault, atom-replay, atom-restore, atom-provider, atom-target,
+   atom-connector, atom-adapter, atom-memory, atom-artifact.
+3. CLI surface (at minimum):
+   - `atom --version` and `atom --help`
+   - `atom run`          — boot runtime + scheduler + worker in-process
+   - `atom verify <file>`— verify a sealed artifact via atom-artifact (SUP-001)
+   - `atom seal <bytes>` — produce a content-addressed signed artifact
+   - `--config <path>` or env-based config for signing key id + secret
+4. `cli/atom-cli/Cargo.toml` already declares deps — extend if needed.
+5. `#![forbid(unsafe_code)]` in main.rs.
 
-## Hard invariants
-- Kernel = SATU pintu untuk semua mutasi konsekuensial. Tidak ada jalan pintas.
-- Setiap mutasi WAJIB: (1) cek CapabilityGrant valid (atom-capability), (2) revalidasi CommitPermit di titik commit (atom-effect). Dua-duanya, urut.
-- Adversarial: mutasi tanpa grant → tolak. Grant valid tapi tanpa permit → tolak. Permit stale/replay → tolak.
-- Deny-by-default. Tidak ada `pub` API yang mutasi tanpa lewat gate ini.
+## Acceptance (you must DEMONSTRATE, not claim)
+- `cargo build -p atom-cli` produces `atom` binary.
+- `./target/debug/atom --version` and `--help` print.
+- `atom seal` then `atom verify` round-trips; tamper is caught
+  (reuse atom-artifact::Artifact::seal / verify).
+- `cargo test -p atom-cli` passes (CLI parses, seal+verify round-trip,
+  wrong-secret/forged-bundle rejected).
+- `cargo clippy -p atom-cli --all-targets` clean (0 warnings).
 
-## TDD (tulis test dulu — RED → GREEN)
-- **Architecture path test**: mutasi sukses HANYA jika grant+permit dua-duanya valid & urut.
-- **Adversarial bypass suite**: coba semua jalur pintas (no grant / no permit / stale permit / grant-tapi-beda-resource) → SEMUA ditolak.
-- Property: tidak ada input yang bisa commit mutasi tanpa melewati gate ganda.
-
-## Dependency (semua sudah di master)
-- `atom-capability` (grant subset lattice)
-- `atom-effect` (CommitPermit, EffectIntent, revalidation)
-- `atom-privd` (kalau butuh host op), `atom-approval` (kalau butuh approval gate)
-- BACA API mereka dulu (grep pub fn) sebelum pakai. Jangan invent nama.
-
-## Larangan
-- JANGAN bikin jalur mutasi yang lewat gate. JANGAN merge ke master.
-- Commit hanya di feat/kernel, hanya crates/atom-kernel + Cargo.lock.
-
-## Definition of Done
-- `cargo test -p atom-kernel` hijau, `cargo clippy` bersih.
-- Bypass suite membuktikan TIDAK ada jalur mutasi tanpa grant+permit.
-- Commit di feat/kernel. Lapor: commit hash + test count + daftar bypass yang diuji.
+## Constraints
+- Do NOT modify any crate in `crates/` — only `cli/atom-cli/`.
+- Reuse existing types: atom_artifact::Artifact, atom_kernel::CommitToken.
+- No API key/secret hardcoded — signing secret from env/file only.
+- Commit to `feat/foundry-cli` when tests pass. Then STOP (wait for merge gate).
