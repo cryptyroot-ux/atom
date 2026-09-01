@@ -1,0 +1,17 @@
+{
+  "effect_id": "eff-0001",
+  "mission_id": "mission/alpha",
+  "capability_id": "cap-0001",
+  "target_id": "ledger:mission/alpha",
+  "canonical_request_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "effect_class": "ledger.append",
+  "risk_class": "HIGH",
+  "idempotency": {
+    "strategy": "one_shot_nonce"
+  },
+  "reconciliation": {
+    "strategy": "compensate"
+  },
+  "dependencies": [],
+  "state": "AUTHORIZED"
+}

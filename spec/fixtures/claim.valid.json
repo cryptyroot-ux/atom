@@ -1,0 +1,22 @@
+{
+  "claim_id": "claim/001",
+  "kind": "FACT",
+  "state": "SUPPORTED",
+  "proposition": {
+    "subject": "ledger",
+    "predicate": "append_only",
+    "object": "true"
+  },
+  "confidence": 0.95,
+  "source_authority": "effect-kernel",
+  "valid_time": {
+    "start": "2026-08-31T00:00:00Z"
+  },
+  "transaction_time": {
+    "recorded": "2026-08-31T12:00:00Z"
+  },
+  "provenance": [
+    "ev:001"
+  ],
+  "taint_labels": []
+}

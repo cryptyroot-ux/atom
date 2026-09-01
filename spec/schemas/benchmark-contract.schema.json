@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/benchmark-contract.schema.json",
+  "title": "BenchmarkContract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_id",
+    "target",
+    "versions_pinned",
+    "seed_count",
+    "budget",
+    "fault_scenario_count",
+    "evidence_published"
+  ],
+  "properties": {
+    "contract_id": { "type": "string" },
+    "target": { "type": "string" },
+    "versions_pinned": { "type": "integer", "minimum": 2 },
+    "seed_count": { "type": "integer", "minimum": 3 },
+    "budget": { "type": "object" },
+    "fault_scenario_count": { "type": "integer", "minimum": 1 },
+    "evidence_published": { "type": "boolean" },
+    "failure_traces_published": { "type": "boolean" },
+    "superiority_claim": {
+      "type": ["string", "null"]
+    }
+  }
+}

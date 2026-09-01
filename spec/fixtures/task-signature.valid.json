@@ -1,0 +1,27 @@
+{
+  "goal_family": "FILE_ACCESS",
+  "resource_types": [
+    "fs:file"
+  ],
+  "input_shape": {
+    "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "environmental_constraints": [
+    "readonly-fs"
+  ],
+  "precondition_classes": [
+    "file_exists"
+  ],
+  "required_capability_classes": [
+    "fs.read"
+  ],
+  "effect_classes": [
+    "fs.touch"
+  ],
+  "risk_class": "LOW",
+  "verifier_family": "static-analyzer",
+  "expected_artifacts": [
+    "output.json"
+  ],
+  "environment_fingerprint": "fp-001"
+}

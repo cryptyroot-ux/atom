@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/backup-manifest.schema.json",
+  "title": "BackupManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_id",
+    "backup_id",
+    "created_at",
+    "entries",
+    "integrity_digest"
+  ],
+  "properties": {
+    "manifest_id": { "type": "string" },
+    "backup_id": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "digest"],
+        "properties": {
+          "path": { "type": "string" },
+          "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+        }
+      },
+      "minItems": 1
+    },
+    "integrity_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "encryption": {
+      "type": ["object", "null"]
+    },
+    "restore_instructions": { "type": ["string", "null"] }
+  }
+}

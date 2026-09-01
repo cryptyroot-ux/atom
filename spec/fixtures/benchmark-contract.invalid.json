@@ -1,0 +1,10 @@
+{
+  "contract_id": "bmk-0001",
+  "target": "atom-runtime",
+  "versions_pinned": 1,
+  "seed_count": 2,
+  "budget": { "cpu_seconds": 3600 },
+  "fault_scenario_count": 1,
+  "evidence_published": true,
+  "failure_traces_published": true
+}

@@ -1,0 +1,8 @@
+{
+  "attestation_id": "att-0001",
+  "artifact_digest": "not-a-real-digest",
+  "predicate_type": "https://atom.run/predicate/v1/sbom",
+  "subject": "atom-core:0.1.0",
+  "verifier": "gha:release-signer",
+  "issued_at": "2026-08-31T12:00:00Z"
+}

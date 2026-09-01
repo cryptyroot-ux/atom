@@ -1,0 +1,8 @@
+{
+  "type": "https://atom.run/probs/denied",
+  "title": "Access denied",
+  "status": 403,
+  "detail": "no grant",
+  "instance": "op/001",
+  "extensions": {}
+}

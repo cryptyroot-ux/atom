@@ -1,0 +1,7 @@
+{
+  "manifest_id": "bkm-0001",
+  "backup_id": "backup/ledger-20260831",
+  "created_at": "2026-08-31T12:00:00Z",
+  "entries": [],
+  "integrity_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+}

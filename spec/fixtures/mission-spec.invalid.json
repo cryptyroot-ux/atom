@@ -1,0 +1,10 @@
+{
+  "mission_id": "mission/alpha",
+  "goal": "summarize findings",
+  "capacity_grant_ids": [],
+  "task_signatures": [
+    "tsk-0001"
+  ],
+  "epoch": 0,
+  "revision": 1
+}

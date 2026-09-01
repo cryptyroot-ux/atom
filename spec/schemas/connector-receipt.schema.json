@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/connector-receipt.schema.json",
+  "title": "ConnectorReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "receipt_id",
+    "connector_id",
+    "operation",
+    "request_digest",
+    "receiver_status",
+    "received_at"
+  ],
+  "properties": {
+    "receipt_id": { "type": "string" },
+    "connector_id": { "type": "string" },
+    "operation": { "type": "string" },
+    "request_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "receiver_status": {
+      "enum": ["ACCEPTED", "REJECTED", "QUEUED", "UNKNOWN"]
+    },
+    "received_at": { "type": "string", "format": "date-time" },
+    "acknowledged_at": { "type": ["string", "null"], "format": "date-time" },
+    "failure_reason": { "type": ["string", "null"] }
+  }
+}

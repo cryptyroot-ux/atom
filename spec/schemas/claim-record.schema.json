@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/claim-record.schema.json",
+  "title": "ClaimRecord",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "record_id",
+    "claim_id",
+    "asserted_at",
+    "state",
+    "confidence",
+    "source"
+  ],
+  "properties": {
+    "record_id": { "type": "string" },
+    "claim_id": { "type": "string" },
+    "asserted_at": { "type": "string", "format": "date-time" },
+    "state": {
+      "enum": ["PROPOSED", "SUPPORTED", "DISPUTED", "CORROBORATED", "RETRACTED"]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "source": { "type": "string" },
+    "evidence_refs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "superseded_by": { "type": ["string", "null"] }
+  }
+}

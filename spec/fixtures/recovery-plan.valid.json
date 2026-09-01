@@ -1,0 +1,12 @@
+{
+  "plan_id": "rp-0001",
+  "scenario": "ledger-corruption",
+  "steps": [
+    {
+      "order": 1,
+      "action": "restore"
+    }
+  ],
+  "computed_at": "2026-08-31T12:00:00Z",
+  "responsible": null
+}

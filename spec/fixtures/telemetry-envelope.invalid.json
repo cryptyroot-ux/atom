@@ -1,0 +1,8 @@
+{
+  "envelope_id": "tel-0001",
+  "source": "effect-kernel",
+  "metric": "latency_ms",
+  "value": "fast",
+  "sampled_at": "2026-08-31T12:00:00Z",
+  "labels": {}
+}

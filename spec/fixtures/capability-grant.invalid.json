@@ -1,0 +1,21 @@
+{
+  "grant_id": "cg-0001",
+  "subject_id": "svc/effect-kernel",
+  "workload_id": "mission/alpha",
+  "operations": [],
+  "resources": [
+    {
+      "type": "ledger"
+    }
+  ],
+  "purpose": "append records",
+  "not_before": "2026-08-31T12:00:00Z",
+  "expires_at": "2026-09-30T12:00:00Z",
+  "budget": {
+    "cpu_seconds": 3600
+  },
+  "delegation_depth": 0,
+  "audience": "internal",
+  "generation": -1,
+  "revocation_state": "ACTIVE"
+}

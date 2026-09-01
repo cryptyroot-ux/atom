@@ -1,0 +1,87 @@
+version: 1.0.0
+initial: PROPOSED
+terminals:
+- PROMOTED
+- REJECTED
+- ROLLED_BACK
+states:
+- PROPOSED
+- REVIEWED
+- APPROVED
+- REJECTED
+- PROMOTING
+- PROMOTED
+- ROLLED_BACK
+transitions:
+- id: p01
+  from: PROPOSED
+  to: REVIEWED
+  event: review
+  guard: criteria_complete
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: p02
+  from: REVIEWED
+  to: APPROVED
+  event: approve
+  guard: consensus
+  action: noop
+  cas: true
+  timer: null
+  forbidden: false
+- id: p03
+  from: REVIEWED
+  to: REJECTED
+  event: reject
+  guard: criteria_fail
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: p04
+  from: APPROVED
+  to: PROMOTING
+  event: promote
+  guard: release_ready
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: p05
+  from: PROMOTING
+  to: PROMOTED
+  event: done_promote
+  guard: verification_ok
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: p06
+  from: PROMOTING
+  to: ROLLED_BACK
+  event: rollback
+  guard: verification_fail
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: p07
+  from: PROMOTED
+  to: ROLLED_BACK
+  event: rollback
+  guard: regression_detected
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: p08
+  from: APPROVED
+  to: REJECTED
+  event: expire_review
+  guard: 'true'
+  action: noop
+  cas: false
+  timer: review_window
+  forbidden: false

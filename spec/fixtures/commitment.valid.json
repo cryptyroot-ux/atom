@@ -1,0 +1,13 @@
+{
+  "commitment_id": "com-0001",
+  "kind": "BEHAVIOR",
+  "target_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "promise": "effect intents are dispensed with CAS generation",
+  "scope": "effect-kernel",
+  "status": "ACTIVE",
+  "made_at": "2026-08-31T12:00:00Z",
+  "valid_until": null,
+  "evidence_refs": [
+    "ev:002"
+  ]
+}

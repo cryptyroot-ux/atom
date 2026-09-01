@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/decision-record.schema.json",
+  "title": "Decision Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "record_id",
+    "decision",
+    "subject",
+    "decided_by",
+    "decided_at",
+    "binding"
+  ],
+  "properties": {
+    "record_id": {
+      "type": "string"
+    },
+    "decision": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "decided_by": {
+      "type": "string"
+    },
+    "decided_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "binding": {
+      "type": "boolean"
+    },
+    "rationale": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "supersedes_record_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

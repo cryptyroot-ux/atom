@@ -1,0 +1,14 @@
+{
+  "manifest_id": "bkm-0001",
+  "backup_id": "backup/ledger-20260831",
+  "created_at": "2026-08-31T12:00:00Z",
+  "entries": [
+    {
+      "path": "/var/lib/atom/ledger",
+      "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  ],
+  "integrity_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "encryption": { "kms_key": "projects/atom/locations/global/keyRings/k/cryptoKeys/backup" },
+  "restore_instructions": "restore via atom-restore --manifest bkm-0001"
+}

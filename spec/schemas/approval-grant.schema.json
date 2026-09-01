@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/approval-grant.schema.json",
+  "title": "ApprovalGrant",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "grant_id",
+    "mission_id",
+    "approver",
+    "granted_operations",
+    "granted_resources",
+    "not_before",
+    "expires_at",
+    "generation",
+    "revocation_state"
+  ],
+  "properties": {
+    "grant_id": { "type": "string" },
+    "mission_id": { "type": "string" },
+    "approver": { "type": "string" },
+    "granted_operations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "granted_resources": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "not_before": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" },
+    "delegation_depth": { "type": "integer", "minimum": 0, "default": 0 },
+    "parent_grant_id": { "type": ["string", "null"] },
+    "generation": { "type": "integer", "minimum": 0 },
+    "revocation_state": {
+      "enum": ["ACTIVE", "REVOKED", "EXPIRED"]
+    }
+  }
+}

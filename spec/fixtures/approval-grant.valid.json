@@ -1,0 +1,13 @@
+{
+  "grant_id": "ag-0001",
+  "mission_id": "mission/alpha",
+  "approver": "svc/approval-bot",
+  "granted_operations": ["effect.approve"],
+  "granted_resources": ["effect:mission/alpha:*"],
+  "not_before": "2026-09-01T00:00:00Z",
+  "expires_at": "2026-09-08T00:00:00Z",
+  "delegation_depth": 0,
+  "parent_grant_id": null,
+  "generation": 1,
+  "revocation_state": "ACTIVE"
+}

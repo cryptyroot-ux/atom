@@ -3,8 +3,8 @@ source_document: ATOM_Verification_Traceability_and_Acceptance_v4.1
 count: 9
 machines:
 - id: effect
-  states: 17
-  transitions: 29
+  states: 16
+  transitions: 28
   contract: spec/state-machines/effect.yaml
   verification_obligations:
   - unique transition IDs
@@ -15,7 +15,7 @@ machines:
   - CAS generation
   - timer events
   - forbidden edges
-  body_status: authored_v40_pending_v41_review
+  body_status: authored_v41
 - id: mission
   states: 13
   transitions: 16
@@ -29,7 +29,7 @@ machines:
   - CAS generation
   - timer events
   - forbidden edges
-  body_status: authored_v40_pending_v41_review
+  body_status: authored_v41
 - id: approval
   states: 7
   transitions: 7
@@ -43,7 +43,7 @@ machines:
   - CAS generation
   - timer events
   - forbidden edges
-  body_status: declared_not_authored
+  body_status: authored_v41
 - id: grant
   states: 6
   transitions: 5
@@ -57,7 +57,7 @@ machines:
   - CAS generation
   - timer events
   - forbidden edges
-  body_status: declared_not_authored
+  body_status: authored_v41
 - id: artifact
   states: 8
   transitions: 10
@@ -71,7 +71,7 @@ machines:
   - CAS generation
   - timer events
   - forbidden edges
-  body_status: declared_not_authored
+  body_status: authored_v41
 - id: schedule-run
   states: 6
   transitions: 5
@@ -85,7 +85,7 @@ machines:
   - CAS generation
   - timer events
   - forbidden edges
-  body_status: declared_not_authored
+  body_status: authored_v41
 - id: restore
   states: 6
   transitions: 7
@@ -99,7 +99,7 @@ machines:
   - CAS generation
   - timer events
   - forbidden edges
-  body_status: declared_not_authored
+  body_status: authored_v41
 - id: release
   states: 7
   transitions: 6
@@ -113,7 +113,7 @@ machines:
   - CAS generation
   - timer events
   - forbidden edges
-  body_status: declared_not_authored
+  body_status: authored_v41
 - id: promotion
   states: 7
   transitions: 8
@@ -127,4 +127,4 @@ machines:
   - CAS generation
   - timer events
   - forbidden edges
-  body_status: declared_not_authored
+  body_status: authored_v41

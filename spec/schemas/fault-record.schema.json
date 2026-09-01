@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/fault-record.schema.json",
+  "title": "Fault Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "fault_id",
+    "kind",
+    "injected_at",
+    "target",
+    "status"
+  ],
+  "properties": {
+    "fault_id": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "PARTITION",
+        "LATENCY",
+        "EXCEPTION",
+        "CRASH",
+        "RESOURCE_EXHAUSTION"
+      ]
+    },
+    "injected_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "target": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "ARMED",
+        "INJECTED",
+        "RECOVERED",
+        "CANCELED"
+      ]
+    },
+    "recovered_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    }
+  }
+}

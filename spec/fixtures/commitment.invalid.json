@@ -1,0 +1,9 @@
+{
+  "commitment_id": "com-0001",
+  "kind": "UNEXPECTED",
+  "target_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "promise": "x",
+  "scope": "effect-kernel",
+  "status": "ACTIVE",
+  "made_at": "2026-08-31T12:00:00Z"
+}

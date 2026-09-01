@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/mission-spec.schema.json",
+  "title": "Mission Spec",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "mission_id",
+    "goal",
+    "capacity_grant_ids",
+    "task_signatures",
+    "epoch",
+    "revision"
+  ],
+  "properties": {
+    "mission_id": {
+      "type": "string"
+    },
+    "goal": {
+      "type": "string"
+    },
+    "capacity_grant_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "task_signatures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "epoch": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "parent_mission_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "graph_id": "mg-0001",
+  "mission_id": "mission/alpha",
+  "nodes": [
+    {
+      "id": "n1"
+    }
+  ],
+  "edges": [
+    {
+      "from": "n1",
+      "to": "n2"
+    }
+  ],
+  "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}

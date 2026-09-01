@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/compatibility-profile.schema.json",
+  "title": "CompatibilityProfile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile_id",
+    "target_app",
+    "runtime_matrix",
+    "protocol_version",
+    "verified_combinations"
+  ],
+  "properties": {
+    "profile_id": { "type": "string" },
+    "target_app": { "type": "string" },
+    "runtime_matrix": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "protocol_version": { "type": "string" },
+    "verified_combinations": { "type": "integer", "minimum": 1 },
+    "attested_at": { "type": ["string", "null"], "format": "date-time" }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/schema-inventory.schema.json",
+  "title": "Schema Inventory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "inventory_id",
+    "pack_version",
+    "schemas",
+    "generated_at"
+  ],
+  "properties": {
+    "inventory_id": {
+      "type": "string"
+    },
+    "pack_version": {
+      "type": "string"
+    },
+    "schemas": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "minItems": 1
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

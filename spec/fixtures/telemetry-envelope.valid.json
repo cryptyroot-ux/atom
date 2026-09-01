@@ -1,0 +1,10 @@
+{
+  "envelope_id": "tel-0001",
+  "source": "effect-kernel",
+  "metric": "latency_ms",
+  "value": 12.5,
+  "sampled_at": "2026-08-31T12:00:00Z",
+  "labels": {
+    "op": "append"
+  }
+}

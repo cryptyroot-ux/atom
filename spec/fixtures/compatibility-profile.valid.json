@@ -1,0 +1,11 @@
+{
+  "profile_id": "cp-0001",
+  "target_app": "atom-runtime",
+  "runtime_matrix": [
+    "amd64-linux",
+    "arm64-linux"
+  ],
+  "protocol_version": "4.1",
+  "verified_combinations": 2,
+  "attested_at": "2026-08-31T12:00:00Z"
+}

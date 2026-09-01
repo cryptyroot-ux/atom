@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/provider-profile.schema.json",
+  "title": "Provider Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "provider_id",
+    "name",
+    "endpoint",
+    "auth_kind",
+    "model_ids",
+    "asserted_capabilities"
+  ],
+  "properties": {
+    "provider_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "endpoint": {
+      "type": "string"
+    },
+    "auth_kind": {
+      "enum": [
+        "API_KEY",
+        "OAUTH",
+        "NONE"
+      ]
+    },
+    "model_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "asserted_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "salt": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/replay-request.schema.json",
+  "title": "Replay Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "subject_digest",
+    "from_offset",
+    "to_offset",
+    "requested_at",
+    "mode"
+  ],
+  "properties": {
+    "request_id": {
+      "type": "string"
+    },
+    "subject_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "from_offset": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "to_offset": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "requested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "mode": {
+      "enum": [
+        "FULL",
+        "INCREMENTAL",
+        "CHECKPOINT"
+      ]
+    }
+  }
+}

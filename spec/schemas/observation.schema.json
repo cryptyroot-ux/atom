@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/observation.schema.json",
+  "title": "Observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "obs_id",
+    "observed_at",
+    "subject_digest",
+    "measurements",
+    "source"
+  ],
+  "properties": {
+    "obs_id": {
+      "type": "string"
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "subject_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "measurements": {
+      "type": "object"
+    },
+    "source": {
+      "type": "string"
+    }
+  }
+}

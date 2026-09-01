@@ -1,0 +1,18 @@
+{
+  "certificate_id": "cert-0001",
+  "subject_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "behavior_manifest_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "evaluation_suite_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "environment_scope": {
+    "os": "linux-x64"
+  },
+  "verifier_level": "V99",
+  "issued_at": "2026-08-31T12:00:00Z",
+  "valid_until": "2026-09-30T12:00:00Z",
+  "stale_conditions": [
+    "model-updated"
+  ],
+  "evidence_refs": [
+    "ev:cert-0001"
+  ]
+}

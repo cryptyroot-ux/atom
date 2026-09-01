@@ -1,0 +1,11 @@
+{
+  "attestation_id": "att-0001",
+  "artifact_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "predicate_type": "https://atom.run/predicate/v1/sbom",
+  "subject": "atom-core:0.1.0",
+  "verifier": "gha:release-signer",
+  "signature": "sig-v1:abc123",
+  "build_ref": "https://github.com/cryptyroot-ux/atom/actions/runs/42",
+  "source_ref": "refs/tags/0.0.0-alpha.0",
+  "issued_at": "2026-08-31T12:00:00Z"
+}

@@ -1,0 +1,12 @@
+{
+  "record_id": "cr-0001",
+  "claim_id": "claim/001",
+  "asserted_at": "2026-08-31T12:00:00Z",
+  "state": "SUPPORTED",
+  "confidence": 0.9,
+  "source": "verifier:effect-kernel",
+  "evidence_refs": [
+    "ev:001"
+  ],
+  "superseded_by": null
+}

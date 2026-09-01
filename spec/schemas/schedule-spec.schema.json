@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/schedule-spec.schema.json",
+  "title": "Schedule Spec",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schedule_id",
+    "cron",
+    "mission_template_id",
+    "timezone",
+    "enabled"
+  ],
+  "properties": {
+    "schedule_id": {
+      "type": "string"
+    },
+    "cron": {
+      "type": "string"
+    },
+    "mission_template_id": {
+      "type": "string"
+    },
+    "timezone": {
+      "type": "string"
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "max_attempts": {
+      "type": "integer",
+      "minimum": 1
+    }
+  }
+}

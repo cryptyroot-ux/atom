@@ -1,0 +1,7 @@
+{
+  "run_id": "run-0001",
+  "schedule_id": "sch-0001",
+  "scheduled_at": "2026-08-31T12:00:00Z",
+  "trigger": "cron",
+  "status": "BOGUS"
+}

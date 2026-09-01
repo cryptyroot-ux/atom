@@ -1,0 +1,8 @@
+{
+  "obligation_id": "ob-0001",
+  "kind": "RETENTION",
+  "subject": "ledger/alpha",
+  "deadline": "2026-12-31T00:00:00Z",
+  "status": "PENDING",
+  "waived_by": null
+}

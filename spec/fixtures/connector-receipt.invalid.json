@@ -1,0 +1,8 @@
+{
+  "receipt_id": "rcpt-0001",
+  "connector_id": "conn/aws-s3",
+  "operation": "effect.dispatch",
+  "request_digest": "nope",
+  "receiver_status": "ACCEPTED",
+  "received_at": "2026-08-31T12:00:00Z"
+}

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/capability-contract.schema.json",
+  "title": "CapabilityContract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "capability_id",
+    "name",
+    "operations",
+    "resource_scope",
+    "risk_class",
+    "max_budget",
+    "version"
+  ],
+  "properties": {
+    "capability_id": { "type": "string" },
+    "name": { "type": "string" },
+    "operations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "resource_scope": { "type": "string" },
+    "risk_class": {
+      "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+    },
+    "max_budget": { "type": "object" },
+    "version": { "type": "string" },
+    "admission_policy": {
+      "type": ["object", "null"]
+    }
+  }
+}

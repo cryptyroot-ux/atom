@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/context-item.schema.json",
+  "title": "Context Item",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "item_id",
+    "code",
+    "toml",
+    "digest",
+    "sources"
+  ],
+  "properties": {
+    "item_id": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string"
+    },
+    "toml": {
+      "type": "string"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    }
+  }
+}

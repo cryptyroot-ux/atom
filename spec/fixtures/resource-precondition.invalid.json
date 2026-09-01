@@ -1,0 +1,7 @@
+{
+  "precondition_id": "pre-0001",
+  "resource_id": "ledger/alpha",
+  "expectation": "exists",
+  "expected_witness": "bad",
+  "checked_at": "2026-08-31T12:00:00Z"
+}
