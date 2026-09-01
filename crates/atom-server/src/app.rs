@@ -6,6 +6,7 @@ use axum::Router;
 use tokio::sync::Mutex;
 
 use crate::routes::health::{get_health, get_ready};
+use crate::routes::missions::{cancel_mission, create_mission, get_mission, list_missions};
 use crate::store::Store;
 
 /// Router state shared by all handlers.
@@ -32,6 +33,12 @@ pub fn build_router(
     Router::new()
         .route("/health", get(get_health))
         .route("/ready", get(get_ready))
+        .route("/missions", get(list_missions).post(create_mission))
+        .route("/missions/{mission_id}", get(get_mission))
+        .route(
+            "/missions/{mission_id}/cancel",
+            axum::routing::post(cancel_mission),
+        )
         .with_state(state)
 }
 
