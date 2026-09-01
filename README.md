@@ -1,4 +1,6 @@
-# ⚛ ATOM
+![ATOM Banner](assets/banner.png)
+
+# ATOM
 
 **Sovereign Recursive Agent Architecture** — a provider-agnostic Sovereign Agentic Operating System written in Rust.
 
@@ -12,8 +14,6 @@
 [![rust](https://img.shields.io/badge/rust-edition%202021-93450a)](https://www.rust-lang.org/)
 [![CI](https://github.com/cryptyroot-ux/atom/actions/workflows/ci.yml/badge.svg)](https://github.com/cryptyroot-ux/atom/actions/workflows/ci.yml)
 [![CoC](https://img.shields.io/badge/code%20of%20conduct-Contributor%20Covenant-blueviolet)](CODE_OF_CONDUCT.md)
-
-![ATOM logo](assets/logo.png)
 
 ---
 
