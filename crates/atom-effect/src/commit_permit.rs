@@ -515,6 +515,18 @@ impl NonceRegistry {
         Self::default()
     }
 
+    /// A registry seeded with nonces already burned on a durable ledger stream.
+    ///
+    /// A process that restarts rebuilds its one-shot memory from what the ledger
+    /// recorded, so a spent permit is refused again instead of being re-served
+    /// (ATOM-V4-EFX-004 · durable nonce).
+    #[must_use]
+    pub fn from_used(used: impl IntoIterator<Item = String>) -> Self {
+        Self {
+            used: used.into_iter().collect(),
+        }
+    }
+
     /// How many permits have been spent.
     #[must_use]
     pub fn len(&self) -> usize {

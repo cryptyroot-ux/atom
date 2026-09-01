@@ -362,3 +362,34 @@ fn host_operation_crosses_only_the_atom_privd_permit_gate() {
     assert_eq!(gateway.client().spent(), 1);
     assert_eq!(gateway.client().executor().operations, vec![op]);
 }
+
+/// A burned nonce is recorded on the ledger's nonce-burn stream and is read back
+/// by a cold-start scan, so the one-shot guarantee survives a restart
+/// (ATOM-V4-EFX-004 · durable nonce).
+#[test]
+fn burned_nonce_survives_restart_via_ledger_stream() {
+    let now = fixed_now();
+    let mut runtime = Runtime::native(
+        "durable-nonce-mission",
+        ledger(),
+        FixedClock::new(now),
+        CounterRng::new(7),
+    )
+    .expect("native runtime");
+
+    assert!(
+        Runtime::<FixedClock, CounterRng>::burned_nonces_from(runtime.ledger()).is_empty(),
+        "no burns recorded yet"
+    );
+
+    runtime
+        .burn_nonce("nonce-boot", now)
+        .expect("burning a nonce is recorded durably");
+    runtime
+        .burn_nonce("nonce-second", now + Duration::seconds(1))
+        .expect("a second burn appends");
+
+    // A cold start (re)hydrates one-shot memory straight from the ledger.
+    let burned = Runtime::<FixedClock, CounterRng>::burned_nonces_from(runtime.ledger());
+    assert_eq!(burned, vec!["nonce-boot", "nonce-second"]);
+}

@@ -706,6 +706,41 @@ where
         &self.ledger
     }
 
+    /// Nonce-burn stream name on the ledger: the single durable store for
+    /// one-shot commit permits (ATOM-V4-EFX-004 · durable nonce).
+    pub const NONCE_BURN_STREAM: &'static str = "nonce-burns";
+
+    /// The nonces that `ledger` has already recorded as burned, in append order.
+    ///
+    /// A cold start calls this before opening the commit gate to rehydrate its
+    /// one-shot memory, so a restart refuses a permit burned in a prior life.
+    #[must_use]
+    pub fn burned_nonces_from(ledger: &Ledger) -> Vec<String> {
+        let Ok(records) = ledger.scan(Self::NONCE_BURN_STREAM, 0) else {
+            return Vec::new();
+        };
+        records
+            .into_iter()
+            .filter_map(|record| record.payload.get("nonce")?.as_str().map(ToOwned::to_owned))
+            .collect()
+    }
+
+    /// Durably records `nonce` as burned on the ledger's nonce-burn stream.
+    ///
+    /// The one-shot guarantee becomes durable only once this append has
+    /// committed: on a crash before it returns, the nonce is not yet persistent
+    /// and a restart would legitimately re-serve it (no spurious replay block).
+    pub fn burn_nonce(
+        &mut self,
+        nonce: &str,
+        at: DateTime<Utc>,
+    ) -> Result<atom_ledger::Event, RuntimeError> {
+        let payload = serde_json::json!({ "nonce": nonce });
+        Ok(self
+            .ledger
+            .append(Self::NONCE_BURN_STREAM, &payload, at.timestamp_millis())?)
+    }
+
     /// Returns a tracked effect and its durability witness.
     #[must_use]
     pub fn effect(&self, effect_id: &str) -> Option<&TrackedEffect> {

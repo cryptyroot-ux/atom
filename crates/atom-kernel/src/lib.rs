@@ -266,6 +266,17 @@ impl Kernel {
         Self::default()
     }
 
+    /// A kernel whose nonce registry is seeded from nonces already burned durably.
+    ///
+    /// A cold start rehydrates its one-shot memory from the ledger's nonce-burn
+    /// stream so a restart refuses replay of a spent permit (ATOM-V4-EFX-004).
+    #[must_use]
+    pub fn with_burned_nonces(used: impl IntoIterator<Item = String>) -> Self {
+        Self {
+            nonces: NonceRegistry::from_used(used),
+        }
+    }
+
     /// How many one-shot permits have been spent (for audit/tests).
     #[must_use]
     pub fn nonces_spent(&self) -> usize {

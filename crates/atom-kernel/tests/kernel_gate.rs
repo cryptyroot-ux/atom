@@ -396,8 +396,70 @@ fn stale_permit_replayed_nonce_denies_second_commit() {
     assert_eq!(kernel.nonces_spent(), 1);
 }
 
-// Stale authority: the grant was re-issued at a new generation after Phase A
-// pinned the old one (INV-018 / ATOM-VT-003).
+// Durable one-shot memory: a cold start rehydrates the registry from the ledger's
+// nonce-burn stream, so a permit burned in a prior process life is refused again
+// on restart instead of being re-served (ATOM-V4-EFX-004 · durable nonce).
+#[test]
+fn restarted_kernel_seeded_from_durable_burns_denies_replay() {
+    let now = Utc::now();
+    let grant = base_grant(now, 5);
+    let planned = witness("v1");
+    let observed = witness("v1");
+    let durable = durability();
+
+    // First process: commits and durably burns `nonce-persisted` (the runtime
+    // writes it to the ledger's nonce-burn stream; here we hand the same value
+    // to the restarted kernel's seeding constructor).
+    let mut first = Kernel::new();
+    let (auth1, reval1) = authorized_at_boundary(&first, &grant, &planned, now);
+    first
+        .commit(CommitRequest {
+            authorization: &auth1,
+            intent: &reval1,
+            grant: &grant,
+            observed_witness: &observed,
+            durability: &durable,
+            permit_id: "permit-1",
+            one_shot_nonce: "nonce-persisted",
+            ttl_seconds: 30,
+            now,
+            approval_id: None,
+            evidence_freshness_digest: None,
+        })
+        .expect("first process commit succeeds");
+
+    // Restart: a fresh kernel seeded with the durably-burned nonce. No state was
+    // carried over except what the ledger recorded.
+    let mut rebooted = Kernel::with_burned_nonces(["nonce-persisted".to_owned()]);
+    let (auth2, reval2) = authorized_at_boundary(&rebooted, &grant, &planned, now);
+    let err = rebooted
+        .commit(CommitRequest {
+            authorization: &auth2,
+            intent: &reval2,
+            grant: &grant,
+            observed_witness: &observed,
+            durability: &durable,
+            permit_id: "permit-2",
+            one_shot_nonce: "nonce-persisted", // replay across the restart
+            ttl_seconds: 30,
+            now,
+            approval_id: None,
+            evidence_freshness_digest: None,
+        })
+        .unwrap_err();
+    assert!(matches!(
+        err,
+        KernelError::Permit(PermitError::NonceAlreadyUsed { .. })
+    ));
+    assert_eq!(rebooted.nonces_spent(), 1);
+}
+
+// The seeding constructor is additive: an unseeded kernel still starts empty.
+#[test]
+fn fresh_kernel_starts_with_zero_spent_nonces() {
+    let kernel = Kernel::new();
+    assert_eq!(kernel.nonces_spent(), 0);
+}
 #[test]
 fn stale_permit_generation_drift_denies_commit() {
     let now = Utc::now();
