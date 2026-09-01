@@ -315,6 +315,360 @@ class G0Validator:
                  f"{final}/{SM_BODIES_REQUIRED} state-machine bodies v4.1-authored",
                  f"{on_disk} exist on disk (v4.0-era, pending v4.1 review)")
 
+    # ── semantic rules: hooks enforce contract text over fixtures (G0-SEM) ────────
+    # Each rule in spec/v4.1/semantic-rules.yaml names a `reference_hook` method
+    # on this validator. A rule is only PASS when BOTH hold:
+    #   * its valid fixture satisfies the contract (no violation), and
+    #   * a deterministic mutation that breaks the contract is caught (fails
+    #     closed). A rule without any walkable fixture stays honeshly BLOCKED.
+    #
+    # The checks below are *semantic*: cross-field relations, ordering, digest
+    # tagging, and reference integrity that JSON Schema cannot express. They are
+    # intentionally mechanical and never warns-and-passes.
+    _MUTATIONS = {
+        "ATOM-SEM-001": {"expires_at": lambda r: r.get("not_before")},
+        "ATOM-SEM-002": {"expires_at": lambda r: r.get("not_before")},
+        "ATOM-SEM-003": {"canonical_request_digest": lambda r: "not-a-canonical-digest"},
+        "ATOM-SEM-004": {"expires_at": lambda r: r.get("issued_at")},
+        "ATOM-SEM-005": {"payload_digest": lambda r: "tampered", "ledger_digest": lambda r: "tampered"},
+        "ATOM-SEM-006": {"edges": lambda r: list(r.get("edges") or []) + [{"from": "ghost", "to": "n1"}]},
+        "ATOM-SEM-007": {"from_offset": lambda r: (r.get("to_offset") or 0) + 1},
+        "ATOM-SEM-008": {"model_ids": lambda r: []},
+        "ATOM-SEM-009": {"digest": lambda r: "tampered", "logs_digest": lambda r: "tampered"},
+        "ATOM-SEM-010": {"system_prompt_digest": lambda r: "tampered", "subject_digest": lambda r: "tampered"},
+        "ATOM-SEM-011": {"max_attempts": lambda r: 0, "status": lambda r: "BOGUS"},
+        "ATOM-SEM-012": {"artifacts": lambda r: []},
+    }
+
+    def _iso(self, value: object) -> datetime | None:
+        if not isinstance(value, str):
+            return None
+        try:
+            return datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError:
+            return None
+
+    def _digest_violation(self, value: object) -> str:
+        if isinstance(value, str) and value.startswith("sha256:"):
+            return ""
+        return f"{value!r} is not a sha256-tagged digest"
+
+    def _empty_violation(self, value: object, field: str) -> str:
+        if value is None or value == "" or value == [] or value == {}:
+            return f"{field} must be non-empty"
+        return ""
+
+    def _stamp_order(self, record: dict, then: str, now: str) -> str:
+        a = self._iso(record.get(then))
+        b = self._iso(record.get(now))
+        if a is not None and b is not None and a >= b:
+            return f"{then} ({record.get(then)}) is not before {now} ({record.get(now)})"
+        return ""
+
+    def semantic_grant(self, record: dict) -> list[str]:
+        if not isinstance(record, dict):
+            return []
+        out = []
+        if bad := self._stamp_order(record, "not_before", "expires_at"):
+            out.append(bad)
+        for field in ("generation", "delegation_depth"):
+            v = record.get(field)
+            if isinstance(v, int) and v < 0:
+                out.append(f"{field} {v} is negative")
+        rs = record.get("revocation_state")
+        if rs not in (None, "ACTIVE", "REVOKED", "EXPIRED"):
+            out.append(f"revocation_state {rs!r} not in ACTIVE/REVOKED/EXPIRED")
+        for field in ("operations", "resources"):
+            v = record.get(field)
+            if isinstance(v, list) and not v:
+                out.append(f"{field} must be non-empty")
+        return out
+
+    def semantic_approval(self, record: dict) -> list[str]:
+        if not isinstance(record, dict):
+            return []
+        out = []
+        if bad := self._stamp_order(record, "not_before", "expires_at"):
+            out.append(bad)
+        gen = record.get("generation")
+        if isinstance(gen, int) and gen < 0:
+            out.append(f"generation {gen} is negative")
+        for field in ("granted_operations", "granted_resources"):
+            v = record.get(field)
+            if isinstance(v, list) and not v:
+                out.append(f"{field} must be non-empty")
+        return out
+
+    def semantic_effect(self, record: dict) -> list[str]:
+        if not isinstance(record, dict):
+            return []
+        out = []
+        if v := self._digest_violation(record.get("canonical_request_digest")):
+            out.append(f"canonical_request_digest {v}")
+        for field in ("effect_class", "risk_class"):
+            if self._empty_violation(record.get(field), field):
+                out.append(f"{field} must be present")
+        idem = record.get("idempotency")
+        strategy = idem.get("strategy") if isinstance(idem, dict) else idem
+        if self._empty_violation(strategy, "idempotency.strategy"):
+            out.append("idempotency.strategy must be present")
+        rec = record.get("reconciliation")
+        rstrategy = rec.get("strategy") if isinstance(rec, dict) else rec
+        if self._empty_violation(rstrategy, "reconciliation.strategy"):
+            out.append("reconciliation.strategy must be present")
+        return out
+
+    def semantic_permit(self, record: dict) -> list[str]:
+        if not isinstance(record, dict):
+            return []
+        out = []
+        if bad := self._stamp_order(record, "issued_at", "expires_at"):
+            out.append(bad)
+        if v := self._digest_violation(record.get("effect_digest")):
+            out.append(f"effect_digest {v}")
+        gen = record.get("grant_generation")
+        if isinstance(gen, int) and gen < 0:
+            out.append(f"grant_generation {gen} is negative")
+        for field in ("principal_id", "capability_grant_id", "resource_id",
+                      "one_shot_nonce", "audience", "workload_id"):
+            if bad := self._empty_violation(record.get(field), field):
+                out.append(bad)
+        witness = record.get("resource_version_witness")
+        if not isinstance(witness, dict) or not witness:
+            out.append("resource_version_witness must be a non-empty object")
+        return out
+
+    def semantic_ledger(self, record: dict) -> list[str]:
+        if not isinstance(record, dict):
+            return []
+        out = []
+        if "seq" in record:  # ledger-event
+            seq = record.get("seq")
+            if isinstance(seq, int) and seq < 0:
+                out.append(f"seq {seq} is negative")
+            if v := self._digest_violation(record.get("payload_digest")):
+                out.append(f"payload_digest {v}")
+            if self._iso(record.get("emitted_at")) is None:
+                out.append("emitted_at must be an ISO-8601 instant")
+        if "at_event" in record:  # ledger-checkpoint
+            at = record.get("at_event")
+            if isinstance(at, int) and at < 0:
+                out.append(f"at_event {at} is negative")
+            if v := self._digest_violation(record.get("ledger_digest")):
+                out.append(f"ledger_digest {v}")
+            if self._iso(record.get("sealed_at")) is None:
+                out.append("sealed_at must be an ISO-8601 instant")
+            if bad := self._empty_violation(record.get("signature"), "signature"):
+                out.append(bad)
+        return out
+
+    def semantic_graph(self, record: dict) -> list[str]:
+        if not isinstance(record, dict):
+            return []
+        out = []
+        nodes = record.get("nodes")
+        if not isinstance(nodes, list) or not nodes:
+            out.append("graph must declare at least one node")
+            return out
+        ids = {str(n.get("id")) for n in nodes if isinstance(n, dict) and n.get("id") is not None}
+        edges = record.get("edges")
+        for edge in edges or []:
+            if not isinstance(edge, dict):
+                out.append(f"edge {edge!r} is not an object")
+                continue
+            for end in ("from", "to"):
+                ref = str(edge.get(end))
+                if ref not in ids:
+                    out.append(f"edge references node {ref!r} which is not declared")
+        return out
+
+    def semantic_replay(self, record: dict) -> list[str]:
+        if not isinstance(record, dict):
+            return []
+        out = []
+        fo, to = record.get("from_offset"), record.get("to_offset")
+        if isinstance(fo, int) and fo < 0:
+            out.append(f"from_offset {fo} is negative")
+        if isinstance(to, int) and to < 0:
+            out.append(f"to_offset {to} is negative")
+        if isinstance(fo, int) and isinstance(to, int) and to < fo:
+            out.append(f"to_offset {to} is before from_offset {fo}")
+        if v := self._digest_violation(record.get("subject_digest")):
+            out.append(f"subject_digest {v}")
+        if self._iso(record.get("requested_at")) is None:
+            out.append("requested_at must be an ISO-8601 instant")
+        return out
+
+    def semantic_provider(self, record: dict) -> list[str]:
+        if not isinstance(record, dict):
+            return []
+        out = []
+        ep = str(record.get("endpoint", ""))
+        if not ep.startswith(("http://", "https://")):
+            out.append(f"endpoint {record.get('endpoint')!r} is not an http(s) URL")
+        for field in ("model_ids", "asserted_capabilities"):
+            v = record.get(field)
+            if isinstance(v, list) and not v:
+                out.append(f"{field} must be non-empty")
+        for field in ("provider_id", "name", "auth_kind"):
+            if bad := self._empty_violation(record.get(field), field):
+                out.append(bad)
+        return out
+
+    def semantic_evidence(self, record: dict) -> list[str]:
+        if not isinstance(record, dict):
+            return []
+        out = []
+        for field in ("digest", "logs_digest"):
+            if field in record:
+                if v := self._digest_violation(record.get(field)):
+                    out.append(f"{field} {v}")
+        for field in ("ran_at", "produced_at"):
+            if field in record and self._iso(record.get(field)) is None:
+                out.append(f"{field} must be an ISO-8601 instant")
+        verdict = record.get("verdict")
+        if verdict is not None and verdict not in ("PASS", "FAIL", "INCONCLUSIVE"):
+            out.append(f"verdict {verdict!r} not in PASS/FAIL/INCONCLUSIVE")
+        if bad := self._empty_violation(record.get("evidence_id"), "evidence_id"):
+            out.append(bad)
+        if "logs_digest" in record and self._empty_violation(record.get("runner"), "runner"):
+            out.append("runner must be non-empty (test-evidence)")
+        if ("produced_at" in record or "verdict" in record) and \
+                self._empty_violation(record.get("produced_by"), "produced_by"):
+            out.append("produced_by must be non-empty (evidence)")
+        refs = record.get("refs")
+        if isinstance(refs, list) and not refs:
+            out.append("refs must be non-empty")
+        return out
+
+    def semantic_behavior(self, record: dict) -> list[str]:
+        if not isinstance(record, dict):
+            return []
+        out = []
+        for field in ("system_prompt_digest", "instruction_bundle_digest",
+                      "context_snapshot_digest", "policy_bundle_digest",
+                      "subject_digest", "behavior_manifest_digest",
+                      "evaluation_suite_digest"):
+            if field in record:
+                if v := self._digest_violation(record.get(field)):
+                    out.append(f"{field} {v}")
+        for field in ("capability_contract_digests", "tool_schema_digests"):
+            for item in record.get(field, []) or []:
+                if v := self._digest_violation(item):
+                    out.append(f"{field} entry {v}")
+        ver = record.get("schema_version")
+        if ver is not None and str(ver) != "4.1":
+            out.append(f"schema_version {ver!r} is not 4.1")
+        samples = record.get("sampling_parameters")
+        if isinstance(samples, dict):
+            temp = samples.get("temperature")
+            if temp is not None and not isinstance(temp, (int, float)):
+                out.append("sampling_parameters.temperature must be numeric")
+        if bad := self._stamp_order(record, "issued_at", "valid_until"):
+            out.append(bad)
+        return out
+
+    def semantic_schedule(self, record: dict) -> list[str]:
+        if not isinstance(record, dict):
+            return []
+        out = []
+        if "max_attempts" in record:  # schedule-spec
+            attempts = record.get("max_attempts")
+            if not isinstance(attempts, int) or attempts < 1:
+                out.append(f"max_attempts must be a positive integer (got {attempts!r})")
+            for field in ("schedule_id", "cron", "timezone"):
+                if bad := self._empty_violation(record.get(field), field):
+                    out.append(bad)
+        else:  # schedule-run
+            status = record.get("status")
+            if status is not None and status not in ("PENDING", "RUNNING", "SUCCEEDED", "FAILED", "SKIPPED"):
+                out.append(f"status {status!r} not in PENDING/RUNNING/SUCCEEDED/FAILED/SKIPPED")
+            attempt = record.get("attempt")
+            if isinstance(attempt, int) and attempt < 0:
+                out.append(f"attempt {attempt} is negative")
+            for field in ("run_id", "schedule_id", "trigger"):
+                if bad := self._empty_violation(record.get(field), field):
+                    out.append(bad)
+            if "scheduled_at" in record and self._iso(record.get("scheduled_at")) is None:
+                out.append("scheduled_at must be an ISO-8601 instant")
+        return out
+
+    def semantic_release(self, record: dict) -> list[str]:
+        if not isinstance(record, dict):
+            return []
+        out = []
+        for field in ("artifacts", "signatures"):
+            v = record.get(field)
+            if isinstance(v, list) and not v:
+                out.append(f"{field} must be non-empty")
+        intro = record.get("notes")
+        for field in ("manifest_id", "release_id", "version"):
+            if bad := self._empty_violation(record.get(field), field):
+                out.append(bad)
+        if self._iso(record.get("created_at")) is None:
+            out.append("created_at must be an ISO-8601 instant")
+        return out
+
+    def _semantic_mutation(self, rid: str, record: dict) -> dict:
+        out = dict(record)
+        applied = 0
+        for field, fn in self._MUTATIONS.get(rid, {}).items():
+            if field in out:
+                out[field] = fn(record)
+                applied += 1
+        if not applied:
+            key = next((k for k in record if k.endswith(("_digest", "_ids", "_at"))), None)
+            if key:
+                out[key] = "tampered"
+        return out
+
+    def check_semantic_rules(self) -> None:
+        rules = [r for r in self._list("semantic-rules.yaml") if isinstance(r, dict)]
+        for rule in rules:
+            rid = str(rule.get("id"))
+            ref = rule.get("reference_hook")
+            hook_name = ""
+            if isinstance(ref, str) and "::" in ref:
+                hook_name = ref.rsplit("::", 1)[-1]
+            hook = getattr(self, hook_name, None)
+            if not callable(hook):
+                self.add(f"G0-SEM-HOOK::{rid}", FAIL,
+                         f"reference_hook {ref!r} does not resolve to a callable on tools/validate_release.py")
+                continue
+            self.add(f"G0-SEM-HOOK::{rid}", PASS, f"hook {hook_name} resolves")
+            stems = [t.strip() for t in str(rule.get("applies_to", "")).split(",") if t.strip()]
+            walked = 0
+            for stem in stems:
+                path = self.root / "spec" / "fixtures" / f"{stem}.valid.json"
+                if not path.exists():
+                    continue
+                try:
+                    record = json.loads(path.read_text())
+                except json.JSONDecodeError as exc:
+                    self.add(f"G0-SEM::{rid}::{stem}", FAIL,
+                             f"{stem}.valid.json is not parseable JSON", str(exc))
+                    continue
+                violations = list(hook(record) or [])
+                if violations:
+                    self.add(f"G0-SEM::{rid}::{stem}", FAIL,
+                             f"valid fixture violates {rid}", "; ".join(violations[:3]))
+                    continue
+                self.add(f"G0-SEM::{rid}::{stem}", PASS,
+                         f"{stem}.valid.json satisfies {rid}")
+                walked += 1
+                mutated = self._semantic_mutation(rid, record)
+                caught = list(hook(mutated) or [])
+                if caught:
+                    self.add(f"G0-SEM::{rid}::{stem}::fails-closed", PASS,
+                             f"mutation of {stem}.valid.json is caught")
+                else:
+                    self.add(f"G0-SEM::{rid}::{stem}::fails-closed", FAIL,
+                             f"mutation of {stem}.valid.json passes {rid} undetected")
+                walked += 1
+            if not walked:
+                self.add(f"G0-SEM::{rid}", BLOCKED,
+                         "no fixture walked for this rule (fixtures not authored)")
+
     # ── run + decide ─────────────────────────────────────────────────────────────
     def run(self) -> dict:
         if self.load():
@@ -328,6 +682,7 @@ class G0Validator:
             self.check_schema_bodies()
             self.check_schema_fixtures()
             self.check_sm_bodies()
+            self.check_semantic_rules()
         fails = [c for c in self.checks if c.status == FAIL]
         blocks = [c for c in self.checks if c.status == BLOCKED]
         overall = FAIL if fails else (BLOCKED if blocks else PASS)

@@ -4,6 +4,8 @@
   "principal_id": "svc/effect-kernel",
   "capability_grant_id": "cap-0001",
   "grant_generation": 1,
+  "audience": "internal",
+  "workload_id": "mission/alpha",
   "resource_id": "ledger:mission/alpha",
   "resource_version_witness": {
     "version": 7
