@@ -87,6 +87,7 @@ fn an_undrifted_commit_boundary_issues_and_consumes_exactly_one_permit() {
     assert_eq!(permit.principal_id(), PRINCIPAL);
     assert_eq!(permit.capability_grant_id(), GRANT_ID);
     assert_eq!(permit.grant_generation(), GRANT_GENERATION);
+    assert_eq!(permit.audience(), "atom:orders");
     assert_eq!(permit.resource_id(), gate.effect.target_id);
     assert_eq!(permit.resource_version_witness(), &planned_witness());
     assert_eq!(permit.one_shot_nonce(), NONCE);
@@ -474,6 +475,44 @@ fn a_permit_cannot_be_consumed_once_the_effect_left_the_commit_boundary() {
         matches!(error, PermitError::EffectNotRevalidating { .. }),
         "{error:?}"
     );
+}
+
+#[test]
+fn a_permit_is_consumed_by_a_grant_naming_the_same_audience() {
+    let gate = Gate::new();
+    let permit = issue_commit_permit(gate.request()).expect("nothing drifted");
+    let mut registry = NonceRegistry::new();
+
+    let event = registry
+        .consume(gate.consume(&permit))
+        .expect("the grant names the same audience the permit froze");
+    assert_eq!(event.permit_id, PERMIT_ID);
+}
+
+#[test]
+fn a_permit_cannot_be_consumed_by_a_grant_naming_a_different_audience() {
+    let gate = Gate::new();
+    let permit = issue_commit_permit(gate.request()).expect("nothing drifted");
+
+    // The same subject, generation, operations, resources, windows — only the
+    // audience (the sink the commit drains into) moved.
+    let other_sink = CapabilityGrant {
+        audience: "atom:hospital-lab".into(),
+        ..gate.grant.clone()
+    };
+    let mut registry = NonceRegistry::new();
+
+    let error = registry
+        .consume(ConsumeRequest {
+            grant: &other_sink,
+            ..gate.consume(&permit)
+        })
+        .expect_err("EFX-004 / Constitution V.3: a permit is audience-bound");
+    assert!(
+        matches!(error, PermitError::AudienceMismatch { ref expected, ref observed } if observed == "atom:hospital-lab" && expected == "atom:orders"),
+        "{error:?}"
+    );
+    assert_eq!(registry.len(), 0);
 }
 
 /// A drifted commit boundary sends the effect back for re-authorisation instead

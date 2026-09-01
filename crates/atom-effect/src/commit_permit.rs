@@ -79,6 +79,10 @@ pub struct CommitPermit {
     capability_grant_id: String,
     /// The generation of that grant at issuance.
     grant_generation: u64,
+    /// The audience (sink) the permit was issued for — who may receive the
+    /// commit. Frozen from the grant's audience at issuance (ATOM-V4-AUT-001,
+    /// Constitution IV.1/V.3: authority must be audience-bound).
+    audience: String,
     /// The resource about to be written.
     resource_id: String,
     /// The resource version observed at issuance.
@@ -136,6 +140,12 @@ impl CommitPermit {
     #[must_use]
     pub fn grant_generation(&self) -> u64 {
         self.grant_generation
+    }
+
+    /// The audience (sink) the permit was issued for.
+    #[must_use]
+    pub fn audience(&self) -> &str {
+        &self.audience
     }
 
     /// The resource about to be written.
@@ -257,6 +267,16 @@ pub enum PermitError {
         /// The generation found at the boundary.
         observed: u64,
     },
+    /// The grant the permit was issued from does not name the same audience
+    /// (sink) for the commit (EFX-004, Constitution V.3 "audience-bound": a
+    /// permit minted for one sink cannot be spent draining another).
+    #[error("permit was issued for audience {expected}, not {observed}")]
+    AudienceMismatch {
+        /// The audience the permit froze when it was issued.
+        expected: String,
+        /// The audience the grant in hand actually names.
+        observed: String,
+    },
     /// The grant does not cover the operation being attempted.
     #[error("grant does not allow {operation}")]
     OperationNotGranted {
@@ -370,12 +390,19 @@ fn revalidate_authority(
     grant: &CapabilityGrant,
     principal_id: &str,
     expected_generation: u64,
+    expected_audience: &str,
     now: DateTime<Utc>,
 ) -> Result<(), PermitError> {
     if grant.subject_id != principal_id {
         return Err(PermitError::PrincipalMismatch {
             expected: grant.subject_id.clone(),
             observed: principal_id.to_owned(),
+        });
+    }
+    if grant.audience != expected_audience {
+        return Err(PermitError::AudienceMismatch {
+            expected: expected_audience.to_owned(),
+            observed: grant.audience.clone(),
         });
     }
     if grant.revocation_state != RevocationState::Active {
@@ -465,6 +492,7 @@ pub fn issue_commit_permit(request: PermitRequest<'_>) -> Result<CommitPermit, P
         grant,
         request.principal_id,
         request.planned_grant_generation,
+        &grant.audience,
         request.now,
     )?;
 
@@ -490,6 +518,7 @@ pub fn issue_commit_permit(request: PermitRequest<'_>) -> Result<CommitPermit, P
         principal_id: request.principal_id.to_owned(),
         capability_grant_id: grant.grant_id.clone(),
         grant_generation: grant.generation,
+        audience: grant.audience.clone(),
         resource_id: intent.target_id.clone(),
         resource_version_witness: request.observed_witness.clone(),
         approval_id: request.approval_id.map(str::to_owned),
@@ -588,7 +617,13 @@ impl NonceRegistry {
         // a new grant generation, which is checked. Durability is not re-checked
         // either: it is monotonic — once the ledger has appended the intent it
         // stays appended, so a proof that held at issuance still holds now.
-        revalidate_authority(grant, &permit.principal_id, permit.grant_generation, now)?;
+        revalidate_authority(
+            grant,
+            &permit.principal_id,
+            permit.grant_generation,
+            &permit.audience,
+            now,
+        )?;
         revalidate_witness(&permit.resource_version_witness, observed_witness)?;
 
         if now < permit.issued_at {

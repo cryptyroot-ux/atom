@@ -8,6 +8,7 @@
     "principal_id",
     "capability_grant_id",
     "grant_generation",
+    "audience",
     "resource_id",
     "resource_version_witness",
     "issued_at",
@@ -30,6 +31,9 @@
     "grant_generation": {
       "type": "integer",
       "minimum": 0
+    },
+    "audience": {
+      "type": "string"
     },
     "resource_id": {
       "type": "string"
