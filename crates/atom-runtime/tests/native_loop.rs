@@ -33,19 +33,19 @@ fn ledger() -> Ledger {
     .expect("in-memory ledger")
 }
 
-/// Mints a real, ledger-sealed durability proof on `effect_id`'s own stream.
+/// Mints a real, ledger-sealed durability proof on `intent`'s own stream.
 ///
 /// There is no `DurabilityProof` constructor a test could call, so this is the
-/// only way to obtain one: append the intent to a ledger stream named for the
-/// effect and take the proof the ledger seals over it.
-fn durable_proof(effect_id: &str) -> DurabilityProof {
+/// only way to obtain one: append the declared intent (the identity payload,
+/// stable across lifecycle transitions) to a ledger stream named for the effect
+/// and take the proof the ledger seals over it.
+fn durable_proof(intent: &EffectIntent) -> DurabilityProof {
+    let payload = intent
+        .declared_payload()
+        .expect("fixture intent has a declared payload");
     let (_event, proof) = ledger()
-        .append_durable(
-            effect_id,
-            &serde_json::json!({ "kind": "EFFECT_INTENT", "effect_id": effect_id }),
-            1_756_512_000_000,
-        )
-        .expect("appending the intent seals a durability proof");
+        .append_durable(&intent.effect_id, &payload, 1_756_512_000_000)
+        .expect("appending the declared intent seals a durability proof");
     proof
 }
 
@@ -332,7 +332,7 @@ fn host_operation_crosses_only_the_atom_privd_permit_gate() {
         planned_grant_generation: grant.generation,
         planned_witness: &witness,
         observed_witness: &witness,
-        durability: &durable_proof(&intent.effect_id),
+        durability: &durable_proof(&intent),
         permit_id: "host-permit",
         one_shot_nonce: "host-nonce",
         ttl_seconds: 10,

@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use thiserror::Error;
 
-use crate::canonical::CanonicalizationError;
+use crate::canonical::{to_canonical_bytes, CanonicalizationError};
 use crate::digest::{digest_component, digest_optional, finish};
 use crate::event::EffectEvent;
 use crate::reducer::{try_reduce, ReduceError};
@@ -164,6 +164,45 @@ impl EffectIntent {
         let mut hasher = Sha256::new();
         self.digest_into(&mut hasher);
         finish(hasher)
+    }
+
+    /// The intent's declared payload: every field the caller wrote down, and
+    /// nothing the lifecycle later discovers (`state`, `external_operation_id`).
+    ///
+    /// This is the JSON the ledger persists on the effect's own stream, so the
+    /// bytes are byte-for-byte stable as the intent advances through its states.
+    /// A whole-struct serialization would change with `state`, so nothing else
+    /// can be re-derived at the commit gate (ATOM-INV-004).
+    ///
+    /// # Errors
+    ///
+    /// [`CanonicalizationError`] if serializing the declared fields fails.
+    pub fn declared_payload(&self) -> Result<serde_json::Value, CanonicalizationError> {
+        let mut value = serde_json::to_value(self)
+            .map_err(|error| CanonicalizationError::Serialization(error.to_string()))?;
+        let fields = value.as_object_mut().ok_or_else(|| {
+            CanonicalizationError::Serialization("intent must serialize to an object".into())
+        })?;
+        fields.remove("external_operation_id");
+        fields.remove("state");
+        Ok(value)
+    }
+
+    /// The RFC 8785 payload digest of the declared intent, computed exactly as
+    /// the ledger computes it over the persisted declared payload.
+    ///
+    /// A `DurabilityProof` seals this digest, so the two bind: the proof attests
+    /// that *this exact declaration* was durably persisted, not merely something
+    /// on the effect's stream (EFX-001, ATOM-INV-004).
+    ///
+    /// # Errors
+    ///
+    /// [`CanonicalizationError`] if serializing or canonicalizing the declared
+    /// payload fails.
+    pub fn declared_payload_digest(&self) -> Result<atom_ledger::Hash, CanonicalizationError> {
+        let value = self.declared_payload()?;
+        let bytes = to_canonical_bytes(&value)?;
+        Ok(atom_ledger::payload_digest_bytes(&bytes))
     }
 
     /// The identity digest extended with the lifecycle position.

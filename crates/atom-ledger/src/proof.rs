@@ -30,6 +30,7 @@ pub struct DurabilityProof {
     stream_id: String,
     sequence: u64,
     entry_hash: Hash,
+    payload_digest: Hash,
 }
 
 impl DurabilityProof {
@@ -44,6 +45,7 @@ impl DurabilityProof {
             stream_id: event.stream_id.clone(),
             sequence: event.seq,
             entry_hash: event.canonical_hash,
+            payload_digest: event.payload_digest,
         }
     }
 
@@ -59,10 +61,19 @@ impl DurabilityProof {
         self.sequence
     }
 
-    /// The appended event's canonical identity.
+    /// The appended event's canonical identity (chained hash).
     #[must_use]
     pub fn entry_hash(&self) -> &Hash {
         &self.entry_hash
+    }
+
+    /// The appended event's payload digest (hash of canonicalized payload bytes).
+    ///
+    /// When the payload is a serialized `EffectIntent`, this equals the RFC 8785
+    /// digest of that intent, binding the proof to the exact intent structure.
+    #[must_use]
+    pub fn payload_digest(&self) -> &Hash {
+        &self.payload_digest
     }
 
     /// Whether this proof attests durability of `effect_id`.
@@ -75,5 +86,15 @@ impl DurabilityProof {
     #[must_use]
     pub fn proves(&self, effect_id: &str) -> bool {
         self.stream_id == effect_id && self.sequence >= 1
+    }
+
+    /// Whether this proof attests durability of `effect_id` *and* the appended
+    /// payload matches the expected canonical payload digest.
+    ///
+    /// This binds the proof to the exact `EffectIntent` that was appended,
+    /// preventing an arbitrary payload from being swapped in after the fact.
+    #[must_use]
+    pub fn proves_intent(&self, effect_id: &str, expected_payload_digest: &Hash) -> bool {
+        self.proves(effect_id) && self.payload_digest == *expected_payload_digest
     }
 }

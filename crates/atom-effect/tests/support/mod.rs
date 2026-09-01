@@ -98,34 +98,51 @@ pub fn drifted_witness() -> ResourceWitness {
 
 /// Proof that the EffectIntent was persisted before dispatch (EFX-001).
 ///
-/// Minted the only way a real proof can be: by actually appending the intent to
-/// a ledger stream named for the effect. There is no `DurabilityProof`
-/// constructor a test could call directly, which is the point — a forged proof
-/// is inexpressible, so the tests exercise the same durability path production
-/// does.
+/// Minted the only way a real proof can be: by actually appending the declared
+/// intent (the identity payload, stable across lifecycle transitions) to a ledger
+/// stream named for the effect. There is no `DurabilityProof` constructor a test
+/// could call directly, which is the point — a forged proof is inexpressible, so
+/// the tests exercise the same durability path production does.
 pub fn durability() -> DurabilityProof {
-    durability_for(EFFECT_ID)
+    durability_for(&intent_in(EffectState::CommitRevalidating))
 }
 
-/// A real durability proof minted on the stream named for `effect_id`.
+/// Proof bound to exactly `intent`: the declared payload is appended to the
+/// effect's own stream, so `proof.proves_intent(effect_id, declared_digest)`
+/// holds for this intent and no other.
 ///
-/// A proof only proves durability of the effect whose stream it was appended
-/// to, so passing one effect's proof to another effect's commit gate is a
-/// cross-effect forgery the sealed proof refuses — without any way to hand-build
-/// the mismatch.
-pub fn durability_for(effect_id: &str) -> DurabilityProof {
+/// There is no `DurabilityProof` constructor a caller can invoke, so a forged
+/// proof is inexpressible. The only adversarial moves left — a *real* proof
+/// belonging to another effect, or one whose stream matches but whose payload
+/// differs — are exercised by the callers (ATOM-INV-004, EFX-001).
+pub fn durability_for(intent: &EffectIntent) -> DurabilityProof {
+    let signer = Box::new(HmacSha256Signer::new(
+        "atom-effect-test-seal",
+        b"atom-effect-test-key-not-for-production",
+    ));
+    let mut ledger = Ledger::open_in_memory(signer).expect("in-memory ledger opens");
+    let payload = intent
+        .declared_payload()
+        .expect("fixture intent has a declared payload");
+    let (_event, proof) = ledger
+        .append_durable(&intent.effect_id, &payload, 1_756_512_000_000)
+        .expect("appending the declared intent seals a durability proof");
+    proof
+}
+
+/// A real durable proof over an arbitrary `payload` on `stream_id`.
+///
+/// Used to mount an ATOM-INV-004 payload-swap attack: a genuine ledger-sealed
+/// proof on the *right* stream whose payload is not the intent's declaration.
+pub fn proof_over(stream_id: &str, payload: &serde_json::Value) -> DurabilityProof {
     let signer = Box::new(HmacSha256Signer::new(
         "atom-effect-test-seal",
         b"atom-effect-test-key-not-for-production",
     ));
     let mut ledger = Ledger::open_in_memory(signer).expect("in-memory ledger opens");
     let (_event, proof) = ledger
-        .append_durable(
-            effect_id,
-            &serde_json::json!({ "kind": "EFFECT_INTENT", "effect_id": effect_id }),
-            1_756_512_000_000,
-        )
-        .expect("appending the intent seals a durability proof");
+        .append_durable(stream_id, payload, 1_756_512_000_000)
+        .expect("appending seals a durability proof");
     proof
 }
 

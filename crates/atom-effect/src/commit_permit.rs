@@ -206,6 +206,25 @@ pub enum PermitError {
         /// The effect whose durability could not be shown.
         effect_id: String,
     },
+    /// The durable payload does not match the intent being committed.
+    ///
+    /// The proof's payload digest must equal the RFC 8785 digest of *this* intent.
+    /// A proof on the right stream at the right sequence—but for a different
+    /// serialized payload—binds durability to something else, so it is refused
+    /// (ATOM-INV-004, "the ledger wrote what the caller means").
+    #[error("durable payload for effect {effect_id} does not match the intent digest")]
+    EffectPayloadMismatch {
+        /// The effect whose durable payload disagreed with the intent.
+        effect_id: String,
+    },
+    /// The intent could not be canonicalized to verify its durable payload.
+    #[error("intent for effect {effect_id} could not be canonicalized: {reason}")]
+    EffectNotCanonicalizable {
+        /// The effect whose intent could not be canonicalized.
+        effect_id: String,
+        /// Why canonicalization failed.
+        reason: String,
+    },
     /// The permit was asked for on behalf of somebody the grant does not name.
     #[error("grant belongs to {expected}, not {observed}")]
     PrincipalMismatch {
@@ -418,6 +437,26 @@ pub fn issue_commit_permit(request: PermitRequest<'_>) -> Result<CommitPermit, P
     }
     if !request.durability.proves(&intent.effect_id) {
         return Err(PermitError::EffectNotDurable {
+            effect_id: intent.effect_id.clone(),
+        });
+    }
+    // Bind the proof to this *exact* intent: the proof must have been minted
+    // over a payload whose canonical digest equals this intent's declared
+    // payload. The declared payload is what the caller wrote down — identity
+    // fields only, stable across lifecycle transitions — so a proof on the right
+    // stream at the right sequence but over a different declaration is not
+    // durability of *this* intent (ATOM-INV-004).
+    let intent_payload_digest = intent.declared_payload_digest().map_err(|error| {
+        PermitError::EffectNotCanonicalizable {
+            effect_id: intent.effect_id.clone(),
+            reason: error.to_string(),
+        }
+    })?;
+    if !request
+        .durability
+        .proves_intent(&intent.effect_id, &intent_payload_digest)
+    {
+        return Err(PermitError::EffectPayloadMismatch {
             effect_id: intent.effect_id.clone(),
         });
     }

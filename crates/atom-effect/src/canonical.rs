@@ -33,6 +33,9 @@ pub enum CanonicalizationError {
         "RFC 8785 canonicalization refuses non-integer number `{0}`; carry decimals as strings"
     )]
     NonIntegerNumber(String),
+    /// A value could not be serialized before canonicalization.
+    #[error("could not serialize a value for canonicalization: {0}")]
+    Serialization(String),
 }
 
 /// The canonical UTF-8 bytes of `value` under RFC 8785 (JCS).

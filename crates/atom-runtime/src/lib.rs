@@ -603,6 +603,20 @@ pub enum RuntimeError {
         #[source]
         source: EffectReduceError,
     },
+    /// The intent's declared payload could not be canonicalised for the ledger.
+    #[error("effect {effect_id} declared payload is not canonicalisable: {reason}")]
+    EffectPayloadNotCanonicalizable {
+        /// Effect identity.
+        effect_id: String,
+        /// Why canonicalisation failed.
+        reason: String,
+    },
+    /// The durable payload does not match the intent being committed.
+    #[error("durable payload for effect {effect_id} does not match intent digest")]
+    EffectPayloadMismatch {
+        /// Effect identity.
+        effect_id: String,
+    },
     /// Ledger append failed.
     #[error(transparent)]
     Ledger(#[from] atom_ledger::Error),
@@ -1031,16 +1045,22 @@ where
             return Err(RuntimeError::DuplicateEffect { effect_id });
         }
 
-        // The intent is appended to its own ledger stream (named for the effect
-        // id) and the ledger itself seals the durability proof. Only the ledger
-        // can mint one, so nothing downstream can forge durable-before-dispatch.
-        let (_event, durability) = self.append_event_durable(
-            &effect_id,
-            RuntimeLedgerEvent::EffectIntent {
-                intent: Box::new(intent.clone()),
-            },
-            at,
-        )?;
+        // The intent's declared payload is appended to its own ledger stream
+        // (named for the effect id) and the ledger itself seals the durability
+        // proof. Only the ledger can mint one, so nothing downstream can forge
+        // durable-before-dispatch. The declared payload holds the caller's
+        // declaration only — identity fields, no lifecycle position — so it is
+        // byte-stable and the proof still binds when the effect reaches the
+        // commit boundary (EFX-001, ATOM-INV-004).
+        let payload = intent.declared_payload().map_err(|error| {
+            RuntimeError::EffectPayloadNotCanonicalizable {
+                effect_id: effect_id.clone(),
+                reason: error.to_string(),
+            }
+        })?;
+        let (_event, durability) =
+            self.ledger
+                .append_durable(&effect_id, &payload, at.timestamp_millis())?;
         self.effects.insert(
             effect_id.clone(),
             TrackedEffect {
@@ -1208,6 +1228,11 @@ where
         Ok(())
     }
 
+    /// Appends `event` to `stream_id`.
+    ///
+    /// The intent append is handled by [`Runtime::submit_effect`], which writes
+    /// the intent's declared payload through the ledger's durable path so it can
+    /// seal a proof no downstream code could have forged (EFX-001).
     fn append_event(
         &mut self,
         stream_id: &str,
@@ -1218,22 +1243,6 @@ where
         Ok(self
             .ledger
             .append(stream_id, &payload, at.timestamp_millis())?)
-    }
-
-    /// Appends `event` and returns the ledger-sealed durability proof with it.
-    ///
-    /// Used for the intent append, which must yield a proof no downstream code
-    /// could have forged (EFX-001).
-    fn append_event_durable(
-        &mut self,
-        stream_id: &str,
-        event: RuntimeLedgerEvent,
-        at: DateTime<Utc>,
-    ) -> Result<(atom_ledger::Event, DurabilityProof), RuntimeError> {
-        let payload = serde_json::to_value(event)?;
-        Ok(self
-            .ledger
-            .append_durable(stream_id, &payload, at.timestamp_millis())?)
     }
 }
 
@@ -1372,9 +1381,6 @@ enum RuntimeLedgerEvent {
         activity: Option<ActivityKind>,
         effect_id: Option<String>,
         reconciliation: bool,
-    },
-    EffectIntent {
-        intent: Box<EffectIntent>,
     },
     EffectObserved {
         effect_id: String,

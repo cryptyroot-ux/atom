@@ -172,8 +172,9 @@ pub fn boot(cfg: &SigningConfig) -> Result<BootReport> {
     ));
     let mut ledger =
         atom_ledger::Ledger::open_in_memory(signer).map_err(|e| anyhow!("opening ledger: {e}"))?;
-    let intent_payload =
-        serde_json::to_value(&pending).map_err(|e| anyhow!("serializing boot intent: {e}"))?;
+    let intent_payload = pending
+        .declared_payload()
+        .map_err(|e| anyhow!("canonicalising boot intent: {e}"))?;
     let (_intent_event, durability) = ledger
         .append_durable(EFFECT_ID, &intent_payload, now.timestamp_millis())
         .map_err(|e| anyhow!("sealing durability proof: {e}"))?;

@@ -14,7 +14,7 @@ use atom_effect::{
 };
 use support::{
     advanced, at, drifted_witness, durability, durability_for, grant, intent_in, now,
-    planned_witness, regenerated_grant, revoked_grant, upstream_intent, EFFECT_ID,
+    planned_witness, proof_over, regenerated_grant, revoked_grant, upstream_intent, EFFECT_ID,
     GRANT_GENERATION, GRANT_ID, OPERATION, PRINCIPAL, RESOURCE_TYPE, UPSTREAM_EFFECT_ID,
 };
 
@@ -228,7 +228,10 @@ fn a_grant_that_does_not_cover_the_operation_or_resource_blocks_issuance() {
 #[test]
 fn an_effect_that_was_never_made_durable_blocks_issuance() {
     let gate = Gate::new();
-    let other_effects_proof = durability_for(UPSTREAM_EFFECT_ID);
+    let other_effects_proof = durability_for(&advanced(
+        upstream_intent(),
+        EffectState::CommitRevalidating,
+    ));
     assert_ne!(
         UPSTREAM_EFFECT_ID, EFFECT_ID,
         "the borrowed proof must belong to a different effect"
@@ -241,6 +244,31 @@ fn an_effect_that_was_never_made_durable_blocks_issuance() {
     .expect_err("EFX-001: a proof for another effect does not authorise this one");
     assert!(
         matches!(error, PermitError::EffectNotDurable { .. }),
+        "{error:?}"
+    );
+}
+
+/// ATOM-INV-004 payload-swap: a *real* proof on the right stream whose payload
+/// is a different JSON object is not durability of the gate's intent, even
+/// though every other fact (effect, sequence) lines up. Durability is bound to
+/// the exact declaration the ledger persisted.
+#[test]
+fn a_proof_over_a_different_payload_blocks_issuance() {
+    let gate = Gate::new();
+    let swapped_payload = serde_json::json!({
+        "kind": "EFFECT_INTENT",
+        "effect_id": EFFECT_ID,
+        "operations": ["write"]
+    });
+    let swapped_proof = proof_over(EFFECT_ID, &swapped_payload);
+
+    let error = issue_commit_permit(PermitRequest {
+        durability: &swapped_proof,
+        ..gate.request()
+    })
+    .expect_err("EFX-001/ATOM-INV-004: a proof over a different payload does not bind");
+    assert!(
+        matches!(error, PermitError::EffectPayloadMismatch { .. }),
         "{error:?}"
     );
 }

@@ -75,31 +75,34 @@ fn witness(value: &str) -> ResourceWitness {
     ResourceWitness::new("etag", TARGET_ID, value)
 }
 
-/// A real durability proof for `EFFECT_ID`, minted the only way a proof can be:
-/// by actually appending the intent to a ledger stream named for the effect.
+/// A real durability proof for the base intent's effect, minted the only way a
+/// proof can be: by actually appending the declared intent to a ledger stream
+/// named for the effect. The endurance->revalidating advance does not change the
+/// declared payload, so this proof binds at the commit boundary too.
 fn durability() -> DurabilityProof {
-    durability_for(EFFECT_ID)
+    durability_for(&base_intent())
 }
 
-/// A real durability proof minted on the stream named for `effect_id`.
+/// A real durability proof for exactly `intent`: the declared payload (the
+/// caller's declaration, stable across lifecycle transitions) is appended to the
+/// effect's own stream. The proof binds to that exact declaration and no other
+/// (ATOM-INV-004, EFX-001).
 ///
 /// There is no `DurabilityProof` constructor a caller can invoke, so a forged
-/// proof is inexpressible. The only adversarial move left — presenting a *real*
-/// proof that belongs to another effect — is exercised by minting on a stream
-/// whose name does not match the effect being committed (ATOM-INV-004, EFX-001).
-fn durability_for(effect_id: &str) -> DurabilityProof {
+/// proof is inexpressible. The adversarial tests hand it an intent whose
+/// identity differs from the one being committed.
+fn durability_for(intent: &EffectIntent) -> DurabilityProof {
     let signer = Box::new(HmacSha256Signer::new(
         "atom-kernel-test-seal",
         b"atom-kernel-test-key-not-for-production",
     ));
     let mut ledger = Ledger::open_in_memory(signer).expect("in-memory ledger opens");
+    let payload = intent
+        .declared_payload()
+        .expect("fixture intent has a declared payload");
     let (_event, proof) = ledger
-        .append_durable(
-            effect_id,
-            &serde_json::json!({ "kind": "EFFECT_INTENT", "effect_id": effect_id }),
-            1_756_512_000_000,
-        )
-        .expect("appending the intent seals a durability proof");
+        .append_durable(&intent.effect_id, &payload, 1_756_512_000_000)
+        .expect("appending the declared intent seals a durability proof");
     proof
 }
 
@@ -241,7 +244,11 @@ fn no_permit_non_durable_intent_denies_commit() {
     // A real proof, but minted for a DIFFERENT effect's stream: it does not
     // prove durability of this effect, so the commit boundary refuses it
     // (EFX-001). A proof for THIS effect cannot be hand-built.
-    let not_durable = durability_for("effect-never-written");
+    let never_written = EffectIntent {
+        effect_id: "effect-never-written".into(),
+        ..revalidating.clone()
+    };
+    let not_durable = durability_for(&never_written);
     let err = kernel
         .commit(CommitRequest {
             authorization: &auth,
@@ -680,7 +687,7 @@ fn cross_effect_authorization_reuse_denied() {
         .unwrap();
 
     let observed = witness("v1");
-    let durable = durability_for("effect-2");
+    let durable = durability_for(&reval_b); // real proof on effect-2's stream
     let err = kernel
         .commit(CommitRequest {
             authorization: &auth_a, // wrong effect's authorization

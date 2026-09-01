@@ -154,26 +154,26 @@ pub fn drifted_witness(op: &HostOp) -> ResourceWitness {
     witness_for(op, DRIFTED_WITNESS_VALUE)
 }
 
-/// Proof the intent `effect_id` was persisted before dispatch (EFX-001).
+/// Proof the exact `intent` was persisted before dispatch (EFX-001).
 ///
-/// Minted the only way a real proof can be: by appending the intent to a ledger
-/// stream named for the effect. There is no `DurabilityProof` constructor a test
-/// could call, so a forged proof is inexpressible — passing one effect's proof
-/// to another effect's boundary is a mismatch the sealed proof refuses.
+/// Minted the only way a real proof can be: by appending the intent's declared
+/// payload (the caller's declaration, stable across lifecycle transitions) to a
+/// ledger stream named for the effect. There is no `DurabilityProof` constructor
+/// a test could call, so a forged proof is inexpressible — passing one effect's
+/// proof to another effect's boundary is a mismatch the sealed proof refuses.
 #[must_use]
-pub fn durability(effect_id: &str) -> DurabilityProof {
+pub fn durability(intent: &EffectIntent) -> DurabilityProof {
     let signer = Box::new(HmacSha256Signer::new(
         "atom-privd-test-seal",
         b"atom-privd-test-key-not-for-production",
     ));
     let mut ledger = Ledger::open_in_memory(signer).expect("in-memory ledger opens");
+    let payload = intent
+        .declared_payload()
+        .expect("fixture intent has a declared payload");
     let (_event, proof) = ledger
-        .append_durable(
-            effect_id,
-            &serde_json::json!({ "kind": "EFFECT_INTENT", "effect_id": effect_id }),
-            1_756_512_000_000,
-        )
-        .expect("appending the intent seals a durability proof");
+        .append_durable(&intent.effect_id, &payload, 1_756_512_000_000)
+        .expect("appending the declared intent seals a durability proof");
     proof
 }
 
@@ -237,7 +237,7 @@ pub fn permit_for(
         planned_grant_generation: GRANT_GENERATION,
         planned_witness: witness,
         observed_witness: witness,
-        durability: &durability(&intent.effect_id),
+        durability: &durability(intent),
         permit_id: PERMIT_ID,
         one_shot_nonce: NONCE,
         ttl_seconds: TTL_SECONDS,
