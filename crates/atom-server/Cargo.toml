@@ -1,0 +1,22 @@
+[package]
+name = "atom-server"
+version = "0.0.0-alpha.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "ATOM Sovereign Agent Runtime HTTP API server (spec/openapi.yaml)"
+
+[dependencies]
+axum = "0.8"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tower = { version = "0.4", features = ["util"] }
+anyhow = "1"
+atom-ledger = { path = "../atom-ledger" }
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+[dev-dependencies]
+axum = { version = "0.8", features = ["http1"] }
+tower = { version = "0.4", features = ["util"] }
+http-body-util = "0.1"

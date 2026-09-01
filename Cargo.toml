@@ -42,6 +42,7 @@ members = [
     "crates/atom-benchmark",
     "crates/atom-benchmark-runtime",
     "crates/atom-conformance",
+    "crates/atom-server",
     "crates/atom-evolution",
     "crates/atom-architecture-safety",
 ]
