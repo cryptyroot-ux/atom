@@ -1,19 +1,19 @@
-# ⚛ ATOM
+![ATOM Banner](assets/banner.png)
+
+# ATOM
 
 **Sovereign Recursive Agent Architecture** — a provider-agnostic Sovereign Agentic Operating System written in Rust.
 
 > Capability may recursively grow; authority may not.
 > Cognition proposes. Sovereign authority permits. Reality determines outcome.
 
-[![crates](https://img.shields.io/badge/crates-41-blue)](crates/)
-[![tests](https://img.shields.io/badge/tests-466%20passing-brightgreen)](https://github.com/cryptyroot-ux/atom/releases/tag/0.0.0-alpha.0)
+[![crates](https://img.shields.io/badge/crates-43-blue)](crates/)
+[![tests](https://img.shields.io/badge/tests-482%20passing-brightgreen)](https://github.com/cryptyroot-ux/atom/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
-[![release](https://img.shields.io/badge/release-0.0.0--alpha.0-orange)](https://github.com/cryptyroot-ux/atom/releases/tag/0.0.0-alpha.0)
+[![version](https://img.shields.io/badge/version-0.0.0--alpha.1%20(unreleased)-orange)](https://github.com/cryptyroot-ux/atom/releases)
 [![rust](https://img.shields.io/badge/rust-edition%202021-93450a)](https://www.rust-lang.org/)
 [![CI](https://github.com/cryptyroot-ux/atom/actions/workflows/ci.yml/badge.svg)](https://github.com/cryptyroot-ux/atom/actions/workflows/ci.yml)
 [![CoC](https://img.shields.io/badge/code%20of%20conduct-Contributor%20Covenant-blueviolet)](CODE_OF_CONDUCT.md)
-
-![ATOM logo](assets/logo.png)
 
 ---
 
@@ -36,9 +36,11 @@ ever growing its own authority. That is the "sovereign" in the name.
 
 ## What it gives you
 
-- **26 composable Rust crates** — a sovereign kernel, capability grants, an effect
-  reducer, a tamper-evident ledger, epistemic memory, taint tracking, deterministic
-  replay, a fault classifier, supply-chain artifact sealing, and more.
+- **43 composable Rust crates** — 32 core/plane crates (a sovereign kernel,
+  capability grants, an effect reducer, a tamper-evident ledger, epistemic memory,
+  taint tracking, deterministic replay, a fault classifier, supply-chain artifact
+  sealing, and more), a 4-module evolution lab (experience compiler, cognition JIT,
+  architecture learner, evaluator), 5 versioned adapters, plus CLI and SDK.
 - **Verified experience as a primitive** — claims, taint, and replay turn runtime
   observations into compounding, auditable evidence instead of vibes.
 - **Provider-agnostic** — plug any model/runtime through versioned adapters
@@ -55,15 +57,19 @@ ever growing its own authority. That is the "sovereign" in the name.
 | G2 Useful Operator | 🔧 partial |
 | G3 Epistemics | ✅ done |
 | G4 Foundry | ✅ done (CLI + SDK + packaging merged) |
-| G5–G7 Compounding / Learning / Evolution | 🔧 G7 built (benchmark harness + evolution safety), not yet a trained learner |
+| G5–G7 Compounding / Learning / Evolution | ✅ built & merged — capability foundry, experience compiler, architecture safety, architecture learner, cognition JIT, evaluator, evolution ring, and a reproducible 2G benchmark harness. Candidate-only (Lab-stage), **not yet a trained learner**; the 2G superiority claim stays **FROZEN** (INV-020). |
 
-This is an **alpha**. The constitutional core is real and tested (374 passing
-tests, `cargo clippy` clean). CLI, SDK, and packaging (Docker, systemd) are
-merged. Operator ergonomics (PWA, adapters) are partial.
+This is an **alpha**. The constitutional core is real and tested (482 passing
+tests across 43 crates, `cargo clippy` clean). The G5–G7 evolution/learning tracks
+are merged as candidate-only code — no trained learner is deployed, and no 2G
+superiority claim is made (INV-020 frozen: no claim without pinned competitor
+versions, comparable budgets, a reproducible harness, and published failure
+traces). CLI, SDK, and packaging (Docker, systemd) are merged. Operator
+ergonomics (PWA, API server) are not yet built.
 
 ## Quick start
 
-**Prerequisites:** Rust edition 2022 toolchain (`rustup`).
+**Prerequisites:** Rust edition 2021 toolchain, rustc 1.80+ (`rustup`).
 
 ```sh
 # install the `atom` CLI from this repo
@@ -71,7 +77,7 @@ cargo install --path cli/atom-cli
 # or build from a checkout:
 cargo build --release -p atom-cli
 
-# run the test suite (374 tests)
+# run the test suite (482 tests)
 cargo test --workspace
 ```
 
@@ -92,6 +98,38 @@ atom verify artifact.json
 # boot the runtime and drive one real mutation
 atom run
 ```
+
+**Try the HTTP API server (`spec/openapi.yaml`):**
+
+```sh
+# run the v1 API on 127.0.0.1:8420
+atom serve
+
+# or bind elsewhere
+ATOM_SERVE_ADDR=0.0.0.0:8420 atom serve
+
+# health + readiness
+curl -s http://127.0.0.1:8420/health
+# → {"status":"healthy","version":"0.0.0-alpha.0","uptime_seconds":0,"crates_loaded":24}
+curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8420/ready   # → 200
+
+# missions (create → list → get)
+curl -s -X POST http://127.0.0.1:8420/missions \
+  -H 'content-type: application/json' \
+  -d '{"objective":"verify the API","intent":"persist a durable mission"}'
+
+# capabilities, evidence, ledger replay, secret handles
+curl -s http://127.0.0.1:8420/capabilities
+curl -s http://127.0.0.1:8420/evidence
+curl -s http://127.0.0.1:8420/ledger/events
+```
+
+> **For Hermes / OpenClaw operators:** the v1 surface maps cleanly onto agent
+> control-plane needs — durable missions, typed effect attempts under the
+> kernel's authorization gate, a tamper-evident event ledger for replay, and
+> capability/evidence introspection. Instead of a chat log being the sole
+> memory, ATOM keeps an append-only, hash-chained record with commit-time
+> revalidation.
 
 See [`spec/`](spec/) for the authoritative machine-readable contracts
 (schemas, state-machines, enums, requirements, invariants).
@@ -117,8 +155,8 @@ ever growing its own authority — and leaves an auditable trail of every mutati
 
 ```
 spec/          canonical contracts (authoritative)
-crates/        26 Rust crates — sovereign core + planes
-evolution/     Evolution Lab (candidate-only): foundry, experience-compiler, jit, learner, evaluator
+crates/        32 Rust crates — sovereign core + planes, capability foundry, evolution ring, benchmark harness + runtime, conformance, architecture safety
+evolution/     Evolution Lab (candidate-only): experience-compiler, cognition-jit, architecture-learner, evaluator
 adapters/      mcp, a2a, agent-skills, hermes, openclaw (versioned, authority-safe)
 cli/atom-cli   `atom` CLI
 sdk/atom-sdk   typed clients for the /v1 API
