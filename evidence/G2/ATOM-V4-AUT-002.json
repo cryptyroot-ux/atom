@@ -3,7 +3,7 @@
   "requirement": "ATOM-V4-AUT-002",
   "gate": "G2",
   "outcome": "pass",
-  "generated_at": "2026-08-31T20:34:06.289716+00:00",
+  "generated_at": "2026-08-31T21:22:10.185967+00:00",
   "harness": "tools/emit_g2_evidence.py",
   "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)",
   "test_source_digest": "sha256:659393d9cb9dc811b046978fb1097045e0dac84d2706dc2657dec509d36e34cf",

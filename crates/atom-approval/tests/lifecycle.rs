@@ -44,14 +44,19 @@ fn interval() -> ValidityInterval {
 }
 
 /// A canonical effect intent whose digest binds to the request payload.
-fn intent_with_request(request_digest: &str) -> EffectIntent {
+///
+/// `request_marker` distinguishes one request from another: a distinct marker
+/// canonicalizes (RFC 8785) to a distinct `canonical_request_digest`, so an
+/// approved request and a mutated one never share an identity.
+fn intent_with_request(request_marker: &str) -> EffectIntent {
     EffectIntent::builder(
         "effect/01J8ZPEFFECTORDERS",
         "mission/01J8Z0MISSIONORDERS",
         "grant/orders-writer",
         RESOURCE_ID,
     )
-    .request_digest(request_digest)
+    .canonical_request(&serde_json::json!({ "request": request_marker }))
+    .expect("canonicalizing approval request")
     .classes("RESOURCE_MUTATION", "HIGH")
     .idempotency(Idempotency::keyed(RESOURCE_ID, "idem-8842"))
     .reconciliation(

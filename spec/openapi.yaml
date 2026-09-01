@@ -415,7 +415,7 @@ components:
 
     EffectIntent:
       type: object
-      required: [effect_id, mission_id, capability_id, target_id, request_digest, effect_class, risk_class]
+      required: [effect_id, mission_id, capability_id, target_id, canonical_request_digest, effect_class, risk_class]
       properties:
         effect_id:
           type: string
@@ -425,9 +425,10 @@ components:
           type: string
         target_id:
           type: string
-        request_digest:
+        canonical_request_digest:
           type: string
-          description: Canonical request digest (SHA-256)
+          pattern: '^sha256:[0-9a-f]{64}$'
+          description: Canonical (RFC 8785) request digest, sha256:<64 hex>
         external_operation_id:
           type: [string, 'null']
         effect_class:

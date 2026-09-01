@@ -120,8 +120,8 @@ pub fn live_fork(
     let forked_effect_id = format!("effect/fork-{}", finish(hasher));
 
     // A fresh intent under the NEW identity. Same declared semantics, new
-    // effect_id: the request_digest carries the fork provenance so the forked
-    // request is genuinely a new one, and the builder returns it in
+    // effect_id: the canonical_request_digest carries the fork provenance so the
+    // forked request is genuinely a new one, and the builder returns it in
     // INTENT_DURABLE — authorized by nobody.
     let forked_intent = EffectIntent::builder(
         &forked_effect_id,
@@ -129,8 +129,8 @@ pub fn live_fork(
         &origin.capability_id,
         &origin.target_id,
     )
-    .request_digest(&fork_request_digest(
-        &origin.request_digest,
+    .canonical_request_digest(&fork_request_digest(
+        &origin.canonical_request_digest,
         &forked_effect_id,
     ))
     .classes(&origin.effect_class, &origin.risk_class)

@@ -51,7 +51,9 @@ fn base_grant(now: DateTime<Utc>, generation: u64) -> CapabilityGrant {
 
 fn base_intent() -> EffectIntent {
     EffectIntent::builder(EFFECT_ID, "mission-1", GRANT_ID, TARGET_ID)
-        .request_digest("req-digest-abc")
+        .canonical_request_digest(
+            "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        )
         .classes("db.write", "high")
         .idempotency(Idempotency::keyed("orders", "idem-key-1"))
         .reconciliation(Reconciliation::new(
@@ -647,7 +649,9 @@ fn cross_effect_authorization_reuse_denied() {
     // Build a DIFFERENT effect B and stand it at the boundary, but try to use
     // effect A's authorization to commit it.
     let intent_b = EffectIntent::builder("effect-2", "mission-1", GRANT_ID, TARGET_ID)
-        .request_digest("req-digest-def")
+        .canonical_request_digest(
+            "sha256:fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+        )
         .classes("db.write", "high")
         .idempotency(Idempotency::keyed("orders", "idem-key-2"))
         .reconciliation(Reconciliation::new(

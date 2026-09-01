@@ -3,10 +3,10 @@
   "requirement": "ATOM-V4-EFX-001",
   "gate": "G2",
   "outcome": "pass",
-  "generated_at": "2026-08-31T20:34:07.308889+00:00",
+  "generated_at": "2026-08-31T21:22:12.086497+00:00",
   "harness": "tools/emit_g2_evidence.py",
   "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)",
-  "test_source_digest": "sha256:7ff109a65c582fe0b3f3f2dd35717b681760051cb0c8fc20311be7ad238d597f",
+  "test_source_digest": "sha256:ff0201e2795797c86ccded007a1b532af98cfdf3560526f2ac182a6fbddf9ca5",
   "total_passed": 5,
   "runs": [
     {

@@ -108,7 +108,7 @@ fn the_intent_carries_every_efx_002_field() {
         "mission_id",
         "capability_id",
         "target_id",
-        "request_digest",
+        "canonical_request_digest",
         "effect_class",
         "risk_class",
         "idempotency",
@@ -200,8 +200,10 @@ fn builder_without(omit: &str) -> EffectIntentBuilder {
         "grant/orders-writer",
         RESOURCE_ID,
     );
-    if omit != "request_digest" {
-        builder = builder.request_digest("sha256:deadbeef");
+    if omit != "canonical_request_digest" {
+        builder = builder.canonical_request_digest(
+            "sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+        );
     }
     if omit != "classes" {
         builder = builder.classes("RESOURCE_MUTATION", "LOW");
@@ -230,7 +232,7 @@ fn an_intent_missing_an_efx_002_field_is_rejected() {
     assert!(complete.preconditions.is_empty());
 
     for field in [
-        "request_digest",
+        "canonical_request_digest",
         "classes",
         "idempotency",
         "reconciliation",
@@ -249,7 +251,9 @@ fn an_intent_missing_an_efx_002_field_is_rejected() {
 #[test]
 fn a_blank_identifier_is_rejected() {
     let error = EffectIntent::builder(EFFECT_ID, "  ", "grant/orders-writer", RESOURCE_ID)
-        .request_digest("sha256:deadbeef")
+        .canonical_request_digest(
+            "sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+        )
         .classes("RESOURCE_MUTATION", "LOW")
         .idempotency(Idempotency::natural(RESOURCE_ID))
         .reconciliation(Reconciliation::new(
@@ -395,4 +399,86 @@ fn a_condition_without_an_identity_is_rejected() {
     assert_eq!(effect.preconditions.len(), 1);
     assert_eq!(effect.postconditions.len(), 1);
     assert_eq!(effect.preconditions[0].condition_id, "pre/row-exists");
+}
+
+/// EFX-005 / ATOM-SEM-003 / VT41-055: `canonical_request_digest` is the sole
+/// accepted request-digest field. The legacy `request_digest` alias must be
+/// rejected — `deny_unknown_fields` mirrors the schema's
+/// `additionalProperties: false`, so an intent that carries the old name (and
+/// therefore lacks the canonical one) never deserializes.
+#[test]
+fn the_request_digest_alias_is_rejected() {
+    let mut json = serde_json::to_value(intent()).expect("intent serializes");
+    let object = json.as_object_mut().expect("an intent is a JSON object");
+    let digest = object
+        .remove("canonical_request_digest")
+        .expect("the canonical field is present");
+    object.insert("request_digest".into(), digest);
+
+    let error = serde_json::from_value::<EffectIntent>(json)
+        .expect_err("the legacy alias must not be accepted");
+    assert!(error.to_string().contains("request_digest"), "{error}");
+}
+
+/// EFX-005: a canonical request digest is `sha256:` + exactly 64 lower-case
+/// hex. A short, prefix-less, or upper-case value is not a canonical identity
+/// and `build()` refuses it — the field cannot be made non-canonical.
+#[test]
+fn a_non_canonical_request_digest_is_rejected() {
+    for bogus in [
+        "sha256:deadbeef",                                                  // too short
+        "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef", // no prefix
+        "sha256:DEADBEEFdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef", // upper-case
+        "md5:deadbeefdeadbeefdeadbeefdeadbeef",                             // wrong algorithm
+    ] {
+        let error = EffectIntent::builder(EFFECT_ID, "mission/x", "grant/x", RESOURCE_ID)
+            .canonical_request_digest(bogus)
+            .classes("RESOURCE_MUTATION", "LOW")
+            .idempotency(Idempotency::natural(RESOURCE_ID))
+            .reconciliation(Reconciliation::new(
+                ReconciliationClass::LedgerReplay,
+                RetryClass::ReconcileBeforeRetry,
+            ))
+            .compensation(Compensation::new(CompensationStrategy::NotCompensable))
+            .build()
+            .expect_err("a non-canonical digest must be refused");
+        assert!(
+            matches!(error, IntentError::NotCanonicalDigest { .. }),
+            "{bogus}: {error:?}"
+        );
+    }
+}
+
+/// EFX-005: `canonical_request` computes the digest from the request body under
+/// RFC 8785, so a request built from a reordered-but-equal body keeps one
+/// identity — and the builder always yields a canonical-shaped digest.
+#[test]
+fn canonical_request_binds_the_digest_to_the_body() {
+    let build = |request: serde_json::Value| {
+        EffectIntent::builder(EFFECT_ID, "mission/x", "grant/x", RESOURCE_ID)
+            .canonical_request(&request)
+            .expect("the request canonicalizes")
+            .classes("RESOURCE_MUTATION", "LOW")
+            .idempotency(Idempotency::natural(RESOURCE_ID))
+            .reconciliation(Reconciliation::new(
+                ReconciliationClass::LedgerReplay,
+                RetryClass::ReconcileBeforeRetry,
+            ))
+            .compensation(Compensation::new(CompensationStrategy::NotCompensable))
+            .build()
+            .expect("the intent is well-formed")
+    };
+
+    let one = build(serde_json::json!({ "op": "write", "to": "ledger" }));
+    let two = build(serde_json::json!({ "to": "ledger", "op": "write" }));
+    assert_eq!(one.canonical_request_digest, two.canonical_request_digest);
+
+    let three = build(serde_json::json!({ "op": "write", "to": "other" }));
+    assert_ne!(one.canonical_request_digest, three.canonical_request_digest);
+
+    let hex = one
+        .canonical_request_digest
+        .strip_prefix("sha256:")
+        .expect("sha256: prefix");
+    assert_eq!(hex.len(), 64);
 }

@@ -109,7 +109,12 @@ fn boot_grant(now: DateTime<Utc>) -> CapabilityGrant {
 /// The effect intent for the boot mutation, standing at AUTHORIZATION_PENDING.
 fn pending_intent() -> Result<EffectIntent> {
     let intent = EffectIntent::builder(EFFECT_ID, MISSION_ID, GRANT_ID, TARGET_ID)
-        .request_digest("boot-request-digest")
+        .canonical_request(&serde_json::json!({
+            "operation": OPERATION,
+            "resource_type": RESOURCE_TYPE,
+            "target_id": TARGET_ID,
+        }))
+        .map_err(|e| anyhow!("canonicalizing boot request: {e}"))?
         .classes("ledger.write", "high")
         .idempotency(Idempotency::keyed("boot", "boot-idem-key"))
         .reconciliation(Reconciliation::new(

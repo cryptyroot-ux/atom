@@ -7,7 +7,7 @@
     "mission_id",
     "capability_id",
     "target_id",
-    "request_digest",
+    "canonical_request_digest",
     "effect_class",
     "risk_class",
     "idempotency",
@@ -28,8 +28,9 @@
     "target_id": {
       "type": "string"
     },
-    "request_digest": {
-      "type": "string"
+    "canonical_request_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
     },
     "external_operation_id": {
       "type": [

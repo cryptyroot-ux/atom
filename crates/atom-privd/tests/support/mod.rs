@@ -195,7 +195,7 @@ pub fn foreign_intent_for(op: &HostOp) -> EffectIntent {
 /// Builds `effect_id`'s intent for `op` and advances it to the commit boundary.
 fn revalidating(effect_id: &str, op: &HostOp) -> EffectIntent {
     let intent = EffectIntent::builder(effect_id, MISSION_ID, GRANT_ID, &op.resource_id())
-        .request_digest(REQUEST_DIGEST)
+        .canonical_request_digest(REQUEST_DIGEST)
         .classes("HOST_ADMINISTRATION", "HIGH")
         .idempotency(Idempotency::natural(&op.resource_id()))
         .reconciliation(Reconciliation::new(

@@ -277,7 +277,9 @@ mod tests {
     /// external-op-id + compensation — the whole contract.
     fn demanding_effect() -> EffectIntent {
         EffectIntent::builder("e1", "m1", "cap-1", "EXTERNAL:stripe:charge-1")
-            .request_digest("digest-1")
+            .canonical_request_digest(
+                "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            )
             .classes("charge", "high")
             .idempotency(Idempotency::keyed("payments", "key-1"))
             .reconciliation(
@@ -298,7 +300,9 @@ mod tests {
     /// A minimal effect: non-idempotent, never-retry, ledger-replay, no comp.
     fn minimal_effect() -> EffectIntent {
         EffectIntent::builder("e2", "m1", "cap-1", "RESOURCE:kv:x")
-            .request_digest("digest-2")
+            .canonical_request_digest(
+                "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            )
             .classes("write", "low")
             .idempotency(Idempotency::non_idempotent("kv"))
             .reconciliation(Reconciliation::new(

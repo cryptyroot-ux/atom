@@ -9,7 +9,9 @@ use atom_sdk::{AtomClient, SdkError};
 fn test_request_serialization() {
     // Verify we can serialize a structured request properly
     let intent = EffectIntent::builder("eff-123", "msn-456", "cap-789", "tgt-abc")
-        .request_digest("sha256:digest")
+        .canonical_request_digest(
+            "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+        )
         .classes("test-mutation", "low")
         .idempotency(Idempotency {
             mode: IdempotencyMode::Natural,

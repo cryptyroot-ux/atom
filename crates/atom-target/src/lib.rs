@@ -171,8 +171,8 @@ impl IdempotencyKey {
             IdempotencyMode::Keyed => idempotency
                 .key
                 .clone()
-                .unwrap_or_else(|| effect.request_digest.clone()),
-            IdempotencyMode::Natural => effect.request_digest.clone(),
+                .unwrap_or_else(|| effect.canonical_request_digest.clone()),
+            IdempotencyMode::Natural => effect.canonical_request_digest.clone(),
             IdempotencyMode::NonIdempotent => effect.effect_id.clone(),
         };
         Self(format!(
@@ -387,7 +387,9 @@ mod tests {
 
     fn intent_for(target: &Target, idempotency: Idempotency, effect_id: &str) -> EffectIntent {
         EffectIntent::builder(effect_id, "mission-1", "cap-1", &target.target_id())
-            .request_digest("req-digest-abc")
+            .canonical_request_digest(
+                "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+            )
             .classes("mutate", "medium")
             .idempotency(idempotency)
             .reconciliation(Reconciliation::new(
@@ -456,7 +458,7 @@ mod tests {
     }
 
     #[test]
-    fn natural_idempotency_dedups_on_request_digest() {
+    fn natural_idempotency_dedups_on_canonical_request_digest() {
         let target = Target::resource("kv", "config");
         // Two distinct effect ids, same natural request → one effect.
         let e1 = intent_for(&target, Idempotency::natural("kv"), "effect-A");

@@ -51,7 +51,9 @@ fn durable_proof(effect_id: &str) -> DurabilityProof {
 
 fn reference_effect(effect_id: &str, mission_id: &str, target_id: &str) -> EffectIntent {
     EffectIntent::builder(effect_id, mission_id, "capability-write", target_id)
-        .request_digest("sha256:reference-request")
+        .canonical_request_digest(
+            "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        )
         .classes("WRITE_FILE", "LOW")
         .idempotency(Idempotency::keyed(
             "reference-mission",
