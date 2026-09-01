@@ -5,9 +5,13 @@ use axum::routing::get;
 use axum::Router;
 use tokio::sync::Mutex;
 
+use crate::routes::capabilities::list_capabilities;
 use crate::routes::effects::{dispatch_effect, get_effect};
+use crate::routes::evidence::list_evidence;
 use crate::routes::health::{get_health, get_ready};
+use crate::routes::ledger::list_ledger_events;
 use crate::routes::missions::{cancel_mission, create_mission, get_mission, list_missions};
+use crate::routes::secrets::create_secret_handle;
 use crate::store::Store;
 
 /// Router state shared by all handlers.
@@ -42,6 +46,10 @@ pub fn build_router(
         )
         .route("/effects", axum::routing::post(dispatch_effect))
         .route("/effects/{effect_id}", get(get_effect))
+        .route("/capabilities", get(list_capabilities))
+        .route("/evidence", get(list_evidence))
+        .route("/ledger/events", get(list_ledger_events))
+        .route("/secrets", axum::routing::post(create_secret_handle))
         .with_state(state)
 }
 

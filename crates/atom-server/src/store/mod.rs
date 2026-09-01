@@ -154,4 +154,35 @@ impl Store {
         self.secret_handles.push(handle.clone());
         Ok(())
     }
+
+    /// Every ledger event across the server's streams, oldest first, as the
+    /// wire `LedgerEvent` shape (event_id, event_type, payload_hash,
+    /// previous_hash, timestamp). Returns `(events, checkpoint)` where
+    /// `checkpoint` is the highest event seq observed (0 when the ledger is
+    /// empty). Events strictly after `since_checkpoint` are included.
+    pub fn list_ledger_events(
+        &self,
+        since_checkpoint: Option<u64>,
+    ) -> anyhow::Result<(Vec<serde_json::Value>, u64)> {
+        let since = since_checkpoint.map(|s| s + 1).unwrap_or(1);
+        let mut rows: Vec<serde_json::Value> = Vec::new();
+        let mut checkpoint: u64 = 0;
+        for stream_id in ["mission", "effect", "evidence", "secret"] {
+            for record in self.ledger.scan(stream_id, since)? {
+                let event = &record.event;
+                let timestamp =
+                    chrono::DateTime::from_timestamp_millis(event.ts).map(|t| t.to_rfc3339());
+                rows.push(serde_json::json!({
+                    "event_id": event.seq,
+                    "event_type": event.stream_id,
+                    "payload_hash": event.payload_digest.to_hex(),
+                    "previous_hash": event.prev_hash.to_hex(),
+                    "timestamp": timestamp,
+                }));
+                checkpoint = checkpoint.max(event.seq);
+            }
+        }
+        rows.sort_by_key(|row| row["event_id"].as_u64().unwrap_or(0));
+        Ok((rows, checkpoint))
+    }
 }

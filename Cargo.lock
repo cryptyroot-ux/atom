@@ -578,6 +578,7 @@ dependencies = [
  "anyhow",
  "atom-effect",
  "atom-ledger",
+ "atom-secret",
  "axum",
  "chrono",
  "http-body-util",
