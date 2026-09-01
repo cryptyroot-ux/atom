@@ -99,6 +99,38 @@ atom verify artifact.json
 atom run
 ```
 
+**Try the HTTP API server (`spec/openapi.yaml`):**
+
+```sh
+# run the v1 API on 127.0.0.1:8420
+atom serve
+
+# or bind elsewhere
+ATOM_SERVE_ADDR=0.0.0.0:8420 atom serve
+
+# health + readiness
+curl -s http://127.0.0.1:8420/health
+# → {"status":"healthy","version":"0.0.0-alpha.0","uptime_seconds":0,"crates_loaded":24}
+curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8420/ready   # → 200
+
+# missions (create → list → get)
+curl -s -X POST http://127.0.0.1:8420/missions \
+  -H 'content-type: application/json' \
+  -d '{"objective":"verify the API","intent":"persist a durable mission"}'
+
+# capabilities, evidence, ledger replay, secret handles
+curl -s http://127.0.0.1:8420/capabilities
+curl -s http://127.0.0.1:8420/evidence
+curl -s http://127.0.0.1:8420/ledger/events
+```
+
+> **For Hermes / OpenClaw operators:** the v1 surface maps cleanly onto agent
+> control-plane needs — durable missions, typed effect attempts under the
+> kernel's authorization gate, a tamper-evident event ledger for replay, and
+> capability/evidence introspection. Instead of a chat log being the sole
+> memory, ATOM keeps an append-only, hash-chained record with commit-time
+> revalidation.
+
 See [`spec/`](spec/) for the authoritative machine-readable contracts
 (schemas, state-machines, enums, requirements, invariants).
 
