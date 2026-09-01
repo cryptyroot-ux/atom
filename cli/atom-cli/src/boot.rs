@@ -346,6 +346,14 @@ fn subsystem_inventory(
     ])
 }
 
+/// Number of wired subsystem crates the sovereign process inventories.
+///
+/// Used by `atom serve` to report `crates_loaded` in `/health` without
+/// booting the full runtime.
+pub const fn subsystem_count() -> u32 {
+    24
+}
+
 impl std::fmt::Display for BootReport {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "atom: sovereign process booted")?;
