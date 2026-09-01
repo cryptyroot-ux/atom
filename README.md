@@ -54,18 +54,19 @@ ever growing its own authority. That is the "sovereign" in the name.
 |---|---|
 | G0 Spec Freeze | ✅ done |
 | G1 Sovereign Core | ✅ done |
-| G2 Useful Operator | 🔧 partial |
+| G2 Useful Operator | 🔧 partial — durable HTTP control plane exists; provider-backed execution does not yet |
 | G3 Epistemics | ✅ done |
-| G4 Foundry | ✅ done (CLI + SDK + packaging merged) |
+| G4 Foundry | 🔧 partial — source binary/artifact tooling exists; no certified release/install pipeline yet |
 | G5–G7 Compounding / Learning / Evolution | ✅ built & merged — capability foundry, experience compiler, architecture safety, architecture learner, cognition JIT, evaluator, evolution ring, and a reproducible 2G benchmark harness. Candidate-only (Lab-stage), **not yet a trained learner**; the 2G superiority claim stays **FROZEN** (INV-020). |
 
-This is an **alpha**. The constitutional core is real and tested (482 passing
-tests across 43 crates, `cargo clippy` clean). The G5–G7 evolution/learning tracks
+This is an **alpha**. The constitutional core is real and tested. The G5–G7 evolution/learning tracks
 are merged as candidate-only code — no trained learner is deployed, and no 2G
 superiority claim is made (INV-020 frozen: no claim without pinned competitor
 versions, comparable budgets, a reproducible harness, and published failure
-traces). CLI, SDK, and packaging (Docker, systemd) are merged. Operator
-ergonomics (PWA, API server) are not yet built.
+traces). The HTTP API has a durable SQLite-backed control-plane slice, but it
+does not yet run a configured model provider or real external tool execution;
+it is not installability parity with Hermes/OpenClaw. Packaging artifacts are
+source-oriented and have not been certified on a fresh host.
 
 ## Quick start
 
@@ -77,7 +78,7 @@ cargo install --path cli/atom-cli
 # or build from a checkout:
 cargo build --release -p atom-cli
 
-# run the test suite (482 tests)
+# run the workspace test suite
 cargo test --workspace
 ```
 
@@ -102,21 +103,32 @@ atom run
 **Try the HTTP API server (`spec/openapi.yaml`):**
 
 ```sh
-# run the v1 API on 127.0.0.1:8420
-atom serve
+# run the durable v1 API on 127.0.0.1:8420
+# `serve` requires both a signing identity and an explicit SQLite state path.
+mkdir -p ./state
+ATOM_STATE_DB=./state/atom.sqlite atom serve
 
 # or bind elsewhere
-ATOM_SERVE_ADDR=0.0.0.0:8420 atom serve
+atom serve --addr 0.0.0.0:8420 --state-db ./state/atom.sqlite
 
 # health + readiness
 curl -s http://127.0.0.1:8420/health
 # → {"status":"healthy","version":"0.0.0-alpha.0","uptime_seconds":0,"crates_loaded":24}
 curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8420/ready   # → 200
 
-# missions (create → list → get)
+# missions (create → list → get). A goal alone is intentionally rejected:
+# a complete durable acceptance contract is required.
 curl -s -X POST http://127.0.0.1:8420/missions \
   -H 'content-type: application/json' \
-  -d '{"objective":"verify the API","intent":"persist a durable mission"}'
+  -d '{
+    "goal":"verify the API persistence contract",
+    "success_criteria":["the mission survives a restart"],
+    "constraints":["do not dispatch external effects"],
+    "budgets":{"max_steps":8},
+    "authority_profile_ref":"authority/read-only",
+    "evidence_requirements":["ledger event"],
+    "stopping_rules":["stop on a policy denial"]
+  }'
 
 # capabilities, evidence, ledger replay, secret handles
 curl -s http://127.0.0.1:8420/capabilities
@@ -124,12 +136,12 @@ curl -s http://127.0.0.1:8420/evidence
 curl -s http://127.0.0.1:8420/ledger/events
 ```
 
-> **For Hermes / OpenClaw operators:** the v1 surface maps cleanly onto agent
-> control-plane needs — durable missions, typed effect attempts under the
-> kernel's authorization gate, a tamper-evident event ledger for replay, and
-> capability/evidence introspection. Instead of a chat log being the sole
-> memory, ATOM keeps an append-only, hash-chained record with commit-time
-> revalidation.
+> **For Hermes / OpenClaw operators:** this is currently a durable API
+> control-plane, not a drop-in active agent. It persists complete mission
+> contracts and typed effect attempts under the kernel's authorization gate,
+> but no production provider transport or external dispatcher is wired yet.
+> `/ready` currently reports HTTP/ledger readiness only, not model-provider
+> readiness.
 
 See [`spec/`](spec/) for the authoritative machine-readable contracts
 (schemas, state-machines, enums, requirements, invariants).

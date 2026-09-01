@@ -44,6 +44,7 @@ atom-adapter = { path = "../../crates/atom-adapter" }
 atom-memory = { path = "../../crates/atom-memory" }
 atom-artifact = { path = "../../crates/atom-artifact" }
 atom-server = { path = "../../crates/atom-server" }
+atom-executor = { path = "../../crates/atom-executor" }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time"] }
 
 [dev-dependencies]

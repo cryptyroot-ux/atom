@@ -1,9 +1,12 @@
+use std::sync::Arc;
+
 use atom_ledger::HmacSha256Signer;
 use atom_server::app::build_router;
 use atom_server::store::Store;
 use axum::body::Body;
 use axum::http::Request;
 use http_body_util::BodyExt;
+use tokio::sync::Mutex;
 use tower::ServiceExt;
 
 fn test_router() -> axum::Router {
@@ -12,12 +15,29 @@ fn test_router() -> axum::Router {
         b"00000000000000000000000000000000",
     ));
     let store = Store::open_in_memory(signer).unwrap();
-    build_router("0.0.0-alpha", 32, std::time::Instant::now(), store)
+    build_router(
+        "0.0.0-alpha",
+        32,
+        std::time::Instant::now(),
+        Arc::new(Mutex::new(store)),
+    )
 }
 
 async fn body_json(resp: axum::response::Response) -> serde_json::Value {
     let bytes = resp.into_body().collect().await.unwrap().to_bytes();
     serde_json::from_slice(&bytes).unwrap()
+}
+
+fn complete_contract(goal: &str) -> serde_json::Value {
+    serde_json::json!({
+        "goal": goal,
+        "success_criteria": ["ledger event is visible"],
+        "constraints": [],
+        "budgets": { "max_steps": 4 },
+        "authority_profile_ref": "authority/test-read-only",
+        "evidence_requirements": [],
+        "stopping_rules": []
+    })
 }
 
 #[tokio::test]
@@ -47,9 +67,7 @@ async fn list_ledger_events_returns_checkpoint() {
                 .method("POST")
                 .uri("/missions")
                 .header("content-type", "application/json")
-                .body(Body::from(
-                    serde_json::json!({ "goal": "seed ledger" }).to_string(),
-                ))
+                .body(Body::from(complete_contract("seed ledger").to_string()))
                 .unwrap(),
         )
         .await

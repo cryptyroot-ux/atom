@@ -26,8 +26,10 @@ RUN cargo build --release -p atom-cli --locked
 # 2. Runtime stage — distroless static
 FROM gcr.io/distroless/static-debian12
 COPY --from=builder /app/target/release/atom /usr/local/bin/atom
-# ATOM HTTP API server (spec/openapi.yaml). Override the bind address with
-# ATOM_SERVE_ADDR; default 8420 is the documented port.
+# Durable ATOM HTTP control plane. Override the bind address with
+# ATOM_SERVE_ADDR and mount /var/lib/atom so its SQLite ledger survives a
+# container replacement. The signing identity is supplied at runtime.
 EXPOSE 8420
+VOLUME ["/var/lib/atom"]
 ENTRYPOINT ["/usr/local/bin/atom"]
-CMD ["serve"]
+CMD ["serve", "--state-db", "/var/lib/atom/atom.sqlite"]

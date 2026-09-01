@@ -137,8 +137,11 @@ paths:
       summary: Create mission
       operationId: createMission
       description: |
-        Creates a new mission. The mission enters CREATED state and must be
-        authorized by the kernel before any effects can be dispatched.
+        Creates a complete durable mission contract. The mission enters CREATED
+        state and must be authorized by the kernel before any effects can be
+        dispatched. A goal alone is not accepted: success criteria,
+        constraints, budgets, authority profile, evidence requirements, and
+        stopping rules must all be declared.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -402,11 +405,49 @@ components:
 
     MissionCreate:
       type: object
-      required: [goal]
+      additionalProperties: false
+      required:
+        - goal
+        - success_criteria
+        - constraints
+        - budgets
+        - authority_profile_ref
+        - evidence_requirements
+        - stopping_rules
       properties:
         goal:
           type: string
           minLength: 1
+        success_criteria:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            minLength: 1
+        constraints:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        budgets:
+          type: object
+          minProperties: 1
+          additionalProperties:
+            type: integer
+            minimum: 1
+        authority_profile_ref:
+          type: string
+          minLength: 1
+        evidence_requirements:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        stopping_rules:
+          type: array
+          items:
+            type: string
+            minLength: 1
         context:
           type: object
         priority:

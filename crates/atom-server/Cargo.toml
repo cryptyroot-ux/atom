@@ -14,6 +14,7 @@ tower = { version = "0.4", features = ["util"] }
 anyhow = "1"
 atom-effect = { path = "../atom-effect" }
 atom-ledger = { path = "../atom-ledger" }
+atom-mission = { path = "../atom-mission" }
 atom-secret = { path = "../atom-secret" }
 uuid = { version = "1", features = ["v4"] }
 chrono = { version = "0.4", features = ["serde"] }
@@ -22,3 +23,5 @@ chrono = { version = "0.4", features = ["serde"] }
 axum = { version = "0.8", features = ["http1"] }
 tower = { version = "0.4", features = ["util"] }
 http-body-util = "0.1"
+tempfile = "3"
+rusqlite = { version = "0.37", features = ["bundled"] }

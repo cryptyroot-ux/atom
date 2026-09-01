@@ -22,10 +22,12 @@ This guide documents how to install and run the `atom` sovereign binary on a fre
 
 ## Environment Configuration
 
-`atom` signs and verifies content-addressed artifacts (SUP-001). You **must** provide a signing key via environment variables — **never hardcode secrets**.
+`atom` signs and verifies content-addressed artifacts (SUP-001), and `atom serve`
+uses the same signing identity for its authoritative ledger. You **must** provide
+a signing key via environment variables — **never hardcode secrets**.
 
 ```bash
-# Required for `atom seal` and `atom verify`
+# Required for `atom seal`, `atom verify`, and `atom serve`
 export ATOM_SIGNING_KEY_ID="my-signing-key-v1"     # arbitrary identifier
 export ATOM_SIGNING_SECRET="base64-or-hex-secret"   # the actual secret bytes
 ```
@@ -90,16 +92,23 @@ atom verify test.atom.json
 
 ```bash
 # 1. Copy the service file
-sudo cp atom.service /etc/systemd/system/atom.service
+sudo cp pkg/atom.service /etc/systemd/system/atom.service
 
-# 2. Set env in service or drop a file at /etc/atom/env
+# 2. Build, then install the release binary at the path used by the unit
+cargo build --release -p atom-cli --locked
+sudo install -Dm755 target/release/atom /usr/local/bin/atom
+
+# 3. Set env in service or drop a root-only file at /etc/atom/env
 sudo mkdir -p /etc/atom
 cat <<'EOF' | sudo tee /etc/atom/env
 ATOM_SERVE_ADDR=127.0.0.1:8420
+# Set both values from a root-only secret source; do not use literal placeholders.
+# ATOM_SIGNING_KEY_ID=prod-signing-key
+# ATOM_SIGNING_SECRET=managed-secret-value
 EOF
 sudo chmod 600 /etc/atom/env
 
-# 3. Enable + start
+# 4. Enable + start
 sudo systemctl daemon-reload
 sudo systemctl enable --now atom
 ```
@@ -107,13 +116,15 @@ sudo systemctl enable --now atom
 ## Running the HTTP API Server
 
 ```bash
-# Bind the HTTP API on the default address 127.0.0.1:8420
-atom serve
+# Bind the durable HTTP API on the default address 127.0.0.1:8420.
+# A state DB is required; use a non-temporary location in real operation.
+mkdir -p ./state
+atom serve --state-db ./state/atom.sqlite
 
 # Or pick a specific address
-atom serve --addr 0.0.0.0:8420
+atom serve --addr 0.0.0.0:8420 --state-db ./state/atom.sqlite
 # Equivalent via environment:
-ATOM_SERVE_ADDR=0.0.0.0:8420 atom serve
+ATOM_SERVE_ADDR=0.0.0.0:8420 ATOM_STATE_DB=./state/atom.sqlite atom serve
 ```
 
 Smoke check against the running server (OpenAPI `/health`):
@@ -123,15 +134,22 @@ curl -s http://127.0.0.1:8420/health
 # → {"status":"healthy","version":"0.0.0-alpha.0","crates_loaded":24}
 ```
 
+This starts the durable HTTP control plane only. It is not yet a provider-backed
+agent daemon: no model transport or external effect dispatcher is configured by
+this installation path.
+
 ## Docker (Distroless)
 
 ```bash
 # Build image
-docker build -t atom:0.0.0-alpha.0 -f Dockerfile .
+docker build -t atom:0.0.0-alpha.0 -f pkg/Dockerfile .
 
 # Run the HTTP API server on host port 8420
 docker run --rm -p 8420:8420 \
   -e ATOM_SERVE_ADDR=0.0.0.0:8420 \
+  -e ATOM_SIGNING_KEY_ID=container-key \
+  -e ATOM_SIGNING_SECRET=replace-with-a-managed-secret \
+  -v atom-state:/var/lib/atom \
   atom:0.0.0-alpha.0
 
 # Or run another subcommand (--help / run / seal)

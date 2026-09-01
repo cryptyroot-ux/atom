@@ -1,17 +1,20 @@
+use std::sync::Arc;
+
 use atom_ledger::HmacSha256Signer;
 use atom_server::app::build_router;
 use atom_server::store::Store;
 use axum::body::Body;
 use axum::http::Request;
 use http_body_util::BodyExt;
+use tokio::sync::Mutex;
 use tower::ServiceExt;
 
-fn test_store() -> Store {
+fn test_store() -> Arc<Mutex<Store>> {
     let signer = Box::new(HmacSha256Signer::new(
         "test",
         b"00000000000000000000000000000000",
     ));
-    Store::open_in_memory(signer).unwrap()
+    Arc::new(Mutex::new(Store::open_in_memory(signer).unwrap()))
 }
 
 #[tokio::test]

@@ -260,6 +260,7 @@ dependencies = [
  "atom-context",
  "atom-effect",
  "atom-evidence",
+ "atom-executor",
  "atom-fault",
  "atom-identity",
  "atom-kernel",
@@ -376,6 +377,25 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 1.0.69",
+]
+
+[[package]]
+name = "atom-executor"
+version = "0.0.0-alpha.1"
+dependencies = [
+ "anyhow",
+ "atom-ledger",
+ "atom-mission",
+ "atom-runtime",
+ "atom-scheduler",
+ "atom-server",
+ "atom-worker",
+ "chrono",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tokio",
 ]
 
 [[package]]
@@ -580,12 +600,15 @@ dependencies = [
  "anyhow",
  "atom-effect",
  "atom-ledger",
+ "atom-mission",
  "atom-secret",
  "axum",
  "chrono",
  "http-body-util",
+ "rusqlite",
  "serde",
  "serde_json",
+ "tempfile",
  "tokio",
  "tower 0.4.13",
  "uuid",

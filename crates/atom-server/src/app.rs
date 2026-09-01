@@ -27,13 +27,13 @@ pub fn build_router(
     version: &'static str,
     crates_loaded: u32,
     started: Instant,
-    store: Store,
+    store: Arc<Mutex<Store>>,
 ) -> Router {
     let state = AppState {
         version,
         crates_loaded,
         started,
-        store: Arc::new(Mutex::new(store)),
+        store,
     };
     Router::new()
         .route("/health", get(get_health))
@@ -57,7 +57,7 @@ pub async fn serve(
     version: &'static str,
     crates_loaded: u32,
     addr: std::net::SocketAddr,
-    store: Store,
+    store: Arc<Mutex<Store>>,
 ) -> anyhow::Result<()> {
     let app = build_router(version, crates_loaded, std::time::Instant::now(), store);
     let listener = tokio::net::TcpListener::bind(addr).await?;

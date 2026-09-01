@@ -1,14 +1,15 @@
-# atom.service — systemd unit for the ATOM sovereign process (G4 Foundry)
+# atom.service — durable ATOM HTTP control-plane daemon
 #
 # Install: sudo cp atom.service /etc/systemd/system/atom.service
 # Configure: sudo mkdir -p /etc/atom && sudo tee /etc/atom/env <<'EOF'
 # ATOM_SIGNING_KEY_ID=prod-signing-key
 # ATOM_SIGNING_SECRET=base64-secret-here
+# ATOM_SERVE_ADDR=127.0.0.1:8420
 # EOF
 # sudo chmod 600 /etc/atom/env
 
 [Unit]
-Description=ATOM Sovereign Process
+Description=ATOM durable HTTP control-plane daemon
 Documentation=https://github.com/cryptyroot-ux/atom
 After=network-online.target
 Wants=network-online.target
@@ -19,10 +20,13 @@ User=atom
 Group=atom
 # Environment file with signing keys (never hardcode!)
 EnvironmentFile=-/etc/atom/env
-# Binary installed via `cargo install` or placed in /usr/local/bin
-ExecStart=/usr/local/bin/atom serve
+# Binary explicitly installed at /usr/local/bin/atom; the durable state path
+# is managed by systemd's StateDirectory below.
+ExecStart=/usr/local/bin/atom serve --state-db /var/lib/atom/atom.sqlite
 # Address the HTTP API binds (override via EnvironmentFile if needed)
 Environment=ATOM_SERVE_ADDR=127.0.0.1:8420
+# Creates /var/lib/atom and gives the service user write access to its ledger.
+StateDirectory=atom
 # Restart policy
 Restart=on-failure
 RestartSec=5

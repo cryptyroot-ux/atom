@@ -22,7 +22,10 @@ pub mod config;
 
 pub use config::SigningConfig;
 
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 use anyhow::{anyhow, Context, Result};
 use clap::{Parser, Subcommand};
@@ -66,6 +69,15 @@ pub enum Command {
             env = "ATOM_SERVE_ADDR"
         )]
         addr: String,
+
+        /// SQLite database containing authoritative daemon state. Required so
+        /// a restarted server rebuilds from the ledger rather than losing missions.
+        #[arg(long, value_name = "PATH", env = "ATOM_STATE_DB")]
+        state_db: PathBuf,
+
+        /// Disable the background mission executor (useful for testing).
+        #[arg(long, env = "ATOM_NO_EXECUTOR")]
+        no_executor: bool,
     },
 
     /// Seal bytes into a content-addressed, signed artifact (SUP-001).
@@ -110,14 +122,37 @@ pub enum Command {
 /// exit non-zero).
 pub fn run(cli: Cli) -> Result<()> {
     match cli.command {
-        Command::Serve { addr } => {
+        Command::Serve {
+            addr,
+            state_db,
+            no_executor,
+        } => {
             let version = env!("CARGO_PKG_VERSION");
             let crates_loaded = boot::subsystem_count();
-            let store = atom_server::store::Store::open(None)?;
+            let signing = SigningConfig::load(cli.config.as_deref())?;
+            let signer = Box::new(atom_ledger::HmacSha256Signer::new(
+                &signing.key_id,
+                &signing.secret,
+            ));
+            let store = Arc::new(tokio::sync::Mutex::new(atom_server::store::Store::open(
+                &state_db, signer,
+            )?));
             let addr = addr
                 .parse::<std::net::SocketAddr>()
                 .with_context(|| format!("parsing bind address `{addr}`"))?;
-            let future = atom_server::app::serve(version, crates_loaded, addr, store);
+            let future = async move {
+                if !no_executor {
+                    let executor =
+                        atom_executor::AtomExecutor::new(store.clone(), Default::default());
+                    let exec_handle = tokio::spawn(executor.run());
+                    let serve = atom_server::app::serve(version, crates_loaded, addr, store);
+                    let (_, serve_res) = tokio::join!(exec_handle, serve);
+                    serve_res?;
+                } else {
+                    atom_server::app::serve(version, crates_loaded, addr, store).await?;
+                }
+                Ok::<(), anyhow::Error>(())
+            };
             let runtime = tokio::runtime::Builder::new_multi_thread()
                 .enable_all()
                 .build()
@@ -139,7 +174,7 @@ fn run_signed(cli: Cli, cfg: SigningConfig) -> Result<()> {
             print!("{report}");
             Ok(())
         }
-        Command::Serve { .. } => Err(anyhow!("`atom serve` does not load a signing config")),
+        Command::Serve { .. } => Err(anyhow!("`atom serve` is dispatched before signed commands")),
         Command::Seal {
             content,
             input,
@@ -201,8 +236,16 @@ mod tests {
     #[test]
     fn parses_run_seal_verify() {
         assert!(Cli::try_parse_from(["atom", "run"]).is_ok());
-        assert!(Cli::try_parse_from(["atom", "serve"]).is_ok());
-        assert!(Cli::try_parse_from(["atom", "serve", "--addr", "0.0.0.0:9000"]).is_ok());
+        assert!(Cli::try_parse_from(["atom", "serve"]).is_err());
+        assert!(Cli::try_parse_from([
+            "atom",
+            "serve",
+            "--addr",
+            "0.0.0.0:9000",
+            "--state-db",
+            "atom.sqlite",
+        ])
+        .is_ok());
         assert!(Cli::try_parse_from(["atom", "seal", "hello"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "verify", "a.json"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "bogus-subcommand"]).is_err());
