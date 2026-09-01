@@ -66,6 +66,13 @@ impl Store {
         &self.effects
     }
 
+    pub fn effect(&self, effect_id: &str) -> Option<serde_json::Value> {
+        self.effects
+            .iter()
+            .find(|e| e["effect_id"] == effect_id)
+            .cloned()
+    }
+
     pub fn grants(&self) -> &[serde_json::Value] {
         &self.grants
     }

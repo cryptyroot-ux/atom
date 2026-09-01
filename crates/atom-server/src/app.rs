@@ -5,6 +5,7 @@ use axum::routing::get;
 use axum::Router;
 use tokio::sync::Mutex;
 
+use crate::routes::effects::{dispatch_effect, get_effect};
 use crate::routes::health::{get_health, get_ready};
 use crate::routes::missions::{cancel_mission, create_mission, get_mission, list_missions};
 use crate::store::Store;
@@ -39,6 +40,8 @@ pub fn build_router(
             "/missions/{mission_id}/cancel",
             axum::routing::post(cancel_mission),
         )
+        .route("/effects", axum::routing::post(dispatch_effect))
+        .route("/effects/{effect_id}", get(get_effect))
         .with_state(state)
 }
 
