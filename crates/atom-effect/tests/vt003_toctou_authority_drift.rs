@@ -88,6 +88,7 @@ fn an_undrifted_commit_boundary_issues_and_consumes_exactly_one_permit() {
     assert_eq!(permit.capability_grant_id(), GRANT_ID);
     assert_eq!(permit.grant_generation(), GRANT_GENERATION);
     assert_eq!(permit.audience(), "atom:orders");
+    assert_eq!(permit.workload_id(), "workload/atomd");
     assert_eq!(permit.resource_id(), gate.effect.target_id);
     assert_eq!(permit.resource_version_witness(), &planned_witness());
     assert_eq!(permit.one_shot_nonce(), NONCE);
@@ -510,6 +511,44 @@ fn a_permit_cannot_be_consumed_by_a_grant_naming_a_different_audience() {
         .expect_err("EFX-004 / Constitution V.3: a permit is audience-bound");
     assert!(
         matches!(error, PermitError::AudienceMismatch { ref expected, ref observed } if observed == "atom:hospital-lab" && expected == "atom:orders"),
+        "{error:?}"
+    );
+    assert_eq!(registry.len(), 0);
+}
+
+#[test]
+fn a_permit_is_consumed_by_a_grant_naming_the_same_workload() {
+    let gate = Gate::new();
+    let permit = issue_commit_permit(gate.request()).expect("nothing drifted");
+    let mut registry = NonceRegistry::new();
+
+    let event = registry
+        .consume(gate.consume(&permit))
+        .expect("the grant names the same workload the permit froze");
+    assert_eq!(event.permit_id, PERMIT_ID);
+}
+
+#[test]
+fn a_permit_cannot_be_consumed_by_a_grant_naming_a_different_workload() {
+    let gate = Gate::new();
+    let permit = issue_commit_permit(gate.request()).expect("nothing drifted");
+
+    // The same subject, generation, operations, resources, windows,
+    // audience — only the workload identity the grant binds moved.
+    let other_workload = CapabilityGrant {
+        workload_id: "workload/scanner-2".into(),
+        ..gate.grant.clone()
+    };
+    let mut registry = NonceRegistry::new();
+
+    let error = registry
+        .consume(ConsumeRequest {
+            grant: &other_workload,
+            ..gate.consume(&permit)
+        })
+        .expect_err("EFX-004 / Constitution IV.1: a permit is workload-bound");
+    assert!(
+        matches!(error, PermitError::WorkloadMismatch { ref expected, ref observed } if observed == "workload/scanner-2" && expected == "workload/atomd"),
         "{error:?}"
     );
     assert_eq!(registry.len(), 0);

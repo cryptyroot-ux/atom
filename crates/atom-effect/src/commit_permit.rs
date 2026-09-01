@@ -75,6 +75,10 @@ pub struct CommitPermit {
     effect_digest: String,
     /// The principal the permit was issued to.
     principal_id: String,
+    /// The workload identity the permit was issued for. Frozen from the grant's
+    /// workload at issuance (ATOM-V4-AUT-001, Constitution IV.1: authority is
+    /// subject/workload-bound).
+    workload_id: String,
     /// The grant the authority was drawn from.
     capability_grant_id: String,
     /// The generation of that grant at issuance.
@@ -128,6 +132,12 @@ impl CommitPermit {
     #[must_use]
     pub fn principal_id(&self) -> &str {
         &self.principal_id
+    }
+
+    /// The workload identity the permit was issued for.
+    #[must_use]
+    pub fn workload_id(&self) -> &str {
+        &self.workload_id
     }
 
     /// The grant the authority was drawn from.
@@ -277,6 +287,16 @@ pub enum PermitError {
         /// The audience the grant in hand actually names.
         observed: String,
     },
+    /// The grant the permit was issued from does not name the same workload
+    /// (ATOM-V4-AUT-001, Constitution IV.1 "workload-bound": a permit minted
+    /// for one workload cannot be spent as another).
+    #[error("permit was issued for workload {expected}, not {observed}")]
+    WorkloadMismatch {
+        /// The workload the permit froze when it was issued.
+        expected: String,
+        /// The workload the grant in hand actually names.
+        observed: String,
+    },
     /// The grant does not cover the operation being attempted.
     #[error("grant does not allow {operation}")]
     OperationNotGranted {
@@ -391,12 +411,19 @@ fn revalidate_authority(
     principal_id: &str,
     expected_generation: u64,
     expected_audience: &str,
+    expected_workload: &str,
     now: DateTime<Utc>,
 ) -> Result<(), PermitError> {
     if grant.subject_id != principal_id {
         return Err(PermitError::PrincipalMismatch {
             expected: grant.subject_id.clone(),
             observed: principal_id.to_owned(),
+        });
+    }
+    if grant.workload_id != expected_workload {
+        return Err(PermitError::WorkloadMismatch {
+            expected: expected_workload.to_owned(),
+            observed: grant.workload_id.clone(),
         });
     }
     if grant.audience != expected_audience {
@@ -493,6 +520,7 @@ pub fn issue_commit_permit(request: PermitRequest<'_>) -> Result<CommitPermit, P
         request.principal_id,
         request.planned_grant_generation,
         &grant.audience,
+        &grant.workload_id,
         request.now,
     )?;
 
@@ -516,6 +544,7 @@ pub fn issue_commit_permit(request: PermitRequest<'_>) -> Result<CommitPermit, P
         permit_id: request.permit_id.to_owned(),
         effect_digest: intent.digest(),
         principal_id: request.principal_id.to_owned(),
+        workload_id: grant.workload_id.clone(),
         capability_grant_id: grant.grant_id.clone(),
         grant_generation: grant.generation,
         audience: grant.audience.clone(),
@@ -622,6 +651,7 @@ impl NonceRegistry {
             &permit.principal_id,
             permit.grant_generation,
             &permit.audience,
+            &permit.workload_id,
             now,
         )?;
         revalidate_witness(&permit.resource_version_witness, observed_witness)?;

@@ -9,6 +9,7 @@
     "capability_grant_id",
     "grant_generation",
     "audience",
+    "workload_id",
     "resource_id",
     "resource_version_witness",
     "issued_at",
@@ -33,6 +34,9 @@
       "minimum": 0
     },
     "audience": {
+      "type": "string"
+    },
+    "workload_id": {
       "type": "string"
     },
     "resource_id": {
