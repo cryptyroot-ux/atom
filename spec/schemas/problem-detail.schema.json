@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/problem-detail.schema.json",
+  "title": "Problem Detail",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "title",
+    "status",
+    "detail",
+    "instance"
+  ],
+  "properties": {
+    "type": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "status": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 599
+    },
+    "detail": {
+      "type": "string"
+    },
+    "instance": {
+      "type": "string"
+    },
+    "extensions": {
+      "type": "object"
+    }
+  }
+}

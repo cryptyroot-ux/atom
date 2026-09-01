@@ -1,0 +1,16 @@
+{
+  "capability_id": "cap-0001",
+  "name": "ledger-append",
+  "operations": [
+    "ledger.append"
+  ],
+  "resource_scope": "ledger:mission/alpha:*",
+  "risk_class": "HIGH",
+  "max_budget": {
+    "cpu_seconds": 600
+  },
+  "version": "1.0.0",
+  "admission_policy": {
+    "require_approval": true
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/evidence.schema.json",
+  "title": "Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "evidence_id",
+    "kind",
+    "digest",
+    "produced_by",
+    "produced_at"
+  ],
+  "properties": {
+    "evidence_id": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "TEST",
+        "AUDIT",
+        "OBSERVATION",
+        "ATTESTATION",
+        "MEASUREMENT"
+      ]
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "produced_by": {
+      "type": "string"
+    },
+    "produced_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verdict": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "INCONCLUSIVE"
+      ]
+    },
+    "refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

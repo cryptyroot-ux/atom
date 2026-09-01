@@ -92,6 +92,12 @@ pub enum CapabilityError {
     #[error("child must have parent_grant_id when delegating")]
     MissingParentGrantId,
 
+    #[error("parent grant not active: state={state:?}")]
+    ParentRevoked { state: RevocationState },
+
+    #[error("generation must not exceed parent: child={child}, parent={parent}")]
+    GenerationExceeded { child: u64, parent: u64 },
+
     #[error("grant expired: expires_at={expires_at}")]
     GrantExpired { expires_at: String },
 
@@ -286,6 +292,15 @@ pub fn subset_check(
         return Err(CapabilityError::MissingParentGrantId);
     }
 
+    // 1b. Parent must still be usable. A revoked/expired grant cannot mint
+    //     new delegated authority (revocation can never be undone by
+    //     delegation — AUT-001 binds revocation, INV-003 keeps child ⊆ parent).
+    if parent.revocation_state != RevocationState::Active {
+        return Err(CapabilityError::ParentRevoked {
+            state: parent.revocation_state,
+        });
+    }
+
     // 2. Operations ⊆ parent operations
     let parent_ops: std::collections::HashSet<&str> =
         parent.operations.iter().map(|s| s.as_str()).collect();
@@ -346,7 +361,18 @@ pub fn subset_check(
         });
     }
 
-    // 7. Audience cannot widen (INV-003).
+    // 7. Grant generation must not exceed parent generation. Revocation is
+    //    generation-based, monotonic (AUT-001): a child carrying a higher
+    //    generation would escape the parent's revocation watermark, widening
+    //    its authority past what the parent held.
+    if child.generation > parent.generation {
+        return Err(CapabilityError::GenerationExceeded {
+            child: child.generation,
+            parent: parent.generation,
+        });
+    }
+
+    // 8. Audience cannot widen (INV-003).
     //    Attenuation: child audience must equal parent, or be a strict child namespace
     //    of parent under the "parent + ':'" separator. A bare prefix match like
     //    "team" ⊃ "teamXYZ" is REJECTED — that would let a child escape its scope.
@@ -361,7 +387,7 @@ pub fn subset_check(
         }
     }
 
-    // 8. Purpose cannot widen (INV-003) — same strict namespace rule as audience.
+    // 9. Purpose cannot widen (INV-003) — same strict namespace rule as audience.
     if parent.purpose != "*" && child.purpose != parent.purpose {
         let namespace = format!("{}:", parent.purpose);
         if !child.purpose.starts_with(&namespace) {
@@ -514,6 +540,61 @@ mod tests {
         child.parent_grant_id = None; // remove parent ref
         let err = subset_check(&parent, &child).unwrap_err();
         assert_eq!(err, CapabilityError::MissingParentGrantId);
+    }
+
+    // ─── AUT-001: revocation & generation stay monotonic across delegation ────────
+    #[test]
+    fn parent_revoked_denies_child() {
+        let mut parent = make_grant(vec!["read"], 1000, 5);
+        parent.revocation_state = RevocationState::Revoked;
+        let child = make_child(&parent, vec!["read"], 500, 4);
+        assert!(matches!(
+            subset_check(&parent, &child),
+            Err(CapabilityError::ParentRevoked {
+                state: RevocationState::Revoked
+            })
+        ));
+    }
+
+    #[test]
+    fn parent_expired_denies_child() {
+        let mut parent = make_grant(vec!["read"], 1000, 5);
+        parent.revocation_state = RevocationState::Expired;
+        let child = make_child(&parent, vec!["read"], 500, 4);
+        assert!(matches!(
+            subset_check(&parent, &child),
+            Err(CapabilityError::ParentRevoked {
+                state: RevocationState::Expired
+            })
+        ));
+    }
+
+    #[test]
+    fn generation_above_parent_denied() {
+        let parent = make_grant(vec!["read"], 1000, 5);
+        let mut child = make_child(&parent, vec!["read"], 500, 4);
+        child.generation = parent.generation + 1; // escapes the revocation watermark
+        assert!(matches!(
+            subset_check(&parent, &child),
+            Err(CapabilityError::GenerationExceeded { .. })
+        ));
+    }
+
+    #[test]
+    fn generation_equal_parent_allowed() {
+        let parent = make_grant(vec!["read"], 1000, 5);
+        let mut child = make_child(&parent, vec!["read"], 500, 4);
+        child.generation = parent.generation; // inherits the parent's generation
+        assert!(subset_check(&parent, &child).is_ok());
+    }
+
+    #[test]
+    fn generation_below_parent_allowed() {
+        let mut parent = make_grant(vec!["read"], 1000, 5);
+        parent.generation = 2;
+        let mut child = make_child(&parent, vec!["read"], 500, 4);
+        child.generation = 1; // older token, still inside parent
+        assert!(subset_check(&parent, &child).is_ok());
     }
 
     // ─── ATOM-VT-005: child requesting broader authority is DENIED ───────────────

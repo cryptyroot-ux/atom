@@ -1,0 +1,8 @@
+{
+  "fault_id": "ft-0001",
+  "kind": "PARTITION",
+  "injected_at": "2026-08-31T12:00:00Z",
+  "target": "conn/aws-s3",
+  "status": "INJECTED",
+  "recovered_at": null
+}

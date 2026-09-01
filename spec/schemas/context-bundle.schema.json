@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/context-bundle.schema.json",
+  "title": "ContextBundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "bundle_id",
+    "references",
+    "digest",
+    "captured_at"
+  ],
+  "properties": {
+    "bundle_id": { "type": "string" },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref_id", "digest"],
+        "properties": {
+          "ref_id": { "type": "string" },
+          "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+        }
+      },
+      "minItems": 1
+    },
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "captured_at": { "type": "string", "format": "date-time" },
+    "purpose": { "type": ["string", "null"] }
+  }
+}

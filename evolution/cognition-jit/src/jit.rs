@@ -8,8 +8,8 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use atom_evolution::Stage;
 use atom_evidence::VerifierLevel;
+use atom_evolution::Stage;
 
 // ---------------------------------------------------------------------------
 // Errors
@@ -203,8 +203,8 @@ impl CognitionJitCompiler {
 
         let avg_tokens =
             verified.iter().map(|t| t.tokens_used).sum::<u64>() / verified.len() as u64;
-        let avg_calls = verified.iter().map(|t| t.model_calls as u64).sum::<u64>()
-            / verified.len() as u64;
+        let avg_calls =
+            verified.iter().map(|t| t.model_calls as u64).sum::<u64>() / verified.len() as u64;
 
         let source_traces = verified.iter().map(|t| t.id.clone()).collect();
 

@@ -1,0 +1,10 @@
+{
+  "record_id": "dec-0001",
+  "decision": "approve",
+  "subject": "mission/alpha",
+  "decided_by": "svc/approval",
+  "decided_at": "2026-08-31T12:00:00Z",
+  "binding": true,
+  "rationale": "all checks pass",
+  "supersedes_record_id": null
+}

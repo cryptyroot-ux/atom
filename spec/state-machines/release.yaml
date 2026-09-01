@@ -1,0 +1,69 @@
+version: 1.0.0
+initial: DRAFTING
+terminals:
+- PUBLISHED
+- YANKED
+- EXPIRED
+states:
+- DRAFTING
+- BUILDING
+- STAGED
+- APPROVED
+- PUBLISHED
+- YANKED
+- EXPIRED
+transitions:
+- id: l01
+  from: DRAFTING
+  to: BUILDING
+  event: build
+  guard: draft_complete
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: l02
+  from: BUILDING
+  to: STAGED
+  event: stage
+  guard: build_ok
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: l03
+  from: STAGED
+  to: APPROVED
+  event: approve
+  guard: review_ok
+  action: noop
+  cas: true
+  timer: null
+  forbidden: false
+- id: l04
+  from: APPROVED
+  to: PUBLISHED
+  event: publish
+  guard: signature_ok
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: l05
+  from: PUBLISHED
+  to: YANKED
+  event: yank
+  guard: critical_defect
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: l06
+  from: DRAFTING
+  to: EXPIRED
+  event: expire
+  guard: 'true'
+  action: noop
+  cas: false
+  timer: draft_window
+  forbidden: false

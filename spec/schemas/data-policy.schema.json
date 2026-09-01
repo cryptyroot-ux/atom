@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/data-policy.schema.json",
+  "title": "Data Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "policy_id",
+    "classifications",
+    "retention",
+    "purposes",
+    "activated_at"
+  ],
+  "properties": {
+    "policy_id": {
+      "type": "string"
+    },
+    "classifications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "retention": {
+      "type": "object"
+    },
+    "purposes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "activated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "override": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  }
+}

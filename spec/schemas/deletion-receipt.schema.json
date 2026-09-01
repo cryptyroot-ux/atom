@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/deletion-receipt.schema.json",
+  "title": "Deletion Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "receipt_id",
+    "target_digest",
+    "requester",
+    "completed_at",
+    "buried"
+  ],
+  "properties": {
+    "receipt_id": {
+      "type": "string"
+    },
+    "target_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "requester": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "buried": {
+      "type": "boolean"
+    },
+    "reclaimed_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    }
+  }
+}

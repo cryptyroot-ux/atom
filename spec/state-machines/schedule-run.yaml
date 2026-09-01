@@ -1,0 +1,60 @@
+version: 1.0.0
+initial: PENDING
+terminals:
+- SUCCEEDED
+- FAILED
+- SKIPPED
+- CANCELED
+states:
+- PENDING
+- RUNNING
+- SUCCEEDED
+- FAILED
+- SKIPPED
+- CANCELED
+transitions:
+- id: s01
+  from: PENDING
+  to: RUNNING
+  event: start
+  guard: trigger_matches
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: s02
+  from: RUNNING
+  to: SUCCEEDED
+  event: done
+  guard: exit_zero
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: s03
+  from: RUNNING
+  to: FAILED
+  event: error
+  guard: exit_nonzero
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: s04
+  from: PENDING
+  to: SKIPPED
+  event: skip
+  guard: cooldown_active
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: s05
+  from: PENDING
+  to: CANCELED
+  event: cancel
+  guard: user_action
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false

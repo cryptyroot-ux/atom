@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/commitment.schema.json",
+  "title": "Commitment",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "commitment_id",
+    "kind",
+    "target_digest",
+    "promise",
+    "scope",
+    "status",
+    "made_at"
+  ],
+  "properties": {
+    "commitment_id": { "type": "string" },
+    "kind": {
+      "enum": ["BEHAVIOR", "COMPATIBILITY", "SLA", "REPRODUCIBILITY"]
+    },
+    "target_digest": { "type": "string" },
+    "promise": { "type": "string" },
+    "scope": { "type": "string" },
+    "status": {
+      "enum": ["ACTIVE", "FULFILLED", "VIOLATED", "WITHDRAWN"]
+    },
+    "made_at": { "type": "string", "format": "date-time" },
+    "valid_until": { "type": ["string", "null"], "format": "date-time" },
+    "evidence_refs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    }
+  }
+}

@@ -6,7 +6,7 @@
 use atom_capability::{Budget, CapabilityGrant, ResourceSelector, RevocationState};
 use atom_effect::{
     issue_commit_permit, CommitPermitted, Compensation, CompensationStrategy, Condition,
-    DurabilityWitness, EffectEvent, EffectIntent, Idempotency, PermitRequest, ReconciledOutcome,
+    DurabilityProof, EffectEvent, EffectIntent, Idempotency, PermitRequest, ReconciledOutcome,
     Reconciliation, ReconciliationClass, ResourceWitness, RetryClass,
 };
 use atom_ledger::{HmacSha256Signer, Ledger};
@@ -33,9 +33,27 @@ fn ledger() -> Ledger {
     .expect("in-memory ledger")
 }
 
+/// Mints a real, ledger-sealed durability proof on `intent`'s own stream.
+///
+/// There is no `DurabilityProof` constructor a test could call, so this is the
+/// only way to obtain one: append the declared intent (the identity payload,
+/// stable across lifecycle transitions) to a ledger stream named for the effect
+/// and take the proof the ledger seals over it.
+fn durable_proof(intent: &EffectIntent) -> DurabilityProof {
+    let payload = intent
+        .declared_payload()
+        .expect("fixture intent has a declared payload");
+    let (_event, proof) = ledger()
+        .append_durable(&intent.effect_id, &payload, 1_756_512_000_000)
+        .expect("appending the declared intent seals a durability proof");
+    proof
+}
+
 fn reference_effect(effect_id: &str, mission_id: &str, target_id: &str) -> EffectIntent {
     EffectIntent::builder(effect_id, mission_id, "capability-write", target_id)
-        .request_digest("sha256:reference-request")
+        .canonical_request_digest(
+            "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        )
         .classes("WRITE_FILE", "LOW")
         .idempotency(Idempotency::keyed(
             "reference-mission",
@@ -221,7 +239,7 @@ fn unknown_effect_outcome_stays_unknown_and_never_blindly_retries() {
             .effect(effect_id)
             .expect("tracked effect")
             .durability
-            .stream_id,
+            .stream_id(),
         effect_id,
         "the effect intent was durable before action",
     );
@@ -314,7 +332,7 @@ fn host_operation_crosses_only_the_atom_privd_permit_gate() {
         planned_grant_generation: grant.generation,
         planned_witness: &witness,
         observed_witness: &witness,
-        durability: &DurabilityWitness::new(&intent.effect_id, 1, "durable-entry-hash"),
+        durability: &durable_proof(&intent),
         permit_id: "host-permit",
         one_shot_nonce: "host-nonce",
         ttl_seconds: 10,
@@ -343,4 +361,35 @@ fn host_operation_crosses_only_the_atom_privd_permit_gate() {
 
     assert_eq!(gateway.client().spent(), 1);
     assert_eq!(gateway.client().executor().operations, vec![op]);
+}
+
+/// A burned nonce is recorded on the ledger's nonce-burn stream and is read back
+/// by a cold-start scan, so the one-shot guarantee survives a restart
+/// (ATOM-V4-EFX-004 · durable nonce).
+#[test]
+fn burned_nonce_survives_restart_via_ledger_stream() {
+    let now = fixed_now();
+    let mut runtime = Runtime::native(
+        "durable-nonce-mission",
+        ledger(),
+        FixedClock::new(now),
+        CounterRng::new(7),
+    )
+    .expect("native runtime");
+
+    assert!(
+        Runtime::<FixedClock, CounterRng>::burned_nonces_from(runtime.ledger()).is_empty(),
+        "no burns recorded yet"
+    );
+
+    runtime
+        .burn_nonce("nonce-boot", now)
+        .expect("burning a nonce is recorded durably");
+    runtime
+        .burn_nonce("nonce-second", now + Duration::seconds(1))
+        .expect("a second burn appends");
+
+    // A cold start (re)hydrates one-shot memory straight from the ledger.
+    let burned = Runtime::<FixedClock, CounterRng>::burned_nonces_from(runtime.ledger());
+    assert_eq!(burned, vec!["nonce-boot", "nonce-second"]);
 }

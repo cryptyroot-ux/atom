@@ -48,7 +48,9 @@ fn intent() -> EffectIntent {
         GRANT_ID,
         "db/orders",
     )
-    .request_digest("sha256:5f2c9e1d8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d")
+    .canonical_request_digest(
+        "sha256:5f2c9e1d8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d",
+    )
     .classes("RESOURCE_MUTATION", "HIGH")
     .idempotency(Idempotency::keyed("db/orders", "idem-8842"))
     .reconciliation(

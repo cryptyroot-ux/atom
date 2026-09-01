@@ -1,0 +1,8 @@
+{
+  "lease_id": "ls-0001",
+  "epoch": 3,
+  "holder": "svc/leader",
+  "acquired_at": "2026-08-31T12:00:00Z",
+  "expires_at": "2026-08-31T12:30:00Z",
+  "renewable": true
+}

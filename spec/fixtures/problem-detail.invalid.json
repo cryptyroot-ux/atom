@@ -1,0 +1,7 @@
+{
+  "type": "https://atom.run/probs/denied",
+  "title": "Access denied",
+  "status": 42,
+  "detail": "no grant",
+  "instance": "op/001"
+}

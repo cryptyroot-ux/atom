@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/resource-precondition.schema.json",
+  "title": "Resource Precondition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "precondition_id",
+    "resource_id",
+    "expectation",
+    "expected_witness",
+    "checked_at"
+  ],
+  "properties": {
+    "precondition_id": {
+      "type": "string"
+    },
+    "resource_id": {
+      "type": "string"
+    },
+    "expectation": {
+      "type": "string"
+    },
+    "expected_witness": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "checked_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

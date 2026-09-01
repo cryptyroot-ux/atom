@@ -9,10 +9,11 @@
 
 use atom_capability::{Budget, CapabilityGrant, ResourceSelector, RevocationState};
 use atom_effect::{
-    issue_commit_permit, CommitPermit, Compensation, CompensationStrategy, DurabilityWitness,
+    issue_commit_permit, CommitPermit, Compensation, CompensationStrategy, DurabilityProof,
     EffectEvent, EffectIntent, EffectState, Idempotency, PermitRequest, Reconciliation,
     ReconciliationClass, ResourceWitness, RetryClass,
 };
+use atom_ledger::{HmacSha256Signer, Ledger};
 use atom_privd::{AdmissionRequest, ExecError, HostExecutor, HostOp, OpOutcome, PrivilegeBroker};
 use chrono::{DateTime, TimeZone, Utc};
 
@@ -153,10 +154,27 @@ pub fn drifted_witness(op: &HostOp) -> ResourceWitness {
     witness_for(op, DRIFTED_WITNESS_VALUE)
 }
 
-/// Proof the intent `effect_id` was persisted before dispatch (EFX-001).
+/// Proof the exact `intent` was persisted before dispatch (EFX-001).
+///
+/// Minted the only way a real proof can be: by appending the intent's declared
+/// payload (the caller's declaration, stable across lifecycle transitions) to a
+/// ledger stream named for the effect. There is no `DurabilityProof` constructor
+/// a test could call, so a forged proof is inexpressible — passing one effect's
+/// proof to another effect's boundary is a mismatch the sealed proof refuses.
 #[must_use]
-pub fn durability(effect_id: &str) -> DurabilityWitness {
-    DurabilityWitness::new(effect_id, 4, LEDGER_HASH)
+pub fn durability(intent: &EffectIntent) -> DurabilityProof {
+    let signer = Box::new(HmacSha256Signer::new(
+        "atom-privd-test-seal",
+        b"atom-privd-test-key-not-for-production",
+    ));
+    let mut ledger = Ledger::open_in_memory(signer).expect("in-memory ledger opens");
+    let payload = intent
+        .declared_payload()
+        .expect("fixture intent has a declared payload");
+    let (_event, proof) = ledger
+        .append_durable(&intent.effect_id, &payload, 1_756_512_000_000)
+        .expect("appending the declared intent seals a durability proof");
+    proof
 }
 
 /// A minimal EFX-002 intent for `op`, driven to `COMMIT_REVALIDATING`.
@@ -177,7 +195,7 @@ pub fn foreign_intent_for(op: &HostOp) -> EffectIntent {
 /// Builds `effect_id`'s intent for `op` and advances it to the commit boundary.
 fn revalidating(effect_id: &str, op: &HostOp) -> EffectIntent {
     let intent = EffectIntent::builder(effect_id, MISSION_ID, GRANT_ID, &op.resource_id())
-        .request_digest(REQUEST_DIGEST)
+        .canonical_request_digest(REQUEST_DIGEST)
         .classes("HOST_ADMINISTRATION", "HIGH")
         .idempotency(Idempotency::natural(&op.resource_id()))
         .reconciliation(Reconciliation::new(
@@ -219,7 +237,7 @@ pub fn permit_for(
         planned_grant_generation: GRANT_GENERATION,
         planned_witness: witness,
         observed_witness: witness,
-        durability: &durability(&intent.effect_id),
+        durability: &durability(intent),
         permit_id: PERMIT_ID,
         one_shot_nonce: NONCE,
         ttl_seconds: TTL_SECONDS,

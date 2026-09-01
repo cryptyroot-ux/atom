@@ -1,0 +1,164 @@
+{
+  "gate": "G0",
+  "scope": "repository",
+  "generated_at": "2026-08-31T21:42:08.420951+00:00",
+  "overall": "BLOCKED",
+  "summary": {
+    "total": 25,
+    "pass": 22,
+    "fail": 0,
+    "blocked": 3
+  },
+  "checks": [
+    {
+      "id": "G0-COUNT::requirements",
+      "status": "PASS",
+      "summary": "requirements: 142 (controlled 142)",
+      "detail": ""
+    },
+    {
+      "id": "G0-COUNT::invariants",
+      "status": "PASS",
+      "summary": "invariants: 30 (controlled 30)",
+      "detail": ""
+    },
+    {
+      "id": "G0-COUNT::trace_rows",
+      "status": "PASS",
+      "summary": "trace_rows: 142 (controlled 142)",
+      "detail": ""
+    },
+    {
+      "id": "G0-COUNT::acceptance_tests",
+      "status": "PASS",
+      "summary": "acceptance_tests: 142 (controlled 142)",
+      "detail": ""
+    },
+    {
+      "id": "G0-COUNT::legacy_dispositions",
+      "status": "PASS",
+      "summary": "legacy_dispositions: 184 (controlled 184)",
+      "detail": ""
+    },
+    {
+      "id": "G0-COUNT::semantic_rules",
+      "status": "PASS",
+      "summary": "semantic_rules: 12 (controlled 12)",
+      "detail": ""
+    },
+    {
+      "id": "G0-COUNT::schemas",
+      "status": "PASS",
+      "summary": "schemas: 51 (controlled 51)",
+      "detail": ""
+    },
+    {
+      "id": "G0-COUNT::state_machines",
+      "status": "PASS",
+      "summary": "state_machines: 9 (controlled 9)",
+      "detail": ""
+    },
+    {
+      "id": "G0-UNIQUE::requirements",
+      "status": "PASS",
+      "summary": "142 unique id(s) in requirements.yaml",
+      "detail": ""
+    },
+    {
+      "id": "G0-UNIQUE::acceptance",
+      "status": "PASS",
+      "summary": "142 unique id(s) in acceptance-catalog.yaml",
+      "detail": ""
+    },
+    {
+      "id": "G0-UNIQUE::invariants",
+      "status": "PASS",
+      "summary": "30 unique id(s) in invariants.yaml",
+      "detail": ""
+    },
+    {
+      "id": "G0-UNIQUE::semantic",
+      "status": "PASS",
+      "summary": "12 unique id(s) in semantic-rules.yaml",
+      "detail": ""
+    },
+    {
+      "id": "G0-UNIQUE::legacy",
+      "status": "PASS",
+      "summary": "184 unique id(s) in legacy-disposition.yaml",
+      "detail": ""
+    },
+    {
+      "id": "G0-TRACE::bidirectional",
+      "status": "PASS",
+      "summary": "all 142 requirements traced, no dangling rows",
+      "detail": ""
+    },
+    {
+      "id": "G0-TRACE::test-refs",
+      "status": "PASS",
+      "summary": "trace.test references resolve to acceptance ids",
+      "detail": ""
+    },
+    {
+      "id": "G0-TRACE::acceptance-refs",
+      "status": "PASS",
+      "summary": "acceptance.requirement references resolve to requirement ids",
+      "detail": ""
+    },
+    {
+      "id": "G0-INV::present",
+      "status": "PASS",
+      "summary": "30 invariants present (30 found)",
+      "detail": ""
+    },
+    {
+      "id": "G0-INV::class-discipline",
+      "status": "PASS",
+      "summary": "20 requirement-linked, 10 global-meta",
+      "detail": ""
+    },
+    {
+      "id": "G0-CONTRACT::schema-inventory",
+      "status": "PASS",
+      "summary": "51 referenced schema contracts inventoried",
+      "detail": ""
+    },
+    {
+      "id": "G0-CONTRACT::sm-inventory",
+      "status": "PASS",
+      "summary": "9 referenced state-machine contracts inventoried",
+      "detail": ""
+    },
+    {
+      "id": "G0-LEGACY::disposition",
+      "status": "PASS",
+      "summary": "all 184 legacy rows carry a disposition",
+      "detail": "note: extra-vocab dispositions ['DEFERRED_WITH_CONTRACT', 'MERGED_AS_ACCEPTANCE_ALIAS', 'RETAINED', 'STRENGTHENED_AND_PHASED']"
+    },
+    {
+      "id": "G0-MANIFEST::counts",
+      "status": "PASS",
+      "summary": "manifest counts equal files on disk",
+      "detail": ""
+    },
+    {
+      "id": "G0-COVERAGE::schema-bodies",
+      "status": "BLOCKED",
+      "summary": "0/51 schema bodies v4.1-authored",
+      "detail": "7 exist on disk (v4.0-era, pending v4.1 review)"
+    },
+    {
+      "id": "G0-COVERAGE::schema-fixtures",
+      "status": "BLOCKED",
+      "summary": "0/102 schema fixtures authored",
+      "detail": "one valid + one invalid per schema required"
+    },
+    {
+      "id": "G0-COVERAGE::sm-bodies",
+      "status": "BLOCKED",
+      "summary": "0/9 state-machine bodies v4.1-authored",
+      "detail": "2 exist on disk (v4.0-era, pending v4.1 review)"
+    }
+  ]
+}

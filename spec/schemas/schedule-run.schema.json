@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/schedule-run.schema.json",
+  "title": "Schedule Run",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "run_id",
+    "schedule_id",
+    "scheduled_at",
+    "trigger",
+    "status"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "schedule_id": {
+      "type": "string"
+    },
+    "scheduled_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "trigger": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PENDING",
+        "RUNNING",
+        "SUCCEEDED",
+        "FAILED",
+        "SKIPPED"
+      ]
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "item_id": "ctx-item/001",
+  "code": "println",
+  "toml": "[meta]\\nname='x'",
+  "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "sources": [
+    "spec/mission"
+  ]
+}

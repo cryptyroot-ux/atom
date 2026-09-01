@@ -1,0 +1,8 @@
+{
+  "evidence_id": "ev/001",
+  "kind": "TEST",
+  "digest": "bad",
+  "produced_by": "unit-suite",
+  "produced_at": "2026-08-31T12:00:00Z",
+  "verdict": "PASS"
+}

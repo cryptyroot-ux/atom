@@ -20,7 +20,9 @@ Group=atom
 # Environment file with signing keys (never hardcode!)
 EnvironmentFile=-/etc/atom/env
 # Binary installed via `cargo install` or placed in /usr/local/bin
-ExecStart=/usr/local/bin/atom run
+ExecStart=/usr/local/bin/atom serve
+# Address the HTTP API binds (override via EnvironmentFile if needed)
+Environment=ATOM_SERVE_ADDR=127.0.0.1:8420
 # Restart policy
 Restart=on-failure
 RestartSec=5

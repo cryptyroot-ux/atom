@@ -1,0 +1,60 @@
+version: 1.0.0
+initial: REQUESTED
+terminals:
+- DENIED
+- REVOKED
+- EXPIRED
+- CONSUMED
+states:
+- REQUESTED
+- GRANTED
+- DENIED
+- REVOKED
+- EXPIRED
+- CONSUMED
+transitions:
+- id: g01
+  from: REQUESTED
+  to: GRANTED
+  event: approve
+  guard: policy_ok
+  action: noop
+  cas: true
+  timer: null
+  forbidden: false
+- id: g02
+  from: REQUESTED
+  to: DENIED
+  event: deny
+  guard: policy_fail
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: g03
+  from: GRANTED
+  to: REVOKED
+  event: revoke
+  guard: fraud_or_abuse
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: g04
+  from: GRANTED
+  to: EXPIRED
+  event: expire
+  guard: 'true'
+  action: noop
+  cas: false
+  timer: grant_lifetime
+  forbidden: false
+- id: g05
+  from: GRANTED
+  to: CONSUMED
+  event: consume
+  guard: budget_exhausted
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false

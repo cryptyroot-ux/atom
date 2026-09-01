@@ -1,0 +1,10 @@
+{
+  "call_id": "pc-0001",
+  "provider_id": "provider/llm",
+  "operation": "completion",
+  "request_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "response_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "duration_ms": 250,
+  "status": "OK",
+  "started_at": null
+}

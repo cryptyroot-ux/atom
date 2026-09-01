@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/release-manifest.schema.json",
+  "title": "Release Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_id",
+    "release_id",
+    "version",
+    "artifacts",
+    "created_at",
+    "signatures"
+  ],
+  "properties": {
+    "manifest_id": {
+      "type": "string"
+    },
+    "release_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "minItems": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "signatures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

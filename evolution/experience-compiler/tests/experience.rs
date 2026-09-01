@@ -26,7 +26,11 @@ fn recurring_trajectory(i: usize) -> ExecutionTrajectory {
             },
         ],
         success: true,
-        cost: CostSnapshot { tokens: 100, latency_ms: 50, cost_cents: 1 },
+        cost: CostSnapshot {
+            tokens: 100,
+            latency_ms: 50,
+            cost_cents: 1,
+        },
         timestamp: i as i64,
     }
 }
@@ -39,14 +43,20 @@ fn family(n: usize) -> Vec<ExecutionTrajectory> {
 fn insufficient_trajectories_is_error() {
     let c = ExperienceCompiler::new();
     let r = c.mine_subtrajectories(&family(3));
-    assert!(matches!(r, Err(CompilerError::InsufficientTrajectories { .. })));
+    assert!(matches!(
+        r,
+        Err(CompilerError::InsufficientTrajectories { .. })
+    ));
 }
 
 #[test]
 fn mines_recurring_subtrajectory() {
     let c = ExperienceCompiler::new();
     let subs = c.mine_subtrajectories(&family(20)).unwrap();
-    assert!(!subs.is_empty(), "expected mined patterns from repeated trajectories");
+    assert!(
+        !subs.is_empty(),
+        "expected mined patterns from repeated trajectories"
+    );
     for s in &subs {
         assert!(s.frequency >= 3);
     }
@@ -58,7 +68,9 @@ fn synthesized_recommendation_is_non_authoritative() {
     let fam = family(20);
     let (_training, holdout) = c.split_holdout(&fam);
     let subs = c.mine_subtrajectories(&fam).unwrap();
-    let rec = c.synthesize_candidate(&subs[0], "test-family", holdout).unwrap();
+    let rec = c
+        .synthesize_candidate(&subs[0], "test-family", holdout)
+        .unwrap();
     // INV-016: no authority expansion — target must be None (no CapabilityGrant).
     assert!(rec.target_capability_id.is_none());
     assert!(!rec.proposed_operations.is_empty());

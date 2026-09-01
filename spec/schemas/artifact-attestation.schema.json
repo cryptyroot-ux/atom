@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/artifact-attestation.schema.json",
+  "title": "ArtifactAttestation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "attestation_id",
+    "artifact_digest",
+    "predicate_type",
+    "subject",
+    "verifier",
+    "issued_at"
+  ],
+  "properties": {
+    "attestation_id": { "type": "string" },
+    "artifact_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "predicate_type": { "type": "string" },
+    "subject": { "type": "string" },
+    "verifier": { "type": "string" },
+    "signature": { "type": ["string", "null"] },
+    "build_ref": { "type": ["string", "null"] },
+    "source_ref": { "type": ["string", "null"] },
+    "issued_at": { "type": "string", "format": "date-time" }
+  }
+}

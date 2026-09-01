@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/recovery-plan.schema.json",
+  "title": "Recovery Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "plan_id",
+    "scenario",
+    "steps",
+    "computed_at"
+  ],
+  "properties": {
+    "plan_id": {
+      "type": "string"
+    },
+    "scenario": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "minItems": 1
+    },
+    "computed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "responsible": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

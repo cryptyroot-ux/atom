@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/trace-link.schema.json",
+  "title": "Trace Link",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "link_id",
+    "source",
+    "target",
+    "relation",
+    "recorded_at"
+  ],
+  "properties": {
+    "link_id": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "target": {
+      "type": "string"
+    },
+    "relation": {
+      "type": "string"
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

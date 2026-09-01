@@ -1,0 +1,27 @@
+spec_version: 4.1.0
+status: CANDIDATE_BASELINE
+g0: PASS_AT_DOCUMENT_PACKAGE
+implementation_status: NOT_ASSESSED
+counts:
+  requirements: 142
+  trace_rows: 142
+  acceptance_tests: 142
+  legacy_dispositions: 184
+  semantic_rules: 12
+  invariants: 30
+  schemas: 51
+  state_machines: 9
+source_documents:
+- ATOM_PRD_v4.1
+- ATOM_Verification_Traceability_and_Acceptance_v4.1
+- ATOM_Architecture_Constitution_v4.1
+- ATOM_Technical_Blueprint_v4.1
+- ATOM_v4.1_Correction_and_Completion_Release
+body_coverage:
+  schema_bodies_authored: 7
+  schema_bodies_required: 51
+  schema_fixtures_authored: 0
+  schema_fixtures_required: 102
+  state_machine_bodies_authored: 2
+  state_machine_bodies_required: 9
+landed_from: /root/docs/atom-v4 (verified this session)

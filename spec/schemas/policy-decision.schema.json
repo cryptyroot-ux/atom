@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/policy-decision.schema.json",
+  "title": "Policy Decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decision_id",
+    "policy",
+    "input_refs",
+    "decision",
+    "rendered_at",
+    "evaluator"
+  ],
+  "properties": {
+    "decision_id": {
+      "type": "string"
+    },
+    "policy": {
+      "type": "string"
+    },
+    "input_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "decision": {
+      "enum": [
+        "ALLOW",
+        "DENY",
+        "REQUIRE_APPROVAL",
+        "UNEVALUABLE"
+      ]
+    },
+    "rendered_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evaluator": {
+      "type": "string"
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

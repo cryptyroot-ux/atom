@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use thiserror::Error;
 
+use crate::canonical::{to_canonical_bytes, CanonicalizationError};
 use crate::digest::{digest_component, digest_optional, finish};
 use crate::event::EffectEvent;
 use crate::reducer::{try_reduce, ReduceError};
@@ -51,6 +52,32 @@ pub enum IntentError {
         /// The repeated edge.
         effect_id: String,
     },
+    /// The request digest is not a canonical `sha256:<64 hex>` identity.
+    ///
+    /// EFX-005 / ATOM-SEM-003 accept only `canonical_request_digest`, and a
+    /// canonical digest is the SHA-256 of the RFC 8785 request bytes. A
+    /// free-form string here would defeat the point of a canonical identity.
+    #[error("`canonical_request_digest` must be `sha256:<64 hex>`, got `{value}`")]
+    NotCanonicalDigest {
+        /// The rejected value.
+        value: String,
+    },
+}
+/// Fails unless `value` is `sha256:` followed by exactly 64 lower-case hex.
+pub(crate) fn require_canonical_digest(value: &str) -> Result<(), IntentError> {
+    let is_canonical = value.strip_prefix("sha256:").is_some_and(|hex| {
+        hex.len() == 64
+            && hex
+                .bytes()
+                .all(|b| b.is_ascii_hexdigit() && !b.is_ascii_uppercase())
+    });
+    if is_canonical {
+        Ok(())
+    } else {
+        Err(IntentError::NotCanonicalDigest {
+            value: value.to_owned(),
+        })
+    }
 }
 /// Fails unless `value` carries something other than whitespace.
 pub(crate) fn require_text(value: &str, field: &str) -> Result<(), IntentError> {
@@ -77,8 +104,10 @@ pub struct EffectIntent {
     pub capability_id: String,
     /// The resource the effect acts on.
     pub target_id: String,
-    /// Digest of the canonical request body, so a mutated request is a new one.
-    pub request_digest: String,
+    /// Canonical (RFC 8785) digest of the request body: `sha256:<64 hex>`. A
+    /// reordered or reformatted request keeps this identity; a mutated one earns
+    /// a new one. The sole accepted request-digest field (EFX-005).
+    pub canonical_request_digest: String,
     /// The target's own handle, discovered at dispatch and not before.
     pub external_operation_id: Option<String>,
     /// What kind of effect this is, in the caller's vocabulary.
@@ -114,7 +143,7 @@ impl EffectIntent {
             mission_id: mission_id.to_owned(),
             capability_id: capability_id.to_owned(),
             target_id: target_id.to_owned(),
-            request_digest: None,
+            canonical_request_digest: None,
             classes: None,
             idempotency: None,
             preconditions: Vec::new(),
@@ -137,6 +166,45 @@ impl EffectIntent {
         finish(hasher)
     }
 
+    /// The intent's declared payload: every field the caller wrote down, and
+    /// nothing the lifecycle later discovers (`state`, `external_operation_id`).
+    ///
+    /// This is the JSON the ledger persists on the effect's own stream, so the
+    /// bytes are byte-for-byte stable as the intent advances through its states.
+    /// A whole-struct serialization would change with `state`, so nothing else
+    /// can be re-derived at the commit gate (ATOM-INV-004).
+    ///
+    /// # Errors
+    ///
+    /// [`CanonicalizationError`] if serializing the declared fields fails.
+    pub fn declared_payload(&self) -> Result<serde_json::Value, CanonicalizationError> {
+        let mut value = serde_json::to_value(self)
+            .map_err(|error| CanonicalizationError::Serialization(error.to_string()))?;
+        let fields = value.as_object_mut().ok_or_else(|| {
+            CanonicalizationError::Serialization("intent must serialize to an object".into())
+        })?;
+        fields.remove("external_operation_id");
+        fields.remove("state");
+        Ok(value)
+    }
+
+    /// The RFC 8785 payload digest of the declared intent, computed exactly as
+    /// the ledger computes it over the persisted declared payload.
+    ///
+    /// A `DurabilityProof` seals this digest, so the two bind: the proof attests
+    /// that *this exact declaration* was durably persisted, not merely something
+    /// on the effect's stream (EFX-001, ATOM-INV-004).
+    ///
+    /// # Errors
+    ///
+    /// [`CanonicalizationError`] if serializing or canonicalizing the declared
+    /// payload fails.
+    pub fn declared_payload_digest(&self) -> Result<atom_ledger::Hash, CanonicalizationError> {
+        let value = self.declared_payload()?;
+        let bytes = to_canonical_bytes(&value)?;
+        Ok(atom_ledger::payload_digest_bytes(&bytes))
+    }
+
     /// The identity digest extended with the lifecycle position.
     #[must_use]
     pub fn state_digest(&self) -> String {
@@ -155,7 +223,7 @@ impl EffectIntent {
             &self.mission_id,
             &self.capability_id,
             &self.target_id,
-            &self.request_digest,
+            &self.canonical_request_digest,
             &self.effect_class,
             &self.risk_class,
         ] {
@@ -215,7 +283,7 @@ pub struct EffectIntentBuilder {
     mission_id: String,
     capability_id: String,
     target_id: String,
-    request_digest: Option<String>,
+    canonical_request_digest: Option<String>,
     classes: Option<(String, String)>,
     idempotency: Option<Idempotency>,
     preconditions: Vec<Condition>,
@@ -226,11 +294,28 @@ pub struct EffectIntentBuilder {
 }
 
 impl EffectIntentBuilder {
-    /// Sets the digest of the canonical request body.
+    /// Sets the canonical request digest directly (`sha256:<64 hex>`).
+    ///
+    /// Prefer [`Self::canonical_request`] to compute it from the request body;
+    /// use this only when the RFC 8785 digest was minted elsewhere.
     #[must_use]
-    pub fn request_digest(mut self, request_digest: &str) -> Self {
-        self.request_digest = Some(request_digest.to_owned());
+    pub fn canonical_request_digest(mut self, canonical_request_digest: &str) -> Self {
+        self.canonical_request_digest = Some(canonical_request_digest.to_owned());
         self
+    }
+
+    /// Computes and sets the canonical request digest from the request body,
+    /// canonicalizing `request` under RFC 8785 (JCS) before hashing.
+    ///
+    /// # Errors
+    ///
+    /// [`CanonicalizationError`] if `request` carries a non-integer number.
+    pub fn canonical_request(
+        mut self,
+        request: &serde_json::Value,
+    ) -> Result<Self, CanonicalizationError> {
+        self.canonical_request_digest = Some(crate::canonical::canonical_request_digest(request)?);
+        Ok(self)
     }
 
     /// Sets the effect and risk classes.
@@ -299,10 +384,12 @@ impl EffectIntentBuilder {
             require_text(value, field)?;
         }
 
-        let request_digest = self.request_digest.ok_or(IntentError::MissingField {
-            field: "request_digest",
-        })?;
-        require_text(&request_digest, "request_digest")?;
+        let canonical_request_digest =
+            self.canonical_request_digest
+                .ok_or(IntentError::MissingField {
+                    field: "canonical_request_digest",
+                })?;
+        require_canonical_digest(&canonical_request_digest)?;
 
         let (effect_class, risk_class) = self.classes.ok_or(IntentError::MissingField {
             field: "effect_class",
@@ -359,7 +446,7 @@ impl EffectIntentBuilder {
             mission_id: self.mission_id,
             capability_id: self.capability_id,
             target_id: self.target_id,
-            request_digest,
+            canonical_request_digest,
             external_operation_id: None,
             effect_class,
             risk_class,

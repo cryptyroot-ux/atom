@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/promotion-decision.schema.json",
+  "title": "Promotion Decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decision_id",
+    "from_release",
+    "to_release",
+    "approved_by",
+    "decided_at",
+    "outcome"
+  ],
+  "properties": {
+    "decision_id": {
+      "type": "string"
+    },
+    "from_release": {
+      "type": "string"
+    },
+    "to_release": {
+      "type": "string"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "decided_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "outcome": {
+      "enum": [
+        "PROMOTE",
+        "HOLD",
+        "REJECT"
+      ]
+    },
+    "review_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

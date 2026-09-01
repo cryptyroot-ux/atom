@@ -1,0 +1,106 @@
+version: 1.0.0
+initial: ASSEMBLED
+terminals:
+- PROMOTED
+- BURIED
+- WITHDRAWN
+states:
+- ASSEMBLED
+- ATTESTED
+- VERIFIED
+- PROMOTED
+- DEPRECATED
+- WITHDRAWN
+- BURIED
+- SIGNED
+transitions:
+- id: at01
+  from: ASSEMBLED
+  to: ATTESTED
+  event: attest
+  guard: sbom_ok
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: at02
+  from: ATTESTED
+  to: SIGNED
+  event: sign
+  guard: key_present
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: at03
+  from: SIGNED
+  to: VERIFIED
+  event: verify
+  guard: signature_ok
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: at04
+  from: ASSEMBLED
+  to: WITHDRAWN
+  event: withdraw
+  guard: not_released
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: at05
+  from: VERIFIED
+  to: PROMOTED
+  event: promote
+  guard: checks_pass
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: at06
+  from: PROMOTED
+  to: DEPRECATED
+  event: deprecate
+  guard: replaced
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: at07
+  from: DEPRECATED
+  to: BURIED
+  event: bury
+  guard: 'true'
+  action: noop
+  cas: false
+  timer: deprecation_window
+  forbidden: false
+- id: at08
+  from: VERIFIED
+  to: BURIED
+  event: expunge
+  guard: retention_met
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: at09
+  from: WITHDRAWN
+  to: BURIED
+  event: bury
+  guard: cleanup
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: at10
+  from: SIGNED
+  to: WITHDRAWN
+  event: recall
+  guard: key_compromise
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false

@@ -1,0 +1,76 @@
+version: 1.0.0
+initial: REQUESTED
+terminals:
+- SUCCEEDED
+- FAILED
+states:
+- REQUESTED
+- VALIDATED
+- IN_PROGRESS
+- VERIFYING
+- SUCCEEDED
+- FAILED
+transitions:
+- id: r01
+  from: REQUESTED
+  to: VALIDATED
+  event: validate
+  guard: manifest_ok
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: r02
+  from: REQUESTED
+  to: FAILED
+  event: reject
+  guard: manifest_bad
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: r03
+  from: VALIDATED
+  to: IN_PROGRESS
+  event: start
+  guard: preconditions_met
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: r04
+  from: IN_PROGRESS
+  to: VERIFYING
+  event: done
+  guard: copy_ok
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: r05
+  from: VERIFYING
+  to: SUCCEEDED
+  event: verify_ok
+  guard: integrity_check_pass
+  action: noop
+  cas: true
+  timer: null
+  forbidden: false
+- id: r06
+  from: VERIFYING
+  to: FAILED
+  event: verify_fail
+  guard: integrity_check_fail
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: r07
+  from: IN_PROGRESS
+  to: FAILED
+  event: error
+  guard: copy_error
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false

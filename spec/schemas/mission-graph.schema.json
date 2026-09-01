@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/mission-graph.schema.json",
+  "title": "Mission Graph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "graph_id",
+    "mission_id",
+    "nodes",
+    "edges",
+    "digest"
+  ],
+  "properties": {
+    "graph_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "minItems": 1
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "minItems": 1
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  }
+}

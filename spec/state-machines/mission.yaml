@@ -1,28 +1,166 @@
 version: 1.0.0
-axes:
-  phase:
-  - CREATED
-  - COMPILED
-  - READY
-  - RUNNING
-  - VERIFYING
-  - TERMINAL
-  condition:
-  - NORMAL
-  - WAITING
-  - APPROVAL_REQUIRED
-  - PAUSED
-  - DEGRADED
-  - BLOCKED
-  outcome:
-  - SUCCEEDED
-  - FAILED
-  - CANCELLED
-  - UNSATISFIABLE
-  - REJECTED
-rules:
-- outcome MUST be null unless phase is TERMINAL
-- TERMINAL requires non-null outcome
-- APPROVAL_REQUIRED may coexist with RUNNING
-- BLOCKED does not imply FAILED
-- UNSATISFIABLE is an outcome, not a condition
+initial: CREATED
+terminals:
+- TERMINAL_SUCCESS
+- TERMINAL_FAILED
+- TERMINAL_CANCELLED
+- TERMINAL_REJECTED
+states:
+- CREATED
+- COMPILED
+- READY
+- RUNNING
+- RUNNING_APPROVAL
+- RUNNING_PAUSED
+- RUNNING_DEGRADED
+- RUNNING_BLOCKED
+- VERIFYING
+- TERMINAL_SUCCESS
+- TERMINAL_FAILED
+- TERMINAL_CANCELLED
+- TERMINAL_REJECTED
+transitions:
+- id: m01
+  from: CREATED
+  to: COMPILED
+  event: compile
+  guard: 'true'
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: m02
+  from: COMPILED
+  to: READY
+  event: ready
+  guard: 'true'
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: m03
+  from: READY
+  to: RUNNING
+  event: start
+  guard: 'true'
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: m04
+  from: RUNNING
+  to: RUNNING_APPROVAL
+  event: need_approval
+  guard: approval_required
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: m05
+  from: RUNNING_APPROVAL
+  to: RUNNING
+  event: approval_granted
+  guard: approved
+  action: noop
+  cas: true
+  timer: null
+  forbidden: false
+- id: m06
+  from: RUNNING
+  to: RUNNING_PAUSED
+  event: pause
+  guard: 'true'
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: m07
+  from: RUNNING_PAUSED
+  to: RUNNING
+  event: resume
+  guard: 'true'
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: m08
+  from: RUNNING
+  to: RUNNING_DEGRADED
+  event: degrade
+  guard: partial_capacity
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: m09
+  from: RUNNING_DEGRADED
+  to: RUNNING
+  event: recover
+  guard: capacity_restored
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: m10
+  from: RUNNING
+  to: RUNNING_BLOCKED
+  event: block
+  guard: precondition_failed
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: m11
+  from: RUNNING_BLOCKED
+  to: RUNNING
+  event: unblock
+  guard: precondition_met
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: m12
+  from: RUNNING
+  to: VERIFYING
+  event: verify
+  guard: 'true'
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: m13
+  from: VERIFYING
+  to: TERMINAL_SUCCESS
+  event: ok
+  guard: all_verified
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: m14
+  from: VERIFYING
+  to: TERMINAL_FAILED
+  event: fail
+  guard: verification_failed
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: m15
+  from: VERIFYING
+  to: TERMINAL_CANCELLED
+  event: cancel
+  guard: user_cancel
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: m16
+  from: VERIFYING
+  to: TERMINAL_REJECTED
+  event: reject
+  guard: unsatisfiable
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false

@@ -95,8 +95,7 @@ sudo cp atom.service /etc/systemd/system/atom.service
 # 2. Set env in service or drop a file at /etc/atom/env
 sudo mkdir -p /etc/atom
 cat <<'EOF' | sudo tee /etc/atom/env
-ATOM_SIGNING_KEY_ID=prod-signing-key
-ATOM_SIGNING_SECRET=base64-secret-here
+ATOM_SERVE_ADDR=127.0.0.1:8420
 EOF
 sudo chmod 600 /etc/atom/env
 
@@ -105,17 +104,38 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now atom
 ```
 
+## Running the HTTP API Server
+
+```bash
+# Bind the HTTP API on the default address 127.0.0.1:8420
+atom serve
+
+# Or pick a specific address
+atom serve --addr 0.0.0.0:8420
+# Equivalent via environment:
+ATOM_SERVE_ADDR=0.0.0.0:8420 atom serve
+```
+
+Smoke check against the running server (OpenAPI `/health`):
+
+```bash
+curl -s http://127.0.0.1:8420/health
+# → {"status":"healthy","version":"0.0.0-alpha.0","crates_loaded":24}
+```
+
 ## Docker (Distroless)
 
 ```bash
 # Build image
 docker build -t atom:0.0.0-alpha.0 -f Dockerfile .
 
-# Run (mount signing key env)
-docker run --rm \
-  -e ATOM_SIGNING_KEY_ID=prod \
-  -e ATOM_SIGNING_SECRET=base64-secret \
-  atom:0.0.0-alpha.0 atom --version
+# Run the HTTP API server on host port 8420
+docker run --rm -p 8420:8420 \
+  -e ATOM_SERVE_ADDR=0.0.0.0:8420 \
+  atom:0.0.0-alpha.0
+
+# Or run another subcommand (--help / run / seal)
+docker run --rm atom:0.0.0-alpha.0 --help
 ```
 
 ## Uninstall

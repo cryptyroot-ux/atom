@@ -1,0 +1,10 @@
+{
+  "inventory_id": "inv-schema",
+  "pack_version": "4.1",
+  "schemas": [
+    {
+      "id": "effect-intent"
+    }
+  ],
+  "generated_at": "2026-08-31T12:00:00Z"
+}

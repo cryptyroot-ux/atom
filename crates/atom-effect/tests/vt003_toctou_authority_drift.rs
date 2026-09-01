@@ -8,14 +8,14 @@ mod support;
 
 use atom_capability::CapabilityGrant;
 use atom_effect::{
-    issue_commit_permit, CommitPermit, ConsumeRequest, DurabilityWitness, EffectEvent,
-    EffectIntent, EffectState, NonceRegistry, PermitError, PermitRequest, ResourceWitness,
+    issue_commit_permit, CommitPermit, ConsumeRequest, DurabilityProof, EffectEvent, EffectIntent,
+    EffectState, NonceRegistry, PermitError, PermitRequest, ResourceWitness,
     MAX_PERMIT_TTL_SECONDS,
 };
 use support::{
-    advanced, at, drifted_witness, durability, grant, intent_in, now, planned_witness,
-    regenerated_grant, revoked_grant, upstream_intent, EFFECT_ID, GRANT_GENERATION, GRANT_ID,
-    OPERATION, PRINCIPAL, RESOURCE_TYPE,
+    advanced, at, drifted_witness, durability, durability_for, grant, intent_in, now,
+    planned_witness, proof_over, regenerated_grant, revoked_grant, upstream_intent, EFFECT_ID,
+    GRANT_GENERATION, GRANT_ID, OPERATION, PRINCIPAL, RESOURCE_TYPE, UPSTREAM_EFFECT_ID,
 };
 
 const PERMIT_ID: &str = "permit/01J8ZPCOMMITORDERS";
@@ -30,7 +30,7 @@ struct Gate {
     effect: EffectIntent,
     grant: CapabilityGrant,
     planned: ResourceWitness,
-    durability: DurabilityWitness,
+    durability: DurabilityProof,
 }
 
 impl Gate {
@@ -82,23 +82,22 @@ fn an_undrifted_commit_boundary_issues_and_consumes_exactly_one_permit() {
     let gate = Gate::new();
     let permit = issue_commit_permit(gate.request()).expect("nothing drifted");
 
-    assert_eq!(permit.permit_id, PERMIT_ID);
-    assert_eq!(permit.effect_digest, gate.effect.digest());
-    assert_eq!(permit.principal_id, PRINCIPAL);
-    assert_eq!(permit.capability_grant_id, GRANT_ID);
-    assert_eq!(permit.grant_generation, GRANT_GENERATION);
-    assert_eq!(permit.resource_id, gate.effect.target_id);
-    assert_eq!(permit.resource_version_witness, planned_witness());
-    assert_eq!(permit.one_shot_nonce, NONCE);
-    assert_eq!(permit.approval_id.as_deref(), Some(APPROVAL_ID));
-    assert_eq!(
-        permit.evidence_freshness_digest.as_deref(),
-        Some(EVIDENCE_DIGEST)
-    );
+    assert_eq!(permit.permit_id(), PERMIT_ID);
+    assert_eq!(permit.effect_digest(), gate.effect.digest());
+    assert_eq!(permit.principal_id(), PRINCIPAL);
+    assert_eq!(permit.capability_grant_id(), GRANT_ID);
+    assert_eq!(permit.grant_generation(), GRANT_GENERATION);
+    assert_eq!(permit.audience(), "atom:orders");
+    assert_eq!(permit.workload_id(), "workload/atomd");
+    assert_eq!(permit.resource_id(), gate.effect.target_id);
+    assert_eq!(permit.resource_version_witness(), &planned_witness());
+    assert_eq!(permit.one_shot_nonce(), NONCE);
+    assert_eq!(permit.approval_id(), Some(APPROVAL_ID));
+    assert_eq!(permit.evidence_freshness_digest(), Some(EVIDENCE_DIGEST));
 
     // EFX-004: short-lived.
-    assert_eq!(permit.issued_at, now());
-    assert_eq!(permit.expires_at, at(12, 0, 15));
+    assert_eq!(permit.issued_at(), now());
+    assert_eq!(permit.expires_at(), at(12, 0, 15));
     assert_eq!(permit.ttl_seconds(), i64::from(TTL_SECONDS));
     assert!(permit.is_valid_at(now()));
     assert!(!permit.is_valid_at(at(12, 0, 16)));
@@ -221,27 +220,59 @@ fn a_grant_that_does_not_cover_the_operation_or_resource_blocks_issuance() {
     );
 }
 
-/// EFX-001: no permit without proof that the intent was persisted first.
+/// EFX-001: no permit without proof that *this* intent was persisted first.
+///
+/// A `DurabilityProof` can only be minted by the ledger's own append path, so a
+/// caller cannot fabricate one out of chosen fields. The only thing left to try
+/// is presenting a *real* proof that belongs to another effect. The commit gate
+/// refuses it, because a proof proves durability of the stream it was appended
+/// to and no other (ATOM-INV-004).
 #[test]
 fn an_effect_that_was_never_made_durable_blocks_issuance() {
-    const LEDGER_HASH: &str = "b9c1f0d7e5a34c2f8de1b6a90c74f3e2118d5c6b7a09e4d3c2b1a0f9e8d7c6b5";
     let gate = Gate::new();
+    let other_effects_proof = durability_for(&advanced(
+        upstream_intent(),
+        EffectState::CommitRevalidating,
+    ));
+    assert_ne!(
+        UPSTREAM_EFFECT_ID, EFFECT_ID,
+        "the borrowed proof must belong to a different effect"
+    );
 
-    for broken in [
-        DurabilityWitness::new("", 4, LEDGER_HASH),
-        DurabilityWitness::new(EFFECT_ID, 0, LEDGER_HASH),
-        DurabilityWitness::new(EFFECT_ID, 4, ""),
-    ] {
-        let error = issue_commit_permit(PermitRequest {
-            durability: &broken,
-            ..gate.request()
-        })
-        .expect_err("EFX-001: dispatch may not precede durability");
-        assert!(
-            matches!(error, PermitError::EffectNotDurable { .. }),
-            "{broken:?}: {error:?}"
-        );
-    }
+    let error = issue_commit_permit(PermitRequest {
+        durability: &other_effects_proof,
+        ..gate.request()
+    })
+    .expect_err("EFX-001: a proof for another effect does not authorise this one");
+    assert!(
+        matches!(error, PermitError::EffectNotDurable { .. }),
+        "{error:?}"
+    );
+}
+
+/// ATOM-INV-004 payload-swap: a *real* proof on the right stream whose payload
+/// is a different JSON object is not durability of the gate's intent, even
+/// though every other fact (effect, sequence) lines up. Durability is bound to
+/// the exact declaration the ledger persisted.
+#[test]
+fn a_proof_over_a_different_payload_blocks_issuance() {
+    let gate = Gate::new();
+    let swapped_payload = serde_json::json!({
+        "kind": "EFFECT_INTENT",
+        "effect_id": EFFECT_ID,
+        "operations": ["write"]
+    });
+    let swapped_proof = proof_over(EFFECT_ID, &swapped_payload);
+
+    let error = issue_commit_permit(PermitRequest {
+        durability: &swapped_proof,
+        ..gate.request()
+    })
+    .expect_err("EFX-001/ATOM-INV-004: a proof over a different payload does not bind");
+    assert!(
+        matches!(error, PermitError::EffectPayloadMismatch { .. }),
+        "{error:?}"
+    );
 }
 
 /// EFX-004: short-lived. The TTL is bounded by the crate, not by the caller.
@@ -312,7 +343,7 @@ fn a_permit_is_one_shot() {
         "{error:?}"
     );
     assert_eq!(registry.len(), 1, "one burned nonce, not two");
-    assert!(registry.is_used(&permit.one_shot_nonce));
+    assert!(registry.is_used(permit.one_shot_nonce()));
 }
 
 /// The TOCTOU window itself: everything was valid at issuance and drifts before
@@ -445,6 +476,82 @@ fn a_permit_cannot_be_consumed_once_the_effect_left_the_commit_boundary() {
         matches!(error, PermitError::EffectNotRevalidating { .. }),
         "{error:?}"
     );
+}
+
+#[test]
+fn a_permit_is_consumed_by_a_grant_naming_the_same_audience() {
+    let gate = Gate::new();
+    let permit = issue_commit_permit(gate.request()).expect("nothing drifted");
+    let mut registry = NonceRegistry::new();
+
+    let event = registry
+        .consume(gate.consume(&permit))
+        .expect("the grant names the same audience the permit froze");
+    assert_eq!(event.permit_id, PERMIT_ID);
+}
+
+#[test]
+fn a_permit_cannot_be_consumed_by_a_grant_naming_a_different_audience() {
+    let gate = Gate::new();
+    let permit = issue_commit_permit(gate.request()).expect("nothing drifted");
+
+    // The same subject, generation, operations, resources, windows — only the
+    // audience (the sink the commit drains into) moved.
+    let other_sink = CapabilityGrant {
+        audience: "atom:hospital-lab".into(),
+        ..gate.grant.clone()
+    };
+    let mut registry = NonceRegistry::new();
+
+    let error = registry
+        .consume(ConsumeRequest {
+            grant: &other_sink,
+            ..gate.consume(&permit)
+        })
+        .expect_err("EFX-004 / Constitution V.3: a permit is audience-bound");
+    assert!(
+        matches!(error, PermitError::AudienceMismatch { ref expected, ref observed } if observed == "atom:hospital-lab" && expected == "atom:orders"),
+        "{error:?}"
+    );
+    assert_eq!(registry.len(), 0);
+}
+
+#[test]
+fn a_permit_is_consumed_by_a_grant_naming_the_same_workload() {
+    let gate = Gate::new();
+    let permit = issue_commit_permit(gate.request()).expect("nothing drifted");
+    let mut registry = NonceRegistry::new();
+
+    let event = registry
+        .consume(gate.consume(&permit))
+        .expect("the grant names the same workload the permit froze");
+    assert_eq!(event.permit_id, PERMIT_ID);
+}
+
+#[test]
+fn a_permit_cannot_be_consumed_by_a_grant_naming_a_different_workload() {
+    let gate = Gate::new();
+    let permit = issue_commit_permit(gate.request()).expect("nothing drifted");
+
+    // The same subject, generation, operations, resources, windows,
+    // audience — only the workload identity the grant binds moved.
+    let other_workload = CapabilityGrant {
+        workload_id: "workload/scanner-2".into(),
+        ..gate.grant.clone()
+    };
+    let mut registry = NonceRegistry::new();
+
+    let error = registry
+        .consume(ConsumeRequest {
+            grant: &other_workload,
+            ..gate.consume(&permit)
+        })
+        .expect_err("EFX-004 / Constitution IV.1: a permit is workload-bound");
+    assert!(
+        matches!(error, PermitError::WorkloadMismatch { ref expected, ref observed } if observed == "workload/scanner-2" && expected == "workload/atomd"),
+        "{error:?}"
+    );
+    assert_eq!(registry.len(), 0);
 }
 
 /// A drifted commit boundary sends the effect back for re-authorisation instead

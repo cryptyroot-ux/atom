@@ -1,0 +1,11 @@
+{
+  "decision_id": "pd-0001",
+  "policy": "policy/approval",
+  "input_refs": [
+    "req/001"
+  ],
+  "decision": "ALLOW",
+  "rendered_at": "2026-08-31T12:00:00Z",
+  "evaluator": "opa",
+  "reason": null
+}

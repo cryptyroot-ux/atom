@@ -1,0 +1,10 @@
+{
+  "manifest_id": "em-0001",
+  "extension_id": "ext-fs",
+  "version": "1.0.0",
+  "entrypoint": "ext-fs:main",
+  "apis": [],
+  "capabilities": [
+    "fs.read"
+  ]
+}

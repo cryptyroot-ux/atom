@@ -15,8 +15,8 @@ use chrono::{DateTime, Duration, Utc};
 
 use atom_capability::{Budget, CapabilityGrant, ResourceSelector, RevocationState};
 use atom_effect::{
-    Compensation, CompensationStrategy, DurabilityWitness, EffectEvent, EffectIntent, Idempotency,
-    Reconciliation, ReconciliationClass, ResourceWitness,
+    Compensation, CompensationStrategy, EffectEvent, EffectIntent, Idempotency, Reconciliation,
+    ReconciliationClass, ResourceWitness,
 };
 use atom_kernel::{AuthorizeRequest, CommitRequest, Kernel};
 
@@ -109,7 +109,12 @@ fn boot_grant(now: DateTime<Utc>) -> CapabilityGrant {
 /// The effect intent for the boot mutation, standing at AUTHORIZATION_PENDING.
 fn pending_intent() -> Result<EffectIntent> {
     let intent = EffectIntent::builder(EFFECT_ID, MISSION_ID, GRANT_ID, TARGET_ID)
-        .request_digest("boot-request-digest")
+        .canonical_request(&serde_json::json!({
+            "operation": OPERATION,
+            "resource_type": RESOURCE_TYPE,
+            "target_id": TARGET_ID,
+        }))
+        .map_err(|e| anyhow!("canonicalizing boot request: {e}"))?
         .classes("ledger.write", "high")
         .idempotency(Idempotency::keyed("boot", "boot-idem-key"))
         .reconciliation(Reconciliation::new(
@@ -135,8 +140,27 @@ fn pending_intent() -> Result<EffectIntent> {
 pub fn boot(cfg: &SigningConfig) -> Result<BootReport> {
     let now = Utc::now();
 
-    // ── Kernel double gate (KRN-001): authorize → commit → CommitToken ───────
-    let mut kernel = Kernel::new();
+    // ── Runtime ledger, signed with the process key, opened up front ─────────
+    // The same append-only ledger that will back the runtime is opened here so
+    // the intent can be made durable *before* the commit gate is asked to spend
+    // a permit for it (EFX-001). The ledger — not this caller — seals the proof.
+    let signer = Box::new(atom_ledger::HmacSha256Signer::new(
+        cfg.key_id.as_str(),
+        &cfg.secret,
+    ));
+    let mut ledger =
+        atom_ledger::Ledger::open_in_memory(signer).map_err(|e| anyhow!("opening ledger: {e}"))?;
+
+    // ── One-shot memory is rebuilt from the ledger, not from thin air ────────
+    // Rehydrate the nonce registry from everything the ledger has already burned,
+    // so a cold start refuses to re-serve a permit spent in a prior life
+    // (ATOM-V4-EFX-004 · durable nonce). The runtime owns the ledger; the kernel
+    // is seeded from it.
+    let burned =
+        atom_runtime::Runtime::<atom_runtime::FixedClock, atom_runtime::CounterRng>::burned_nonces_from(
+            &ledger,
+        );
+    let mut kernel = Kernel::with_burned_nonces(burned.iter().cloned());
     let grant = boot_grant(now);
     let pending = pending_intent()?;
     let planned = ResourceWitness::new("etag", TARGET_ID, "v1");
@@ -157,8 +181,14 @@ pub fn boot(cfg: &SigningConfig) -> Result<BootReport> {
         .try_advance(&EffectEvent::CommitRevalidationStarted)
         .map_err(|e| anyhow!("opening the commit boundary: {e}"))?;
 
+    let intent_payload = pending
+        .declared_payload()
+        .map_err(|e| anyhow!("canonicalising boot intent: {e}"))?;
+    let (_intent_event, durability) = ledger
+        .append_durable(EFFECT_ID, &intent_payload, now.timestamp_millis())
+        .map_err(|e| anyhow!("sealing durability proof: {e}"))?;
+
     let observed = ResourceWitness::new("etag", TARGET_ID, "v1");
-    let durability = DurabilityWitness::new(EFFECT_ID, 1, "boot-entry-hash");
     let (token, dispatching) = kernel
         .commit(CommitRequest {
             authorization: &authorization,
@@ -175,17 +205,18 @@ pub fn boot(cfg: &SigningConfig) -> Result<BootReport> {
         })
         .map_err(|e| anyhow!("phase B commit: {e}"))?;
 
-    // ── Runtime + append-only ledger, signed with the process key ────────────
-    let signer = Box::new(atom_ledger::HmacSha256Signer::new(
-        cfg.key_id.as_str(),
-        &cfg.secret,
-    ));
-    let ledger =
-        atom_ledger::Ledger::open_in_memory(signer).map_err(|e| anyhow!("opening ledger: {e}"))?;
+    // ── Runtime over the same ledger that already holds the durable intent ───
     let clock = atom_runtime::FixedClock::new(now);
     let random = atom_runtime::CounterRng::new(0x0A70_1D00);
-    let runtime = atom_runtime::Runtime::native(MISSION_ID, ledger, clock, random)
+    let mut runtime = atom_runtime::Runtime::native(MISSION_ID, ledger, clock, random)
         .map_err(|e| anyhow!("booting runtime: {e}"))?;
+
+    // ── Spend the permit durably: burn the nonce on the ledger ───────────────
+    // The runtime owns the ledger, so the burn that makes the one-shot guarantee
+    // survive a restart is recorded here (ATOM-V4-EFX-004 · durable nonce).
+    runtime
+        .burn_nonce(token.one_shot_nonce(), now)
+        .map_err(|e| anyhow!("recording nonce burn: {e}"))?;
 
     // ── Deterministic scheduler (constructed, no schedules registered) ───────
     let scheduler = atom_scheduler::Scheduler::new();
@@ -330,6 +361,14 @@ fn subsystem_inventory(
             ),
         ),
     ])
+}
+
+/// Number of wired subsystem crates the sovereign process inventories.
+///
+/// Used by `atom serve` to report `crates_loaded` in `/health` without
+/// booting the full runtime.
+pub const fn subsystem_count() -> u32 {
+    24
 }
 
 impl std::fmt::Display for BootReport {

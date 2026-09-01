@@ -1,0 +1,63 @@
+spec_version: 4.1.0
+rules:
+- id: ATOM-SEM-001
+  applies_to: capability-grant
+  contract: valid_from < expires_at; revocation_generation <= generation; delegated
+    child is a subset of parent across operation, resource, purpose, time, audience,
+    budget, and depth.
+  reference_hook: tools/validate_release.py::semantic_grant
+- id: ATOM-SEM-002
+  applies_to: approval-grant
+  contract: EXACT_EFFECT requires effect_digest and null scope_envelope; BOUNDED_ENVELOPE
+    requires scope_envelope; uses <= max_uses; payload drift invalidates use.
+  reference_hook: tools/validate_release.py::semantic_approval
+- id: ATOM-SEM-003
+  applies_to: effect-intent
+  contract: Only canonical_request_digest is accepted; NON_IDEMPOTENT requires proof_of_non_commit
+    before retry; compensation is a new independently authorized effect.
+  reference_hook: tools/validate_release.py::semantic_effect
+- id: ATOM-SEM-004
+  applies_to: commit-permit
+  contract: issued_at < expires_at; permit is one-shot; exact effect/resource/principal/audience/generation
+    bindings match at issue and consume time.
+  reference_hook: tools/validate_release.py::semantic_permit
+- id: ATOM-SEM-005
+  applies_to: ledger-event, ledger-checkpoint
+  contract: JCS canonical bytes and SHA-256 reproduce hashes; sequence is monotonic;
+    previous hash and checkpoint stream heads are complete.
+  reference_hook: tools/validate_release.py::semantic_ledger
+- id: ATOM-SEM-006
+  applies_to: mission-graph
+  contract: Every edge references a node; graph is acyclic unless iteration_policy
+    permits a bounded cycle; all nonterminal nodes reach a terminal condition.
+  reference_hook: tools/validate_release.py::semantic_graph
+- id: ATOM-SEM-007
+  applies_to: replay-request
+  contract: R0-R3 require allow_new_effects=false and no new grants; R4 requires a
+    new authority set and new mission/effect identities.
+  reference_hook: tools/validate_release.py::semantic_replay
+- id: ATOM-SEM-008
+  applies_to: provider-profile
+  contract: Certification is bound to profile_digest, adapter version, endpoint/API
+    snapshot, models, and exact capability subset; expired discovery is unknown.
+  reference_hook: tools/validate_release.py::semantic_provider
+- id: ATOM-SEM-009
+  applies_to: test-evidence
+  contract: record_digest covers all fields except itself; sealed evidence is immutable
+    and supersession is append-only.
+  reference_hook: tools/validate_release.py::semantic_evidence
+- id: ATOM-SEM-010
+  applies_to: behavior-manifest-v2, certificate
+  contract: BehaviorId is algorithm-tagged canonical manifest digest; incompatible
+    input change stales certificate.
+  reference_hook: tools/validate_release.py::semantic_behavior
+- id: ATOM-SEM-011
+  applies_to: schedule-spec, schedule-run
+  contract: Admission precedes launch; dedupe is unique for the declared scope; TZDB
+    version and DST policies are explicit.
+  reference_hook: tools/validate_release.py::semantic_schedule
+- id: ATOM-SEM-012
+  applies_to: release-manifest
+  contract: Status fields are independent; every file hash matches; missing gate evidence
+    cannot be PASS; signatures must be verified before SIGNED.
+  reference_hook: tools/validate_release.py::semantic_release

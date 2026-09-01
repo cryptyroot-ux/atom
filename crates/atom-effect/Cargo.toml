@@ -7,6 +7,7 @@ description = "ATOM effect kernel: durable EffectIntent, one-shot CommitPermit c
 
 [dependencies]
 atom-capability = { path = "../atom-capability" }
+atom-ledger = { path = "../atom-ledger" }
 chrono = { version = "0.4", features = ["serde"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }

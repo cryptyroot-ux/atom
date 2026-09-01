@@ -3,9 +3,7 @@
 //! authority (enforced via atom_capability::subset_check).
 
 use atom_capability::{Budget, CapabilityGrant, ResourceSelector, RevocationState};
-use atom_evolution::{
-    ChangeClass, ChangeOrigin, EvolutionError, ProposedChange, Stage,
-};
+use atom_evolution::{ChangeClass, ChangeOrigin, EvolutionError, ProposedChange, Stage};
 use chrono::{Duration, Utc};
 
 /// Build a parent grant with broad authority.
@@ -56,7 +54,12 @@ fn child_subset(parent: &CapabilityGrant) -> CapabilityGrant {
 fn child_expansion(parent: &CapabilityGrant) -> CapabilityGrant {
     let mut c = parent.clone();
     c.grant_id = "child".into();
-    c.operations = vec!["read".into(), "write".into(), "execute".into(), "admin".into()]; // ⊃ parent
+    c.operations = vec![
+        "read".into(),
+        "write".into(),
+        "execute".into(),
+        "admin".into(),
+    ]; // ⊃ parent
     c.budget = Budget {
         max_cost: 999_999, // > parent
         max_seconds: 100_000,

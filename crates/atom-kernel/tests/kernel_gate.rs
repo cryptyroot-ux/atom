@@ -8,10 +8,11 @@
 
 use atom_capability::{Budget, CapabilityGrant, ResourceSelector, RevocationState};
 use atom_effect::{
-    Compensation, CompensationStrategy, DurabilityWitness, EffectEvent, EffectIntent, EffectState,
+    Compensation, CompensationStrategy, DurabilityProof, EffectEvent, EffectIntent, EffectState,
     Idempotency, PermitError, Reconciliation, ReconciliationClass, ResourceWitness, RetryClass,
 };
 use atom_kernel::{AuthorizeRequest, CommitRequest, Kernel, KernelError};
+use atom_ledger::{HmacSha256Signer, Ledger};
 use chrono::{DateTime, Duration, Utc};
 
 const PRINCIPAL: &str = "principal-1";
@@ -50,7 +51,9 @@ fn base_grant(now: DateTime<Utc>, generation: u64) -> CapabilityGrant {
 
 fn base_intent() -> EffectIntent {
     EffectIntent::builder(EFFECT_ID, "mission-1", GRANT_ID, TARGET_ID)
-        .request_digest("req-digest-abc")
+        .canonical_request_digest(
+            "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        )
         .classes("db.write", "high")
         .idempotency(Idempotency::keyed("orders", "idem-key-1"))
         .reconciliation(Reconciliation::new(
@@ -72,8 +75,35 @@ fn witness(value: &str) -> ResourceWitness {
     ResourceWitness::new("etag", TARGET_ID, value)
 }
 
-fn durability() -> DurabilityWitness {
-    DurabilityWitness::new(EFFECT_ID, 1, "entry-hash-xyz")
+/// A real durability proof for the base intent's effect, minted the only way a
+/// proof can be: by actually appending the declared intent to a ledger stream
+/// named for the effect. The endurance->revalidating advance does not change the
+/// declared payload, so this proof binds at the commit boundary too.
+fn durability() -> DurabilityProof {
+    durability_for(&base_intent())
+}
+
+/// A real durability proof for exactly `intent`: the declared payload (the
+/// caller's declaration, stable across lifecycle transitions) is appended to the
+/// effect's own stream. The proof binds to that exact declaration and no other
+/// (ATOM-INV-004, EFX-001).
+///
+/// There is no `DurabilityProof` constructor a caller can invoke, so a forged
+/// proof is inexpressible. The adversarial tests hand it an intent whose
+/// identity differs from the one being committed.
+fn durability_for(intent: &EffectIntent) -> DurabilityProof {
+    let signer = Box::new(HmacSha256Signer::new(
+        "atom-kernel-test-seal",
+        b"atom-kernel-test-key-not-for-production",
+    ));
+    let mut ledger = Ledger::open_in_memory(signer).expect("in-memory ledger opens");
+    let payload = intent
+        .declared_payload()
+        .expect("fixture intent has a declared payload");
+    let (_event, proof) = ledger
+        .append_durable(&intent.effect_id, &payload, 1_756_512_000_000)
+        .expect("appending the declared intent seals a durability proof");
+    proof
 }
 
 /// Drive an intent through Phase A (authorize) and the administrative
@@ -211,8 +241,14 @@ fn no_permit_non_durable_intent_denies_commit() {
     let (auth, revalidating) = authorized_at_boundary(&kernel, &grant, &planned, now);
 
     let observed = witness("v1");
-    // sequence 0 == "nothing was written": no durable ledger entry (EFX-001).
-    let not_durable = DurabilityWitness::new(EFFECT_ID, 0, "entry-hash-xyz");
+    // A real proof, but minted for a DIFFERENT effect's stream: it does not
+    // prove durability of this effect, so the commit boundary refuses it
+    // (EFX-001). A proof for THIS effect cannot be hand-built.
+    let never_written = EffectIntent {
+        effect_id: "effect-never-written".into(),
+        ..revalidating.clone()
+    };
+    let not_durable = durability_for(&never_written);
     let err = kernel
         .commit(CommitRequest {
             authorization: &auth,
@@ -360,8 +396,70 @@ fn stale_permit_replayed_nonce_denies_second_commit() {
     assert_eq!(kernel.nonces_spent(), 1);
 }
 
-// Stale authority: the grant was re-issued at a new generation after Phase A
-// pinned the old one (INV-018 / ATOM-VT-003).
+// Durable one-shot memory: a cold start rehydrates the registry from the ledger's
+// nonce-burn stream, so a permit burned in a prior process life is refused again
+// on restart instead of being re-served (ATOM-V4-EFX-004 · durable nonce).
+#[test]
+fn restarted_kernel_seeded_from_durable_burns_denies_replay() {
+    let now = Utc::now();
+    let grant = base_grant(now, 5);
+    let planned = witness("v1");
+    let observed = witness("v1");
+    let durable = durability();
+
+    // First process: commits and durably burns `nonce-persisted` (the runtime
+    // writes it to the ledger's nonce-burn stream; here we hand the same value
+    // to the restarted kernel's seeding constructor).
+    let mut first = Kernel::new();
+    let (auth1, reval1) = authorized_at_boundary(&first, &grant, &planned, now);
+    first
+        .commit(CommitRequest {
+            authorization: &auth1,
+            intent: &reval1,
+            grant: &grant,
+            observed_witness: &observed,
+            durability: &durable,
+            permit_id: "permit-1",
+            one_shot_nonce: "nonce-persisted",
+            ttl_seconds: 30,
+            now,
+            approval_id: None,
+            evidence_freshness_digest: None,
+        })
+        .expect("first process commit succeeds");
+
+    // Restart: a fresh kernel seeded with the durably-burned nonce. No state was
+    // carried over except what the ledger recorded.
+    let mut rebooted = Kernel::with_burned_nonces(["nonce-persisted".to_owned()]);
+    let (auth2, reval2) = authorized_at_boundary(&rebooted, &grant, &planned, now);
+    let err = rebooted
+        .commit(CommitRequest {
+            authorization: &auth2,
+            intent: &reval2,
+            grant: &grant,
+            observed_witness: &observed,
+            durability: &durable,
+            permit_id: "permit-2",
+            one_shot_nonce: "nonce-persisted", // replay across the restart
+            ttl_seconds: 30,
+            now,
+            approval_id: None,
+            evidence_freshness_digest: None,
+        })
+        .unwrap_err();
+    assert!(matches!(
+        err,
+        KernelError::Permit(PermitError::NonceAlreadyUsed { .. })
+    ));
+    assert_eq!(rebooted.nonces_spent(), 1);
+}
+
+// The seeding constructor is additive: an unseeded kernel still starts empty.
+#[test]
+fn fresh_kernel_starts_with_zero_spent_nonces() {
+    let kernel = Kernel::new();
+    assert_eq!(kernel.nonces_spent(), 0);
+}
 #[test]
 fn stale_permit_generation_drift_denies_commit() {
     let now = Utc::now();
@@ -620,7 +718,9 @@ fn cross_effect_authorization_reuse_denied() {
     // Build a DIFFERENT effect B and stand it at the boundary, but try to use
     // effect A's authorization to commit it.
     let intent_b = EffectIntent::builder("effect-2", "mission-1", GRANT_ID, TARGET_ID)
-        .request_digest("req-digest-def")
+        .canonical_request_digest(
+            "sha256:fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+        )
         .classes("db.write", "high")
         .idempotency(Idempotency::keyed("orders", "idem-key-2"))
         .reconciliation(Reconciliation::new(
@@ -649,7 +749,7 @@ fn cross_effect_authorization_reuse_denied() {
         .unwrap();
 
     let observed = witness("v1");
-    let durable = DurabilityWitness::new("effect-2", 1, "entry-hash-def");
+    let durable = durability_for(&reval_b); // real proof on effect-2's stream
     let err = kernel
         .commit(CommitRequest {
             authorization: &auth_a, // wrong effect's authorization

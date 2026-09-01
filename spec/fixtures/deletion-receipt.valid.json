@@ -1,0 +1,8 @@
+{
+  "receipt_id": "del-0001",
+  "target_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "requester": "svc/gc",
+  "completed_at": "2026-08-31T12:00:00Z",
+  "buried": true,
+  "reclaimed_at": null
+}

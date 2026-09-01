@@ -1,0 +1,8 @@
+{
+  "event_id": "evt-0001",
+  "seq": 42,
+  "event_type": "EFFECT_APPLIED",
+  "payload_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "emitted_at": "2026-08-31T12:00:00Z",
+  "cause_event_id": null
+}

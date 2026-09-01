@@ -1,0 +1,9 @@
+{
+  "decision_id": "adr-0001",
+  "status": "ACCEPTED",
+  "context": "Choose the request digest scheme for effect intents.",
+  "options": [],
+  "decision": "RFC 8785 JCS canonical request digest",
+  "rationale": "Canonicalization makes reordered requests share one identity.",
+  "recorded_at": "2026-08-31T12:00:00Z"
+}

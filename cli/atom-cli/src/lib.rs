@@ -56,6 +56,18 @@ pub enum Command {
     /// Boot runtime + scheduler + worker in-process and drive one real mutation.
     Run,
 
+    /// Run the ATOM HTTP API server (spec/openapi.yaml).
+    Serve {
+        /// Address to bind, e.g. `127.0.0.1:8420`.
+        #[arg(
+            long,
+            value_name = "ADDR",
+            default_value = "127.0.0.1:8420",
+            env = "ATOM_SERVE_ADDR"
+        )]
+        addr: String,
+    },
+
     /// Seal bytes into a content-addressed, signed artifact (SUP-001).
     Seal {
         /// Content to seal, given inline. Omit to read from `--input`.
@@ -97,13 +109,37 @@ pub enum Command {
 /// artifact verification failure (so a tampered artifact makes `atom verify`
 /// exit non-zero).
 pub fn run(cli: Cli) -> Result<()> {
-    let cfg = SigningConfig::load(cli.config.as_deref())?;
+    match cli.command {
+        Command::Serve { addr } => {
+            let version = env!("CARGO_PKG_VERSION");
+            let crates_loaded = boot::subsystem_count();
+            let store = atom_server::store::Store::open(None)?;
+            let addr = addr
+                .parse::<std::net::SocketAddr>()
+                .with_context(|| format!("parsing bind address `{addr}`"))?;
+            let future = atom_server::app::serve(version, crates_loaded, addr, store);
+            let runtime = tokio::runtime::Builder::new_multi_thread()
+                .enable_all()
+                .build()
+                .context("building tokio runtime for `atom serve`")?;
+            runtime.block_on(future)?;
+            Ok(())
+        }
+        _ => {
+            let cfg = SigningConfig::load(cli.config.as_deref())?;
+            run_signed(cli, cfg)
+        }
+    }
+}
+
+fn run_signed(cli: Cli, cfg: SigningConfig) -> Result<()> {
     match cli.command {
         Command::Run => {
             let report = boot::boot(&cfg)?;
             print!("{report}");
             Ok(())
         }
+        Command::Serve { .. } => Err(anyhow!("`atom serve` does not load a signing config")),
         Command::Seal {
             content,
             input,
@@ -165,6 +201,8 @@ mod tests {
     #[test]
     fn parses_run_seal_verify() {
         assert!(Cli::try_parse_from(["atom", "run"]).is_ok());
+        assert!(Cli::try_parse_from(["atom", "serve"]).is_ok());
+        assert!(Cli::try_parse_from(["atom", "serve", "--addr", "0.0.0.0:9000"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "seal", "hello"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "verify", "a.json"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "bogus-subcommand"]).is_err());

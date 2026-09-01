@@ -9,10 +9,11 @@
 
 use atom_capability::{Budget, CapabilityGrant, ResourceSelector, RevocationState};
 use atom_effect::{
-    CommitPermitted, Compensation, CompensationStrategy, Condition, DurabilityWitness, EffectEvent,
+    CommitPermitted, Compensation, CompensationStrategy, Condition, DurabilityProof, EffectEvent,
     EffectIntent, EffectState, Idempotency, ObservedOutcome, ReconciledOutcome, Reconciliation,
     ReconciliationClass, ResourceWitness, RetryClass,
 };
+use atom_ledger::{HmacSha256Signer, Ledger};
 use chrono::{DateTime, TimeZone, Utc};
 
 pub const PRINCIPAL: &str = "principal/atom-operator";
@@ -96,12 +97,53 @@ pub fn drifted_witness() -> ResourceWitness {
 }
 
 /// Proof that the EffectIntent was persisted before dispatch (EFX-001).
-pub fn durability() -> DurabilityWitness {
-    DurabilityWitness::new(
-        "effect/01J8ZPEFFECTORDERS",
-        4,
-        "b9c1f0d7e5a34c2f8de1b6a90c74f3e2118d5c6b7a09e4d3c2b1a0f9e8d7c6b5",
-    )
+///
+/// Minted the only way a real proof can be: by actually appending the declared
+/// intent (the identity payload, stable across lifecycle transitions) to a ledger
+/// stream named for the effect. There is no `DurabilityProof` constructor a test
+/// could call directly, which is the point — a forged proof is inexpressible, so
+/// the tests exercise the same durability path production does.
+pub fn durability() -> DurabilityProof {
+    durability_for(&intent_in(EffectState::CommitRevalidating))
+}
+
+/// Proof bound to exactly `intent`: the declared payload is appended to the
+/// effect's own stream, so `proof.proves_intent(effect_id, declared_digest)`
+/// holds for this intent and no other.
+///
+/// There is no `DurabilityProof` constructor a caller can invoke, so a forged
+/// proof is inexpressible. The only adversarial moves left — a *real* proof
+/// belonging to another effect, or one whose stream matches but whose payload
+/// differs — are exercised by the callers (ATOM-INV-004, EFX-001).
+pub fn durability_for(intent: &EffectIntent) -> DurabilityProof {
+    let signer = Box::new(HmacSha256Signer::new(
+        "atom-effect-test-seal",
+        b"atom-effect-test-key-not-for-production",
+    ));
+    let mut ledger = Ledger::open_in_memory(signer).expect("in-memory ledger opens");
+    let payload = intent
+        .declared_payload()
+        .expect("fixture intent has a declared payload");
+    let (_event, proof) = ledger
+        .append_durable(&intent.effect_id, &payload, 1_756_512_000_000)
+        .expect("appending the declared intent seals a durability proof");
+    proof
+}
+
+/// A real durable proof over an arbitrary `payload` on `stream_id`.
+///
+/// Used to mount an ATOM-INV-004 payload-swap attack: a genuine ledger-sealed
+/// proof on the *right* stream whose payload is not the intent's declaration.
+pub fn proof_over(stream_id: &str, payload: &serde_json::Value) -> DurabilityProof {
+    let signer = Box::new(HmacSha256Signer::new(
+        "atom-effect-test-seal",
+        b"atom-effect-test-key-not-for-production",
+    ));
+    let mut ledger = Ledger::open_in_memory(signer).expect("in-memory ledger opens");
+    let (_event, proof) = ledger
+        .append_durable(stream_id, payload, 1_756_512_000_000)
+        .expect("appending seals a durability proof");
+    proof
 }
 
 /// A complete EffectIntent carrying every EFX-002 field, in INTENT_DURABLE.
@@ -112,7 +154,9 @@ pub fn intent() -> EffectIntent {
         GRANT_ID,
         RESOURCE_ID,
     )
-    .request_digest("sha256:5f2c9e1d8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d")
+    .canonical_request_digest(
+        "sha256:5f2c9e1d8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d",
+    )
     .classes("RESOURCE_MUTATION", "HIGH")
     .idempotency(Idempotency::keyed(RESOURCE_ID, "idem-8842"))
     .reconciliation(
@@ -144,7 +188,9 @@ pub fn upstream_intent() -> EffectIntent {
         GRANT_ID,
         RESOURCE_ID,
     )
-    .request_digest("sha256:0a1b2c3d4e5f60718293a4b5c6d7e8f90112233445566778899aabbccddeeff0")
+    .canonical_request_digest(
+        "sha256:0a1b2c3d4e5f60718293a4b5c6d7e8f90112233445566778899aabbccddeeff0",
+    )
     .classes("RESOURCE_MUTATION", "HIGH")
     .idempotency(Idempotency::keyed(RESOURCE_ID, "idem-8841"))
     .reconciliation(

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/ledger-event.schema.json",
+  "title": "Ledger Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "seq",
+    "event_type",
+    "payload_digest",
+    "emitted_at"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "event_type": {
+      "type": "string"
+    },
+    "payload_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "emitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "cause_event_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

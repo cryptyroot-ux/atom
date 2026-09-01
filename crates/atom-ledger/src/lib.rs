@@ -41,6 +41,7 @@ mod error;
 mod event;
 mod hash;
 mod jcs;
+mod proof;
 mod store;
 mod verify;
 
@@ -52,5 +53,6 @@ pub use crate::hash::{
     CHECKPOINT_SEAL_DOMAIN, EVENT_DOMAIN, HASH_LEN, PAYLOAD_DOMAIN, STREAM_DIGEST_DOMAIN,
 };
 pub use crate::jcs::canonicalize;
+pub use crate::proof::DurabilityProof;
 pub use crate::store::{Ledger, LedgerTx};
 pub use crate::verify::{Finding, VerifyReport};

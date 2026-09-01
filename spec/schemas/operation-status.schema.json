@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/operation-status.schema.json",
+  "title": "Operation Status",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "operation_id",
+    "phase",
+    "updated_at",
+    "attempt"
+  ],
+  "properties": {
+    "operation_id": {
+      "type": "string"
+    },
+    "phase": {
+      "enum": [
+        "SCHEDULED",
+        "RUNNING",
+        "SUCCEEDED",
+        "FAILED",
+        "CANCELED",
+        "UNKNOWN"
+      ]
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "message": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

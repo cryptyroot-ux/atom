@@ -1,0 +1,1578 @@
+spec_version: 4.1.0
+source_document: ATOM_PRD_v4.1
+requirements:
+- id: ATOM-V4-KRN-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: All consequential mutation paths MUST traverse typed capability authorization
+    and Effect Kernel commit revalidation.
+  owner: Sovereign Kernel
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-001
+- id: ATOM-V4-KRN-002
+  priority: P0
+  phase: v4.0-alpha
+  requirement: The main runtime MUST operate unprivileged; host administration MUST
+    be mediated by atom-privd typed operations and valid CommitPermit.
+  owner: Sovereign Kernel
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-002
+- id: ATOM-V4-AUT-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: CapabilityGrant MUST bind subject/workload identity, operation, resource
+    selector, purpose, validity interval, budget, delegation depth, audience, generation,
+    revocation and parent grant where delegated.
+  owner: Authority & Policy
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-003
+- id: ATOM-V4-AUT-002
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Delegation MUST be syntactically and semantically subset-only.
+  owner: Authority & Policy
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-004
+- id: ATOM-V4-AUT-003
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Approvals MUST be durable ApprovalGrants scoped to exact effect or
+    bounded capability/resource envelope.
+  owner: Authority & Policy
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-005
+- id: ATOM-V4-EFX-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Every consequential mutation MUST persist EffectIntent before dispatch.
+  owner: Effect Kernel
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-006
+- id: ATOM-V4-EFX-002
+  priority: P0
+  phase: v4.0-alpha
+  requirement: EffectIntent MUST include canonical request digest, target, idempotency
+    semantics, external operation identity when available, pre/postconditions, reconciliation
+    class, compensation semantics and dependency edges.
+  owner: Effect Kernel
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-007
+- id: ATOM-V4-EFX-003
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Ambiguous post-dispatch outcome MUST enter UNKNOWN_OUTCOME and block
+    dependent mutations until reconciled or explicitly dispositioned by authorized
+    policy.
+  owner: Effect Kernel
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-008
+- id: ATOM-V4-EFX-004
+  priority: P0
+  phase: v4.0-alpha
+  requirement: CommitPermit MUST be short-lived, one-shot and bound to effect digest,
+    resource witness, principal, grant generation and optional approval/evidence freshness
+    digest.
+  owner: Effect Kernel
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-009
+- id: ATOM-V4-LED-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Authoritative event streams MUST use monotonic sequence, previous-event
+    hash and canonical event hash; checkpoints MUST seal stream heads.
+  owner: Ledger & Durability
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-010
+- id: ATOM-V4-MSN-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Mission MUST be the durable objective primitive and MUST define goal,
+    success criteria, constraints, budgets, authority envelope, evidence requirements
+    and stopping rules.
+  owner: Mission Runtime
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-011
+- id: ATOM-V4-MSN-002
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Mission state MUST use canonical phase/condition/outcome axes from
+    spec/enums.yaml.
+  owner: Mission Runtime
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-012
+- id: ATOM-V4-MSN-003
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Mission execution MUST use deterministic reducers for authoritative
+    state and durable events for nondeterministic activity results.
+  owner: Mission Runtime
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-013
+- id: ATOM-V4-COG-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: ATOM MUST provide a native provider-agnostic cognition loop sufficient
+    for context assembly, structured tool/capability proposal, cancellation, evidence
+    capture and usage accounting without Hermes/OpenClaw.
+  owner: Native Cognition
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-014
+- id: ATOM-V4-CXT-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Every context item MUST carry provenance, trust, sensitivity and injection-risk
+    labels, and transformations MUST preserve taint unless governed declassification
+    occurs.
+  owner: Context & Memory
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-015
+- id: ATOM-V4-SEC-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Secrets MUST be delivered by SecretHandle with audience, principal,
+    mission, capability, target, operation, expiry, redemptions and generation constraints.
+  owner: Product Security
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-016
+- id: ATOM-V4-SCH-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Schedules MUST define timezone, DST, misfire, overlap, catch-up, dedupe,
+    lateness, authority profile and cancellation semantics.
+  owner: Scheduler
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-017
+- id: ATOM-V4-OBS-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: External reality observations MUST be provenance- and freshness-aware
+    and distinguish observation from model assertion.
+  owner: Evidence & Observability
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-018
+- id: ATOM-V4-RPL-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: ATOM MUST implement R0-R2 replay for alpha and MUST label R3/R4 semantics
+    explicitly; no universal exact-replay claim is allowed.
+  owner: Replay & Simulation
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-019
+- id: ATOM-V4-OPS-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Official Linux install MUST support one-command bootstrap, native-only
+    setup, clean rollback and no mandatory Redis/Kafka/Kubernetes/external database.
+  owner: Operations
+  gates:
+  - G0
+  - G5
+  primary_test: ATOM-VT41-020
+- id: ATOM-V4-UI-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Web/PWA MUST expose mission, grant, approval, effect, UNKNOWN_OUTCOME
+    reconciliation, evidence, cost and recovery state without flattening uncertainty.
+  owner: Mission Control
+  gates:
+  - G0
+  - G6
+  primary_test: ATOM-VT41-021
+- id: ATOM-V4-EXT-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Untrusted/generated extensions MUST not run in-process with the sovereign
+    core and MUST not directly reach secrets, authoritative DB, atom-privd or host
+    Docker socket.
+  owner: Extension Platform
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-022
+- id: ATOM-V4-SUP-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Official and Foundry executable artifacts MUST be content-addressed
+    and include provenance, SBOM, signatures/attestations and immutable identity.
+  owner: Supply Chain
+  gates:
+  - G0
+  - G1
+  primary_test: ATOM-VT41-023
+- id: ATOM-V4-EPI-001
+  priority: P1
+  phase: v4.1
+  requirement: Persistent critical knowledge MUST use typed Claim/Evidence/Observation
+    records with provenance DAG, source authority, confidence, valid-time, transaction-time,
+    contradiction and taint.
+  owner: Epistemics & Memory
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-024
+- id: ATOM-V4-EPI-002
+  priority: P1
+  phase: v4.1
+  requirement: Ingest, store, retrieve, context, decision and effect eligibility MUST
+    be separately policy-gated.
+  owner: Epistemics & Memory
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-025
+- id: ATOM-V4-FND-001
+  priority: P1
+  phase: v4.2
+  requirement: Tool Foundry MUST synthesize multiple candidate interfaces/implementations
+    and gate activation on hermetic build, tests, property/fuzz/adversarial checks,
+    hidden holdout and certificate.
+  owner: Foundry
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-026
+- id: ATOM-V4-FND-002
+  priority: P1
+  phase: v4.2
+  requirement: Workflow Foundry MUST produce typed durable workflows with explicit
+    failure, timeout, retry, reconciliation and compensation transitions.
+  owner: Foundry
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-027
+- id: ATOM-V4-FND-003
+  priority: P1
+  phase: v4.2
+  requirement: Verifier Foundry MUST label verifier independence using canonical V0-V5
+    taxonomy.
+  owner: Foundry
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-028
+- id: ATOM-V4-EXP-001
+  priority: P1
+  phase: v4.3
+  requirement: Experience Compiler MUST generate TaskSignature, mine repeated subtrajectories,
+    separate positive/negative examples, synthesize candidate artifacts and evaluate
+    on hidden holdout before promotion.
+  owner: Experience Compiler
+  gates:
+  - G0
+  - G8
+  primary_test: ATOM-VT41-029
+- id: ATOM-V4-EXP-002
+  priority: P1
+  phase: v4.3
+  requirement: Experience Compiler MUST NOT emit autonomous authority expansion; it
+    MAY emit non-authoritative PolicyRecommendation.
+  owner: Experience Compiler
+  gates:
+  - G0
+  - G8
+  primary_test: ATOM-VT41-030
+- id: ATOM-V4-JIT-001
+  priority: P1
+  phase: v4.4
+  requirement: Recurrent verified deliberative behavior SHOULD compile to cheaper
+    workflow/tool/specialist capability when correctness is preserved within policy
+    threshold.
+  owner: Cognition JIT
+  gates:
+  - G0
+  - G8
+  primary_test: ATOM-VT41-031
+- id: ATOM-V4-ARC-001
+  priority: P1
+  phase: v4.5
+  requirement: Architecture selection MUST be a constrained policy over topology actions
+    with hard safety constraints outside the learner and vector reward including verified
+    success, effect integrity, security, cost, latency and human attention.
+  owner: Architecture Learning
+  gates:
+  - G0
+  - G8
+  primary_test: ATOM-VT41-032
+- id: ATOM-V4-FLT-001
+  priority: P1
+  phase: v4.1
+  requirement: Recovery MUST classify faults before selecting retry/reobserve/reauthorize/reconcile/replan
+    behavior.
+  owner: Reliability
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-033
+- id: ATOM-V4-RST-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Local mode MUST not claim clone-proof split-brain safety; Fenced Sovereign
+    Mode MUST use an external lease/epoch/connector witness or equivalent.
+  owner: Durability & Fencing
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-034
+- id: ATOM-V4-EVO-001
+  priority: P1
+  phase: v4.6
+  requirement: Adaptive artifacts MUST move through LAB -> SIMULATION -> SHADOW ->
+    CANARY -> ACTIVE and support automatic downgrade/rollback on regression.
+  owner: Evolution Governance
+  gates:
+  - G0
+  - G9
+  primary_test: ATOM-VT41-035
+- id: ATOM-V4-EVO-002
+  priority: P1
+  phase: v4.6
+  requirement: E7 trusted-core changes and E8 authority/policy expansion MUST NOT
+    self-promote from production cognition.
+  owner: Evolution Governance
+  gates:
+  - G0
+  - G9
+  primary_test: ATOM-VT41-036
+- id: ATOM-V4-CER-001
+  priority: P1
+  phase: v4.2
+  requirement: Certificate MUST bind exact BehaviorManifestV2 digest, evaluation suite
+    digest, environment scope, verifier class, validity and stale conditions.
+  owner: Certification
+  gates:
+  - G0
+  - G8
+  primary_test: ATOM-VT41-037
+- id: ATOM-V4-BMK-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Any 2G superiority claim MUST use pinned competitor/runtime versions,
+    same-model and best-native tracks, comparable budgets, multiple seeds, confidence
+    intervals, fault/attack scenarios and public failure traces.
+  owner: Evaluation Science
+  gates:
+  - G0
+  - G8
+  primary_test: ATOM-VT41-038
+- id: ATOM-V4-INT-001
+  priority: P1
+  phase: v4.1
+  requirement: MCP/A2A/Agent Skills/Hermes/OpenClaw compatibility MUST be versioned
+    profiles outside sovereign core semantics.
+  owner: Interoperability
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-039
+- id: ATOM-V4-API-001
+  priority: P0
+  phase: v4.0-alpha
+  requirement: Public write APIs MUST use operation identity/idempotency semantics
+    where duplicate dispatch is possible and return typed UNKNOWN/PARTIAL states.
+  owner: Developer Platform
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-040
+- id: ATOM-V4-BAS-001
+  priority: P0
+  phase: v4.1
+  requirement: Every published ATOM artifact MUST declare separately its specification
+    status, implementation status, gate status, signature status, and claim status;
+    a document title MUST NOT imply that unexecuted implementation gates passed.
+  owner: Architecture Council
+  gates:
+  - G0
+  primary_test: ATOM-VT41-041
+- id: ATOM-V4-BAS-002
+  priority: P0
+  phase: v4.1
+  requirement: Normative precedence MUST be Constitution, canonical machine specification,
+    ratified ADR, PRD, Blueprint, and explanatory text in that order; any collision
+    MUST fail G0 until resolved by an explicit supersession record.
+  owner: Architecture Council
+  gates:
+  - G0
+  primary_test: ATOM-VT41-042
+- id: ATOM-V4-BAS-003
+  priority: P0
+  phase: v4.1
+  requirement: The canonical pack MUST be reproducibly generated from versioned source
+    records and MUST contain a complete internal file manifest with hashes, media
+    types, normative classes, and generation metadata.
+  owner: Architecture Council
+  gates:
+  - G0
+  primary_test: ATOM-VT41-043
+- id: ATOM-V4-TRC-001
+  priority: P0
+  phase: v4.1
+  requirement: Every normative requirement MUST trace to at least one invariant, owner,
+    schema or state contract where applicable, acceptance test, gate, evidence path,
+    and source decision; every test MUST trace back to one or more requirements.
+  owner: Release Engineering
+  gates:
+  - G0
+  primary_test: ATOM-VT41-044
+- id: ATOM-V4-TRC-002
+  priority: P0
+  phase: v4.1
+  requirement: All 184 v3.1 requirement, invariant, and verification IDs MUST have
+    an explicit disposition of retained, merged, strengthened, superseded, or deferred-with-contract,
+    including target, rationale, phase, owner, and verification impact.
+  owner: Release Engineering
+  gates:
+  - G0
+  primary_test: ATOM-VT41-045
+- id: ATOM-V4-TRC-003
+  priority: P0
+  phase: v4.1
+  requirement: Gate evidence MUST be machine-readable, content-addressed, timestamped,
+    environment-bound, producer-identified, and immutable after gate decision; corrections
+    MUST create a superseding record rather than mutate prior evidence.
+  owner: Release Engineering
+  gates:
+  - G0
+  primary_test: ATOM-VT41-046
+- id: ATOM-V4-SCM-001
+  priority: P0
+  phase: v4.1
+  requirement: All P0 domain objects named by requirements, APIs, events, and state
+    machines MUST have canonical JSON Schema 2020-12 definitions with closed object
+    boundaries, explicit required fields, enumerations, bounds, identifier patterns,
+    and valid and invalid fixtures.
+  owner: Contract Engineering
+  gates:
+  - G0
+  primary_test: ATOM-VT41-047
+- id: ATOM-V4-SCM-002
+  priority: P0
+  phase: v4.1
+  requirement: Semantic constraints that JSON Schema cannot express MUST be assigned
+    stable rule IDs, implemented by the reference validator, and covered by cross-language
+    canonicalization vectors.
+  owner: Contract Engineering
+  gates:
+  - G0
+  primary_test: ATOM-VT41-048
+- id: ATOM-V4-KRN-003
+  priority: P0
+  phase: v4.1
+  requirement: Native ATOM operation MUST remain complete when Hermes, OpenClaw, AgenC,
+    and every compatibility adapter are absent; adapters MUST be replaceable sidecars
+    and MUST NOT own authority, ledger, scheduler, mission state, or effect commit.
+  owner: Sovereign Kernel
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-049
+- id: ATOM-V4-KRN-004
+  priority: P0
+  phase: v4.1
+  requirement: The default privileged broker MUST expose only typed, versioned, allowlisted
+    operations. A generic root shell MUST be absent. Any separate break-glass profile
+    MUST require two-person approval, console presence, short expiry, AST allowlisting,
+    network deny, immutable transcript, and immediate revocation.
+  owner: Sovereign Kernel
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-050
+- id: ATOM-V4-AUT-004
+  priority: P0
+  phase: v4.1
+  requirement: ApprovalGrant MUST bind approver, principal, mission, exact effect
+    digest or bounded envelope, purpose, audience, validity, maximum uses, grant generation,
+    revocation generation, and evidence freshness; payload drift MUST invalidate approval.
+  owner: Authority & Policy
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-051
+- id: ATOM-V4-AUT-005
+  priority: P0
+  phase: v4.1
+  requirement: Every authorization evaluation MUST return a typed PolicyDecision containing
+    decision, principal-action-resource-context input digest, matched policies, obligations,
+    denial code, policy bundle digest, and evaluation time; obligations MUST execute
+    before permit issuance.
+  owner: Authority & Policy
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-052
+- id: ATOM-V4-AUT-006
+  priority: P0
+  phase: v4.1
+  requirement: Grant and approval revocation MUST be generation-based, monotonic,
+    observable before commit, and effective for all descendants; cached decisions
+    MUST NOT survive a newer generation.
+  owner: Authority & Policy
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-053
+- id: ATOM-V4-AUT-007
+  priority: P0
+  phase: v4.2
+  requirement: Processes and workloads MUST use non-ambient, auditable identities
+    bound to executable digest and instance epoch; production profiles SHOULD support
+    SPIFFE-compatible X.509 SVIDs and MUST prevent identity reuse across restored
+    stale instances.
+  owner: Authority & Policy
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-054
+- id: ATOM-V4-EFX-005
+  priority: P0
+  phase: v4.1
+  requirement: EffectIntent MUST use canonical_request_digest as the sole request
+    digest field and MUST require effect_id, mission_id, principal_id, capability_id,
+    target, causation_id, grant_ref, permit_ref when issued, resource preconditions,
+    idempotency, reconciliation, compensation classification, dependencies, and state.
+  owner: Effect Kernel
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-055
+- id: ATOM-V4-EFX-006
+  priority: P0
+  phase: v4.1
+  requirement: Every connector dispatch MUST return or durably synthesize a ConnectorReceipt
+    with connector identity/version, attempt, dispatch time, request digest, external
+    operation identity, response digest, transport result, observation route, and
+    reconciliation cursor.
+  owner: Effect Kernel
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-056
+- id: ATOM-V4-EFX-007
+  priority: P0
+  phase: v4.1
+  requirement: ResourcePrecondition witnesses MUST be typed, fresh, target-bound,
+    and revalidated at permit issue and consumption; stale or mismatched witnesses
+    MUST return a typed conflict and MUST NOT dispatch.
+  owner: Effect Kernel
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-057
+- id: ATOM-V4-EFX-008
+  priority: P0
+  phase: v4.1
+  requirement: Retry policy MUST be derived from connector-declared idempotency and
+    reconciliation class. UNKNOWN_OUTCOME MUST never enter an automatic retry path
+    unless reconciliation proves non-commit or a new authorized effect identity is
+    issued.
+  owner: Effect Kernel
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-058
+- id: ATOM-V4-EFX-009
+  priority: P0
+  phase: v4.1
+  requirement: Dependency edges MUST block downstream consequential effects while
+    predecessors are unresolved, partial, compensating, or unknown; compensation MUST
+    itself be a new EffectIntent with independent authority and evidence.
+  owner: Effect Kernel
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-059
+- id: ATOM-V4-LED-002
+  priority: P0
+  phase: v4.1
+  requirement: LedgerEvent MUST bind stream_id, sequence, event_id, event_type, schema_version,
+    occurred_at, recorded_at, principal, causation, correlation, payload digest, previous
+    hash, event hash, instance epoch, and producer identity.
+  owner: Ledger & Durability
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-060
+- id: ATOM-V4-LED-003
+  priority: P0
+  phase: v4.1
+  requirement: LedgerCheckpoint MUST seal exact stream heads, database generation,
+    restore epoch, manifest digest, signer identity, signature set, and expiry; a
+    checkpoint with missing streams or stale epoch MUST fail verification.
+  owner: Ledger & Durability
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-061
+- id: ATOM-V4-LED-004
+  priority: P0
+  phase: v4.1
+  requirement: Restore MUST mint a new restore epoch and place the runtime in FENCED_READ_ONLY
+    until ledger, checkpoint, external witness, pending effects, schedules, and grants
+    are reconciled; old epochs MUST be unable to commit.
+  owner: Ledger & Durability
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-062
+- id: ATOM-V4-LED-005
+  priority: P1
+  phase: v4.2
+  requirement: Compaction or archival MUST preserve verifiable checkpoint ancestry,
+    legal hold, retention, replay class, and evidence references; authoritative history
+    MUST NOT be silently pruned.
+  owner: Ledger & Durability
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-063
+- id: ATOM-V4-MSN-004
+  priority: P0
+  phase: v4.1
+  requirement: MissionSpec MUST include a typed acyclic or explicitly iterative mission
+    graph with node contracts, dependencies, inputs, outputs, success evidence, retry/replan
+    boundaries, authority envelopes, and terminal conditions.
+  owner: Mission Runtime
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-064
+- id: ATOM-V4-MSN-005
+  priority: P0
+  phase: v4.1
+  requirement: Replanning MUST preserve the mission contract, completed verified work,
+    commitments, consumed budgets, unresolved effects, and evidence lineage; it MUST
+    create a new plan revision rather than mutate history.
+  owner: Mission Runtime
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-065
+- id: ATOM-V4-MSN-006
+  priority: P0
+  phase: v4.1
+  requirement: Mission state MUST represent BLOCKED and UNSATISFIABLE with typed reason,
+    missing condition, responsible actor, next review time, and evidence; the runtime
+    MUST NOT fabricate completion.
+  owner: Mission Runtime
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-066
+- id: ATOM-V4-MSN-007
+  priority: P0
+  phase: v4.1
+  requirement: Promises, approvals requested, deadlines, and deliverables MUST be
+    durable typed commitments linked to mission, owner, due time, fulfillment evidence,
+    and cancellation authority.
+  owner: Mission Runtime
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-067
+- id: ATOM-V4-COG-002
+  priority: P0
+  phase: v4.1
+  requirement: The Cognitive Architect MUST choose among deterministic workflow, single-agent,
+    agent-plus-independent-verifier, bounded multi-agent, simulator-assisted, and
+    durable-workflow modes; parallel workers require measurable decomposability or
+    specialization benefit and an explicit budget.
+  owner: Native Cognition
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-068
+- id: ATOM-V4-COG-003
+  priority: P0
+  phase: v4.1
+  requirement: Every proposed topology MUST declare expected token, monetary, latency,
+    worker, energy where measurable, and human-attention cost together with uncertainty
+    and a rollback threshold.
+  owner: Native Cognition
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-069
+- id: ATOM-V4-COG-004
+  priority: P0
+  phase: v4.1
+  requirement: High-risk decisions MUST use a verifier whose context and failure hypotheses
+    are independently constructed unless a stronger programmatic oracle exists; self-evaluation
+    MUST be labeled and MUST NOT impersonate proof.
+  owner: Native Cognition
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-070
+- id: ATOM-V4-COG-005
+  priority: P1
+  phase: v4.2
+  requirement: The governor SHOULD compare think, search, observe, tool, simulate,
+    delegate, and ask-human actions using expected information gain, mission utility,
+    risk, and cost; the decision trace MUST expose alternatives without revealing
+    protected chain-of-thought.
+  owner: Native Cognition
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-071
+- id: ATOM-V4-CXT-002
+  priority: P0
+  phase: v4.1
+  requirement: ContextBundle MUST enforce token budget, stable item identity, provenance,
+    trust, sensitivity, injection risk, transformation lineage, purpose, retention
+    class, and deterministic exclusion reasons; declassification MUST require a policy
+    decision and evidence.
+  owner: Context & Memory
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-072
+- id: ATOM-V4-SEC-002
+  priority: P0
+  phase: v4.1
+  requirement: SecretHandle redemption MUST be performed outside model context, return
+    secrets only to the exact authorized connector process, enforce audience and generation,
+    limit redemptions, and redact values from logs, memory, traces, crash dumps, and
+    error payloads.
+  owner: Product Security
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-073
+- id: ATOM-V4-SEC-003
+  priority: P0
+  phase: v4.1
+  requirement: Threat controls and adversarial tests MUST cover OWASP Agentic ASI01
+    through ASI10, prompt and memory injection, confused deputy, identity escalation,
+    tool misuse, supply chain, insecure inter-agent messages, cascading failure, human
+    trust exploitation, and rogue-agent behavior.
+  owner: Product Security
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-074
+- id: ATOM-V4-SEC-004
+  priority: P0
+  phase: v4.1
+  requirement: Sandboxed extensions MUST default-deny filesystem, network, process,
+    clock precision, environment, secret, and host-control capabilities; every grant
+    MUST be explicit, minimal, expiring, and observable.
+  owner: Product Security
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-075
+- id: ATOM-V4-SEC-005
+  priority: P1
+  phase: v4.2
+  requirement: Security-relevant configuration changes MUST require typed authorization,
+    optimistic concurrency, policy simulation, rollback material, audit evidence,
+    and a blast-radius preview.
+  owner: Product Security
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-076
+- id: ATOM-V4-SCH-002
+  priority: P0
+  phase: v4.1
+  requirement: Schedule execution MUST persist admission before launch and define
+    timezone database version, DST fold/gap behavior, misfire grace, catch-up limit,
+    overlap policy, dedupe key, lateness budget, authority profile, cancellation,
+    and restart recovery.
+  owner: Scheduler
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-077
+- id: ATOM-V4-OBS-002
+  priority: P0
+  phase: v4.1
+  requirement: Observation and Evidence records MUST bind source, acquisition method,
+    subject, observed-at, valid-time, transaction-time, freshness policy, content
+    digest, trust, sensitivity, and transformation lineage; model assertions MUST
+    use a different record type.
+  owner: Evidence & Observability
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-078
+- id: ATOM-V4-OBS-003
+  priority: P0
+  phase: v4.1
+  requirement: Telemetry MUST use low-cardinality semantic fields and MUST default
+    to excluding prompts, outputs, system instructions, secrets, and sensitive context;
+    any content capture requires explicit opt-in, filtering, truncation, retention,
+    and access policy.
+  owner: Evidence & Observability
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-079
+- id: ATOM-V4-OBS-004
+  priority: P1
+  phase: v4.2
+  requirement: Every mission, policy decision, permit, effect, provider call, schedule
+    run, and recovery action MUST propagate correlation and causation identifiers
+    while preserving tenant and sensitivity boundaries.
+  owner: Evidence & Observability
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-080
+- id: ATOM-V4-RPL-002
+  priority: P0
+  phase: v4.1
+  requirement: Replay classes MUST be R0 projection rebuild, R1 deterministic reducer
+    replay, R2 recorded-nondeterminism replay, R3 counterfactual simulation, and R4
+    live fork; only R4 may request new effects and it MUST mint new mission, effect,
+    and authority identities.
+  owner: Replay & Simulation
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-081
+- id: ATOM-V4-OPS-002
+  priority: P0
+  phase: v4.1
+  requirement: The supported installation matrix MUST name operating system versions,
+    architectures, filesystems, init systems, minimum resources, required ports, unsupported
+    environments, and exact evidence images; Ubuntu and Debian on a single Linux VPS
+    MUST be Tier 1.
+  owner: Operations
+  gates:
+  - G0
+  - G5
+  primary_test: ATOM-VT41-082
+- id: ATOM-V4-OPS-003
+  priority: P0
+  phase: v4.1
+  requirement: Bootstrap MUST be idempotent, noninteractive-capable, checksum and
+    signature verifying, least-privilege, resumable, proxy-aware, and able to emit
+    a redacted diagnostic bundle; rerun MUST converge without data loss.
+  owner: Operations
+  gates:
+  - G0
+  - G5
+  primary_test: ATOM-VT41-083
+- id: ATOM-V4-OPS-004
+  priority: P0
+  phase: v4.1
+  requirement: Configuration precedence MUST be compiled defaults, system file, instance
+    file, environment, then CLI; secrets MUST use handles, unknown keys MUST fail
+    by default, and effective configuration MUST be inspectable with redaction and
+    source attribution.
+  owner: Operations
+  gates:
+  - G0
+  - G5
+  primary_test: ATOM-VT41-084
+- id: ATOM-V4-OPS-005
+  priority: P0
+  phase: v4.1
+  requirement: Update clients MUST verify TUF-style trusted root, expiry, threshold
+    signatures, version monotonicity, snapshot consistency, target hash and length,
+    and protect against rollback, freeze, fast-forward, mix-and-match, wrong-target,
+    and endless-data attacks.
+  owner: Operations
+  gates:
+  - G0
+  - G5
+  primary_test: ATOM-VT41-085
+- id: ATOM-V4-OPS-006
+  priority: P0
+  phase: v4.1
+  requirement: Every schema or binary update MUST run preflight, create a verified
+    backup/checkpoint, support expand-migrate-contract sequencing, retain rollback
+    compatibility for the declared window, and refuse rollback when it would corrupt
+    newer authoritative data.
+  owner: Operations
+  gates:
+  - G0
+  - G5
+  primary_test: ATOM-VT41-086
+- id: ATOM-V4-OPS-007
+  priority: P0
+  phase: v4.1
+  requirement: Backup MUST capture authoritative database, ledger heads, checkpoint,
+    configuration sans raw secrets, artifact manifests, key references, and restore
+    instructions; restore MUST verify integrity and enter fenced reconciliation before
+    write service.
+  owner: Operations
+  gates:
+  - G0
+  - G5
+  primary_test: ATOM-VT41-087
+- id: ATOM-V4-OPS-008
+  priority: P1
+  phase: v4.1
+  requirement: Uninstall MUST distinguish binaries, runtime state, user data, logs,
+    secrets, and backups; destructive purge MUST require an explicit separately confirmed
+    operation and produce a deletion receipt.
+  owner: Operations
+  gates:
+  - G0
+  - G5
+  primary_test: ATOM-VT41-088
+- id: ATOM-V4-UI-002
+  priority: P1
+  phase: v4.2
+  requirement: Mission Control MUST be keyboard accessible, responsive as a PWA, expose
+    uncertainty and authority provenance, require confirmation proportional to risk,
+    and provide dedicated queues for approvals, UNKNOWN_OUTCOME, stale evidence, failed
+    compensation, and recovery.
+  owner: Mission Control
+  gates:
+  - G0
+  - G6
+  primary_test: ATOM-VT41-089
+- id: ATOM-V4-EXT-002
+  priority: P0
+  phase: v4.1
+  requirement: ExtensionManifest MUST bind immutable artifact digest, publisher, license,
+    interfaces, capabilities requested, network destinations, filesystem mounts, secrets,
+    resource limits, compatibility range, provenance, SBOM, signature, and revocation
+    status.
+  owner: Extension Platform
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-090
+- id: ATOM-V4-EXT-003
+  priority: P1
+  phase: v4.2
+  requirement: Wasm components SHOULD target a pinned WASI profile and typed WIT interface;
+    containers or microVMs MAY be used for incompatible workloads, but all profiles
+    MUST preserve the same capability and egress policy semantics.
+  owner: Extension Platform
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-091
+- id: ATOM-V4-EXT-004
+  priority: P1
+  phase: v4.2
+  requirement: Agent Skills ingestion MUST validate the SKILL.md contract, progressively
+    disclose catalog then instructions then referenced resources, treat instructions
+    and scripts as untrusted, pin imported bytes, and require policy before tool or
+    network use.
+  owner: Extension Platform
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-092
+- id: ATOM-V4-EXT-005
+  priority: P0
+  phase: v4.1
+  requirement: Hermes, OpenClaw, MCP, A2A, and other adapters MUST translate into
+    native CapabilityContract, ContextItem, Observation, and EffectIntent records
+    and MUST NOT translate peer-advertised capability into local authority.
+  owner: Extension Platform
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-093
+- id: ATOM-V4-SUP-002
+  priority: P0
+  phase: v4.1
+  requirement: Official artifacts MUST provide reproducible provenance compatible
+    with SLSA v1.2, SPDX or CycloneDX SBOM, DSSE/in-toto attestations, transparency-log
+    or offline-verifiable signatures, dependency licenses, and vulnerability disposition.
+  owner: Supply Chain
+  gates:
+  - G0
+  - G1
+  primary_test: ATOM-VT41-094
+- id: ATOM-V4-SUP-003
+  priority: P0
+  phase: v4.1
+  requirement: Build dependencies, base images, actions, generators, and schemas MUST
+    be pinned by immutable digest; floating tags and mutable URLs MUST fail release
+    gates.
+  owner: Supply Chain
+  gates:
+  - G0
+  - G1
+  primary_test: ATOM-VT41-095
+- id: ATOM-V4-SUP-004
+  priority: P1
+  phase: v4.2
+  requirement: Vulnerability findings MUST carry affected digest, exploitability,
+    severity, compensating controls, owner, due date, and signed disposition; critical
+    exploitable findings MUST block promotion.
+  owner: Supply Chain
+  gates:
+  - G0
+  - G1
+  primary_test: ATOM-VT41-096
+- id: ATOM-V4-EPI-003
+  priority: P0
+  phase: v4.1
+  requirement: Memory MUST pass separate ingest, storage, retrieval, context, decision,
+    and effect-eligibility gates; approval at one stage MUST NOT imply approval at
+    another.
+  owner: Epistemics & Memory
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-097
+- id: ATOM-V4-EPI-004
+  priority: P1
+  phase: v4.2
+  requirement: Memory consolidation MUST preserve source authority, contradiction
+    sets, valid-time, transaction-time, sensitivity, and taint; summarization MUST
+    NOT upgrade trust or erase dissenting evidence.
+  owner: Epistemics & Memory
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-098
+- id: ATOM-V4-EPI-005
+  priority: P1
+  phase: v4.2
+  requirement: Selective repair MUST identify all derived context, claims, compiled
+    artifacts, and decisions influenced by poisoned or revoked evidence and MUST support
+    invalidation without deleting unrelated history.
+  owner: Epistemics & Memory
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-099
+- id: ATOM-V4-FND-004
+  priority: P1
+  phase: v4.2
+  requirement: Foundry artifacts MUST follow DRAFT, BUILDING, TESTING, QUARANTINED,
+    CERTIFIED, ACTIVE, STALE, REVOKED with generated transition evidence; direct DRAFT-to-ACTIVE
+    and stale-to-ACTIVE transitions MUST be impossible.
+  owner: Foundry
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-100
+- id: ATOM-V4-FND-005
+  priority: P1
+  phase: v4.3
+  requirement: Generated simulators MUST declare validity domain, calibration evidence,
+    uncertainty, unsupported regimes, and staleness triggers; out-of-domain results
+    MUST be labeled simulation and MUST NOT become observations.
+  owner: Foundry
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-101
+- id: ATOM-V4-FND-006
+  priority: P1
+  phase: v4.3
+  requirement: Specialist agent templates MUST declare role, input/output contract,
+    context policy, tool and authority ceiling, budget, termination, verifier, and
+    failure semantics; cross-task holdout and security review are required before
+    reuse.
+  owner: Foundry
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-102
+- id: ATOM-V4-FND-007
+  priority: P1
+  phase: v4.4
+  requirement: Model adaptation MUST be optional and isolated from core operation;
+    training requires explicit data and license rights, example provenance, sealed
+    holdout, teacher/student identity, protected-family regression limits, and revocable
+    artifact certification.
+  owner: Foundry
+  gates:
+  - G0
+  - G2
+  primary_test: ATOM-VT41-103
+- id: ATOM-V4-EXP-003
+  priority: P1
+  phase: v4.3
+  requirement: Only trajectories with independent outcome evidence and permitted data
+    rights MAY enter automatic pattern mining; failed, self-graded-only, contaminated,
+    or unresolved trajectories MUST be excluded.
+  owner: Experience Compiler
+  gates:
+  - G0
+  - G8
+  primary_test: ATOM-VT41-104
+- id: ATOM-V4-EXP-004
+  priority: P1
+  phase: v4.3
+  requirement: Candidate compilation MUST compare deterministic workflow, tool, retrieval
+    package, specialist, and model adaptation options, selecting the lowest-complexity
+    form that meets hidden holdout and safety thresholds.
+  owner: Experience Compiler
+  gates:
+  - G0
+  - G8
+  primary_test: ATOM-VT41-105
+- id: ATOM-V4-EXP-005
+  priority: P1
+  phase: v4.3
+  requirement: Promotion MUST report cognitive compression ratio, verified success
+    delta, catastrophic failure delta, latency, cost, human attention, and uncertainty;
+    regression MUST revoke the route and fall back to deliberation.
+  owner: Experience Compiler
+  gates:
+  - G0
+  - G8
+  primary_test: ATOM-VT41-106
+- id: ATOM-V4-JIT-002
+  priority: P1
+  phase: v4.3
+  requirement: Compiled behavior MUST remain semantically addressable by exact BehaviorId
+    and MUST decompile to a safe deliberative route when certificate, environment,
+    dependency, policy, or evidence freshness changes.
+  owner: Cognition JIT
+  gates:
+  - G0
+  - G8
+  primary_test: ATOM-VT41-107
+- id: ATOM-V4-ARC-002
+  priority: P1
+  phase: v4.5
+  requirement: Architecture learning MUST operate first offline then shadow then bounded
+    canary, use vector objectives and hard external constraints, record counterfactual
+    uncertainty, and never alter trusted-core or authority policy without human-governed
+    release.
+  owner: Architecture Learning
+  gates:
+  - G0
+  - G8
+  primary_test: ATOM-VT41-108
+- id: ATOM-V4-FLT-002
+  priority: P0
+  phase: v4.1
+  requirement: FaultRecord MUST classify validation, authorization, approval, conflict,
+    provider, connector, timeout, rate limit, resource, integrity, dependency, cancellation,
+    unknown outcome, and internal defects with retryability, ownership, evidence,
+    and next action.
+  owner: Reliability
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-109
+- id: ATOM-V4-FLT-003
+  priority: P1
+  phase: v4.2
+  requirement: Exhausted or non-retryable work MUST enter a durable dead-letter or
+    operator-action queue with full causation, redacted inputs, evidence, authority
+    status, and safe resume or abandon operations.
+  owner: Reliability
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-110
+- id: ATOM-V4-RST-002
+  priority: P0
+  phase: v4.1
+  requirement: Fenced Sovereign Mode MUST specify lease provider, epoch monotonicity,
+    quorum or witness semantics, renewal deadline, maximum clock uncertainty, partition
+    behavior, and connector-side epoch enforcement where consequential writes require
+    clone resistance.
+  owner: Durability & Fencing
+  gates:
+  - G0
+  - G3
+  primary_test: ATOM-VT41-111
+- id: ATOM-V4-EVO-003
+  priority: P0
+  phase: v4.1
+  requirement: No production cognition path MAY self-promote code, policy, identity
+    root, signing key, trusted schema, or gate threshold; proposals MUST enter a separately
+    authorized release workflow with independent evidence and rollback.
+  owner: Evolution Governance
+  gates:
+  - G0
+  - G9
+  primary_test: ATOM-VT41-112
+- id: ATOM-V4-CER-002
+  priority: P1
+  phase: v4.2
+  requirement: BehaviorId MUST use an algorithm-tagged canonical manifest digest,
+    privacy-aware referenced evidence, Merkle-addressable components, published canonicalization
+    vectors, and algorithm agility; sensitive content MUST NOT be embedded merely
+    to stabilize identity.
+  owner: Certification
+  gates:
+  - G0
+  - G8
+  primary_test: ATOM-VT41-113
+- id: ATOM-V4-BMK-002
+  priority: P0
+  phase: v4.1
+  requirement: Benchmark protocols MUST be preregistered with hypotheses, primary
+    and guardrail endpoints, unit of analysis, paired task instances where possible,
+    seed plan justified by power or precision, effect sizes, confidence intervals,
+    multiplicity control, missing-run policy, and catastrophic-failure handling.
+  owner: Evaluation Science
+  gates:
+  - G0
+  - G8
+  primary_test: ATOM-VT41-114
+- id: ATOM-V4-BMK-003
+  priority: P0
+  phase: v4.1
+  requirement: Superiority, noninferiority, and equivalence claims MUST use separately
+    declared margins and decision rules; a single aggregate score, single seed, or
+    statistical significance without practical effect size MUST NOT authorize a public
+    claim.
+  owner: Evaluation Science
+  gates:
+  - G0
+  - G8
+  primary_test: ATOM-VT41-115
+- id: ATOM-V4-BMK-004
+  priority: P0
+  phase: v4.1
+  requirement: Every public comparative claim MUST be registered with exact ATOM build,
+    comparator tag and commit, provider/model snapshot, budgets, datasets, harness
+    digest, environment, raw traces, exclusions, analysis code, result, expiry, and
+    replication status.
+  owner: Evaluation Science
+  gates:
+  - G0
+  - G8
+  primary_test: ATOM-VT41-116
+- id: ATOM-V4-INT-002
+  priority: P1
+  phase: v4.2
+  requirement: The MCP profile MUST pin protocol 2026-07-28, treat each request as
+    self-describing, preserve host-enforced consent, model external tool metadata
+    as untrusted, bind explicit capability handles, and isolate optional Tasks/Skills/Apps
+    extensions.
+  owner: Interoperability
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-117
+- id: ATOM-V4-INT-003
+  priority: P1
+  phase: v4.2
+  requirement: The A2A profile MUST pin version 1.0, send A2A-Version, validate Agent
+    Cards, authenticate every operation, scope authorization before resource lookup,
+    map task states explicitly, and add local grant semantics because A2A in-task
+    authorization does not define scope, validity, or revocation.
+  owner: Interoperability
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-118
+- id: ATOM-V4-INT-004
+  priority: P1
+  phase: v4.2
+  requirement: The Agent Skills profile MUST validate required frontmatter, directory/name
+    correspondence, resource path containment, size policy, declared compatibility,
+    license, allowed-tools as advisory only, and progressive disclosure behavior.
+  owner: Interoperability
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-119
+- id: ATOM-V4-INT-005
+  priority: P1
+  phase: v4.2
+  requirement: Hermes and OpenClaw compatibility claims MUST pin a stable tag and
+    source commit, publish an import/export capability matrix, state unsupported semantics,
+    and run conformance without making either runtime a dependency of native ATOM.
+  owner: Interoperability
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-120
+- id: ATOM-V4-INT-006
+  priority: P0
+  phase: v4.1
+  requirement: Data received from any peer MUST enter as untrusted ContextItem, Observation,
+    or proposal; no peer protocol message, advertised tool, or remote task state MAY
+    directly create a local grant, approval, permit, ledger checkpoint, or effect
+    commit.
+  owner: Interoperability
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-121
+- id: ATOM-V4-API-002
+  priority: P0
+  phase: v4.1
+  requirement: The public HTTP contract MUST be published as OpenAPI 3.1.1 with authentication,
+    authorization scopes, resource schemas, operation IDs, examples, versioning, idempotency,
+    optimistic concurrency, pagination, rate limits, and typed application/problem+json
+    errors.
+  owner: Developer Platform
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-122
+- id: ATOM-V4-API-003
+  priority: P0
+  phase: v4.1
+  requirement: List APIs MUST use opaque stable cursors and deterministic ordering;
+    mutation APIs MUST use If-Match or equivalent generation checks, Idempotency-Key
+    where replay can duplicate effects, and return 409 conflict, 412 precondition,
+    428 precondition-required, or typed uncertainty as appropriate.
+  owner: Developer Platform
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-123
+- id: ATOM-V4-API-004
+  priority: P1
+  phase: v4.2
+  requirement: Event streaming MUST define resume cursor, ordering, heartbeat, backpressure,
+    redaction, replay window, gap detection, authorization recheck, and terminal error
+    behavior; webhooks MUST be signed, replay-protected, retried with bounds, and
+    dead-lettered.
+  owner: Developer Platform
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-124
+- id: ATOM-V4-API-005
+  priority: P0
+  phase: v4.1
+  requirement: The CLI MUST publish command grammar, config precedence, noninteractive
+    mode, stable JSON output, redaction, prompts, cancellation, and exit codes that
+    distinguish success, usage, policy denial, approval required, unknown outcome,
+    conflict, unavailable, validation, integrity, partial, and internal failure.
+  owner: Developer Platform
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-125
+- id: ATOM-V4-PRV-001
+  priority: P0
+  phase: v4.1
+  requirement: Every model provider adapter MUST implement ProviderProfile with immutable
+    adapter version, endpoint class, authentication handle type, models, context/output
+    limits, modality, tools, structured output, streaming, cancellation, usage, reasoning
+    controls, data handling, residency, and error normalization capabilities.
+  owner: Provider Platform
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-126
+- id: ATOM-V4-PRV-002
+  priority: P0
+  phase: v4.1
+  requirement: Provider capability discovery MUST be cached with expiry and source,
+    and runtime routing MUST fail closed when a required capability is absent or unknown;
+    provider marketing names MUST NOT substitute for measured contract support.
+  owner: Provider Platform
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-127
+- id: ATOM-V4-PRV-003
+  priority: P0
+  phase: v4.1
+  requirement: Provider routing MUST consider policy, data sensitivity, residency,
+    required capabilities, certification, budget, latency, availability, and user
+    choice; fallback MUST preserve or reduce authority and MUST NOT silently weaken
+    privacy or verification.
+  owner: Provider Platform
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-128
+- id: ATOM-V4-PRV-004
+  priority: P0
+  phase: v4.1
+  requirement: Token, monetary, latency, cache, retry, and cancellation usage MUST
+    be normalized with source quality and reconciliation; missing or estimated usage
+    MUST be labeled and budget enforcement MUST use conservative bounds.
+  owner: Provider Platform
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-129
+- id: ATOM-V4-PRV-005
+  priority: P1
+  phase: v4.2
+  requirement: Tier 1 contract profiles MUST exist for OpenAI-compatible, Anthropic,
+    xAI, Gemini, OpenRouter, Ollama/local, and vLLM/custom endpoints; certification
+    is per adapter version, provider API snapshot, and capability subset rather than
+    provider brand.
+  owner: Provider Platform
+  gates:
+  - G0
+  - G4
+  primary_test: ATOM-VT41-130
+- id: ATOM-V4-PRI-001
+  priority: P0
+  phase: v4.1
+  requirement: Every durable object MUST carry tenant, purpose, sensitivity, residency,
+    retention, legal-hold, and deletion-class metadata or inherit it through a deterministic
+    policy with inspectable provenance.
+  owner: Privacy Engineering
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-131
+- id: ATOM-V4-PRI-002
+  priority: P0
+  phase: v4.1
+  requirement: Provider and connector egress MUST enforce data minimization, purpose
+    limitation, destination allowlist, residency, user policy, and secret exclusion
+    before dispatch; the decision digest MUST be recorded.
+  owner: Privacy Engineering
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-132
+- id: ATOM-V4-PRI-003
+  priority: P1
+  phase: v4.2
+  requirement: Retention and deletion MUST support policy-driven expiry, user export,
+    deletion request, tombstone, derived-data invalidation, backup aging, legal hold,
+    and a signed completion or exception receipt; ledger integrity MAY preserve non-content
+    proofs.
+  owner: Privacy Engineering
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-133
+- id: ATOM-V4-PRI-004
+  priority: P1
+  phase: v4.2
+  requirement: Privacy-impacting defaults and telemetry content collection MUST be
+    opt-in, versioned, explainable, reversible, and surfaced before activation; consent
+    MUST NOT be bundled with unrelated authority.
+  owner: Privacy Engineering
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-134
+- id: ATOM-V4-SLO-001
+  priority: P0
+  phase: v4.1
+  requirement: For the reference single-node profile, committed authoritative events
+    MUST have zero acknowledged loss under the validated crash model, recovery point
+    objective MUST be zero after acknowledged commit, and recovery time objective
+    MUST be measured and published with hardware and dataset bounds.
+  owner: SRE
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-135
+- id: ATOM-V4-SLO-002
+  priority: P1
+  phase: v4.2
+  requirement: The reference profile MUST publish p50, p95, and p99 admission, policy,
+    permit, ledger-append, provider-overhead, and UI latency plus throughput and resource
+    curves; thresholds MUST be set per release profile and regressions beyond budget
+    block promotion.
+  owner: SRE
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-136
+- id: ATOM-V4-SLO-003
+  priority: P0
+  phase: v4.1
+  requirement: Security SLOs MUST include zero unauthorized committed effects in the
+    acceptance corpus, zero secret canary disclosures, 100 percent detected ledger
+    tamper cases, and bounded revocation-to-enforcement latency declared by deployment
+    profile.
+  owner: SRE
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-137
+- id: ATOM-V4-SLO-004
+  priority: P1
+  phase: v4.2
+  requirement: Operational SLO reporting MUST include numerator, denominator, exclusions,
+    missing telemetry, confidence, and burn rate; an SLO without complete measurement
+    metadata MUST be marked unknown rather than pass.
+  owner: SRE
+  gates:
+  - G0
+  - G7
+  primary_test: ATOM-VT41-138
+- id: ATOM-V4-GOV-001
+  priority: P0
+  phase: v4.1
+  requirement: The repository MUST publish an OSI-compatible code license, documentation
+    and specification license, contribution terms, third-party notices, security policy,
+    code of conduct, and governance charter before public GA.
+  owner: Open Governance
+  gates:
+  - G0
+  - G9
+  primary_test: ATOM-VT41-139
+- id: ATOM-V4-GOV-002
+  priority: P0
+  phase: v4.1
+  requirement: Normative changes MUST use versioned proposals with owner, threat and
+    compatibility impact, alternatives, migration, acceptance evidence, reviewer quorum,
+    effective version, and supersession links; emergency changes MUST be retrospectively
+    ratified within a bounded window.
+  owner: Open Governance
+  gates:
+  - G0
+  - G9
+  primary_test: ATOM-VT41-140
+- id: ATOM-V4-GOV-003
+  priority: P1
+  phase: v4.2
+  requirement: Breaking public schema, API, CLI, event, provider, or compatibility-profile
+    changes MUST follow semantic versioning, publish machine-readable deprecation
+    metadata, support a declared overlap window, and provide migration tooling and
+    fixtures.
+  owner: Open Governance
+  gates:
+  - G0
+  - G9
+  primary_test: ATOM-VT41-141
+- id: ATOM-V4-GOV-004
+  priority: P0
+  phase: v4.1
+  requirement: Security reports MUST have a private intake path, acknowledgement target,
+    severity and embargo policy, coordinated disclosure process, patch and revocation
+    path, and public advisory with affected digests when safe.
+  owner: Open Governance
+  gates:
+  - G0
+  - G9
+  primary_test: ATOM-VT41-142

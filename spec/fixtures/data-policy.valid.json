@@ -1,0 +1,14 @@
+{
+  "policy_id": "dp-0001",
+  "classifications": [
+    "PII"
+  ],
+  "retention": {
+    "days": 90
+  },
+  "purposes": [
+    "billing"
+  ],
+  "activated_at": "2026-08-31T12:00:00Z",
+  "override": null
+}

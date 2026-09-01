@@ -252,7 +252,9 @@ pub fn drive_canary_regression(
     .map_err(|err| err.to_string())?;
 
     let mut router = ArtifactRouter::new();
-    router.register_active(prior).map_err(|err| err.to_string())?;
+    router
+        .register_active(prior)
+        .map_err(|err| err.to_string())?;
     router
         .register_canary(candidate)
         .map_err(|err| err.to_string())?;

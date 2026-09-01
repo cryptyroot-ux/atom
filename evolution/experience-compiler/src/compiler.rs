@@ -78,14 +78,22 @@ impl ExperienceCompiler {
                     task_family: "mined".to_owned(),
                     steps: steps.clone(),
                     success: true,
-                    cost: CostSnapshot { tokens: 0, latency_ms: 0, cost_cents: 0 },
+                    cost: CostSnapshot {
+                        tokens: 0,
+                        latency_ms: 0,
+                        cost_cents: 0,
+                    },
                     timestamp: 0,
                 });
                 results.push(Subtrajectory {
                     signature,
                     steps,
                     frequency: freq,
-                    avg_cost_savings: CostSnapshot { tokens: 0, latency_ms: 0, cost_cents: 0 },
+                    avg_cost_savings: CostSnapshot {
+                        tokens: 0,
+                        latency_ms: 0,
+                        cost_cents: 0,
+                    },
                     polarity,
                 });
             }
@@ -162,7 +170,11 @@ impl ExperienceCompiler {
     /// scores high; a pattern absent from the holdout has no evidence (correctness
     /// 0.0) and is therefore rejected. Cost improvement compares the mean cost of
     /// pattern-bearing successes against the non-pattern baseline in the same holdout.
-    fn evaluate_on_holdout(&self, sub: &Subtrajectory, holdout: &[ExecutionTrajectory]) -> HoldoutResult {
+    fn evaluate_on_holdout(
+        &self,
+        sub: &Subtrajectory,
+        holdout: &[ExecutionTrajectory],
+    ) -> HoldoutResult {
         let mut test_cases = 0usize; // holdout trajectories containing the pattern
         let mut passed_cases = 0usize; // ... of which actually succeeded
         let mut cost_pattern_success: u64 = 0;
@@ -203,7 +215,13 @@ impl ExperienceCompiler {
         };
 
         let passed = test_cases > 0 && correctness_ratio >= self.correctness_threshold;
-        HoldoutResult::new(passed, test_cases, passed_cases, cost_improvement_ratio, correctness_ratio)
+        HoldoutResult::new(
+            passed,
+            test_cases,
+            passed_cases,
+            cost_improvement_ratio,
+            correctness_ratio,
+        )
     }
 
     /// Returns true if `needle` appears as a contiguous window inside `haystack`.
@@ -218,7 +236,10 @@ impl ExperienceCompiler {
     pub fn evaluate_recommendation(&self, rec: &PolicyRecommendation) -> CompilerResult<()> {
         if rec.confidence < self.confidence_threshold {
             return Err(CompilerError::HoldoutFailed {
-                reason: format!("confidence {:.3} below threshold {:.3}", rec.confidence, self.confidence_threshold),
+                reason: format!(
+                    "confidence {:.3} below threshold {:.3}",
+                    rec.confidence, self.confidence_threshold
+                ),
             });
         }
         Ok(())
@@ -275,7 +296,11 @@ mod tests {
                 task_family: "test".to_owned(),
                 steps: steps.clone(),
                 success: true,
-                cost: CostSnapshot { tokens: 100, latency_ms: 50, cost_cents: 1 },
+                cost: CostSnapshot {
+                    tokens: 100,
+                    latency_ms: 50,
+                    cost_cents: 1,
+                },
                 timestamp: i as i64,
             })
             .collect()
@@ -285,14 +310,20 @@ mod tests {
     fn insufficient_trajectories_is_error() {
         let c = ExperienceCompiler::new();
         let r = c.mine_subtrajectories(&sample_trajectories(3));
-        assert!(matches!(r, Err(CompilerError::InsufficientTrajectories { .. })));
+        assert!(matches!(
+            r,
+            Err(CompilerError::InsufficientTrajectories { .. })
+        ));
     }
 
     #[test]
     fn mines_recurring_subtrajectory() {
         let c = ExperienceCompiler::new();
         let subs = c.mine_subtrajectories(&sample_trajectories(20)).unwrap();
-        assert!(!subs.is_empty(), "expected mined patterns from repeated trajectories");
+        assert!(
+            !subs.is_empty(),
+            "expected mined patterns from repeated trajectories"
+        );
         for s in &subs {
             assert!(s.frequency >= c.min_frequency);
         }
@@ -304,7 +335,9 @@ mod tests {
         let fam = sample_trajectories(20);
         let (_training, holdout) = c.split_holdout(&fam);
         let subs = c.mine_subtrajectories(&fam).unwrap();
-        let rec = c.synthesize_candidate(&subs[0], "test-family", holdout).unwrap();
+        let rec = c
+            .synthesize_candidate(&subs[0], "test-family", holdout)
+            .unwrap();
         // INV-016: no authority expansion — target must be None (no CapabilityGrant).
         assert!(rec.target_capability_id.is_none());
         assert!(!rec.proposed_operations.is_empty());
@@ -341,7 +374,9 @@ mod tests {
     #[test]
     fn full_pipeline_compiles_experience() {
         let c = ExperienceCompiler::new();
-        let recs = c.compile_experience(&sample_trajectories(20), "test-family").unwrap();
+        let recs = c
+            .compile_experience(&sample_trajectories(20), "test-family")
+            .unwrap();
         assert!(!recs.is_empty());
         for r in &recs {
             assert!(r.is_actionable());

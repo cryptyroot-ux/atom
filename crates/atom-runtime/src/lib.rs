@@ -10,7 +10,7 @@ use std::collections::BTreeMap;
 
 use atom_capability::CapabilityGrant;
 use atom_effect::{
-    CommitPermit, DurabilityWitness, EffectEvent, EffectIntent, EffectState,
+    CommitPermit, DurabilityProof, EffectEvent, EffectIntent, EffectState,
     ReduceError as EffectReduceError, ResourceWitness,
 };
 use atom_ledger::Ledger;
@@ -399,8 +399,8 @@ pub struct TrackedEffect {
     pub activity: ActivityKind,
     /// Current reducer-derived intent.
     pub intent: EffectIntent,
-    /// Witness used by atom-effect permit issuance.
-    pub durability: DurabilityWitness,
+    /// Ledger-issued proof the intent was appended before dispatch (EFX-001).
+    pub durability: DurabilityProof,
 }
 
 /// One phase of a cognition cycle.
@@ -603,6 +603,20 @@ pub enum RuntimeError {
         #[source]
         source: EffectReduceError,
     },
+    /// The intent's declared payload could not be canonicalised for the ledger.
+    #[error("effect {effect_id} declared payload is not canonicalisable: {reason}")]
+    EffectPayloadNotCanonicalizable {
+        /// Effect identity.
+        effect_id: String,
+        /// Why canonicalisation failed.
+        reason: String,
+    },
+    /// The durable payload does not match the intent being committed.
+    #[error("durable payload for effect {effect_id} does not match intent digest")]
+    EffectPayloadMismatch {
+        /// Effect identity.
+        effect_id: String,
+    },
     /// Ledger append failed.
     #[error(transparent)]
     Ledger(#[from] atom_ledger::Error),
@@ -690,6 +704,41 @@ where
     #[must_use]
     pub fn ledger(&self) -> &Ledger {
         &self.ledger
+    }
+
+    /// Nonce-burn stream name on the ledger: the single durable store for
+    /// one-shot commit permits (ATOM-V4-EFX-004 · durable nonce).
+    pub const NONCE_BURN_STREAM: &'static str = "nonce-burns";
+
+    /// The nonces that `ledger` has already recorded as burned, in append order.
+    ///
+    /// A cold start calls this before opening the commit gate to rehydrate its
+    /// one-shot memory, so a restart refuses a permit burned in a prior life.
+    #[must_use]
+    pub fn burned_nonces_from(ledger: &Ledger) -> Vec<String> {
+        let Ok(records) = ledger.scan(Self::NONCE_BURN_STREAM, 0) else {
+            return Vec::new();
+        };
+        records
+            .into_iter()
+            .filter_map(|record| record.payload.get("nonce")?.as_str().map(ToOwned::to_owned))
+            .collect()
+    }
+
+    /// Durably records `nonce` as burned on the ledger's nonce-burn stream.
+    ///
+    /// The one-shot guarantee becomes durable only once this append has
+    /// committed: on a crash before it returns, the nonce is not yet persistent
+    /// and a restart would legitimately re-serve it (no spurious replay block).
+    pub fn burn_nonce(
+        &mut self,
+        nonce: &str,
+        at: DateTime<Utc>,
+    ) -> Result<atom_ledger::Event, RuntimeError> {
+        let payload = serde_json::json!({ "nonce": nonce });
+        Ok(self
+            .ledger
+            .append(Self::NONCE_BURN_STREAM, &payload, at.timestamp_millis())?)
     }
 
     /// Returns a tracked effect and its durability witness.
@@ -1031,17 +1080,22 @@ where
             return Err(RuntimeError::DuplicateEffect { effect_id });
         }
 
-        // atom-effect validates a DurabilityWitness only when the stream id is
-        // exactly the effect id, so each intent gets its own ledger stream.
-        let append = self.append_event(
-            &effect_id,
-            RuntimeLedgerEvent::EffectIntent {
-                intent: Box::new(intent.clone()),
-            },
-            at,
-        )?;
-        let durability =
-            DurabilityWitness::new(&effect_id, append.seq, &append.canonical_hash.to_string());
+        // The intent's declared payload is appended to its own ledger stream
+        // (named for the effect id) and the ledger itself seals the durability
+        // proof. Only the ledger can mint one, so nothing downstream can forge
+        // durable-before-dispatch. The declared payload holds the caller's
+        // declaration only — identity fields, no lifecycle position — so it is
+        // byte-stable and the proof still binds when the effect reaches the
+        // commit boundary (EFX-001, ATOM-INV-004).
+        let payload = intent.declared_payload().map_err(|error| {
+            RuntimeError::EffectPayloadNotCanonicalizable {
+                effect_id: effect_id.clone(),
+                reason: error.to_string(),
+            }
+        })?;
+        let (_event, durability) =
+            self.ledger
+                .append_durable(&effect_id, &payload, at.timestamp_millis())?;
         self.effects.insert(
             effect_id.clone(),
             TrackedEffect {
@@ -1209,6 +1263,11 @@ where
         Ok(())
     }
 
+    /// Appends `event` to `stream_id`.
+    ///
+    /// The intent append is handled by [`Runtime::submit_effect`], which writes
+    /// the intent's declared payload through the ledger's durable path so it can
+    /// seal a proof no downstream code could have forged (EFX-001).
     fn append_event(
         &mut self,
         stream_id: &str,
@@ -1357,9 +1416,6 @@ enum RuntimeLedgerEvent {
         activity: Option<ActivityKind>,
         effect_id: Option<String>,
         reconciliation: bool,
-    },
-    EffectIntent {
-        intent: Box<EffectIntent>,
     },
     EffectObserved {
         effect_id: String,

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/extension-manifest.schema.json",
+  "title": "Extension Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_id",
+    "extension_id",
+    "version",
+    "entrypoint",
+    "apis",
+    "capabilities"
+  ],
+  "properties": {
+    "manifest_id": {
+      "type": "string"
+    },
+    "extension_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "entrypoint": {
+      "type": "string"
+    },
+    "apis": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    }
+  }
+}

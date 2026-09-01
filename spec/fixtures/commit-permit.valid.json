@@ -1,0 +1,18 @@
+{
+  "permit_id": "cp-0001",
+  "effect_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "principal_id": "svc/effect-kernel",
+  "capability_grant_id": "cap-0001",
+  "grant_generation": 1,
+  "audience": "internal",
+  "workload_id": "mission/alpha",
+  "resource_id": "ledger:mission/alpha",
+  "resource_version_witness": {
+    "version": 7
+  },
+  "approval_id": null,
+  "evidence_freshness_digest": null,
+  "issued_at": "2026-08-31T12:00:00Z",
+  "expires_at": "2026-09-01T12:00:00Z",
+  "one_shot_nonce": "nonce-1"
+}

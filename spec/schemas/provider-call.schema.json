@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/provider-call.schema.json",
+  "title": "Provider Call",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "call_id",
+    "provider_id",
+    "operation",
+    "request_digest",
+    "response_digest",
+    "duration_ms",
+    "status"
+  ],
+  "properties": {
+    "call_id": {
+      "type": "string"
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "operation": {
+      "type": "string"
+    },
+    "request_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "response_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "duration_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "status": {
+      "enum": [
+        "OK",
+        "ERROR",
+        "TIMEOUT",
+        "CANCELED"
+      ]
+    },
+    "started_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    }
+  }
+}

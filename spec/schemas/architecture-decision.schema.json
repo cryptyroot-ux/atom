@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/architecture-decision.schema.json",
+  "title": "ArchitectureDecision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decision_id",
+    "status",
+    "context",
+    "options",
+    "decision",
+    "rationale",
+    "recorded_at"
+  ],
+  "properties": {
+    "decision_id": { "type": "string" },
+    "status": {
+      "enum": ["PROPOSED", "ACCEPTED", "SUPERSEDED", "DEPRECATED", "REJECTED"]
+    },
+    "context": { "type": "string" },
+    "options": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "decision": { "type": "string" },
+    "rationale": { "type": "string" },
+    "consequences": {
+      "type": ["string", "null"]
+    },
+    "supersedes_id": { "type": ["string", "null"] },
+    "owner": { "type": "string" },
+    "recorded_at": { "type": "string", "format": "date-time" }
+  }
+}

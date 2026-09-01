@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/lease-epoch.schema.json",
+  "title": "Lease Epoch",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "lease_id",
+    "epoch",
+    "holder",
+    "acquired_at",
+    "expires_at",
+    "renewable"
+  ],
+  "properties": {
+    "lease_id": {
+      "type": "string"
+    },
+    "epoch": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "holder": {
+      "type": "string"
+    },
+    "acquired_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "renewable": {
+      "type": "boolean"
+    }
+  }
+}

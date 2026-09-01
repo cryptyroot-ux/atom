@@ -186,9 +186,9 @@ impl<E: HostExecutor> PrivilegeBroker<E> {
 
         // 4. The permit is bound to one resource. It cannot be redirected to
         //    another the grant happens to cover, even before it is spent.
-        if permit.resource_id != resource_id {
+        if permit.resource_id() != resource_id {
             return Err(DenyReason::PermitResourceMismatch {
-                permit_resource: permit.resource_id.clone(),
+                permit_resource: permit.resource_id().to_owned(),
                 op_resource: resource_id,
             });
         }

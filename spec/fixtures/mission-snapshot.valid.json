@@ -1,0 +1,7 @@
+{
+  "snapshot_id": "snap-0001",
+  "mission_id": "mission/alpha",
+  "state_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "captured_at": "2026-08-31T12:00:00Z",
+  "replay_offset": 100
+}

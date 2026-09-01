@@ -27,7 +27,10 @@ fn cannot_skip_stages() {
     let lab = AdaptiveArtifact::new("artifact-2");
     // Try to jump Lab -> Shadow (skipping Simulation).
     let err = lab.promote(Stage::Shadow, "skip").unwrap_err();
-    assert!(matches!(err, atom_evolution::EvolutionError::InvalidPromotion { .. }));
+    assert!(matches!(
+        err,
+        atom_evolution::EvolutionError::InvalidPromotion { .. }
+    ));
 }
 
 #[test]
@@ -38,7 +41,12 @@ fn demotes_on_regression() {
 
     // Regression in shadow -> roll back to simulation.
     let (rolled, action) = shadow.auto_rollback_if_regressed(0.40, 0.80, 0.05);
-    assert_eq!(action, RollbackAction::RolledBack { to: Stage::Simulation });
+    assert_eq!(
+        action,
+        RollbackAction::RolledBack {
+            to: Stage::Simulation
+        }
+    );
     assert_eq!(rolled.stage, Stage::Simulation);
     assert!(rolled.reason.contains("auto-rollback"));
 }

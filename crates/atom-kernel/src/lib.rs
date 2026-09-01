@@ -16,11 +16,11 @@
 
 use atom_capability::{CapabilityGrant, RevocationState};
 use atom_effect::{
-    issue_commit_permit, ConsumeRequest, DurabilityWitness, EffectEvent, EffectIntent, EffectState,
+    issue_commit_permit, ConsumeRequest, DurabilityProof, EffectEvent, EffectIntent, EffectState,
     NonceRegistry, PermitError, PermitRequest, ResourceWitness,
 };
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use thiserror::Error;
 
 /// Why the kernel refused a mutation at either gate.
@@ -96,16 +96,16 @@ pub enum KernelError {
 /// Unforgeable: fields are private and the only mint site is [`Kernel::authorize`].
 /// It pins the grant generation and the resource witness observed while planning,
 /// so Phase B can detect any drift that happened in the window (ATOM-VT-003).
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct Authorization {
-    pub effect_id: String,
-    pub effect_digest: String,
-    pub grant_id: String,
-    pub grant_generation: u64,
-    pub principal_id: String,
-    pub operation: String,
-    pub resource_type: String,
-    pub planned_witness: ResourceWitness,
+    effect_id: String,
+    effect_digest: String,
+    grant_id: String,
+    grant_generation: u64,
+    principal_id: String,
+    operation: String,
+    resource_type: String,
+    planned_witness: ResourceWitness,
 }
 
 impl Authorization {
@@ -126,19 +126,49 @@ impl Authorization {
     pub fn effect_id(&self) -> &str {
         &self.effect_id
     }
+
+    /// The grant the authority was drawn from.
+    #[must_use]
+    pub fn grant_id(&self) -> &str {
+        &self.grant_id
+    }
+
+    /// The principal the authorization was minted for.
+    #[must_use]
+    pub fn principal_id(&self) -> &str {
+        &self.principal_id
+    }
+
+    /// The operation the authorization covers.
+    #[must_use]
+    pub fn operation(&self) -> &str {
+        &self.operation
+    }
+
+    /// The resource type the authorization covers.
+    #[must_use]
+    pub fn resource_type(&self) -> &str {
+        &self.resource_type
+    }
+
+    /// The resource version observed while planning.
+    #[must_use]
+    pub fn planned_witness(&self) -> &ResourceWitness {
+        &self.planned_witness
+    }
 }
 
 /// Phase B output: proof that a mutation may now be dispatched, exactly once.
 ///
 /// Unforgeable: fields are private and the only mint site is [`Kernel::commit`],
 /// which reaches it only after both gates passed and a one-shot permit was spent.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct CommitToken {
-    pub effect_id: String,
-    pub grant_id: String,
-    pub grant_generation: u64,
-    pub resource_id: String,
-    pub one_shot_nonce: String,
+    effect_id: String,
+    grant_id: String,
+    grant_generation: u64,
+    resource_id: String,
+    one_shot_nonce: String,
 }
 
 impl CommitToken {
@@ -203,8 +233,9 @@ pub struct CommitRequest<'a> {
     pub grant: &'a CapabilityGrant,
     /// The resource version observed *now*.
     pub observed_witness: &'a ResourceWitness,
-    /// Proof the intent was persisted first (EFX-001).
-    pub durability: &'a DurabilityWitness,
+    /// Proof the intent was persisted first (EFX-001). Only the ledger can mint
+    /// one, so it cannot be a hand-built claim of durability.
+    pub durability: &'a DurabilityProof,
     /// The identity the permit will carry.
     pub permit_id: &'a str,
     /// The nonce that makes the permit one-shot.
@@ -233,6 +264,17 @@ impl Kernel {
     #[must_use]
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// A kernel whose nonce registry is seeded from nonces already burned durably.
+    ///
+    /// A cold start rehydrates its one-shot memory from the ledger's nonce-burn
+    /// stream so a restart refuses replay of a spent permit (ATOM-V4-EFX-004).
+    #[must_use]
+    pub fn with_burned_nonces(used: impl IntoIterator<Item = String>) -> Self {
+        Self {
+            nonces: NonceRegistry::from_used(used),
+        }
     }
 
     /// How many one-shot permits have been spent (for audit/tests).
@@ -416,10 +458,10 @@ impl Kernel {
 
         let token = CommitToken {
             effect_id: intent.effect_id.clone(),
-            grant_id: permit.capability_grant_id.clone(),
-            grant_generation: permit.grant_generation,
-            resource_id: permit.resource_id.clone(),
-            one_shot_nonce: permit.one_shot_nonce.clone(),
+            grant_id: permit.capability_grant_id().to_owned(),
+            grant_generation: permit.grant_generation(),
+            resource_id: permit.resource_id().to_owned(),
+            one_shot_nonce: permit.one_shot_nonce().to_owned(),
         };
         Ok((token, dispatching))
     }

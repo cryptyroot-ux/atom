@@ -1,0 +1,8 @@
+{
+  "slo_id": "slo-0001",
+  "metric": "availability",
+  "target": 1.5,
+  "window_seconds": 86400,
+  "compliance": "SLA",
+  "owned_by": "platform"
+}

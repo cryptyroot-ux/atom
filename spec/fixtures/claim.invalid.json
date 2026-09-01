@@ -1,0 +1,13 @@
+{
+  "claim_id": "claim/001",
+  "kind": "FACT",
+  "state": "SUPPORTED",
+  "proposition": "ledger is append-only",
+  "confidence": 0.95,
+  "source_authority": "effect-kernel",
+  "valid_time": "2026-08-31T00:00:00Z",
+  "provenance": [
+    "ev:001"
+  ],
+  "taint_labels": []
+}

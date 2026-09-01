@@ -1,0 +1,33 @@
+{
+  "test": "ATOM-VT41-004",
+  "requirement": "ATOM-V4-AUT-002",
+  "gate": "G2",
+  "outcome": "pass",
+  "generated_at": "2026-08-31T21:22:10.185967+00:00",
+  "harness": "tools/emit_g2_evidence.py",
+  "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "test_source_digest": "sha256:659393d9cb9dc811b046978fb1097045e0dac84d2706dc2657dec509d36e34cf",
+  "total_passed": 10,
+  "runs": [
+    {
+      "command": "cargo test -p atom-capability --test vt005_capability_attenuation",
+      "package": "atom-capability",
+      "test_binary": "vt005_capability_attenuation",
+      "name_filter": null,
+      "exit_code": 0,
+      "passed": 8,
+      "failed": 0,
+      "ok": true
+    },
+    {
+      "command": "cargo test -p atom-capability --test lattice_property",
+      "package": "atom-capability",
+      "test_binary": "lattice_property",
+      "name_filter": null,
+      "exit_code": 0,
+      "passed": 2,
+      "failed": 0,
+      "ok": true
+    }
+  ]
+}

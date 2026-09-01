@@ -1,0 +1,79 @@
+version: 1.0.0
+initial: SUBMITTED
+terminals:
+- APPROVED
+- REJECTED
+- EXPIRED
+- WITHDRAWN
+states:
+- SUBMITTED
+- SCREENED
+- APPROVAL_REQUESTED
+- APPROVED
+- REJECTED
+- EXPIRED
+- WITHDRAWN
+transitions:
+- id: a01
+  from: SUBMITTED
+  to: SCREENED
+  event: screen
+  guard: policy_pass
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: a02
+  from: SCREENED
+  to: APPROVAL_REQUESTED
+  event: route
+  guard: 'true'
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: a03
+  from: APPROVAL_REQUESTED
+  to: APPROVED
+  event: approve
+  guard: approver_action
+  action: noop
+  cas: true
+  timer: null
+  forbidden: false
+- id: a04
+  from: APPROVAL_REQUESTED
+  to: REJECTED
+  event: reject
+  guard: denied
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: a05
+  from: APPROVAL_REQUESTED
+  to: EXPIRED
+  event: timeout
+  guard: 'true'
+  action: noop
+  cas: false
+  timer: approval_window
+  forbidden: false
+- id: a06
+  from: SUBMITTED
+  to: WITHDRAWN
+  event: withdraw
+  guard: not_yet_decided
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false
+- id: a07
+  from: APPROVAL_REQUESTED
+  to: WITHDRAWN
+  event: withdraw
+  guard: not_yet_decided
+  action: noop
+  cas: false
+  timer: null
+  forbidden: false

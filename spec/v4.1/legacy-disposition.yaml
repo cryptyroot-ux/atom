@@ -1,0 +1,1972 @@
+spec_version: 4.1.0
+count: 184
+legacy:
+- legacy_id: ATOM-FR-ADP-001
+  source_intent: 'External agent runtimes MUST integrate only through versioned adapter
+    contracts; internal source structure is not an ATOM API.: P0'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-API-001
+  - ATOM-V4-API-002
+  owner_verification_impact: Developer Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ADP-002
+  source_intent: 'Adapter output MUST be typed as proposal/evidence/capability result
+    and MUST NOT directly mutate sovereign stores.: P0'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-PRV-002
+  owner_verification_impact: Provider Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ADP-003
+  source_intent: 'External adapters MUST NOT issue CapabilityGrant, EffectOutcome,
+    certificate or promotion decisions.: P0'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-PRV-003
+  owner_verification_impact: Provider Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ADP-004
+  source_intent: 'Consequential adapter-requested actions MUST be reified as ATOM
+    EffectIntent before dispatch.: P0'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-API-001
+  - ATOM-V4-API-002
+  owner_verification_impact: Developer Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ADP-005
+  source_intent: 'ATOM MUST support disabling/removing an adapter without deleting
+    authoritative mission/evidence state.: P0'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-API-001
+  - ATOM-V4-API-002
+  owner_verification_impact: Developer Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ADP-006
+  source_intent: 'Adapter version and digest MUST be included in Behavior Manifest
+    whenever it can change behavior.: P0'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-API-001
+  owner_verification_impact: Developer Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ADP-007
+  source_intent: 'Adapter credentials MUST be scoped and MUST NOT imply access to
+    ATOM sovereign secrets.: P0'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-API-001
+  - ATOM-V4-API-002
+  owner_verification_impact: Developer Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ADP-008
+  source_intent: 'External cognition MAY use read-only tools directly only when policy
+    classifies those paths as non-consequential and auditable.: P1'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-API-003
+  owner_verification_impact: Developer Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ADP-009
+  source_intent: 'Native ATOM runtime MUST provide minimum model invocation and tool-call
+    proposal path independent of third-party agent frameworks.: P0'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-API-001
+  - ATOM-V4-API-002
+  owner_verification_impact: Developer Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ADP-010
+  source_intent: 'Hermes bootstrap integration MUST default to ATOM-owned mutating
+    tools and disable/bypass direct mutating Hermes paths.: P0'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-API-001
+  - ATOM-V4-API-002
+  owner_verification_impact: Developer Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ADP-011
+  source_intent: 'External memory import MUST enter Epistemic Memory as sourced claims
+    with trust/provenance, not as authoritative facts.: P0'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-INT-001
+  owner_verification_impact: Interoperability; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ADP-012
+  source_intent: 'Channel adapters MAY remain external indefinitely if they satisfy
+    ingress identity, egress authorization and observability contracts.: P1'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-INT-002
+  owner_verification_impact: Interoperability; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ADP-013
+  source_intent: 'Adapter outage MUST degrade only dependent capability and MUST NOT
+    corrupt mission or effect state.: P0'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-INT-003
+  owner_verification_impact: Interoperability; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ADP-014
+  source_intent: 'Adapter protocol MUST expose health, semantic version, capability
+    profile and cancellation support.: P1'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-INT-004
+  owner_verification_impact: Interoperability; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ADP-015
+  source_intent: 'Adapter replacement within an active mission MUST force recertification
+    only for behavior-dependent certificates, not unrelated authoritative state.:
+    P1'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-INT-005
+  owner_verification_impact: Interoperability; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ARC-001
+  source_intent: 'Cognitive architecture synthesis: Given a mission segment, ATOM
+    MUST produce an execution architecture candidate describing topology, capabilities,
+    models, workers, verifiers, budgets and termination rules.'
+  disposition: STRENGTHENED_AND_PHASED
+  phase: v4.3-v4.5
+  canonical_targets:
+  - ATOM-V4-ARC-001
+  - ATOM-V4-ARC-002
+  owner_verification_impact: Recursive Systems; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ARC-002
+  source_intent: 'Anti-swarm optimizer: ATOM SHOULD choose deterministic, direct-tool
+    or single-agent execution when predicted utility is not improved by multi-agent
+    topology.'
+  disposition: STRENGTHENED_AND_PHASED
+  phase: v4.3-v4.5
+  canonical_targets:
+  - ATOM-V4-ARC-001
+  - ATOM-V4-ARC-002
+  owner_verification_impact: Recursive Systems; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-ARC-003
+  source_intent: 'Architecture alternatives: For high-risk or high-cost missions,
+    ATOM SHOULD generate and compare at least two materially different architecture
+    candidates before execution.'
+  disposition: STRENGTHENED_AND_PHASED
+  phase: v4.3-v4.5
+  canonical_targets:
+  - ATOM-V4-ARC-001
+  - ATOM-V4-ARC-002
+  owner_verification_impact: Recursive Systems; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-AUT-001
+  source_intent: 'Sovereign authority: All effectful capability invocations MUST be
+    authorized by principal, capability, resource, conditions, budget, expiry and
+    generation/epoch.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-AUT-001
+  owner_verification_impact: Authority & Policy; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-AUT-002
+  source_intent: 'Delegation: Subagents and workers MUST receive explicit, narrower-or-equal
+    delegated grants.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-AUT-002
+  owner_verification_impact: Authority & Policy; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-CAP-001
+  source_intent: 'Capability discovery: ATOM MUST resolve capabilities lazily by contract,
+    environment, risk class and certification rather than loading every tool schema
+    into model context.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EXT-001
+  - ATOM-V4-EXT-002
+  owner_verification_impact: Extension Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-CER-001
+  source_intent: 'Behavior Manifest: Every certifiable run MUST resolve to a content-addressed
+    manifest of runtime, model, policy, prompt/context compiler, capabilities, memory
+    policy and environment.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-CER-001
+  owner_verification_impact: Certification; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-CER-002
+  source_intent: 'Certification as authority input: Authority policy MUST be able
+    to require certificate predicates for specified capability classes.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-CER-002
+  owner_verification_impact: Certification; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-COG-001
+  source_intent: 'Reasoning mode selection: Cognitive Architect MUST choose among
+    deterministic, single-agent, agent+verifier, multi-agent, simulator-assisted and
+    durable-workflow modes.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-COG-001
+  owner_verification_impact: Native Cognition; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-COG-002
+  source_intent: 'Architecture budget: Architecture candidate MUST include predicted
+    token, monetary, latency, worker and human-attention cost.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-COG-002
+  owner_verification_impact: Native Cognition; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-COG-003
+  source_intent: 'Architecture rollback: A synthesized topology MUST be replaceable
+    mid-mission when progress/reliability thresholds fail.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-COG-003
+  owner_verification_impact: Native Cognition; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-COG-004
+  source_intent: 'Anti-swarm default: The runtime MUST NOT increase agent count merely
+    because a task is complex; parallelism requires measurable decomposability or
+    specialization benefit.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-COG-004
+  owner_verification_impact: Native Cognition; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-COG-005
+  source_intent: 'Independent critic path: High-risk decisions SHOULD support a critic/verifier
+    path whose prompt/context is independently constructed to reduce anchoring.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-COG-005
+  owner_verification_impact: Native Cognition; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-COG-006
+  source_intent: 'Value-of-information action: Cognitive Governor SHOULD compare think/search/tool/human/simulate
+    actions using expected information gain, mission utility and cost.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-COG-001
+  owner_verification_impact: Native Cognition; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-EFF-001
+  source_intent: 'Durable effects: Consequential operations MUST use EffectIntent
+    with idempotency identity, permit reference and durable state before execution.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EFX-001
+  owner_verification_impact: Effect Kernel; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-EFF-002
+  source_intent: 'Outcome reconciliation: Connectors SHOULD implement observation/reconciliation
+    for ambiguous effects; unsupported reconciliation MUST preserve UNKNOWN_OUTCOME.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EFX-002
+  owner_verification_impact: Effect Kernel; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-EFX-001
+  source_intent: 'Effect intent durability: Consequential mutation MUST have a durable
+    EffectIntent before dispatch.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EFX-001
+  owner_verification_impact: Effect Kernel; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-EFX-002
+  source_intent: 'Idempotency contract: Connector MUST declare idempotency support
+    and key scope; unsupported operations cannot claim effectively-once semantics.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EFX-002
+  owner_verification_impact: Effect Kernel; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-EFX-003
+  source_intent: 'Reconciliation: UNKNOWN_OUTCOME MUST block dependent mutations until
+    reconciled or explicitly dispositioned by policy/authorized principal.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EFX-003
+  owner_verification_impact: Effect Kernel; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-EFX-004
+  source_intent: 'Compensation: COMPENSATABLE effects MUST name compensation handler
+    and compensation idempotency rule.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EFX-004
+  owner_verification_impact: Effect Kernel; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-EFX-005
+  source_intent: 'Irreversible effects: IRREVERSIBLE actions MUST require stronger
+    policy/evidence threshold and explicit blast-radius estimate.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EFX-005
+  owner_verification_impact: Effect Kernel; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-EFX-006
+  source_intent: 'Cancellation tree: Cancellation MUST prevent new descendant effects,
+    terminate controllable descendants, and preserve partial evidence.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EFX-006
+  owner_verification_impact: Effect Kernel; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-EXP-001
+  source_intent: 'Experience ingestion: ATOM MUST record eligible trajectories with
+    exact Behavior Manifest, inputs, actions, outputs, costs, outcomes and verifier
+    results.'
+  disposition: STRENGTHENED_AND_PHASED
+  phase: v4.3-v4.5
+  canonical_targets:
+  - ATOM-V4-EXP-001
+  - ATOM-V4-EXP-002
+  owner_verification_impact: Recursive Systems; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-EXP-002
+  source_intent: 'Cognition JIT: ATOM SHOULD identify recurring verified tool/reasoning
+    sequences and propose deterministic meta-tools/workflows that reduce LLM calls.'
+  disposition: STRENGTHENED_AND_PHASED
+  phase: v4.3-v4.5
+  canonical_targets:
+  - ATOM-V4-EXP-001
+  - ATOM-V4-EXP-002
+  owner_verification_impact: Recursive Systems; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-EXP-003
+  source_intent: 'Failure compilation: A verified incident SHOULD generate a reusable
+    failure fingerprint and regression antibody.'
+  disposition: STRENGTHENED_AND_PHASED
+  phase: v4.3-v4.5
+  canonical_targets:
+  - ATOM-V4-EXP-003
+  owner_verification_impact: Recursive Systems; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-EXT-001
+  source_intent: 'MCP interoperability: ATOM MUST operate as MCP client and server;
+    MCP tasks/tool calls MUST traverse ATOM authority/effect boundaries.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EXT-001
+  - ATOM-V4-EXT-002
+  owner_verification_impact: Extension Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-EXT-002
+  source_intent: 'Extension runtimes: Plugins MUST support at least restricted-process
+    and container backends; WASI Component Model SHOULD be the preferred marketplace
+    isolation target as tooling stabilizes.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EXT-002
+  owner_verification_impact: Extension Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-EXT-003
+  source_intent: 'A2A/federation: External agents MUST be represented as principals
+    with scoped delegated authority rather than trusted peers.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EXT-003
+  owner_verification_impact: Extension Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-FDY-001
+  source_intent: 'Artifact lifecycle: Every Foundry artifact MUST follow DRAFT→BUILDING→TESTING→QUARANTINED|CERTIFIED→ACTIVE|REVOKED.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-FND-001
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-FDY-002
+  source_intent: 'Tool interface synthesis: Tool Foundry MUST generate a typed interface
+    contract separately from implementation and verify implementation conformance.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-FND-002
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-FDY-003
+  source_intent: 'Tool property testing: Generated deterministic tools MUST have unit/contract
+    tests and SHOULD have property/fuzz tests when input domain permits.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-FND-003
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-FDY-004
+  source_intent: 'Verifier separation: Verifier Foundry MUST record whether an oracle
+    is programmatic, external, model-based or self-evaluated, and MUST NOT label self-judgment
+    as equivalent to programmatic proof.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-FND-004
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-FDY-005
+  source_intent: 'Simulator validity: Generated simulators MUST declare validity domain,
+    calibration evidence and unsupported regimes before use as decision evidence.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-FND-005
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-FDY-006
+  source_intent: 'Agent template promotion: Mission-scoped specialist agents MAY be
+    promoted to reusable templates only after cross-task holdout success and security
+    review.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-FND-006
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-FDY-007
+  source_intent: 'Dependency manifest: Generated artifacts MUST pin runtime dependencies,
+    licenses/provenance and required capabilities.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-FND-007
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-FDY-008
+  source_intent: 'Artifact revocation: A newly discovered vulnerability MUST support
+    revocation and transitive invalidation of dependent certificates.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-FND-001
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-FND-001
+  source_intent: 'Tool Foundry: ATOM MUST be able to synthesize candidate tools from
+    abstract requirements, including interface contract, implementation, tests and
+    sandbox profile.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-FND-001
+  - ATOM-V4-FND-002
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-FND-002
+  source_intent: 'Agent Foundry: ATOM MUST synthesize mission-scoped specialist AgentArtifacts
+    with role, model policy, capabilities, memory namespace, budget, deadline and
+    delegated authority.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-FND-001
+  - ATOM-V4-FND-002
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-FND-003
+  source_intent: 'Workflow Foundry: ATOM MUST synthesize deterministic/hybrid workflows
+    from successful trajectories and/or mission requirements.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-FND-001
+  - ATOM-V4-FND-002
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-FND-004
+  source_intent: 'Verifier Foundry: ATOM SHOULD create independent verification artifacts
+    and label verifier-candidate correlation.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-FND-001
+  - ATOM-V4-FND-002
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-FND-005
+  source_intent: 'Simulator Foundry: ATOM MAY generate domain simulator candidates;
+    simulator outputs MUST carry version and validity scope.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-FND-001
+  - ATOM-V4-FND-002
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-HAR-001
+  source_intent: 'Harness evolution: ATOM MAY propose changes to editable non-kernel
+    runtime components based on evidence; changes MUST be evaluated as isolated candidates
+    and promoted by policy.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EXT-001
+  - ATOM-V4-EXT-002
+  owner_verification_impact: Extension Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-HUB-001
+  source_intent: 'Capability Evidence Network: ATOM Hub SHOULD store versioned artifacts,
+    signatures/provenance, verified outcome aggregates, compatibility and known failures.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-API-001
+  - ATOM-V4-API-002
+  owner_verification_impact: Developer Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-JIT-001
+  source_intent: 'Experience eligibility: Only trajectories with sufficiently strong
+    outcome evidence MAY enter automatic compilation.'
+  disposition: STRENGTHENED_AND_PHASED
+  phase: v4.3-v4.5
+  canonical_targets:
+  - ATOM-V4-JIT-001
+  owner_verification_impact: Recursive Systems; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-JIT-002
+  source_intent: 'Pattern mining: Experience Compiler SHOULD cluster recurrent successful
+    sub-trajectories by semantic task and action structure.'
+  disposition: STRENGTHENED_AND_PHASED
+  phase: v4.3-v4.5
+  canonical_targets:
+  - ATOM-V4-JIT-002
+  owner_verification_impact: Recursive Systems; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-JIT-003
+  source_intent: 'Deterministic compilation: When a recurrent pattern can be expressed
+    deterministically, ATOM SHOULD prefer program/workflow compilation over repeated
+    LLM deliberation.'
+  disposition: STRENGTHENED_AND_PHASED
+  phase: v4.3-v4.5
+  canonical_targets:
+  - ATOM-V4-EXP-001
+  - ATOM-V4-EXP-002
+  owner_verification_impact: Recursive Systems; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-JIT-004
+  source_intent: 'Semantic equivalence guard: Compiled capability MUST satisfy holdout
+    semantic equivalence or task-level acceptance thresholds against the source behavior.'
+  disposition: STRENGTHENED_AND_PHASED
+  phase: v4.3-v4.5
+  canonical_targets:
+  - ATOM-V4-EXP-002
+  owner_verification_impact: Recursive Systems; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-JIT-005
+  source_intent: 'Decompilation: If compiled capability drifts below reliability threshold,
+    its certificate MUST be revoked and execution falls back to deliberative path.'
+  disposition: STRENGTHENED_AND_PHASED
+  phase: v4.3-v4.5
+  canonical_targets:
+  - ATOM-V4-EXP-003
+  owner_verification_impact: Recursive Systems; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-JIT-006
+  source_intent: 'Compression accounting: ATOM MUST report Cognitive Compression Ratio
+    and correctness delta for every promoted compiled capability.'
+  disposition: STRENGTHENED_AND_PHASED
+  phase: v4.3-v4.5
+  canonical_targets:
+  - ATOM-V4-EXP-001
+  - ATOM-V4-EXP-002
+  owner_verification_impact: Recursive Systems; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-MDL-001
+  source_intent: 'Model adaptation pipeline: Where data/licensing permit, ATOM MAY
+    generate model-adapter/distillation candidates from verified trajectories; activation
+    MUST require isolated training and holdout certification.'
+  disposition: DEFERRED_WITH_CONTRACT
+  phase: v4.4
+  canonical_targets:
+  - ATOM-V4-EXP-001
+  - ATOM-V4-EXP-002
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-MDL-002
+  source_intent: 'Training corpus provenance: Every training example MUST be traceable
+    to evidence-approved source trajectories and transformations.'
+  disposition: DEFERRED_WITH_CONTRACT
+  phase: v4.4
+  canonical_targets:
+  - ATOM-V4-FND-002
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-MDL-003
+  source_intent: 'Holdout isolation: Model-adapter promotion MUST use holdout data
+    inaccessible to the training pipeline.'
+  disposition: DEFERRED_WITH_CONTRACT
+  phase: v4.4
+  canonical_targets:
+  - ATOM-V4-FND-003
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-MDL-004
+  source_intent: 'Teacher/student distinction: Distillation MUST record teacher model/config
+    and student artifact identity; teacher success is not student certification.'
+  disposition: DEFERRED_WITH_CONTRACT
+  phase: v4.4
+  canonical_targets:
+  - ATOM-V4-FND-004
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-MDL-005
+  source_intent: 'Regression gate: A model adapter that improves target task but exceeds
+    allowed regression on protected task families MUST be rejected.'
+  disposition: DEFERRED_WITH_CONTRACT
+  phase: v4.4
+  canonical_targets:
+  - ATOM-V4-FND-005
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-MDL-006
+  source_intent: 'Optional subsystem: Core ATOM MUST remain fully functional when
+    Model Foundry is disabled.'
+  disposition: DEFERRED_WITH_CONTRACT
+  phase: v4.4
+  canonical_targets:
+  - ATOM-V4-EXP-001
+  - ATOM-V4-EXP-002
+  owner_verification_impact: Foundry; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-FR-MEM-001
+  source_intent: 'Typed epistemic memory: ATOM MUST distinguish observations, facts,
+    beliefs, hypotheses, predictions, preferences, policies, commitments and procedures.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-CXT-001
+  - ATOM-V4-CXT-002
+  owner_verification_impact: Context & Memory; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-MEM-002
+  source_intent: 'Memory provenance and taint: Stored claims MUST retain source, time,
+    provenance, trust and validity metadata; model transformation MUST NOT erase source
+    trust.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EPI-002
+  owner_verification_impact: Epistemics & Memory; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-MEM-003
+  source_intent: 'Contradiction graph: Conflicting claims MUST coexist with explicit
+    contradiction edges until adjudicated; newer is not automatically true.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EPI-003
+  owner_verification_impact: Epistemics & Memory; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-MEM-004
+  source_intent: 'Memory write policy: External content MUST NOT directly write privileged
+    procedural/policy memory without a gated write path.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EPI-004
+  owner_verification_impact: Epistemics & Memory; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-MEM-005
+  source_intent: 'Memory quarantine: Suspicious or revoked memory MUST be queryable
+    for forensics but excluded from normal authoritative retrieval.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-EPI-005
+  owner_verification_impact: Epistemics & Memory; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-MEM-006
+  source_intent: 'Forget/supersede: ATOM MUST support supersession, TTL, archive and
+    deletion policies without erasing evidence required by retention policy.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-CXT-001
+  - ATOM-V4-CXT-002
+  owner_verification_impact: Context & Memory; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-MIS-001
+  source_intent: 'Mission creation and compilation: ATOM MUST create a durable Mission
+    from natural-language or structured input, capturing goal, success criteria, constraints,
+    budget, risk class, authority envelope, deadlines and stopping conditions.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-MSN-001
+  - ATOM-V4-MSN-002
+  owner_verification_impact: Mission Runtime; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-MIS-002
+  source_intent: 'Mission progress from evidence: Mission completion MUST be decided
+    from declared success criteria and evidence, not solely from model self-report.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-MSN-002
+  owner_verification_impact: Mission Runtime; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-MIS-003
+  source_intent: 'Mission graph: ATOM MUST represent dependencies, blockers, subgoals
+    and alternate plans as a durable graph.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-MSN-001
+  - ATOM-V4-MSN-002
+  owner_verification_impact: Mission Runtime; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-MSH-001
+  source_intent: 'Execution mesh: ATOM SHOULD schedule workers across local/remote
+    nodes using leases, deadlines, quotas and capability identities.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-AUT-001
+  - ATOM-V4-AUT-002
+  owner_verification_impact: Authority & Policy; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-MSH-002
+  source_intent: 'Worker attestation profile: High-assurance deployments SHOULD support
+    stronger workload identity/attestation without making it mandatory for commodity
+    VPS.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-KRN-002
+  owner_verification_impact: Sovereign Kernel; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-MSH-003
+  source_intent: 'Elastic scale: Scheduler MAY scale worker count within mission/policy
+    budgets and MUST contract unused workers.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-KRN-003
+  owner_verification_impact: Sovereign Kernel; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-MSH-004
+  source_intent: 'Backpressure: Execution Mesh MUST apply queue/backpressure rather
+    than unbounded spawning under overload.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-KRN-004
+  owner_verification_impact: Sovereign Kernel; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-MSH-005
+  source_intent: 'Data locality: Scheduler SHOULD consider data residency, secrets,
+    latency and provider locality in placement.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-AUT-001
+  owner_verification_impact: Authority & Policy; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-MSH-006
+  source_intent: 'Worker loss: Worker failure MUST not fabricate mission failure if
+    durable state permits reassignment.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-AUT-002
+  owner_verification_impact: Authority & Policy; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-MSN-001
+  source_intent: 'Mission snapshot: The runtime MUST persist a content-addressed MissionSnapshot
+    after every authoritative mission state transition.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-MSN-001
+  owner_verification_impact: Mission Runtime; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-MSN-002
+  source_intent: 'Mission acceptance contract: Mission creation MUST define goal,
+    success criteria, constraints, budget policy, stopping rules and evidence expectations;
+    unspecified high-risk authority defaults to deny.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-MSN-002
+  owner_verification_impact: Mission Runtime; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-MSN-003
+  source_intent: 'Mission decomposition: Mission Engine MUST represent work as a dependency
+    graph with typed nodes and explicit terminal conditions rather than only free-text
+    plans.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-MSN-003
+  owner_verification_impact: Mission Runtime; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-MSN-004
+  source_intent: 'Mission replanning: ATOM MUST be able to replace a failed plan while
+    preserving the mission goal, constraints, evidence and completed verified work.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-MSN-001
+  - ATOM-V4-MSN-002
+  owner_verification_impact: Mission Runtime; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-MSN-005
+  source_intent: 'Mission unsatisfiable state: ATOM MUST support UNSATISFIABLE and
+    BLOCKED terminal/intermediate states with machine-readable reason and missing
+    requirement.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-MSN-001
+  - ATOM-V4-MSN-002
+  owner_verification_impact: Mission Runtime; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-MSN-006
+  source_intent: 'Human commitment tracking: Promises, approvals and requested deliverables
+    MUST be recorded as typed commitments linked to mission state.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-MSN-006
+  owner_verification_impact: Mission Runtime; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-REA-001
+  source_intent: 'Reality state: ATOM MUST maintain freshness-aware state for externally
+    observed resources used by active missions.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-FLT-001
+  - ATOM-V4-FLT-002
+  owner_verification_impact: Reliability; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-REL-001
+  source_intent: 'Fault injection: ATOM MUST provide a test harness for provider timeout,
+    tool timeout, worker crash, duplicate/reordered events, partial writes, stale
+    memory and budget exhaustion.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-FLT-001
+  - ATOM-V4-FLT-002
+  owner_verification_impact: Reliability; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-REP-001
+  source_intent: 'Replay and fork: ATOM MUST replay authoritative run state and support
+    counterfactual fork at a checkpoint without re-emitting irreversible effects.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-RPL-001
+  - ATOM-V4-RPL-002
+  owner_verification_impact: Replay & Simulation; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-SCH-001
+  source_intent: 'Scheduler and event triggers: ATOM MUST run persistent missions
+    on schedules or supported event triggers while preserving durable state and policies.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-SCH-001
+  - ATOM-V4-SCH-002
+  owner_verification_impact: Scheduler; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-FR-SEC-001
+  source_intent: 'No ambient secrets: Workers/plugins MUST receive scoped secrets
+    through brokered handles or short-lived injection; global ambient secret inheritance
+    is forbidden.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-SEC-001
+  owner_verification_impact: Product Security; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-SEC-002
+  source_intent: 'Information-flow labels: Sensitive data SHOULD carry labels usable
+    by routing/policy to prevent forbidden model/tool egress.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-SEC-002
+  owner_verification_impact: Product Security; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-SEC-003
+  source_intent: 'Kernel non-self-modification: Adaptive cognition MUST NOT directly
+    modify the active trusted authority/effect kernel.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-SEC-003
+  owner_verification_impact: Product Security; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-SEC-004
+  source_intent: 'Generation fencing: Old runtime/plugin/worker generations MUST lose
+    mutation authority after replacement/revocation.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-SEC-004
+  owner_verification_impact: Product Security; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-SEC-005
+  source_intent: 'Plugin deny-by-default: Plugin runtime MUST expose zero host capability
+    unless explicitly granted.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-SEC-005
+  owner_verification_impact: Product Security; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-FR-SEC-006
+  source_intent: 'Audit immutability: Security-relevant authorization/effect events
+    MUST be append-only and tamper-evident.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-AUT-001
+  owner_verification_impact: Authority & Policy; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-001
+  source_intent: 'Cognition may propose authority-requiring actions but MUST NOT mint
+    its own authority.: Cognition may propose authority-requiring actions but MUST
+    NOT mint its own authority.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-001
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-002
+  source_intent: 'UNKNOWN_OUTCOME MUST NOT be silently promoted to success, failure,
+    or safe-to-retry.: UNKNOWN_OUTCOME MUST NOT be silently promoted to success, failure,
+    or safe-to-retry.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-002
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-003
+  source_intent: 'Every consequential external mutation MUST have a durable EffectIntent
+    before execution.: Every consequential external mutation MUST have a durable EffectIntent
+    before execution.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-003
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-004
+  source_intent: 'A capability artifact MUST NOT be activated above its certified
+    authority/risk class.: A capability artifact MUST NOT be activated above its certified
+    authority/risk class.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-004
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-005
+  source_intent: 'A generated tool, agent, workflow, verifier or simulator MUST execute
+    first in an isolated candidate context.: A generated tool, agent, workflow, verifier
+    or simulator MUST execute first in an isolated candidate context.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-005
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-006
+  source_intent: 'A change in material Behavior Manifest fields MUST invalidate or
+    narrow incompatible certification.: A change in material Behavior Manifest fields
+    MUST invalidate or narrow incompatible certification.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-006
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-007
+  source_intent: 'Memory is evidence-bearing state, not automatically trusted truth;
+    derived content preserves source trust taint unless independently verified.: Memory
+    is evidence-bearing state, not automatically trusted truth; derived content preserves
+    source trust taint unless independently verified.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-007
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-008
+  source_intent: 'Simulation, replay and synthetic data MUST remain distinguishable
+    from observation of the real world.: Simulation, replay and synthetic data MUST
+    remain distinguishable from observation of the real world.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-008
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-009
+  source_intent: 'Current cognition MUST NOT autonomously rewrite the root authority,
+    secret or effect invariants that constrain it.: Current cognition MUST NOT autonomously
+    rewrite the root authority, secret or effect invariants that constrain it.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-009
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-010
+  source_intent: 'Resource pressure, cost pressure or mission urgency MUST NOT expand
+    permissions.: Resource pressure, cost pressure or mission urgency MUST NOT expand
+    permissions.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-010
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-011
+  source_intent: 'Child agents/workers MUST NOT exceed delegated parent authority,
+    budget, deadline or resource scope.: Child agents/workers MUST NOT exceed delegated
+    parent authority, budget, deadline or resource scope.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-011
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-012
+  source_intent: 'Timeout/cancellation MUST propagate through the execution tree;
+    success may not be reported while uncontrolled child effects remain possible.:
+    Timeout/cancellation MUST propagate through the execution tree; success may not
+    be reported while uncontrolled child effects remain possible.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-012
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-013
+  source_intent: 'Self-improvement is a candidate mutation until evaluated; change
+    alone is never evidence of improvement.: Self-improvement is a candidate mutation
+    until evaluated; change alone is never evidence of improvement.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-013
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-014
+  source_intent: 'Agent count is not a quality objective. The Cognitive Architect
+    SHOULD choose deterministic or single-agent execution when adequate.: Agent count
+    is not a quality objective. The Cognitive Architect SHOULD choose deterministic
+    or single-agent execution when adequate.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-014
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-015
+  source_intent: 'The exact artifact and environment that produced a certificate MUST
+    be reproducibly identifiable.: The exact artifact and environment that produced
+    a certificate MUST be reproducibly identifiable.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-015
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-016
+  source_intent: 'Secrets MUST be brokered/scoped; extensions MUST NOT receive ambient
+    secret environment by default.: Secrets MUST be brokered/scoped; extensions MUST
+    NOT receive ambient secret environment by default.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-016
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-017
+  source_intent: 'A verifier generated from the same evidence as its candidate MUST
+    be labelled correlated evidence; high-risk promotion requires independent evidence.:
+    A verifier generated from the same evidence as its candidate MUST be labelled
+    correlated evidence; high-risk promotion requires independent evidence.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-017
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-INV-018
+  source_intent: 'Experience compaction MUST preserve the ability to reconstruct authoritative
+    mission/effect state from durable records.: Experience compaction MUST preserve
+    the ability to reconstruct authoritative mission/effect state from durable records.'
+  disposition: RETAINED
+  phase: v4.1
+  canonical_targets:
+  - ATOM-INV-018
+  owner_verification_impact: Architecture Council; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-NFR-001
+  source_intent: 'Crash durability: After abrupt process termination, durable mission/effect
+    state MUST recover without silently dropping acknowledged state.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-SLO-001
+  owner_verification_impact: SRE; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-NFR-002
+  source_intent: 'No duplicate governed mutation: For connectors that support idempotency/reconciliation,
+    retry/recovery MUST not create duplicate governed effects.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-SLO-002
+  owner_verification_impact: SRE; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-NFR-003
+  source_intent: 'Bounded cancellation: Cancellation MUST stop new effects and propagate
+    through owned workers/process trees within configured deadlines.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-SLO-003
+  owner_verification_impact: SRE; Legacy intent is preserved through target requirements
+    and their acceptance tests; legacy test IDs remain aliases where applicable.
+- legacy_id: ATOM-NFR-004
+  source_intent: 'Provider portability: A mission MUST not encode provider-specific
+    identity as mission identity; provider can be changed without reinstalling ATOM.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  owner_verification_impact: Operations; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-NFR-005
+  source_intent: 'Single-node operability: Core ATOM MUST run on a commodity Linux
+    VPS without Kubernetes.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-PRI-001
+  owner_verification_impact: Privacy Engineering; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-NFR-006
+  source_intent: 'Horizontal execution: Execution mesh SHOULD scale workers independently
+    of control plane.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-SUP-002
+  owner_verification_impact: Supply Chain; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-NFR-007
+  source_intent: 'Observability: All mission, model, capability, effect and worker
+    spans MUST be trace-correlatable and exportable via OpenTelemetry-compatible telemetry.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-OBS-003
+  owner_verification_impact: Evidence & Observability; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-NFR-008
+  source_intent: 'Reproducibility: Evaluation evidence MUST identify versioned artifacts/environment
+    sufficiently to rerun or explain irreproducibility.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-API-002
+  owner_verification_impact: Developer Platform; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-NFR-009
+  source_intent: 'Cost accountability: Token/model/tool/compute cost MUST be attributable
+    to mission, segment and artifact.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-GOV-003
+  owner_verification_impact: Open Governance; Legacy intent is preserved through target
+    requirements and their acceptance tests; legacy test IDs remain aliases where
+    applicable.
+- legacy_id: ATOM-NFR-010
+  source_intent: 'Secure defaults: Fresh install MUST default to paper/read-only/minimal
+    external authority where domain permits.'
+  disposition: RETAINED_OR_STRENGTHENED
+  phase: v4.1-v4.2
+  canonical_targets:
+  - ATOM-V4-BMK-002
+  owner_verification_impact: Evaluation Science; Legacy intent is preserved through
+    target requirements and their acceptance tests; legacy test IDs remain aliases
+    where applicable.
+- legacy_id: ATOM-VT-001
+  source_intent: 'Crash-safe mission state: Kill daemon after each authoritative transition;
+    restart reconstructs exactly one legal state and no committed evidence is lost.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-MSN-004
+  - ATOM-V4-MSN-005
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-002
+  source_intent: 'Unknown external effect: Remote fake commits mutation then drops
+    connection; ATOM records UNKNOWN_OUTCOME and emits no duplicate mutation.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-EFX-008
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-003
+  source_intent: 'Capability bypass: Prompt/model attempts direct filesystem/network
+    mutation outside grant; mutation is impossible and denial audited.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-AUT-004
+  - ATOM-V4-AUT-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-004
+  source_intent: 'Stale generation: Old worker wakes after replacement and attempts
+    write; write is rejected.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-TRC-001
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-005
+  source_intent: 'Tool Foundry broken candidate: Generated tool with interface or
+    logic defect fails contract/functional tests and never reaches ACTIVE.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-TRC-001
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-006
+  source_intent: 'Verifier independence: Builder and verifier contexts are separately
+    constructed; certificate records oracle class.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-TRC-001
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-007
+  source_intent: 'Agent Foundry promotion: Mission specialist succeeds once but cannot
+    become reusable template until cross-task holdout gate passes.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-MSN-004
+  - ATOM-V4-MSN-005
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-008
+  source_intent: 'Cognition JIT correctness: Compiled workflow reduces model calls
+    by target while maintaining protected holdout success threshold.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-PRV-001
+  - ATOM-V4-PRV-003
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-009
+  source_intent: 'JIT decompilation: Environment change causes compiled artifact failures;
+    certificate becomes stale/revoked and router falls back safely.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-TRC-001
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-010
+  source_intent: 'Memory laundering: Untrusted source is summarized and echoed by
+    trusted tool; origin authority remains untrusted.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-AUT-004
+  - ATOM-V4-AUT-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-011
+  source_intent: 'Memory contradiction: Conflicting facts remain explicit; high-risk
+    action requires adjudication/refresh.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-EPI-003
+  - ATOM-V4-EPI-005
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-012
+  source_intent: 'Stale reality: External state exceeds TTL; high-risk action requests
+    refresh rather than using stale cached claim.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-TRC-001
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-013
+  source_intent: 'Provider failover: Primary model provider fails repeatedly; mission
+    preserves state and reroutes under configured capability/cost policy.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-MSN-004
+  - ATOM-V4-MSN-005
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-014
+  source_intent: 'Worker crash: Worker dies mid-segment before effect; segment reassigns
+    and completes exactly once at mission semantics.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-MSN-004
+  - ATOM-V4-MSN-005
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-015
+  source_intent: 'Cancellation tree: Cancel parent mission while descendants queued/running;
+    no new descendants/effects appear after cancellation barrier.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-MSN-004
+  - ATOM-V4-MSN-005
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-016
+  source_intent: 'Budget conservation: Concurrent subagents cannot exceed parent reserved
+    token/money budget.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-TRC-001
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-017
+  source_intent: 'Sandbox default deny: Generated plugin probes filesystem/network/env
+    without grant; all inaccessible.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-AUT-004
+  - ATOM-V4-AUT-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-018
+  source_intent: 'Secret non-inheritance: Child process/plugin environment lacks unrelated
+    parent secrets.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-SEC-002
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-019
+  source_intent: 'Information-flow routing: Sensitive-labeled content cannot be sent
+    to a disallowed provider even if model requests it.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-PRV-001
+  - ATOM-V4-PRV-003
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-020
+  source_intent: 'Replay non-effecting: Historical run replay reproduces state/decision
+    trace but does not re-emit irreversible external mutations.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-LED-002
+  - ATOM-V4-RPL-002
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-021
+  source_intent: 'Counterfactual fork: Fork at checkpoint with alternate model/plan
+    creates new branch with common evidence prefix and separate outcomes.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-MSN-004
+  - ATOM-V4-MSN-005
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-022
+  source_intent: 'BehaviorHash invalidation: Changing model/skill/policy/context compiler
+    changes BehaviorHash and invalidates dependent certificate.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-PRV-001
+  - ATOM-V4-PRV-003
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-023
+  source_intent: 'Nonmaterial metadata: Changing display label does not change BehaviorHash
+    if excluded by manifest semantics.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-TRC-001
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-024
+  source_intent: 'Chaos provider truncation: Injected truncated tool call is detected;
+    no malformed effect reaches connector.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-PRV-001
+  - ATOM-V4-PRV-003
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-025
+  source_intent: 'Event duplication: Duplicate/reordered events are deduplicated and
+    terminal state remains deterministic.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-TRC-001
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-026
+  source_intent: 'Retention gap: Replay beyond retained range emits explicit GAP and
+    does not fabricate continuity.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-LED-002
+  - ATOM-V4-RPL-002
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-027
+  source_intent: 'Foundry supply chain: Candidate with unpinned executable dependency
+    or forbidden license/provenance is quarantined.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-TRC-001
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-028
+  source_intent: 'Model Foundry rights gate: Trajectory marked non-trainable cannot
+    enter training corpus.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-PRV-001
+  - ATOM-V4-PRV-003
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-029
+  source_intent: 'Model specialization regression: Adapter improves domain but breaks
+    protected baseline beyond threshold; promotion rejected.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-PRV-001
+  - ATOM-V4-PRV-003
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-030
+  source_intent: 'Architecture anti-swarm: Simple deterministic task requesting many
+    agents is solved with minimal topology within optimizer rule.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-TRC-001
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-031
+  source_intent: 'Architecture recovery: Selected topology stalls; optimizer switches
+    strategy without losing verified completed work.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-TRC-001
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-032
+  source_intent: 'Human approval scope: Approval for one production deploy cannot
+    authorize another unrelated resource/action.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-AUT-004
+  - ATOM-V4-AUT-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-033
+  source_intent: 'Compensatable saga: Failure after second saga step triggers idempotent
+    compensation and records final compensated outcome.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-EFX-008
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-034
+  source_intent: 'Irreversible gate: Irreversible action lacking required evidence/approval
+    is denied even when model expresses high confidence.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-AUT-004
+  - ATOM-V4-AUT-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-035
+  source_intent: 'Long-horizon soak: 24h accelerated mission with restarts/provider
+    faults completes with zero hidden event loss and bounded memory growth.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-MSN-004
+  - ATOM-V4-MSN-005
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-036
+  source_intent: 'Self-evolution bad patch: Candidate harness patch gaming visible
+    tasks fails hidden regression and cannot promote.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-TRC-001
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-037
+  source_intent: 'Self-evolution good patch: Candidate passes replay, hidden regression,
+    chaos and canary; promotion creates new runtime generation with rollback point.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-LED-002
+  - ATOM-V4-RPL-002
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-038
+  source_intent: 'Hub evidence integrity: Capability evidence receipt with altered
+    metrics/digest is rejected.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-TRC-001
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-039
+  source_intent: 'Offline operation: Local model + local tools mission runs with cloud
+    providers disabled.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-MSN-004
+  - ATOM-V4-MSN-005
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-040
+  source_intent: 'Upgrade rollback: Failed schema/runtime upgrade restores previous
+    version and authoritative state without evidence loss.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-INST-001
+  source_intent: 'Clean Ubuntu/Debian VPS: One-command installer produces healthy
+    core and setup endpoint without manual dependency surgery.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-005
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-INST-002
+  source_intent: 'Unsupported architecture: Installer fails safely before mutation
+    and identifies supported alternatives.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-005
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-INST-003
+  source_intent: 'Signature tamper: Modified release artifact is refused.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-005
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-INST-004
+  source_intent: 'Fresh native-only setup: User completes first mission with no Hermes/OpenClaw/AgenC
+    installed.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-005
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-INST-005
+  source_intent: 'Attach Hermes adapter: Existing ATOM state remains unchanged and
+    adapter is visible as external cognition provider.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-005
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-INST-006
+  source_intent: 'Remove Hermes adapter: Mission/evidence stores remain readable and
+    native runtime still functions.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-005
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-INST-007
+  source_intent: 'Failed migration update: Upgrade automatically rolls back to previous
+    healthy release without losing committed effects/evidence.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-005
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-INST-008
+  source_intent: 'Behavior-sensitive upgrade: Affected certificates become STALE before
+    autonomous use resumes.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-005
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-INST-009
+  source_intent: 'Backup/restore: Restored instance reproduces authoritative state
+    and fences stale source generation.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-005
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-INST-010
+  source_intent: 'Worker join/remove: Worker obtains bounded lease then loses authority
+    after revocation/expiry.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-005
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-INST-011
+  source_intent: 'Uninstall retain-data: Services/workers stop cleanly while requested
+    data export remains usable.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-005
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-INST-012
+  source_intent: 'Adapter outage: Kill external adapter during long mission; mission
+    enters DEGRADED/WAITING or reroutes without state corruption.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-005
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-INST-013
+  source_intent: 'Split-brain restore: Two restored cores cannot both commit effects
+    under same active generation.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-005
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-INST-014
+  source_intent: 'Secret isolation: Adapter process cannot enumerate unrelated ATOM/provider
+    secrets.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-005
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.
+- legacy_id: ATOM-VT-INST-015
+  source_intent: 'Dashboard onboarding: Mobile browser/PWA completes setup, provider
+    test and first mission without CLI after installer.'
+  disposition: MERGED_AS_ACCEPTANCE_ALIAS
+  phase: v4.1
+  canonical_targets:
+  - ATOM-V4-OPS-002
+  - ATOM-V4-OPS-003
+  - ATOM-V4-OPS-005
+  - ATOM-V4-OPS-006
+  owner_verification_impact: Verification Engineering; Legacy intent is preserved
+    through target requirements and their acceptance tests; legacy test IDs remain
+    aliases where applicable.

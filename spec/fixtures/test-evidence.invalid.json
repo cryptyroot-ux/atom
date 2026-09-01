@@ -1,0 +1,8 @@
+{
+  "evidence_id": "te-0001",
+  "test_id": "ATOM-VT41-001",
+  "outcome": "PASS",
+  "ran_at": "2026-08-31T12:00:00Z",
+  "runner": "pytest",
+  "logs_digest": "bad"
+}

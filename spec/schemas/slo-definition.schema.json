@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/slo-definition.schema.json",
+  "title": "Slo Definition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "slo_id",
+    "metric",
+    "target",
+    "window_seconds",
+    "compliance",
+    "owned_by"
+  ],
+  "properties": {
+    "slo_id": {
+      "type": "string"
+    },
+    "metric": {
+      "type": "string"
+    },
+    "target": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "window_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "compliance": {
+      "enum": [
+        "SLI",
+        "SLA",
+        "WARNING"
+      ]
+    },
+    "owned_by": {
+      "type": "string"
+    }
+  }
+}

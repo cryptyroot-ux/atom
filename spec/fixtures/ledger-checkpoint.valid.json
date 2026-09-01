@@ -1,0 +1,7 @@
+{
+  "checkpoint_id": "chk-0001",
+  "ledger_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "at_event": 1000,
+  "sealed_at": "2026-08-31T12:00:00Z",
+  "signature": "sig:v1"
+}

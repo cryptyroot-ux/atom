@@ -1,0 +1,10 @@
+{
+  "provider_id": "provider/llm",
+  "name": "rootlabs-llm",
+  "endpoint": "https://free.pango.fun/v1",
+  "auth_kind": "API_KEY",
+  "model_ids": [],
+  "asserted_capabilities": [
+    "completion"
+  ]
+}

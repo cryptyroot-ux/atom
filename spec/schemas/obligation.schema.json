@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/obligation.schema.json",
+  "title": "Obligation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "obligation_id",
+    "kind",
+    "subject",
+    "deadline",
+    "status"
+  ],
+  "properties": {
+    "obligation_id": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "REPORT",
+        "RETENTION",
+        "NOTICE",
+        "COMPENSATION"
+      ]
+    },
+    "subject": {
+      "type": "string"
+    },
+    "deadline": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "enum": [
+        "PENDING",
+        "FULFILLED",
+        "OVERDUE",
+        "WAIVED"
+      ]
+    },
+    "waived_by": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

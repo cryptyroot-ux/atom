@@ -1,18 +1,27 @@
-spec_version: 4.0.0
-generated_by: conformance-pass 2026-08-31 (LUNA) — maps audit ATOM_Audit_Mendalam_Suite_v4 findings to
-  current repo state
+spec_version: 4.1.0
+generated_by: conformance-pass 2026-09-01 (LUNA) — revises spec/g0-release-checklist.yaml from 4.0.0
+  to reflect v4.1 conformance. Maps the v4 audit findings to the current repo state after the G0 v4.1
+  migration-gap closure (51 schemas + 102 fixtures + 9 state-machine bodies all v4.1-authored).
 audit_source: ATOM_Audit_Mendalam_Suite_v4_2026-08-29.docx
-verdict_note: 'Audit assessed spec/docs only and reported "no implementation supplied". As of 2026-08-31
-  the Rust workspace has 26/26 crates built (363 tests green). Findings below reflect CONFORMANCE of the
-  built workspace + spec artifacts against each audit item, not the original doc-only verdict.
+verdict_note: >-
+  Audit assessed spec/docs only and reported "no implementation supplied". The 4.0.0 baseline (2026-08-31)
+  recorded a Rust workspace at 26/26 crates / 363 tests. As of 2026-09-01 the workspace is 32/32 crates
+  built, 494 tests green, and G0 (gate-zero) is formally PASS (validate_release.py exit 0): 51/51 schema
+  bodies v4.1-authored, 102/102 schema fixtures conformance-checked (valid 0-error / invalid >=1-error via
+  JSON Schema Draft 2020-12), and 9/9 state-machine bodies v4.1-authored. Findings below reflect
+  CONFORMANCE of the built workspace + spec artifacts against each audit item.
 
-  '
+  
 findings:
 - id: C-01
   title: Canonical spec missing P0 contracts
   status: CLOSED
-  evidence: spec/ has 8 JSON schemas (mission-state, effect-intent, certificate, claim, behavior-manifest-v2,
-    capability-grant, task-signature, commit-permit) + requirements/acceptance/invariants/enums/state-machines/sources.
+  evidence: >-
+    spec/schemas/ carries 51 inventory'd v4.1 JSON schemas (all body_status=authored_v41, JSON Schema
+    Draft 2020-12, additionalProperties:false, sha256:<64hex> digest pattern) + 102 conformance fixtures
+    (valid+invalid per schema, each linted with jsonschema Draft202012Validator), plus requirements/
+    acceptance/invariants/enums/state-machines/sources. G0-COVERAGE schema-bodies 51/51 & schema-fixtures
+    102/102 PASS in validate_release.py.
   residual: cross-language (TS/Py) generated bindings not yet emitted.
 - id: C-02
   title: Requirement-to-test traceability = zero
@@ -24,15 +33,16 @@ findings:
 - id: C-03
   title: EffectIntent field mismatch schema vs Blueprint
   status: CLOSED
-  evidence: spec/schemas/effect-intent.schema.json field 'request_digest' matches crates/atom-effect/src/intent.rs
-    field 'request_digest'. principal/causation/permit semantics live in commit_permit.rs (spec/schemas/commit-permit.schema.json
+  evidence: spec/schemas/effect-intent.schema.json field 'canonical_request_digest' matches crates/atom-effect/src/intent.rs
+    field 'canonical_request_digest' (RFC 8785 JCS digest, sha256:<64 hex>). principal/causation/permit semantics live in commit_permit.rs (spec/schemas/commit-permit.schema.json
     carries principal_id) — separated by design, not divergent.
   residual: none.
 - id: C-04
   title: Premature Product/Implementation Baseline label
   status: MITIGATED
   evidence: 0.0.0-alpha.0 scoped to core runtime; P1 research/UI/API areas explicitly tracked as designed-not-built
-    in traceability.yaml. No public "2G" claim made (INV-020 frozen).
+    in traceability.yaml. No public "2G" claim made (INV-020 frozen). G0 v4.1 migration gap closure (2026-09-01)
+    is scoped to spec artifact completion (schemas/fixtures/state-machines), not a new feature baseline.
   residual: formal Candidate->Signed G0 release decision not yet cut; label softened in practice.
 - id: H-01
   title: v3.1 coverage compressed without disposition ledger
@@ -42,16 +52,24 @@ findings:
   residual: v3.1-to-v4 disposition matrix not authored.
 - id: H-04
   title: State machines descriptive not executable
-  status: OPEN
-  evidence: spec/state-machines/*.yaml present (mission/evolution/effect/foundry) but reducers live in
-    Rust (atom-mission reducer, atom-effect try_advance); no generated transition table.
+  status: PARTIAL
+  evidence: >-
+    spec/state-machines/ now carries 9 v4.1-authored state-machine bodies (effect, mission, approval,
+    grant, artifact, schedule-run, restore, release, promotion) with explicit initial/terminal states and
+    transition tables (id/from/to/event/guard/action/cas/timer/forbidden), counts reconciled to
+    spec/v4.1/state-machines/inventory.yaml, and G0-COVERAGE sm-bodies 9/9 PASS. effect.yaml remains the
+    byte-authoritative adjacency spec consumed by crates/atom-effect reducer + tests. No generated
+    (codegen) transition table shipped yet — reducers remain hand-written Rust.
   residual: codegen of transition tables pending.
 - id: H-05
   title: Schemas strict surface, loose semantic core
   status: PARTIAL
-  evidence: schemas use additionalProperties:false; nested objects constrained per crate (e.g. Idempotency/Reconciliation/Compensation
-    typed in intent.rs).
-  residual: full semantic validators + adversarial invalid corpus not yet auto-linted.
+  evidence: >-
+    All 51 schemas use additionalProperties:false with required/properties and sha256 digest patterns;
+    nested objects constrained per crate (e.g. Idempotency/Reconciliation/Compensation typed in intent.rs).
+    An adversarial invalid corpus is now auto-linted: 102 fixtures are conformance-checked with JSON Schema
+    Draft 2020-12 (valid fixtures must yield 0 errors, invalid >=1), green 104/104 across fixtures on disk.
+  residual: full semantic (cross-field/state-composition) validators beyond JSON Schema not yet linted.
 - id: H-06
   title: API/CLI not implementable interface
   status: CLOSED
@@ -103,8 +121,8 @@ findings:
 - id: M-03
   title: 26 P0 without sequencing / vertical slices
   status: CLOSED
-  evidence: 26/26 crates built as 5 phased batches (G0-G5) with per-crate req IDs and merge gates; 363
-    tests green.
+  evidence: 32/32 crates built; 494 tests green (cargo test --workspace, 0 failed); G0 v4.1 gate PASS
+    (validate_release.py exit 0, 25/25 checks). Spec schema/state-machine coverage completed 2026-09-01.
 - id: M-04
   title: Governance/license recommend not artifact
   status: CLOSED
@@ -112,10 +130,15 @@ findings:
   residual: governance files deferred to release bundle.
 summary:
   critical: 4/4 CLOSED-or-MITIGATED
-  high: 3/15 CLOSED (H-09,H-10,C-03-class), 6 PARTIAL, 6 OPEN
+  high: 3/15 CLOSED (H-09,H-10,C-03-class); H-04,H-05 moved OPEN/PARTIAL→PARTIAL via v4.1 gap closure;
+    6 PARTIAL, 6 OPEN remaining
   medium_low: 1/2 CLOSED (M-03), 1 OPEN (M-04)
-  verdict: BUILD complete and G0-conformance core closed; G0 release-signing + research/UI/API tracks
-    remain deferred (not blocking 0.0.0-alpha.0 core).
+  v4_1_gate_zero: PASS — 51/51 schema bodies, 102/102 fixtures, 9/9 state-machine bodies authored v4.1
+    (validate_release.py exit 0), 494 tests green, clippy 0 warnings
+  verdict: >-
+    BUILD complete and G0-conformance core closed; the v4.1 migration-gap closure (schemas/fixtures/
+    state-machines) is done as of 2026-09-01. G0 release-signing + research/UI/API tracks remain deferred
+    (not blocking 0.0.0-alpha.0 core).
 formal_release_decision:
   decision: 0.0.0-alpha.0 released
   date: '2026-08-31'

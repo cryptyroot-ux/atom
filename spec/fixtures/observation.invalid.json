@@ -1,0 +1,7 @@
+{
+  "obs_id": "obs-0001",
+  "observed_at": "2026-08-31T12:00:00Z",
+  "subject_digest": "bad",
+  "measurements": {},
+  "source": "telemetry"
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.run/spec/v4/schemas/test-evidence.schema.json",
+  "title": "Test Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "evidence_id",
+    "test_id",
+    "outcome",
+    "ran_at",
+    "runner",
+    "logs_digest"
+  ],
+  "properties": {
+    "evidence_id": {
+      "type": "string"
+    },
+    "test_id": {
+      "type": "string"
+    },
+    "outcome": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "SKIPPED",
+        "FLAKY"
+      ]
+    },
+    "ran_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "runner": {
+      "type": "string"
+    },
+    "logs_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "schedule_id": "sch-0001",
+  "cron": "0 3 * * *",
+  "mission_template_id": "mission/daily",
+  "timezone": "UTC",
+  "enabled": true,
+  "max_attempts": 3
+}

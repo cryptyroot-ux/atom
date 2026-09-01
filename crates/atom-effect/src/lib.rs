@@ -8,6 +8,7 @@
 #![forbid(unsafe_code)]
 
 pub mod admission;
+pub mod canonical;
 pub mod commit_permit;
 pub mod event;
 pub mod intent;
@@ -19,9 +20,11 @@ pub mod state;
 mod digest;
 
 pub use admission::{admit_dispatch, AdmissionError};
+pub use atom_ledger::DurabilityProof;
+pub use canonical::{canonical_request_digest, to_canonical_bytes, CanonicalizationError};
 pub use commit_permit::{
-    issue_commit_permit, CommitPermit, ConsumeRequest, DurabilityWitness, NonceRegistry,
-    PermitError, PermitRequest, ResourceWitness, MAX_PERMIT_TTL_SECONDS,
+    issue_commit_permit, CommitPermit, ConsumeRequest, NonceRegistry, PermitError, PermitRequest,
+    ResourceWitness, MAX_PERMIT_TTL_SECONDS,
 };
 pub use event::{CommitPermitted, EffectEvent, ObservedOutcome, ReconciledOutcome};
 pub use intent::{EffectIntent, EffectIntentBuilder, IntentError};

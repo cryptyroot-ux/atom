@@ -1,0 +1,312 @@
+spec_version: 4.1.0
+source_document: ATOM_Verification_Traceability_and_Acceptance_v4.1
+count: 51
+note: 51 canonical schema contracts referenced by traceability. G0 requires each to
+  have a body plus one valid and one invalid fixture.
+schemas:
+- id: approval-grant
+  contract: spec/schemas/approval-grant.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/approval-grant.valid.json
+    invalid: spec/fixtures/approval-grant.invalid.json
+- id: architecture-decision
+  contract: spec/schemas/architecture-decision.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/architecture-decision.valid.json
+    invalid: spec/fixtures/architecture-decision.invalid.json
+- id: artifact-attestation
+  contract: spec/schemas/artifact-attestation.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/artifact-attestation.valid.json
+    invalid: spec/fixtures/artifact-attestation.invalid.json
+- id: backup-manifest
+  contract: spec/schemas/backup-manifest.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/backup-manifest.valid.json
+    invalid: spec/fixtures/backup-manifest.invalid.json
+- id: behavior-manifest-v2
+  contract: spec/schemas/behavior-manifest-v2.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/behavior-manifest-v2.valid.json
+    invalid: spec/fixtures/behavior-manifest-v2.invalid.json
+- id: benchmark-contract
+  contract: spec/schemas/benchmark-contract.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/benchmark-contract.valid.json
+    invalid: spec/fixtures/benchmark-contract.invalid.json
+- id: capability-contract
+  contract: spec/schemas/capability-contract.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/capability-contract.valid.json
+    invalid: spec/fixtures/capability-contract.invalid.json
+- id: capability-grant
+  contract: spec/schemas/capability-grant.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/capability-grant.valid.json
+    invalid: spec/fixtures/capability-grant.invalid.json
+- id: certificate
+  contract: spec/schemas/certificate.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/certificate.valid.json
+    invalid: spec/fixtures/certificate.invalid.json
+- id: claim-record
+  contract: spec/schemas/claim-record.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/claim-record.valid.json
+    invalid: spec/fixtures/claim-record.invalid.json
+- id: claim
+  contract: spec/schemas/claim.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/claim.valid.json
+    invalid: spec/fixtures/claim.invalid.json
+- id: commit-permit
+  contract: spec/schemas/commit-permit.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/commit-permit.valid.json
+    invalid: spec/fixtures/commit-permit.invalid.json
+- id: commitment
+  contract: spec/schemas/commitment.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/commitment.valid.json
+    invalid: spec/fixtures/commitment.invalid.json
+- id: compatibility-profile
+  contract: spec/schemas/compatibility-profile.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/compatibility-profile.valid.json
+    invalid: spec/fixtures/compatibility-profile.invalid.json
+- id: connector-receipt
+  contract: spec/schemas/connector-receipt.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/connector-receipt.valid.json
+    invalid: spec/fixtures/connector-receipt.invalid.json
+- id: context-bundle
+  contract: spec/schemas/context-bundle.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/context-bundle.valid.json
+    invalid: spec/fixtures/context-bundle.invalid.json
+- id: context-item
+  contract: spec/schemas/context-item.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/context-item.valid.json
+    invalid: spec/fixtures/context-item.invalid.json
+- id: data-policy
+  contract: spec/schemas/data-policy.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/data-policy.valid.json
+    invalid: spec/fixtures/data-policy.invalid.json
+- id: decision-record
+  contract: spec/schemas/decision-record.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/decision-record.valid.json
+    invalid: spec/fixtures/decision-record.invalid.json
+- id: deletion-receipt
+  contract: spec/schemas/deletion-receipt.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/deletion-receipt.valid.json
+    invalid: spec/fixtures/deletion-receipt.invalid.json
+- id: effect-intent
+  contract: spec/schemas/effect-intent.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/effect-intent.valid.json
+    invalid: spec/fixtures/effect-intent.invalid.json
+- id: evidence
+  contract: spec/schemas/evidence.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/evidence.valid.json
+    invalid: spec/fixtures/evidence.invalid.json
+- id: extension-manifest
+  contract: spec/schemas/extension-manifest.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/extension-manifest.valid.json
+    invalid: spec/fixtures/extension-manifest.invalid.json
+- id: fault-record
+  contract: spec/schemas/fault-record.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/fault-record.valid.json
+    invalid: spec/fixtures/fault-record.invalid.json
+- id: lease-epoch
+  contract: spec/schemas/lease-epoch.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/lease-epoch.valid.json
+    invalid: spec/fixtures/lease-epoch.invalid.json
+- id: ledger-checkpoint
+  contract: spec/schemas/ledger-checkpoint.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/ledger-checkpoint.valid.json
+    invalid: spec/fixtures/ledger-checkpoint.invalid.json
+- id: ledger-event
+  contract: spec/schemas/ledger-event.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/ledger-event.valid.json
+    invalid: spec/fixtures/ledger-event.invalid.json
+- id: mission-graph
+  contract: spec/schemas/mission-graph.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/mission-graph.valid.json
+    invalid: spec/fixtures/mission-graph.invalid.json
+- id: mission-snapshot
+  contract: spec/schemas/mission-snapshot.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/mission-snapshot.valid.json
+    invalid: spec/fixtures/mission-snapshot.invalid.json
+- id: mission-spec
+  contract: spec/schemas/mission-spec.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/mission-spec.valid.json
+    invalid: spec/fixtures/mission-spec.invalid.json
+- id: obligation
+  contract: spec/schemas/obligation.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/obligation.valid.json
+    invalid: spec/fixtures/obligation.invalid.json
+- id: observation
+  contract: spec/schemas/observation.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/observation.valid.json
+    invalid: spec/fixtures/observation.invalid.json
+- id: operation-status
+  contract: spec/schemas/operation-status.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/operation-status.valid.json
+    invalid: spec/fixtures/operation-status.invalid.json
+- id: policy-decision
+  contract: spec/schemas/policy-decision.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/policy-decision.valid.json
+    invalid: spec/fixtures/policy-decision.invalid.json
+- id: problem-detail
+  contract: spec/schemas/problem-detail.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/problem-detail.valid.json
+    invalid: spec/fixtures/problem-detail.invalid.json
+- id: promotion-decision
+  contract: spec/schemas/promotion-decision.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/promotion-decision.valid.json
+    invalid: spec/fixtures/promotion-decision.invalid.json
+- id: provider-call
+  contract: spec/schemas/provider-call.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/provider-call.valid.json
+    invalid: spec/fixtures/provider-call.invalid.json
+- id: provider-profile
+  contract: spec/schemas/provider-profile.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/provider-profile.valid.json
+    invalid: spec/fixtures/provider-profile.invalid.json
+- id: recovery-plan
+  contract: spec/schemas/recovery-plan.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/recovery-plan.valid.json
+    invalid: spec/fixtures/recovery-plan.invalid.json
+- id: release-manifest
+  contract: spec/schemas/release-manifest.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/release-manifest.valid.json
+    invalid: spec/fixtures/release-manifest.invalid.json
+- id: replay-request
+  contract: spec/schemas/replay-request.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/replay-request.valid.json
+    invalid: spec/fixtures/replay-request.invalid.json
+- id: resource-precondition
+  contract: spec/schemas/resource-precondition.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/resource-precondition.valid.json
+    invalid: spec/fixtures/resource-precondition.invalid.json
+- id: schedule-run
+  contract: spec/schemas/schedule-run.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/schedule-run.valid.json
+    invalid: spec/fixtures/schedule-run.invalid.json
+- id: schedule-spec
+  contract: spec/schemas/schedule-spec.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/schedule-spec.valid.json
+    invalid: spec/fixtures/schedule-spec.invalid.json
+- id: schema-inventory
+  contract: spec/schemas/schema-inventory.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/schema-inventory.valid.json
+    invalid: spec/fixtures/schema-inventory.invalid.json
+- id: secret-handle
+  contract: spec/schemas/secret-handle.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/secret-handle.valid.json
+    invalid: spec/fixtures/secret-handle.invalid.json
+- id: slo-definition
+  contract: spec/schemas/slo-definition.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/slo-definition.valid.json
+    invalid: spec/fixtures/slo-definition.invalid.json
+- id: task-signature
+  contract: spec/schemas/task-signature.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/task-signature.valid.json
+    invalid: spec/fixtures/task-signature.invalid.json
+- id: telemetry-envelope
+  contract: spec/schemas/telemetry-envelope.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/telemetry-envelope.valid.json
+    invalid: spec/fixtures/telemetry-envelope.invalid.json
+- id: test-evidence
+  contract: spec/schemas/test-evidence.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/test-evidence.valid.json
+    invalid: spec/fixtures/test-evidence.invalid.json
+- id: trace-link
+  contract: spec/schemas/trace-link.schema.json
+  body_status: authored_v41
+  fixtures:
+    valid: spec/fixtures/trace-link.valid.json
+    invalid: spec/fixtures/trace-link.invalid.json

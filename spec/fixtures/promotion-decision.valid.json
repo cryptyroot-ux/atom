@@ -1,0 +1,9 @@
+{
+  "decision_id": "prom-0001",
+  "from_release": "0.0.0-alpha.0",
+  "to_release": "0.0.0",
+  "approved_by": "svc/release",
+  "decided_at": "2026-08-31T12:00:00Z",
+  "outcome": "PROMOTE",
+  "review_ref": null
+}
