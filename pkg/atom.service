@@ -1,37 +1,36 @@
 # atom.service — durable ATOM HTTP control-plane daemon
 #
 # Install: sudo cp atom.service /etc/systemd/system/atom.service
-# Configure: sudo mkdir -p /etc/atom && sudo tee /etc/atom/env <<'EOF'
-# ATOM_SIGNING_KEY_ID=prod-signing-key
-# ATOM_SIGNING_SECRET=base64-secret-here
-# ATOM_SERVE_ADDR=127.0.0.1:8420
-# EOF
-# sudo chmod 600 /etc/atom/env
+# Configure: provide `/etc/atom/signing-secret` and load provider credentials
+# through systemd's credential staging (never put secrets in this unit).
 
 [Unit]
 Description=ATOM durable HTTP control-plane daemon
 Documentation=https://github.com/cryptyroot-ux/atom
 After=network-online.target
 Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=3
 
 [Service]
 Type=simple
 User=atom
 Group=atom
-# Environment file with signing keys (never hardcode!)
-EnvironmentFile=-/etc/atom/env
+LoadCredential=signing_secret:/etc/atom/signing-secret
+LoadCredential=provider_api_key:/root/.secrets/freellmapi-unified-api-key
 # Binary explicitly installed at /usr/local/bin/atom; the durable state path
 # is managed by systemd's StateDirectory below.
-ExecStart=/usr/local/bin/atom serve --state-db /var/lib/atom/atom.sqlite
+ExecStart=/bin/sh -c 'export ATOM_SIGNING_SECRET="$(cat "$CREDENTIALS_DIRECTORY/signing_secret")"; export ATOM_PROVIDER_API_KEY="$(cat "$CREDENTIALS_DIRECTORY/provider_api_key")"; exec /usr/local/bin/atom serve --state-db /var/lib/atom/atom.sqlite'
 # Address the HTTP API binds (override via EnvironmentFile if needed)
 Environment=ATOM_SERVE_ADDR=127.0.0.1:8420
+Environment=ATOM_SIGNING_KEY_ID=atom-prod-v1
+Environment=ATOM_PROVIDER_BASE_URL=https://free.pango.fun/v1
+Environment=ATOM_PROVIDER_MODEL=auto
 # Creates /var/lib/atom and gives the service user write access to its ledger.
 StateDirectory=atom
 # Restart policy
 Restart=on-failure
 RestartSec=5
-StartLimitIntervalSec=60
-StartLimitBurst=3
 # Hardening
 NoNewPrivileges=true
 PrivateTmp=true
