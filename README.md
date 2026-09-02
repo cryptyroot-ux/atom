@@ -143,6 +143,21 @@ curl -s http://127.0.0.1:8420/ledger/events
 > `/ready` currently reports HTTP/ledger readiness only, not model-provider
 > readiness.
 
+**Interactive operator session:**
+
+```sh
+# With atom.service already installed and configured:
+atom
+# You> summarize the current task
+# ATOM> mission <id> ........ SUCCEEDED
+# Type /quit to exit.
+```
+
+The interactive command is a thin client over the durable mission API. It does
+not bypass the ledger, authority profile, or provider plan validation. Use
+`atom setup`, `atom status`, and `atom doctor` for first-run configuration and
+diagnostics.
+
 See [`spec/`](spec/) for the authoritative machine-readable contracts
 (schemas, state-machines, enums, requirements, invariants).
 
