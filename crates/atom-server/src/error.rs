@@ -52,6 +52,16 @@ impl ApiError {
             instance: instance.into(),
         }
     }
+
+    pub fn service_unavailable(instance: impl Into<String>, detail: impl Into<String>) -> Self {
+        Self {
+            status: StatusCode::SERVICE_UNAVAILABLE,
+            ty: "https://atom.dev/errors/service-unavailable",
+            title: "Service Unavailable",
+            detail: detail.into(),
+            instance: instance.into(),
+        }
+    }
 }
 
 impl IntoResponse for ApiError {

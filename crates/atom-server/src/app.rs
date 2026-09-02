@@ -9,6 +9,7 @@ use crate::routes::approvals::{
     issue as issue_approval, list as list_approvals, redeem as redeem_approval,
 };
 use crate::routes::capabilities::list_capabilities;
+use crate::routes::chat::chat;
 use crate::routes::effects::{dispatch_effect, get_effect};
 use crate::routes::evidence::list_evidence;
 use crate::routes::health::{get_health, get_ready};
@@ -25,6 +26,18 @@ pub struct AppState {
     pub crates_loaded: u32,
     pub started: Instant,
     pub store: Arc<Mutex<Store>>,
+    pub chat: Option<Arc<ChatConfig>>,
+}
+
+/// Redacted provider settings needed by `/chat`. The API key stays in daemon
+/// memory and is never serialized or included in diagnostics.
+#[derive(Clone)]
+pub struct ChatConfig {
+    pub base_url: String,
+    pub model: String,
+    pub api_key: String,
+    pub timeout_ms: u64,
+    pub max_response_bytes: usize,
 }
 
 pub fn build_router(
@@ -33,15 +46,27 @@ pub fn build_router(
     started: Instant,
     store: Arc<Mutex<Store>>,
 ) -> Router {
+    build_router_with_chat(version, crates_loaded, started, store, None)
+}
+
+pub fn build_router_with_chat(
+    version: &'static str,
+    crates_loaded: u32,
+    started: Instant,
+    store: Arc<Mutex<Store>>,
+    chat_config: Option<ChatConfig>,
+) -> Router {
     let state = AppState {
         version,
         crates_loaded,
         started,
         store,
+        chat: chat_config.map(Arc::new),
     };
     Router::new()
         .route("/health", get(get_health))
         .route("/ready", get(get_ready))
+        .route("/chat", axum::routing::post(chat))
         .route("/missions", get(list_missions).post(create_mission))
         .route("/missions/{mission_id}", get(get_mission))
         .route(
@@ -69,7 +94,23 @@ pub async fn serve(
     addr: std::net::SocketAddr,
     store: Arc<Mutex<Store>>,
 ) -> anyhow::Result<()> {
-    let app = build_router(version, crates_loaded, std::time::Instant::now(), store);
+    serve_with_chat(version, crates_loaded, addr, store, None).await
+}
+
+pub async fn serve_with_chat(
+    version: &'static str,
+    crates_loaded: u32,
+    addr: std::net::SocketAddr,
+    store: Arc<Mutex<Store>>,
+    chat_config: Option<ChatConfig>,
+) -> anyhow::Result<()> {
+    let app = build_router_with_chat(
+        version,
+        crates_loaded,
+        std::time::Instant::now(),
+        store,
+        chat_config,
+    );
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;
     Ok(())

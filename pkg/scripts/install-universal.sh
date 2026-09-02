@@ -7,7 +7,7 @@ REPO="${ATOM_REPO:-https://github.com/cryptyroot-ux/atom}"
 REF="${ATOM_REF:-atom-v4.1-migration-hardening}"
 PREFIX="${ATOM_PREFIX:-}"
 NO_SERVICE=0
-NO_PROVIDER=1
+NO_PROVIDER=auto
 PROVIDER_KEY_FILE=
 PROVIDER_BASE_URL=
 PROVIDER_MODEL=
@@ -21,7 +21,7 @@ Options:
   --provider-key-file PATH  OpenAI-compatible bearer key
   --provider-base-url URL   Gateway root URL
   --provider-model MODEL    Provider model identifier (default: auto)
-  --no-provider             Disable provider cognition (default)
+  --no-provider             Disable provider cognition (otherwise onboarding starts)
   -h, --help                Show help
 Environment: ATOM_VERSION selects a release tag; ATOM_REF selects the source branch.
 ATOM_BINARY_URL may provide an operator-supplied binary only with ATOM_BINARY_SHA256.
@@ -93,8 +93,18 @@ if [[ -n "${EXPECTED_SHA256:-}" ]]; then
   log "verified SHA-256: $ACTUAL_SHA256"
 fi
 install -m 0755 "$BINARY" "$PREFIX/atom"; log "installed $PREFIX/atom"
-if [[ "$OS" == Linux && "$NO_SERVICE" -eq 0 && "$(id -u)" -eq 0 ]] && command -v systemctl >/dev/null && [[ -n "${SOURCE_DIR:-}" ]]; then
-  args=(--no-build); [[ "$NO_PROVIDER" -eq 1 ]] && args+=(--no-provider)
+if [[ "$OS" == Linux && "$NO_SERVICE" -eq 0 && "$(id -u)" -eq 0 ]] && command -v systemctl >/dev/null; then
+  # A release binary has no checkout. Fetch only the service/config templates;
+  # the binary itself remains the checksum-verified artifact above.
+  if [[ -z "${SOURCE_DIR:-}" ]]; then
+    curl --fail --location --proto '=https' --tlsv1.2 "$REPO/archive/refs/heads/$REF.tar.gz" -o "$TMP_DIR/source.tar.gz"
+    tar -xzf "$TMP_DIR/source.tar.gz" -C "$TMP_DIR"
+    SOURCE_DIR="$(find "$TMP_DIR" -mindepth 1 -maxdepth 1 -type d | head -1)"
+    mkdir -p "$SOURCE_DIR/target/release"
+    install -m 0755 "$BINARY" "$SOURCE_DIR/target/release/atom"
+  fi
+  args=(--no-build)
+  [[ "$NO_PROVIDER" == 1 || "$NO_PROVIDER" == auto ]] && args+=(--no-provider)
   [[ -n "$PROVIDER_KEY_FILE" ]] && args+=(--provider-key-file "$PROVIDER_KEY_FILE")
   [[ -n "$PROVIDER_BASE_URL" ]] && args+=(--provider-base-url "$PROVIDER_BASE_URL")
   [[ -n "$PROVIDER_MODEL" ]] && args+=(--provider-model "$PROVIDER_MODEL")
@@ -105,7 +115,12 @@ fi
 case ":${PATH}:" in *":$PREFIX:"*) ;; *) log "add $PREFIX to PATH" ;; esac
 log "next: atom --version"
 if [[ "$OS" == Linux && "$NO_SERVICE" -eq 0 && "$(id -u)" -eq 0 ]] && command -v systemctl >/dev/null; then
-  log "then: atom doctor && atom status"
+  if [[ "$NO_PROVIDER" == auto ]] && [[ -e /dev/tty ]]; then
+    log "starting interactive provider onboarding"
+    "$PREFIX/atom" setup
+  else
+    log "then: atom doctor && atom status"
+  fi
 else
-  log "then: atom setup --no-provider (or configure a provider)"
+  log "then: atom setup (configure provider/model/API key) or atom --help"
 fi
