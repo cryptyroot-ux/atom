@@ -23,7 +23,8 @@ Options:
   --provider-model MODEL    Provider model identifier (default: auto)
   --no-provider             Disable provider cognition (default)
   -h, --help                Show help
-Environment: ATOM_REF selects the source branch; ATOM_BINARY_URL may provide an operator-supplied binary.
+Environment: ATOM_VERSION selects a release tag; ATOM_REF selects the source branch.
+ATOM_BINARY_URL may provide an operator-supplied binary only with ATOM_BINARY_SHA256.
 EOF
 }
 while (($#)); do
@@ -51,10 +52,26 @@ fi
 mkdir -p "$PREFIX"
 TMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t atom-install)"; trap 'rm -rf "$TMP_DIR"' EXIT
 BINARY="$TMP_DIR/atom"
+PLATFORM="$(printf '%s' "$OS" | tr '[:upper:]' '[:lower:]')"
+[[ "$PLATFORM" == darwin ]] && PLATFORM=macos
+[[ "$ARCH" == amd64 ]] && ARCH=x86_64
+[[ "$ARCH" == aarch64 ]] && ARCH=arm64
+[[ "$ARCH" == arm64 ]] && ARCH=arm64
+ASSET="atom-${PLATFORM}-${ARCH}"
+RELEASE_TAG="${ATOM_VERSION:-}"
+if [[ -z "$RELEASE_TAG" ]]; then
+  RELEASE_TAG="$(curl -fsSL --proto '=https' --tlsv1.2 "$REPO/releases/latest" 2>/dev/null | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1 || true)"
+fi
 if [[ -n "${ATOM_BINARY_URL:-}" ]]; then
+  [[ -n "${ATOM_BINARY_SHA256:-}" ]] || die "ATOM_BINARY_SHA256 is required with ATOM_BINARY_URL"
   log "downloading operator-supplied binary for $OS/$ARCH"
-  curl --fail --location --proto '=https' --tlsv1.2 "$ATOM_BINARY_URL" -o "$BINARY"; chmod 0755 "$BINARY"
+  curl --fail --location --proto '=https' --tlsv1.2 "$ATOM_BINARY_URL" -o "$BINARY"
+  EXPECTED_SHA256="$ATOM_BINARY_SHA256"
+elif [[ -n "$RELEASE_TAG" ]] && curl --fail --location --proto '=https' --tlsv1.2 "$REPO/releases/download/$RELEASE_TAG/$ASSET" -o "$BINARY" 2>/dev/null; then
+  log "downloaded release $RELEASE_TAG ($ASSET)"
+  EXPECTED_SHA256="$(curl --fail --location --proto '=https' --tlsv1.2 "$REPO/releases/download/$RELEASE_TAG/${ASSET}.sha256" | awk '{print $1}')" || die "release checksum unavailable"
 else
+  log "no verified binary release found; falling back to pinned source build"
   command -v cargo >/dev/null || die "Cargo is required; install Rust from https://rustup.rs"
   log "building ATOM from $REPO (ref: $REF)"
   curl --fail --location --proto '=https' --tlsv1.2 "$REPO/archive/refs/heads/$REF.tar.gz" -o "$TMP_DIR/source.tar.gz"
@@ -63,6 +80,17 @@ else
   [[ -n "$SOURCE_DIR" ]] || die "source archive was empty"
   (cd "$SOURCE_DIR" && cargo build --release --locked -p atom-cli)
   install -m 0755 "$SOURCE_DIR/target/release/atom" "$BINARY"
+fi
+if [[ -n "${EXPECTED_SHA256:-}" ]]; then
+  if command -v sha256sum >/dev/null; then
+    ACTUAL_SHA256="$(sha256sum "$BINARY" | awk '{print $1}')"
+  elif command -v shasum >/dev/null; then
+    ACTUAL_SHA256="$(shasum -a 256 "$BINARY" | awk '{print $1}')"
+  else
+    die "sha256sum or shasum is required to verify the binary"
+  fi
+  [[ "$ACTUAL_SHA256" == "$EXPECTED_SHA256" ]] || die "binary checksum mismatch"
+  log "verified SHA-256: $ACTUAL_SHA256"
 fi
 install -m 0755 "$BINARY" "$PREFIX/atom"; log "installed $PREFIX/atom"
 if [[ "$OS" == Linux && "$NO_SERVICE" -eq 0 && "$(id -u)" -eq 0 ]] && command -v systemctl >/dev/null && [[ -n "${SOURCE_DIR:-}" ]]; then

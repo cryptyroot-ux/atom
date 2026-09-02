@@ -1,0 +1,73 @@
+name: Release binaries
+
+on:
+  push:
+    tags: ['0.0.0-*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.os }} / ${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            arch: x86_64
+          - os: macos-13
+            platform: macos
+            arch: x86_64
+          - os: macos-14
+            platform: macos
+            arch: arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build release binary
+        run: cargo build --release --locked -p atom-cli
+      - name: Package and checksum
+        shell: bash
+        env:
+          PLATFORM: ${{ matrix.platform }}
+          ARCH: ${{ matrix.arch }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          asset="atom-${PLATFORM}-${ARCH}"
+          cp target/release/atom "$asset"
+          chmod 0755 "$asset"
+          shasum -a 256 "$asset" > "${asset}.sha256"
+          echo "ASSET=$asset" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: atom-${{ matrix.platform }}-${{ matrix.arch }}
+          path: |
+            atom-${{ matrix.platform }}-${{ matrix.arch }}
+            atom-${{ matrix.platform }}-${{ matrix.arch }}.sha256
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: atom-*
+          merge-multiple: true
+      - name: Aggregate checksums
+        working-directory: dist
+        run: cat *.sha256 > SHA256SUMS
+      - name: Publish release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            dist/atom-*
+            dist/SHA256SUMS
