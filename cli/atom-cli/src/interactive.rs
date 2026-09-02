@@ -1,4 +1,5 @@
 //! Interactive operator session backed by the durable API and model gateway.
+
 #![forbid(unsafe_code)]
 
 use anyhow::{Context, Result};
@@ -6,25 +7,35 @@ use serde_json::{json, Value};
 use std::io::{self, BufRead, Write};
 use std::time::Duration;
 
-/// Opens a conversational session. Plain text is sent to `/chat`; mutations
-/// are explicit via `/mission`, so a greeting can never silently create a
-/// successful mission with no model response.
+use crate::display::{
+    print_banner, print_prompt, print_panel, print_atom_prefix, print_success, print_error,
+    print_warning, print_info, print_divider, Spinner, render_markdown, clear_progress,
+    RESET, CYAN, DIM, GOLD,
+};
+
+/// Opens a conversational session.
 pub fn run() -> Result<()> {
-    let base = std::env::var("ATOM_SERVER_URL").unwrap_or_else(|_| "http://127.0.0.1:8420".into());
+    let base = std::env::var("ATOM_SERVER_URL")
+        .unwrap_or_else(|_| "http://127.0.0.1:8420".into());
+
     let client = reqwest::blocking::Client::builder()
-        .timeout(Duration::from_secs(60))
+        .timeout(Duration::from_secs(120))
         .build()
         .context("creating ATOM API client")?;
+
+    // Print branded banner
+    print_banner();
+    print_info(&format!("Connected to {base}"));
+    print_info("Type a message to chat, /mission <goal>, /status, /help, or /quit.");
+    print_divider();
+
     let mut history = vec![json!({
         "role": "system",
         "content": "You are ATOM, a careful sovereign assistant. Explain proposed actions clearly. Never claim an external effect happened unless ATOM reports a verified terminal result."
     })];
-    println!("ATOM interactive session");
-    println!("Connected to {base}");
-    println!("Type a message to chat, /mission <goal> to run a governed mission, /model, /help, or /quit.");
+
     loop {
-        print!("You> ");
-        io::stdout().flush()?;
+        print_prompt();
         let mut line = String::new();
         if io::stdin().lock().read_line(&mut line)? == 0 {
             break;
@@ -33,21 +44,101 @@ pub fn run() -> Result<()> {
         if input.is_empty() {
             continue;
         }
+
+        // ── Natural Language Understanding (NLU) ─────────────────────────
+        // Detect common intents and route to the right handler instead of
+        // sending generic text to the LLM.
+        let lower = input.to_lowercase();
+        let nlu_status = [
+            "check server", "ceeck server", "cek server", "status server",
+            "status atom", "atom status", "health check", "check health",
+            "server health", "is atom running", "is the server up",
+        ];
+        let nlu_version = [
+            "show version", "which version", "atom version", "version info",
+            "what version", "display version",
+        ];
+        let nlu_model = [
+            "which model", "what model", "show model", "current model",
+            "model info", "what provider", "which provider",
+        ];
+        let nlu_uptime = [
+            "show uptime", "how long", "uptime info", "running time",
+        ];
+
+        if nlu_status.iter().any(|p| lower.contains(p)) {
+            let response = client.get(format!("{base}/health")).send()?;
+            let body: Value = response.json().context("decoding health response")?;
+            let status = body["status"].as_str().unwrap_or("unknown");
+            let version = body["version"].as_str().unwrap_or("unknown");
+            let uptime = body["uptime_seconds"].as_u64().unwrap_or(0);
+            let crates = body["crates_loaded"].as_u64().unwrap_or(0);
+            println!();
+            print_panel("ATOM Status", &format!(
+                "Status:  {status}\nVersion: {version}\nUptime:  {uptime}s\nCrates:  {crates} loaded"
+            ), CYAN);
+            continue;
+        }
+
+        if nlu_version.iter().any(|p| lower.contains(p)) {
+            let response = client.get(format!("{base}/health")).send()?;
+            let body: Value = response.json().context("decoding health response")?;
+            let version = body["version"].as_str().unwrap_or("unknown");
+            print_info(&format!("ATOM version: {version}"));
+            continue;
+        }
+
+        if nlu_model.iter().any(|p| lower.contains(p)) {
+            let response = client.get(format!("{base}/health")).send()?;
+            let body: Value = response.json().context("decoding health response")?;
+            let model = body["model"].as_str().unwrap_or("auto");
+            print_info(&format!("Current model: {model}"));
+            continue;
+        }
+
+        if nlu_uptime.iter().any(|p| lower.contains(p)) {
+            let response = client.get(format!("{base}/health")).send()?;
+            let body: Value = response.json().context("decoding health response")?;
+            let uptime = body["uptime_seconds"].as_u64().unwrap_or(0);
+            let hours = uptime / 3600;
+            let minutes = (uptime % 3600) / 60;
+            let seconds = uptime % 60;
+            print_info(&format!("Uptime: {hours}h {minutes}m {seconds}s"));
+            continue;
+        }
+
+        // ── Slash Commands ────────────────────────────────────────────────
         match input {
             "/quit" | "/exit" => break,
             "/help" => {
-                println!("ATOM commands: /mission <goal>, /model, /status, /help, /quit");
+                println!();
+                print_info("ATOM commands:");
+                println!("  {GOLD}/mission <goal>{RESET}  Run a governed mission");
+                println!("  {GOLD}/model{RESET}           Configure gateway/model/key");
+                println!("  {GOLD}/status{RESET}          Show service health");
+                println!("  {GOLD}/help{RESET}            Show this help");
+                println!("  {GOLD}/quit{RESET}            Exit session");
+                println!();
+                print_info("You can also ask naturally:");
+                println!("  {DIM}\"check server\", \"ceeck server\", \"status atom\"{RESET}");
+                println!("  {DIM}\"show version\", \"which model\", \"health check\"{RESET}");
                 continue;
             }
             "/model" => {
-                println!(
-                    "ATOM> run `sudo atom model` to configure the gateway, model, and API key"
-                );
+                print_warning("Run `sudo atom model` to configure the gateway, model, and API key");
                 continue;
             }
             "/status" => {
                 let response = client.get(format!("{base}/health")).send()?;
-                println!("ATOM> {}", response.text()?);
+                let body: Value = response.json().context("decoding health response")?;
+                let status = body["status"].as_str().unwrap_or("unknown");
+                let version = body["version"].as_str().unwrap_or("unknown");
+                let uptime = body["uptime_seconds"].as_u64().unwrap_or(0);
+                let crates = body["crates_loaded"].as_u64().unwrap_or(0);
+                println!();
+                print_panel("ATOM Status", &format!(
+                    "Status:  {status}\nVersion: {version}\nUptime:  {uptime}s\nCrates:  {crates} loaded"
+                ), CYAN);
                 continue;
             }
             command if command.starts_with("/mission ") => {
@@ -55,34 +146,49 @@ pub fn run() -> Result<()> {
                 continue;
             }
             command if command.starts_with('/') => {
-                println!("ATOM> unknown command; use /help");
+                print_warning("Unknown command; use /help");
                 continue;
             }
             _ => {}
         }
 
+        // ── Chat with LLM ─────────────────────────────────────────────────
         history.push(json!({"role": "user", "content": input}));
         if history.len() > 21 {
             history.drain(1..history.len() - 20);
         }
+
+        // Show spinner while waiting
+        let mut spinner = Spinner::new("thinking");
+        spinner.tick();
+
         let response = client
             .post(format!("{base}/chat"))
             .json(&json!({"messages": history}))
             .send()
             .context("sending chat request to ATOM")?;
+
         let status = response.status();
         let body: Value = response.json().context("decoding ATOM chat response")?;
+
         if !status.is_success() {
             let detail = body["detail"]
                 .as_str()
                 .unwrap_or("chat provider unavailable");
-            println!("ATOM> {detail}");
-            println!("     Configure with: sudo atom setup");
+            clear_progress();
+            print_error(detail);
+            print_warning("Configure with: sudo atom setup");
             let _ = history.pop();
             continue;
         }
+
         let answer = body["content"].as_str().unwrap_or("(empty model response)");
-        println!("ATOM> {answer}");
+        clear_progress();
+        println!();
+        print_atom_prefix();
+        println!();
+        print!("{}", render_markdown(answer));
+        print_divider();
         history.push(json!({"role": "assistant", "content": answer}));
     }
     Ok(())
@@ -90,7 +196,7 @@ pub fn run() -> Result<()> {
 
 fn submit_mission(client: &reqwest::blocking::Client, base: &str, goal: &str) -> Result<()> {
     if goal.trim().is_empty() {
-        println!("ATOM> usage: /mission <goal>");
+        print_warning("usage: /mission <goal>");
         return Ok(());
     }
     let payload = draft_mission_spec(client, base, goal)?;
@@ -100,19 +206,15 @@ fn submit_mission(client: &reqwest::blocking::Client, base: &str, goal: &str) ->
         .send()
         .context("submitting mission to ATOM")?;
     if !response.status().is_success() {
-        println!(
-            "ATOM> mission submission failed (HTTP {})",
-            response.status()
-        );
+        print_error(&format!("mission submission failed (HTTP {})", response.status()));
         return Ok(());
     }
     let created: Value = response.json().context("decoding mission response")?;
     let Some(id) = created["mission_id"].as_str() else {
-        println!("ATOM> daemon returned no mission id");
+        print_warning("daemon returned no mission id");
         return Ok(());
     };
-    print!("ATOM> mission {id} ");
-    io::stdout().flush()?;
+    print_success(&format!("mission {id} submitted"));
     let mut outcome = "TIMEOUT".to_owned();
     for _ in 0..60 {
         std::thread::sleep(Duration::from_secs(1));
@@ -129,8 +231,6 @@ fn submit_mission(client: &reqwest::blocking::Client, base: &str, goal: &str) ->
     Ok(())
 }
 
-/// The safe built-in spec used when no provider can draft one. Mutations stay
-/// explicit: the goal is always the caller's, never rewritten by the model.
 fn default_mission_spec(goal: &str) -> Value {
     json!({
         "goal": goal.trim(),
@@ -143,11 +243,6 @@ fn default_mission_spec(goal: &str) -> Value {
     })
 }
 
-/// Parse a model reply into a sanitized mission spec. The caller's goal and the
-/// read-only authority profile are always forced, budgets are clamped, and
-/// fields the server does not know about are dropped (the API rejects unknown
-/// fields). Returns `None` when the reply is unusable so the caller can fall
-/// back to the safe built-in spec.
 fn parse_mission_spec_content(goal: &str, content: &str) -> Option<Value> {
     let trimmed = content.trim();
     let de_fenced = trimmed
@@ -210,8 +305,6 @@ fn parse_mission_spec_content(goal: &str, content: &str) -> Option<Value> {
     Some(Value::Object(payload))
 }
 
-/// Ask the model to draft a full mission spec via `/chat`; fall back to the
-/// safe built-in spec when no provider is reachable or its reply is unusable.
 fn draft_mission_spec(client: &reqwest::blocking::Client, base: &str, goal: &str) -> Result<Value> {
     let prompt = "Return a single JSON object for an ATOM mission spec with exactly these keys: \
 goal, success_criteria, constraints, budgets, authority_profile_ref, evidence_requirements, \
@@ -230,52 +323,44 @@ Reply with the JSON object only; no prose, no markdown.";
         .send()
         .context("drafting mission spec via ATOM chat")?;
     if !response.status().is_success() {
-        println!("ATOM> model unavailable; using safe built-in mission spec");
+        print_warning("model unavailable; using safe built-in mission spec");
         return Ok(default_mission_spec(goal));
     }
     let body: Value = response.json().context("decoding ATOM chat response")?;
     let Some(content) = body["content"].as_str() else {
-        println!("ATOM> empty model reply; using safe built-in mission spec");
+        print_warning("empty model reply; using safe built-in mission spec");
         return Ok(default_mission_spec(goal));
     };
     match parse_mission_spec_content(goal, content) {
         Some(spec) => {
-            println!("ATOM> mission spec drafted by model, sanitized by ATOM");
+            print_success("mission spec drafted by model, sanitized by ATOM");
             Ok(spec)
         }
         None => {
-            println!("ATOM> model reply was not a valid mission spec; using safe built-in spec");
+            print_warning("model reply was not a valid mission spec; using safe built-in spec");
             Ok(default_mission_spec(goal))
         }
     }
 }
 
-/// Render the durable evidence recorded after a mission reaches a terminal
-/// state. Observations are not yet per-mission, so all recorded evidence is
-/// shown honestly.
 fn render_evidence(client: &reqwest::blocking::Client, base: &str) -> Result<()> {
     let response = client
         .get(format!("{base}/evidence"))
         .send()
         .context("fetching mission evidence")?;
     if !response.status().is_success() {
-        println!(
-            "ATOM> could not fetch evidence (HTTP {})",
-            response.status()
-        );
+        print_warning(&format!("could not fetch evidence (HTTP {})", response.status()));
         return Ok(());
     }
     let body: Value = response.json().context("decoding evidence response")?;
     let observations = body["observations"].as_array().cloned().unwrap_or_default();
-    println!(
-        "ATOM> evidence: {} observation(s) recorded",
-        observations.len()
-    );
+    println!();
+    print_panel("Evidence", &format!("{} observation(s) recorded", observations.len()), CYAN);
     for obs in observations {
         let tool = obs["tool"].as_str().unwrap_or("?");
         let path = obs["path"].as_str().unwrap_or("");
         let obs_id = obs["observation_id"].as_str().unwrap_or("");
-        println!("ATOM>   - {tool} {path} ({obs_id})");
+        println!("  {GOLD}•{RESET} {tool} {path} {DIM}({obs_id}){RESET}");
     }
     Ok(())
 }
@@ -312,7 +397,7 @@ mod tests {
     #[test]
     fn default_budget_when_missing_or_garbage() {
         for content in [
-            r#"{"goal":"g","success_criteria":["s"],"constraints":["c"],"budgets":{"max_steps":"lots"},"evidence_requirements":["e"],"stopping_rules":["r"]}"#,
+            r#"{"goal":"g","success_criteria":["s"],"constraints":["c"],"budgets\":{\"max_steps\":\"lots"},"evidence_requirements":["e"],"stopping_rules":["r"]}"#,
             r#"{"goal":"g","success_criteria":["s"],"constraints":["c"],"evidence_requirements":["e"],"stopping_rules":["r"]}"#,
         ] {
             let spec = parse_mission_spec_content("g", content).expect("spec");

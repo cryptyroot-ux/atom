@@ -20,6 +20,7 @@ pub mod artifact_ops;
 pub mod boot;
 pub mod config;
 pub mod diagnostics;
+pub mod display;
 pub mod interactive;
 pub mod setup;
 
