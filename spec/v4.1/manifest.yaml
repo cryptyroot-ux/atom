@@ -18,10 +18,10 @@ source_documents:
 - ATOM_Technical_Blueprint_v4.1
 - ATOM_v4.1_Correction_and_Completion_Release
 body_coverage:
-  schema_bodies_authored: 7
+  schema_bodies_authored: 51
   schema_bodies_required: 51
-  schema_fixtures_authored: 0
+  schema_fixtures_authored: 102
   schema_fixtures_required: 102
-  state_machine_bodies_authored: 2
+  state_machine_bodies_authored: 9
   state_machine_bodies_required: 9
 landed_from: /root/docs/atom-v4 (verified this session)

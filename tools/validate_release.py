@@ -291,7 +291,7 @@ class G0Validator:
         status = PASS if final >= SCHEMA_BODIES_REQUIRED else BLOCKED
         self.add("G0-COVERAGE::schema-bodies", status,
                  f"{final}/{SCHEMA_BODIES_REQUIRED} schema bodies v4.1-authored",
-                 f"{on_disk} exist on disk (v4.0-era, pending v4.1 review)")
+                 f"{on_disk} exist on disk ({final} authored_v41, {on_disk - final} pending review)")
 
     def check_schema_fixtures(self) -> None:
         schemas = self._list("schemas/inventory.yaml")
@@ -313,7 +313,7 @@ class G0Validator:
         status = PASS if final >= SM_BODIES_REQUIRED else BLOCKED
         self.add("G0-COVERAGE::sm-bodies", status,
                  f"{final}/{SM_BODIES_REQUIRED} state-machine bodies v4.1-authored",
-                 f"{on_disk} exist on disk (v4.0-era, pending v4.1 review)")
+                 f"{on_disk} exist on disk ({final} authored_v41, {on_disk - final} pending review)")
 
     # ── semantic rules: hooks enforce contract text over fixtures (G0-SEM) ────────
     # Each rule in spec/v4.1/semantic-rules.yaml names a `reference_hook` method

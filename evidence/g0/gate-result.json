@@ -1,13 +1,13 @@
 {
   "gate": "G0",
   "scope": "repository",
-  "generated_at": "2026-08-31T21:42:08.420951+00:00",
-  "overall": "BLOCKED",
+  "generated_at": "2026-09-02T13:23:50.193363+00:00",
+  "overall": "PASS",
   "summary": {
-    "total": 25,
-    "pass": 22,
+    "total": 67,
+    "pass": 67,
     "fail": 0,
-    "blocked": 3
+    "blocked": 0
   },
   "checks": [
     {
@@ -144,21 +144,273 @@
     },
     {
       "id": "G0-COVERAGE::schema-bodies",
-      "status": "BLOCKED",
-      "summary": "0/51 schema bodies v4.1-authored",
-      "detail": "7 exist on disk (v4.0-era, pending v4.1 review)"
+      "status": "PASS",
+      "summary": "51/51 schema bodies v4.1-authored",
+      "detail": "51 exist on disk (51 authored_v41, 0 pending review)"
     },
     {
       "id": "G0-COVERAGE::schema-fixtures",
-      "status": "BLOCKED",
-      "summary": "0/102 schema fixtures authored",
+      "status": "PASS",
+      "summary": "102/102 schema fixtures authored",
       "detail": "one valid + one invalid per schema required"
     },
     {
       "id": "G0-COVERAGE::sm-bodies",
-      "status": "BLOCKED",
-      "summary": "0/9 state-machine bodies v4.1-authored",
-      "detail": "2 exist on disk (v4.0-era, pending v4.1 review)"
+      "status": "PASS",
+      "summary": "9/9 state-machine bodies v4.1-authored",
+      "detail": "9 exist on disk (9 authored_v41, 0 pending review)"
+    },
+    {
+      "id": "G0-SEM-HOOK::ATOM-SEM-001",
+      "status": "PASS",
+      "summary": "hook semantic_grant resolves",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-001::capability-grant",
+      "status": "PASS",
+      "summary": "capability-grant.valid.json satisfies ATOM-SEM-001",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-001::capability-grant::fails-closed",
+      "status": "PASS",
+      "summary": "mutation of capability-grant.valid.json is caught",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM-HOOK::ATOM-SEM-002",
+      "status": "PASS",
+      "summary": "hook semantic_approval resolves",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-002::approval-grant",
+      "status": "PASS",
+      "summary": "approval-grant.valid.json satisfies ATOM-SEM-002",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-002::approval-grant::fails-closed",
+      "status": "PASS",
+      "summary": "mutation of approval-grant.valid.json is caught",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM-HOOK::ATOM-SEM-003",
+      "status": "PASS",
+      "summary": "hook semantic_effect resolves",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-003::effect-intent",
+      "status": "PASS",
+      "summary": "effect-intent.valid.json satisfies ATOM-SEM-003",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-003::effect-intent::fails-closed",
+      "status": "PASS",
+      "summary": "mutation of effect-intent.valid.json is caught",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM-HOOK::ATOM-SEM-004",
+      "status": "PASS",
+      "summary": "hook semantic_permit resolves",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-004::commit-permit",
+      "status": "PASS",
+      "summary": "commit-permit.valid.json satisfies ATOM-SEM-004",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-004::commit-permit::fails-closed",
+      "status": "PASS",
+      "summary": "mutation of commit-permit.valid.json is caught",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM-HOOK::ATOM-SEM-005",
+      "status": "PASS",
+      "summary": "hook semantic_ledger resolves",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-005::ledger-event",
+      "status": "PASS",
+      "summary": "ledger-event.valid.json satisfies ATOM-SEM-005",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-005::ledger-event::fails-closed",
+      "status": "PASS",
+      "summary": "mutation of ledger-event.valid.json is caught",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-005::ledger-checkpoint",
+      "status": "PASS",
+      "summary": "ledger-checkpoint.valid.json satisfies ATOM-SEM-005",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-005::ledger-checkpoint::fails-closed",
+      "status": "PASS",
+      "summary": "mutation of ledger-checkpoint.valid.json is caught",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM-HOOK::ATOM-SEM-006",
+      "status": "PASS",
+      "summary": "hook semantic_graph resolves",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-006::mission-graph",
+      "status": "PASS",
+      "summary": "mission-graph.valid.json satisfies ATOM-SEM-006",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-006::mission-graph::fails-closed",
+      "status": "PASS",
+      "summary": "mutation of mission-graph.valid.json is caught",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM-HOOK::ATOM-SEM-007",
+      "status": "PASS",
+      "summary": "hook semantic_replay resolves",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-007::replay-request",
+      "status": "PASS",
+      "summary": "replay-request.valid.json satisfies ATOM-SEM-007",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-007::replay-request::fails-closed",
+      "status": "PASS",
+      "summary": "mutation of replay-request.valid.json is caught",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM-HOOK::ATOM-SEM-008",
+      "status": "PASS",
+      "summary": "hook semantic_provider resolves",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-008::provider-profile",
+      "status": "PASS",
+      "summary": "provider-profile.valid.json satisfies ATOM-SEM-008",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-008::provider-profile::fails-closed",
+      "status": "PASS",
+      "summary": "mutation of provider-profile.valid.json is caught",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM-HOOK::ATOM-SEM-009",
+      "status": "PASS",
+      "summary": "hook semantic_evidence resolves",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-009::test-evidence",
+      "status": "PASS",
+      "summary": "test-evidence.valid.json satisfies ATOM-SEM-009",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-009::test-evidence::fails-closed",
+      "status": "PASS",
+      "summary": "mutation of test-evidence.valid.json is caught",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM-HOOK::ATOM-SEM-010",
+      "status": "PASS",
+      "summary": "hook semantic_behavior resolves",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-010::behavior-manifest-v2",
+      "status": "PASS",
+      "summary": "behavior-manifest-v2.valid.json satisfies ATOM-SEM-010",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-010::behavior-manifest-v2::fails-closed",
+      "status": "PASS",
+      "summary": "mutation of behavior-manifest-v2.valid.json is caught",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-010::certificate",
+      "status": "PASS",
+      "summary": "certificate.valid.json satisfies ATOM-SEM-010",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-010::certificate::fails-closed",
+      "status": "PASS",
+      "summary": "mutation of certificate.valid.json is caught",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM-HOOK::ATOM-SEM-011",
+      "status": "PASS",
+      "summary": "hook semantic_schedule resolves",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-011::schedule-spec",
+      "status": "PASS",
+      "summary": "schedule-spec.valid.json satisfies ATOM-SEM-011",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-011::schedule-spec::fails-closed",
+      "status": "PASS",
+      "summary": "mutation of schedule-spec.valid.json is caught",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-011::schedule-run",
+      "status": "PASS",
+      "summary": "schedule-run.valid.json satisfies ATOM-SEM-011",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-011::schedule-run::fails-closed",
+      "status": "PASS",
+      "summary": "mutation of schedule-run.valid.json is caught",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM-HOOK::ATOM-SEM-012",
+      "status": "PASS",
+      "summary": "hook semantic_release resolves",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-012::release-manifest",
+      "status": "PASS",
+      "summary": "release-manifest.valid.json satisfies ATOM-SEM-012",
+      "detail": ""
+    },
+    {
+      "id": "G0-SEM::ATOM-SEM-012::release-manifest::fails-closed",
+      "status": "PASS",
+      "summary": "mutation of release-manifest.valid.json is caught",
+      "detail": ""
     }
   ]
 }
