@@ -1,0 +1,25 @@
+{
+  "probe": "P0 E2E live proof (Tahap 4)",
+  "timestamp_utc": "20260902T035347Z",
+  "host": "srv1245383",
+  "endpoint": "http://127.0.0.1:8420",
+  "provider": "https://free.pango.fun/v1 (FreeLLMAPI gateway)",
+  "model": "auto",
+  "service": "atom.service (systemd, atom user, LoadCredential)",
+  "cases": [
+    {
+      "case": "success",
+      "mission_id": "949d3cdd-4068-4ae0-806a-adce4f073678",
+      "outcome": "SUCCEEDED",
+      "note": "normal task -> READY -> RUNNING -> TERMINAL/SUCCEEDED via gateway provider + cached plan + runtime"
+    },
+    {
+      "case": "failure_naive",
+      "mission_id": "4f6e9c04-9b45-4ce9-aed5-608375baa258",
+      "outcome": "SUCCEEDED",
+      "note": "physically impossible goal (perpetual motion) still terminates SUCCEEDED: auto model emits unconditional plan; UNSATISFIABLE only arises when plan lacks unconditional acceptance (observed on early missions 6182400f/53897781)"
+    }
+  ],
+  "ledger_checkpoint": 12,
+  "chain": "sha256 hash-linked MISSION_STREAM events"
+}

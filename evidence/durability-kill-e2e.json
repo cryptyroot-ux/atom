@@ -1,0 +1,10 @@
+{
+  "scenario": "daemon SIGKILLed while mission RUNNING (claim-without-snapshot window)",
+  "mission_id": "dd4453ab-0078-4531-9c00-c6214697249c",
+  "created_phase": "READY",
+  "terminal_phase": "TERMINAL",
+  "terminal_outcome": "SUCCEEDED",
+  "killed_after_claim_before_snapshot": true,
+  "recovered": true,
+  "ts": "2026-09-02T11:28:09Z"
+}

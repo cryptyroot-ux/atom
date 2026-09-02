@@ -237,6 +237,12 @@ pub fn run(cli: Cli) -> Result<()> {
             let future = async move {
                 if !no_executor {
                     let mut executor_config = atom_executor::ExecutorConfig::default();
+                    // Durable crash recovery lives beside the ledger state db
+                    // (e.g. `/var/lib/atom/recovery`), so a dead daemon's
+                    // `RUNNING` missions can be replayed deterministically.
+                    if let Some(parent) = std::path::Path::new(&state_db).parent() {
+                        executor_config.recovery_dir = Some(parent.to_path_buf());
+                    }
                     if !no_provider {
                         if let (Some(base_url), Some(model)) = (provider_base_url, provider_model) {
                             executor_config.provider = atom_executor::ProviderConfig {

@@ -9,8 +9,14 @@
 //!
 //! The invariant mirrors [`atom_mission::MissionState::validate`]: an `outcome`
 //! is legal only when `phase == TERMINAL`. Claims are idempotent — an executor
-//! may only move a mission `RUNNING` when it observed `READY`, so a crash and
-//! restart can never double-execute a mission.
+//! may only move a mission `RUNNING` when it observed `READY`, so a naive crash
+//! and restart can never double-execute a mission.
+//!
+//! Durable recovery (the executor's recovery store) is the *only* exception:
+//! a `RUNNING` mission left behind by a dead daemon can be returned to `READY`
+//! ([`Self::reclaim`]) because its next run replays a byte-identical,
+//! deterministic snapshot, so re-execution produces the same honest terminal
+//! outcome rather than a side effect.
 
 use std::sync::Arc;
 
@@ -154,6 +160,76 @@ impl MissionQueue {
             .map(|_| ())
     }
 
+    /// Returns the durable phase of `mission_id`, or `None` when missing.
+    pub async fn phase_of(
+        &self,
+        mission_id: &str,
+    ) -> Result<Option<MissionPhaseTag>, TransitionError> {
+        let store = self.store.lock().await;
+        let Some(mission) = find_mission(&store, mission_id) else {
+            return Ok(None);
+        };
+        Ok(Some(match match_phase(&mission) {
+            Some(p) => p,
+            None => return Ok(None),
+        }))
+    }
+
+    /// Returns every mission that a live executor currently owns.
+    ///
+    /// A crashed daemon can abandon missions in `RUNNING` or `VERIFYING`; the
+    /// recovery scan needs this view to reclaim them (with or without a
+    /// snapshot, see [`Self::reclaim`]).
+    pub async fn claimed_mission_ids(&self) -> Vec<String> {
+        let store = self.store.lock().await;
+        store
+            .missions()
+            .iter()
+            .filter(|m| {
+                matches!(
+                    match_phase(m),
+                    Some(MissionPhaseTag::Running | MissionPhaseTag::Verifying)
+                )
+            })
+            .filter_map(|m| m.get(MISSION_ID).and_then(Value::as_str).map(String::from))
+            .collect()
+    }
+
+    /// Recovers a `RUNNING` (or `VERIFYING`) mission abandoned by a crashed
+    /// daemon by returning it to `READY` so the executive pump can re-claim and
+    /// replay it.
+    ///
+    /// This is safe *only* because the executor's recovery store replays the
+    /// mission from a deterministic snapshot. Two crash windows are covered:
+    ///
+    /// * before the snapshot was written (claimed but never executed) — nothing
+    ///   deterministic was lost, so a plain reset suffices;
+    /// * after the snapshot was written — the replay is byte-identical.
+    ///
+    /// The caller must have confirmed a snapshot exists before calling this (or
+    /// the recovery budget is handled by the executor). The queue records the
+    /// transition for auditability.
+    pub async fn reclaim(&self, mission_id: &str) -> Result<ClaimOutcome, TransitionError> {
+        let mut store = self.store.lock().await;
+        let Some(mut mission) = find_mission(&store, mission_id) else {
+            return Ok(ClaimOutcome::Missing);
+        };
+        if !matches!(
+            match_phase(&mission),
+            Some(MissionPhaseTag::Running | MissionPhaseTag::Verifying)
+        ) {
+            return Ok(ClaimOutcome::NotReady);
+        }
+        mission[PHASE] = Value::String(MissionPhaseTag::Ready.as_str().to_owned());
+        replace_condition(&mut mission, "NORMAL");
+        mission[OUTCOME] = Value::Null;
+        touch_updated_at(&mut mission);
+        store
+            .update_mission(mission_id, &mission)
+            .map_err(TransitionError::Store)?;
+        Ok(ClaimOutcome::Claimed)
+    }
+
     /// Marks a mission `TERMINAL` with the given outcome.
     pub async fn terminal(
         &self,
@@ -216,6 +292,19 @@ fn find_mission(store: &Store, mission_id: &str) -> Option<Value> {
         .iter()
         .find(|m| m.get(MISSION_ID).and_then(Value::as_str) == Some(mission_id))
         .cloned()
+}
+
+/// Maps the stored phase string onto a [`MissionPhaseTag`].
+fn match_phase(mission: &Value) -> Option<MissionPhaseTag> {
+    match mission.get(PHASE).and_then(Value::as_str) {
+        Some("CREATED") => Some(MissionPhaseTag::Created),
+        Some("COMPILED") => Some(MissionPhaseTag::Compiled),
+        Some("READY") => Some(MissionPhaseTag::Ready),
+        Some("RUNNING") => Some(MissionPhaseTag::Running),
+        Some("VERIFYING") => Some(MissionPhaseTag::Verifying),
+        Some("TERMINAL") => Some(MissionPhaseTag::Terminal),
+        _ => None,
+    }
 }
 
 fn replace_condition(mission: &mut Value, condition: &str) {
@@ -315,6 +404,60 @@ mod tests {
         // "restart": a new queue over the same persistent store.
         let q2 = MissionQueue::new(store.clone());
         assert_eq!(q2.claim("m-restart").await.unwrap(), ClaimOutcome::NotReady);
+    }
+
+    #[tokio::test]
+    async fn reclaim_returns_running_to_ready_exactly_once() {
+        let store = Arc::new(Mutex::new(Store::open_in_memory(signer()).unwrap()));
+        {
+            let mut s = store.lock().await;
+            s.append_mission_created(&mission("m-reclaim")).unwrap();
+        }
+        let q = MissionQueue::new(store.clone());
+        assert_eq!(q.claim("m-reclaim").await.unwrap(), ClaimOutcome::Claimed);
+
+        // A crashed executor's RUNNING mission is reclaimable back to READY...
+        assert_eq!(q.reclaim("m-reclaim").await.unwrap(), ClaimOutcome::Claimed);
+        // ...exactly once: a second reclaim sees READY, not RUNNING.
+        assert_eq!(
+            q.reclaim("m-reclaim").await.unwrap(),
+            ClaimOutcome::NotReady
+        );
+
+        // Reclaiming non-RUNNING missions is rejected.
+        assert_eq!(
+            q.reclaim("m-reclaim").await.unwrap(),
+            ClaimOutcome::NotReady
+        );
+        assert_eq!(q.reclaim("missing").await.unwrap(), ClaimOutcome::Missing);
+
+        let s = store.lock().await;
+        let m = s
+            .missions()
+            .iter()
+            .find(|m| m["mission_id"] == "m-reclaim")
+            .unwrap();
+        assert_eq!(m["phase"], "READY");
+    }
+
+    #[tokio::test]
+    async fn phase_of_reflects_lifecycle() {
+        let store = Arc::new(Mutex::new(Store::open_in_memory(signer()).unwrap()));
+        {
+            let mut s = store.lock().await;
+            s.append_mission_created(&mission("m-phase")).unwrap();
+        }
+        let q = MissionQueue::new(store.clone());
+        assert_eq!(
+            q.phase_of("m-phase").await.unwrap(),
+            Some(MissionPhaseTag::Ready)
+        );
+        q.claim("m-phase").await.unwrap();
+        assert_eq!(
+            q.phase_of("m-phase").await.unwrap(),
+            Some(MissionPhaseTag::Running)
+        );
+        assert_eq!(q.phase_of("missing").await.unwrap(), None);
     }
 
     #[tokio::test]

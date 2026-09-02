@@ -1,0 +1,10 @@
+{
+  "mission_id": "949d3cdd-4068-4ae0-806a-adce4f073678",
+  "state": "CREATED",
+  "goal": "Complete the requested task using the available lifecycle actions",
+  "created_at": "2026-09-02T03:50:48.047671474+00:00",
+  "updated_at": "2026-09-02T03:50:57.843927658+00:00",
+  "phase": "TERMINAL",
+  "condition": "NORMAL",
+  "outcome": "SUCCEEDED"
+}

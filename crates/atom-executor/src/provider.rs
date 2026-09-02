@@ -145,6 +145,22 @@ impl ProviderPlan {
     pub fn proposals(&self) -> &VecDeque<ProviderProposal> {
         &self.proposals
     }
+
+    /// Rebuilds a plan from a persisted, ordered command list.
+    ///
+    /// Used by durable recovery to replay a previously-fetched plan without
+    /// consulting the gateway again. Callers must supply the command list that
+    /// was already validated end-to-end.
+    #[must_use]
+    pub fn from_commands(mission_id: &str, commands: Vec<MissionCommand>) -> Self {
+        Self {
+            mission_id: mission_id.to_owned(),
+            proposals: commands
+                .into_iter()
+                .map(ProviderProposal::activity)
+                .collect(),
+        }
+    }
 }
 
 /// Synchronous provider that replays an already-fetched [`ProviderPlan`].
