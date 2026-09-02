@@ -92,22 +92,32 @@ impl MissionQueue {
         Self { store }
     }
 
-    /// Returns every mission currently in `READY` phase.
+    /// Returns every mission that can start a runtime run.
+    ///
+    /// HTTP-created missions begin at `CREATED`; a previously compiled mission
+    /// may already be `READY`. Both are safe to claim because the runtime owns
+    /// the authoritative lifecycle transition from its own `CREATED` state.
     pub async fn ready_mission_ids(&self) -> Vec<String> {
         let store = self.store.lock().await;
         store
             .missions()
             .iter()
-            .filter(|m| m.get(PHASE).and_then(Value::as_str) == Some("READY"))
+            .filter(|m| {
+                matches!(
+                    m.get(PHASE).and_then(Value::as_str),
+                    Some("CREATED" | "READY")
+                )
+            })
             .filter_map(|m| m.get(MISSION_ID).and_then(Value::as_str).map(String::from))
             .collect()
     }
 
     /// Idempotently claims one mission (`READY → RUNNING`) if it is claimable.
     ///
-    /// Pass the `mission_id` observed in `READY`; the claim only succeeds when
-    /// the mission is still `READY` at claim time (CAS semantics inside the
-    /// single store lock), making double-execution across a restart impossible.
+    /// Pass the `mission_id` observed by [`Self::ready_mission_ids`]; the claim
+    /// only succeeds when the mission is still `CREATED` or `READY` at claim
+    /// time (CAS semantics inside the single store lock), making
+    /// double-execution across a restart impossible.
     pub async fn claim(&self, mission_id: &str) -> Result<ClaimOutcome, TransitionError> {
         let mut store = self.store.lock().await;
         let Some(mut mission) = find_mission(&store, mission_id) else {
@@ -118,7 +128,7 @@ impl MissionQueue {
             .get(PHASE)
             .and_then(Value::as_str)
             .unwrap_or("CREATED");
-        if phase != MissionPhaseTag::Ready.as_str() {
+        if !matches!(phase, "CREATED" | "READY") {
             return Ok(ClaimOutcome::NotReady);
         }
 
@@ -267,6 +277,27 @@ mod tests {
             .find(|m| m["mission_id"] == "m1")
             .unwrap();
         assert_eq!(m["phase"], "RUNNING");
+    }
+
+    #[tokio::test]
+    async fn claim_moves_http_created_mission_to_running_once() {
+        let store = Arc::new(Mutex::new(Store::open_in_memory(signer()).unwrap()));
+        {
+            let mut s = store.lock().await;
+            s.append_mission_created(&serde_json::json!({
+                "mission_id": "m-created",
+                "state": "CREATED",
+                "phase": "CREATED",
+                "condition": "NORMAL",
+                "outcome": null,
+                "goal": "drive an HTTP-created mission"
+            }))
+            .unwrap();
+        }
+        let q = MissionQueue::new(store.clone());
+
+        assert_eq!(q.claim("m-created").await.unwrap(), ClaimOutcome::Claimed);
+        assert_eq!(q.claim("m-created").await.unwrap(), ClaimOutcome::NotReady);
     }
 
     #[tokio::test]

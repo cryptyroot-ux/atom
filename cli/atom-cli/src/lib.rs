@@ -81,7 +81,7 @@ pub enum Command {
 
         /// Disable the HTTP model-provider cognition backend (falls back to the
         /// built-in native cognition loop).
-        #[arg(long, env = "ATOM_NO_PROVIDER", default_value_t = true)]
+        #[arg(long, env = "ATOM_NO_PROVIDER", default_value_t = false)]
         no_provider: bool,
 
         /// Base URL of the OpenAI-compatible model gateway used as the mission
@@ -93,9 +93,41 @@ pub enum Command {
         #[arg(long, value_name = "MODEL", env = "ATOM_PROVIDER_MODEL")]
         provider_model: Option<String>,
 
-        /// Gateway bearer token. Supply via environment; never from a flag value passed by a user.
-        #[arg(long, value_name = "API_KEY", env = "ATOM_PROVIDER_API_KEY")]
-        provider_api_key: Option<String>,
+        /// Total provider HTTP timeout in milliseconds.
+        #[arg(
+            long,
+            value_name = "MILLISECONDS",
+            env = "ATOM_PROVIDER_TIMEOUT_MS",
+            default_value_t = 30_000
+        )]
+        provider_timeout_ms: u64,
+
+        /// Number of retries after the initial provider request.
+        #[arg(
+            long,
+            value_name = "COUNT",
+            env = "ATOM_PROVIDER_MAX_RETRIES",
+            default_value_t = 2
+        )]
+        provider_max_retries: u32,
+
+        /// Initial provider retry backoff in milliseconds.
+        #[arg(
+            long,
+            value_name = "MILLISECONDS",
+            env = "ATOM_PROVIDER_BACKOFF_MS",
+            default_value_t = 250
+        )]
+        provider_backoff_ms: u64,
+
+        /// Maximum number of commands accepted in one provider plan.
+        #[arg(
+            long,
+            value_name = "COUNT",
+            env = "ATOM_PROVIDER_MAX_PLAN_STEPS",
+            default_value_t = 8
+        )]
+        provider_max_plan_steps: usize,
     },
 
     /// Seal bytes into a content-addressed, signed artifact (SUP-001).
@@ -147,7 +179,10 @@ pub fn run(cli: Cli) -> Result<()> {
             no_provider,
             provider_base_url,
             provider_model,
-            provider_api_key,
+            provider_timeout_ms,
+            provider_max_retries,
+            provider_backoff_ms,
+            provider_max_plan_steps,
         } => {
             let version = env!("CARGO_PKG_VERSION");
             let crates_loaded = boot::subsystem_count();
@@ -171,12 +206,16 @@ pub fn run(cli: Cli) -> Result<()> {
                                 enabled: true,
                                 base_url,
                                 model,
-                                api_key: provider_api_key.unwrap_or_default(),
+                                api_key: std::env::var("ATOM_PROVIDER_API_KEY").unwrap_or_default(),
+                                timeout_ms: provider_timeout_ms,
+                                max_retries: provider_max_retries,
+                                backoff_ms: provider_backoff_ms,
+                                max_plan_steps: provider_max_plan_steps,
+                                ..atom_executor::ProviderConfig::default()
                             };
                         }
                     }
-                    let executor =
-                        atom_executor::AtomExecutor::new(store.clone(), executor_config);
+                    let executor = atom_executor::AtomExecutor::new(store.clone(), executor_config);
                     let exec_handle = tokio::spawn(executor.run());
                     let serve = atom_server::app::serve(version, crates_loaded, addr, store);
                     let (_, serve_res) = tokio::join!(exec_handle, serve);

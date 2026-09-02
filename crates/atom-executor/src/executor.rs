@@ -138,7 +138,18 @@ impl AtomExecutor {
         // provider failure we refuse to fabricate a run: the mission is sealed
         // honestly as unsatisfiable below.
         if self.config.provider.enabled {
-            let client = HttpProposalClient::new(self.config.provider.clone());
+            let client = match HttpProposalClient::new(self.config.provider.clone()) {
+                Ok(client) => client,
+                Err(e) => {
+                    return RunResult {
+                        mission_id: mission_id.to_owned(),
+                        phase: "VERIFYING",
+                        outcome: None,
+                        steps: 0,
+                        reason: Some(format!("provider configuration failed: {e}")),
+                    };
+                }
+            };
             let plan = match client.propose(mission_id, "CREATED").await {
                 Ok(plan) => plan,
                 Err(e) => {
@@ -188,7 +199,11 @@ impl AtomExecutor {
     }
 
     /// Drives one runtime to a terminal status and maps it onto a `RunResult`.
-    fn drive_runtime<N>(&self, mission_id: &str, mut runtime: atom_runtime::Runtime<FixedClock, CounterRng, N>) -> RunResult
+    fn drive_runtime<N>(
+        &self,
+        mission_id: &str,
+        mut runtime: atom_runtime::Runtime<FixedClock, CounterRng, N>,
+    ) -> RunResult
     where
         N: atom_runtime::Cognition,
     {

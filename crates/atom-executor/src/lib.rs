@@ -18,5 +18,7 @@ pub mod provider;
 pub mod queue;
 
 pub use executor::{AtomExecutor, ExecutorConfig};
-pub use provider::{CachedProvider, HttpProposalClient, ProviderConfig, ProviderError, ProviderPlan};
+pub use provider::{
+    CachedProvider, HttpProposalClient, ProviderConfig, ProviderError, ProviderPlan,
+};
 pub use queue::{ClaimOutcome, MissionPhaseTag, MissionQueue, RunResult, TransitionError};

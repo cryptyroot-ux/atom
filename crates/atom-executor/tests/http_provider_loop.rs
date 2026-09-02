@@ -7,7 +7,9 @@
 
 use std::sync::Arc;
 
-use atom_executor::{AtomExecutor, ExecutorConfig, ProviderConfig};
+use atom_executor::{
+    AtomExecutor, ExecutorConfig, HttpProposalClient, ProviderConfig, ProviderError,
+};
 use atom_ledger::HmacSha256Signer;
 use atom_server::store::Store;
 use httpmock::Method::POST;
@@ -30,8 +32,10 @@ fn mission(id: &str) -> Value {
 }
 
 fn in_memory_store() -> Arc<Mutex<Store>> {
-    let signer: Box<dyn atom_ledger::CheckpointSigner> =
-        Box::new(HmacSha256Signer::new("e2e-provider", b"e2e-provider-signing-key"));
+    let signer: Box<dyn atom_ledger::CheckpointSigner> = Box::new(HmacSha256Signer::new(
+        "e2e-provider",
+        b"e2e-provider-signing-key",
+    ));
     Arc::new(Mutex::new(Store::open_in_memory(signer).unwrap()))
 }
 
@@ -45,6 +49,17 @@ fn successful_chat() -> Value {
             }
         }]
     })
+}
+
+fn provider_config(base_url: String) -> ProviderConfig {
+    ProviderConfig {
+        enabled: true,
+        base_url,
+        model: "test-model".to_owned(),
+        api_key: "test-key".to_owned(),
+        backoff_ms: 0,
+        ..ProviderConfig::default()
+    }
 }
 
 #[tokio::test]
@@ -62,12 +77,7 @@ async fn provider_plan_drives_mission_to_terminal_once() {
     }
 
     let config = ExecutorConfig {
-        provider: ProviderConfig {
-            enabled: true,
-            base_url: server.base_url(),
-            model: "test-model".to_owned(),
-            api_key: "test-key".to_owned(),
-        },
+        provider: provider_config(server.base_url()),
         ..ExecutorConfig::default()
     };
     let executor = AtomExecutor::new(store.clone(), config);
@@ -96,7 +106,8 @@ async fn provider_failure_seals_mission_unsatisfiable() {
     let server = MockServer::start();
     let failing = server.mock(|when: When, then: Then| {
         when.method(POST).path("/v1/chat/completions");
-        then.status(500).json_body(json!({ "error": "gateway down" }));
+        then.status(500)
+            .json_body(json!({ "error": "gateway down" }));
     });
 
     let store = in_memory_store();
@@ -106,23 +117,23 @@ async fn provider_failure_seals_mission_unsatisfiable() {
     }
 
     let config = ExecutorConfig {
-        provider: ProviderConfig {
-            enabled: true,
-            base_url: server.base_url(),
-            model: "test-model".to_owned(),
-            api_key: "test-key".to_owned(),
-        },
+        provider: provider_config(server.base_url()),
         ..ExecutorConfig::default()
     };
     let executor = AtomExecutor::new(store.clone(), config);
 
     let result = executor.drive_once(MISSION_ID).await.unwrap();
 
-    failing.assert_hits(1);
+    // Initial request plus the two configured retries.
+    failing.assert_hits(3);
     // Honest failure: no fabricated terminal outcome, reason explains why.
     assert_eq!(result.phase, "VERIFYING");
     assert_eq!(result.outcome, None);
-    assert!(result.reason.as_deref().unwrap_or_default().contains("non-success status 500"));
+    assert!(result
+        .reason
+        .as_deref()
+        .unwrap_or_default()
+        .contains("non-success status 500"));
 
     // The durable store records the honest unsatisfiable seal.
     let s = store.lock().await;
@@ -133,4 +144,67 @@ async fn provider_failure_seals_mission_unsatisfiable() {
         .unwrap();
     assert_eq!(m["phase"], "TERMINAL");
     assert_eq!(m["outcome"], "UNSATISFIABLE");
+}
+
+#[tokio::test]
+async fn non_retryable_gateway_status_is_attempted_once() {
+    let server = MockServer::start();
+    let denied = server.mock(|when: When, then: Then| {
+        when.method(POST).path("/v1/chat/completions");
+        then.status(400)
+            .json_body(json!({ "error": "invalid model" }));
+    });
+
+    let client = HttpProposalClient::new(provider_config(server.base_url())).unwrap();
+    let error = client
+        .propose("mission", "CREATED")
+        .await
+        .expect_err("400 must be surfaced without retry");
+
+    denied.assert_hits(1);
+    assert_eq!(error, ProviderError::NonSuccess { status: 400 });
+}
+
+#[tokio::test]
+async fn invalid_command_sequence_is_rejected_before_runtime() {
+    let server = MockServer::start();
+    server.mock(|when: When, then: Then| {
+        when.method(POST).path("/v1/chat/completions");
+        then.status(200).json_body(json!({
+            "choices": [{
+                "message": {"content": r#"["VERIFY"]"#}
+            }]
+        }));
+    });
+
+    let client = HttpProposalClient::new(provider_config(server.base_url())).unwrap();
+    let error = client
+        .propose("mission", "CREATED")
+        .await
+        .expect_err("VERIFY is not legal from CREATED");
+
+    assert!(matches!(error, ProviderError::Malformed(detail) if detail.contains("command 0")));
+}
+
+#[tokio::test]
+async fn oversized_plan_is_rejected() {
+    let server = MockServer::start();
+    server.mock(|when: When, then: Then| {
+        when.method(POST).path("/v1/chat/completions");
+        then.status(200).json_body(json!({
+            "choices": [{
+                "message": {"content": r#"["COMPILE","PREPARE","START","EXECUTE","VERIFY"]"#}
+            }]
+        }));
+    });
+
+    let mut config = provider_config(server.base_url());
+    config.max_plan_steps = 4;
+    let client = HttpProposalClient::new(config).unwrap();
+    let error = client
+        .propose("mission", "CREATED")
+        .await
+        .expect_err("plan over the configured bound must be rejected");
+
+    assert!(matches!(error, ProviderError::Malformed(detail) if detail.contains("maximum is 4")));
 }

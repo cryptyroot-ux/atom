@@ -13,15 +13,18 @@
 //! The assistant content is expected to be a JSON array of SCREAMING_SNAKE_CASE
 //! mission commands, e.g. `["COMPILE","PREPARE","START","EXECUTE","VERIFY"]`.
 
-use std::collections::VecDeque;
+use std::{collections::VecDeque, time::Duration};
 
-use atom_mission::MissionCommand;
+use atom_mission::{
+    try_reduce, ActivityResultEvent, MissionCommand, MissionCondition, MissionEvent, MissionPhase,
+    MissionState,
+};
 use atom_provider::{Provider, ProviderProposal, ProviderRequest};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 /// Configuration for connecting the executor to a model gateway.
-#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct ProviderConfig {
     /// Whether the HTTP provider replaces the native cognition backend.
@@ -32,11 +35,83 @@ pub struct ProviderConfig {
     pub model: String,
     /// Gateway bearer token. Never hardcoded; fed from the environment.
     pub api_key: String,
+    /// Total timeout for one HTTP request, in milliseconds.
+    pub timeout_ms: u64,
+    /// Number of retries after the initial request for transient failures.
+    pub max_retries: u32,
+    /// Initial retry delay, doubled for each subsequent attempt.
+    pub backoff_ms: u64,
+    /// Maximum number of lifecycle commands accepted in one provider plan.
+    pub max_plan_steps: usize,
+    /// Maximum response body accepted from the gateway, in bytes.
+    pub max_response_bytes: usize,
+}
+
+impl ProviderConfig {
+    /// Validates operator-supplied provider settings before any network call.
+    pub fn validate(&self) -> Result<(), ProviderError> {
+        if !self.enabled {
+            return Ok(());
+        }
+        if self.base_url.trim().is_empty() {
+            return Err(ProviderError::Config(
+                "base_url must not be blank".to_owned(),
+            ));
+        }
+        if self.model.trim().is_empty() {
+            return Err(ProviderError::Config("model must not be blank".to_owned()));
+        }
+        if self.timeout_ms == 0 {
+            return Err(ProviderError::Config(
+                "timeout_ms must be greater than zero".to_owned(),
+            ));
+        }
+        if self.max_retries > 8 {
+            return Err(ProviderError::Config(
+                "max_retries must be at most 8".to_owned(),
+            ));
+        }
+        if self.backoff_ms > 60_000 {
+            return Err(ProviderError::Config(
+                "backoff_ms must be at most 60000".to_owned(),
+            ));
+        }
+        if self.max_plan_steps == 0 || self.max_plan_steps > 64 {
+            return Err(ProviderError::Config(
+                "max_plan_steps must be between 1 and 64".to_owned(),
+            ));
+        }
+        if self.max_response_bytes == 0 || self.max_response_bytes > 1_048_576 {
+            return Err(ProviderError::Config(
+                "max_response_bytes must be between 1 and 1048576".to_owned(),
+            ));
+        }
+        Ok(())
+    }
+}
+
+impl Default for ProviderConfig {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            base_url: String::new(),
+            model: String::new(),
+            api_key: String::new(),
+            timeout_ms: 30_000,
+            max_retries: 2,
+            backoff_ms: 250,
+            max_plan_steps: 8,
+            max_response_bytes: 64 * 1024,
+        }
+    }
 }
 
 /// Why the HTTP provider could not hand the runtime a plan.
 #[derive(Clone, Debug, Eq, Error, PartialEq)]
 pub enum ProviderError {
+    /// The provider configuration is unsafe or incomplete.
+    #[error("invalid provider configuration: {0}")]
+    Config(String),
     /// The HTTP call could not be completed.
     #[error("provider HTTP request failed: {0}")]
     Request(String),
@@ -96,7 +171,10 @@ impl Provider for CachedProvider {
         if self.plan.mission_id != request.perception.mission_id {
             return ProviderProposal::hold_terminal();
         }
-        self.plan.proposals.pop_front().unwrap_or_else(ProviderProposal::hold_terminal)
+        self.plan
+            .proposals
+            .pop_front()
+            .unwrap_or_else(ProviderProposal::hold_terminal)
     }
 }
 
@@ -139,12 +217,14 @@ pub struct HttpProposalClient {
 
 impl HttpProposalClient {
     /// Creates a client for the given gateway configuration.
-    #[must_use]
-    pub fn new(config: ProviderConfig) -> Self {
-        Self {
-            http: reqwest::Client::new(),
-            config,
-        }
+    pub fn new(config: ProviderConfig) -> Result<Self, ProviderError> {
+        config.validate()?;
+        let timeout = Duration::from_millis(config.timeout_ms);
+        let http = reqwest::Client::builder()
+            .timeout(timeout)
+            .build()
+            .map_err(|error| ProviderError::Config(format!("building HTTP client: {error}")))?;
+        Ok(Self { http, config })
     }
 
     /// The wrapped gateway configuration.
@@ -175,7 +255,10 @@ impl HttpProposalClient {
             Never output commentary.";
         let user = format!("mission id: {mission_id}\ncurrent phase: {phase}\nplan:");
 
-        let url = format!("{}/v1/chat/completions", self.config.base_url.trim_end_matches('/'));
+        let url = format!(
+            "{}/v1/chat/completions",
+            self.config.base_url.trim_end_matches('/')
+        );
         let body = ChatRequest {
             model: &self.config.model,
             messages: vec![
@@ -190,14 +273,7 @@ impl HttpProposalClient {
             ],
         };
 
-        let response = self
-            .http
-            .post(&url)
-            .bearer_auth(&self.config.api_key)
-            .json(&body)
-            .send()
-            .await
-            .map_err(|e| ProviderError::Request(e.to_string()))?;
+        let response = self.send_with_retry(&url, &body).await?;
 
         if !response.status().is_success() {
             return Err(ProviderError::NonSuccess {
@@ -205,10 +281,27 @@ impl HttpProposalClient {
             });
         }
 
-        let chat: ChatResponse = response
-            .json()
+        if response
+            .content_length()
+            .is_some_and(|length| length > self.config.max_response_bytes as u64)
+        {
+            return Err(ProviderError::Malformed(format!(
+                "response exceeds {} bytes",
+                self.config.max_response_bytes
+            )));
+        }
+        let bytes = response
+            .bytes()
             .await
             .map_err(|e| ProviderError::Malformed(e.to_string()))?;
+        if bytes.len() > self.config.max_response_bytes {
+            return Err(ProviderError::Malformed(format!(
+                "response exceeds {} bytes",
+                self.config.max_response_bytes
+            )));
+        }
+        let chat: ChatResponse =
+            serde_json::from_slice(&bytes).map_err(|e| ProviderError::Malformed(e.to_string()))?;
 
         let content = chat
             .choices
@@ -216,12 +309,7 @@ impl HttpProposalClient {
             .map(|choice| choice.message.content.as_str())
             .unwrap_or("");
 
-        let commands: Vec<MissionCommand> = serde_json::from_str(content)
-            .map_err(|e| ProviderError::Malformed(e.to_string()))?;
-
-        if commands.is_empty() {
-            return Err(ProviderError::EmptyPlan);
-        }
+        let commands = validate_plan(content, phase, self.config.max_plan_steps)?;
 
         Ok(ProviderPlan {
             mission_id: mission_id.to_owned(),
@@ -230,6 +318,95 @@ impl HttpProposalClient {
                 .map(ProviderProposal::activity)
                 .collect(),
         })
+    }
+
+    async fn send_with_retry(
+        &self,
+        url: &str,
+        body: &ChatRequest<'_>,
+    ) -> Result<reqwest::Response, ProviderError> {
+        for attempt in 0..=self.config.max_retries {
+            let mut request = self.http.post(url);
+            if !self.config.api_key.is_empty() {
+                request = request.bearer_auth(&self.config.api_key);
+            }
+            match request.json(body).send().await {
+                Ok(response)
+                    if !retryable_status(response.status())
+                        || attempt == self.config.max_retries =>
+                {
+                    return Ok(response);
+                }
+                Ok(_response) => sleep_backoff(&self.config, attempt).await,
+                Err(error) if attempt == self.config.max_retries => {
+                    return Err(ProviderError::Request(error.to_string()));
+                }
+                Err(_error) => sleep_backoff(&self.config, attempt).await,
+            }
+        }
+        unreachable!("retry loop always returns on its final attempt")
+    }
+}
+
+fn retryable_status(status: reqwest::StatusCode) -> bool {
+    matches!(status.as_u16(), 408 | 425 | 429 | 500 | 502 | 503 | 504)
+}
+
+async fn sleep_backoff(config: &ProviderConfig, attempt: u32) {
+    let shift = attempt.min(6);
+    let multiplier = 1_u64 << shift;
+    let delay_ms = config.backoff_ms.saturating_mul(multiplier).min(60_000);
+    if delay_ms > 0 {
+        tokio::time::sleep(Duration::from_millis(delay_ms)).await;
+    }
+}
+
+fn validate_plan(
+    content: &str,
+    phase: &str,
+    max_plan_steps: usize,
+) -> Result<Vec<MissionCommand>, ProviderError> {
+    let commands: Vec<MissionCommand> = serde_json::from_str(content)
+        .map_err(|e| ProviderError::Malformed(format!("commands must be a JSON array: {e}")))?;
+    if commands.is_empty() {
+        return Err(ProviderError::EmptyPlan);
+    }
+    if commands.len() > max_plan_steps {
+        return Err(ProviderError::Malformed(format!(
+            "plan contains {} commands; maximum is {max_plan_steps}",
+            commands.len()
+        )));
+    }
+
+    let mut state = MissionState::new(parse_phase(phase)?, MissionCondition::Normal, None, None)
+        .map_err(|error| ProviderError::Malformed(error.to_string()))?;
+    for (index, command) in commands.iter().copied().enumerate() {
+        command.validate(&state).map_err(|error| {
+            ProviderError::Malformed(format!("command {index} ({command:?}) is invalid: {error}"))
+        })?;
+        let event = MissionEvent::from(ActivityResultEvent::succeeded(command.activity().kind));
+        state = try_reduce(&state, &event).map_err(|error| {
+            ProviderError::Malformed(format!("command {index} rejected: {error}"))
+        })?;
+    }
+    if state.phase != MissionPhase::Terminal {
+        return Err(ProviderError::Malformed(
+            "plan must reach TERMINAL with a complete lifecycle".to_owned(),
+        ));
+    }
+    Ok(commands)
+}
+
+fn parse_phase(phase: &str) -> Result<MissionPhase, ProviderError> {
+    match phase {
+        "CREATED" => Ok(MissionPhase::Created),
+        "COMPILED" => Ok(MissionPhase::Compiled),
+        "READY" => Ok(MissionPhase::Ready),
+        "RUNNING" => Ok(MissionPhase::Running),
+        "VERIFYING" => Ok(MissionPhase::Verifying),
+        other => Err(ProviderError::Malformed(format!(
+            "unsupported starting phase {other:?}"
+        ))),
     }
 }
 
@@ -316,6 +493,28 @@ mod tests {
     fn plan_parses_from_snake_case_command_array() {
         let commands: Vec<MissionCommand> =
             serde_json::from_str(r#"["COMPILE","START"]"#).expect("parses");
-        assert_eq!(commands, vec![MissionCommand::Compile, MissionCommand::Start]);
+        assert_eq!(
+            commands,
+            vec![MissionCommand::Compile, MissionCommand::Start]
+        );
+    }
+
+    #[test]
+    fn enabled_provider_rejects_unsafe_limits() {
+        let mut config = ProviderConfig {
+            enabled: true,
+            base_url: "http://gateway".to_owned(),
+            model: "model".to_owned(),
+            ..ProviderConfig::default()
+        };
+        config.timeout_ms = 0;
+        assert!(matches!(
+            config.validate(),
+            Err(ProviderError::Config(detail)) if detail.contains("timeout_ms")
+        ));
+
+        config.timeout_ms = 1_000;
+        config.max_plan_steps = 65;
+        assert!(config.validate().is_err());
     }
 }

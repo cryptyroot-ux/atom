@@ -134,9 +134,24 @@ curl -s http://127.0.0.1:8420/health
 # → {"status":"healthy","version":"0.0.0-alpha.0","crates_loaded":24}
 ```
 
-This starts the durable HTTP control plane only. It is not yet a provider-backed
-agent daemon: no model transport or external effect dispatcher is configured by
-this installation path.
+This starts the durable HTTP control plane with the native cognition loop. To
+enable the optional OpenAI-compatible cognition backend, provide the gateway
+base URL and model; keep the bearer token in the environment (never in a command
+line argument):
+
+```bash
+export ATOM_PROVIDER_API_KEY="managed-secret"
+atom serve --state-db ./state/atom.sqlite \
+  --provider-base-url https://gateway.example \
+  --provider-model model-id \
+  --provider-timeout-ms 30000 \
+  --provider-max-retries 2 \
+  --provider-backoff-ms 250
+```
+
+The provider is advisory and proposal-only. Responses must contain a complete,
+state-machine-valid lifecycle plan; invalid or unreachable responses produce an
+honest `UNSATISFIABLE` mission outcome. External effects are not dispatched.
 
 ## Docker (Distroless)
 

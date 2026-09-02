@@ -54,7 +54,7 @@ ever growing its own authority. That is the "sovereign" in the name.
 |---|---|
 | G0 Spec Freeze | ✅ done |
 | G1 Sovereign Core | ✅ done |
-| G2 Useful Operator | 🔧 partial — durable HTTP control plane exists; provider-backed execution does not yet |
+| G2 Useful Operator | 🔧 partial — durable HTTP control plane and optional provider-backed cognition exist; effects remain proposal-only |
 | G3 Epistemics | ✅ done |
 | G4 Foundry | 🔧 partial — source binary/artifact tooling exists; no certified release/install pipeline yet |
 | G5–G7 Compounding / Learning / Evolution | ✅ built & merged — capability foundry, experience compiler, architecture safety, architecture learner, cognition JIT, evaluator, evolution ring, and a reproducible 2G benchmark harness. Candidate-only (Lab-stage), **not yet a trained learner**; the 2G superiority claim stays **FROZEN** (INV-020). |
@@ -64,8 +64,8 @@ are merged as candidate-only code — no trained learner is deployed, and no 2G
 superiority claim is made (INV-020 frozen: no claim without pinned competitor
 versions, comparable budgets, a reproducible harness, and published failure
 traces). The HTTP API has a durable SQLite-backed control-plane slice, but it
-does not yet run a configured model provider or real external tool execution;
-it is not installability parity with Hermes/OpenClaw. Packaging artifacts are
+can run an optional OpenAI-compatible model provider, but does not perform real
+external tool execution; it is not installability parity with Hermes/OpenClaw. Packaging artifacts are
 source-oriented and have not been certified on a fresh host.
 
 ## Quick start
@@ -137,9 +137,9 @@ curl -s http://127.0.0.1:8420/ledger/events
 ```
 
 > **For Hermes / OpenClaw operators:** this is currently a durable API
-> control-plane, not a drop-in active agent. It persists complete mission
-> contracts and typed effect attempts under the kernel's authorization gate,
-> but no production provider transport or external dispatcher is wired yet.
+> control-plane with optional OpenAI-compatible cognition, not a drop-in active
+> agent. Provider output is validated against the mission state machine and
+> remains proposal-only; no external dispatcher is wired yet.
 > `/ready` currently reports HTTP/ledger readiness only, not model-provider
 > readiness.
 

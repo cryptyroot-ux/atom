@@ -70,18 +70,20 @@ executor::run_mission (async)
   `atom-mission` / `atom-effect` state machines as the native path. The provider
   never writes state; it only proposes.
 - Replay safety (a mission runs at most once) is unchanged: claiming is
-  idempotent in the queue and the HTTP call is performed only for a `READY`
-  claim.
+  idempotent in the queue and the HTTP call is performed only for a `CREATED` or
+  `READY` claim.
 
 ## New components (all in `crates/atom-executor`)
 
 ### `src/provider.rs`
 
 - `ProviderConfig` — `base_url: String`, `model: String`, `api_key: String`,
-  `enabled: bool`, with `Default` = disabled.
+  timeout/retry/backoff and output-size limits, with `Default` = disabled.
 - `ProviderError` — `thiserror` error: `Http { source }`, `NonSuccess { status }`,
   `MalformedResponse { detail }`, `PointlessPlan`.
-- `HttpProposalClient` — owns a `reqwest::Client`;
+- `HttpProposalClient` — owns a timeout-bound `reqwest::Client`, retries transient
+  HTTP/connect failures with capped exponential backoff, and rejects oversized
+  responses;
   `async fn propose(&self, mission_id: &str, phase: &str) -> Result<ProviderPlan>`.
   POSTs to `{base_url}/v1/chat/completions` (OpenAI-compatible shape) with a
   deterministic system prompt describing the `ProviderProposal` contract
@@ -102,9 +104,8 @@ executor::run_mission (async)
 ### `cli/atom-cli/src/lib.rs`
 
 - `Serve` gains `--no-provider` (`env = "ATOM_NO_PROVIDER"`) and optional
-  `--provider-base-url` / `--provider-model` / `--provider-api-key`
-  (`env = "ATOM_PROVIDER_BASE_URL"` / `ATOM_PROVIDER_MODEL` / `ATOM_PROVIDER_API_KEY`).
-  The API key is taken from the environment only, never hardcoded.
+  `--provider-base-url` / `--provider-model` plus timeout/retry/backoff limits.
+  The API key is taken from `ATOM_PROVIDER_API_KEY` only, never from a flag.
 - When `ATOM_PROVIDER_BASE_URL`/`MODEL` are set and `--no-provider` is absent,
   provider is enabled and wired into `ExecutorConfig`.
 
