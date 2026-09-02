@@ -78,6 +78,24 @@ pub enum Command {
         /// Disable the background mission executor (useful for testing).
         #[arg(long, env = "ATOM_NO_EXECUTOR")]
         no_executor: bool,
+
+        /// Disable the HTTP model-provider cognition backend (falls back to the
+        /// built-in native cognition loop).
+        #[arg(long, env = "ATOM_NO_PROVIDER", default_value_t = true)]
+        no_provider: bool,
+
+        /// Base URL of the OpenAI-compatible model gateway used as the mission
+        /// cognition backend, e.g. `https://free.pango.fun`.
+        #[arg(long, value_name = "BASE_URL", env = "ATOM_PROVIDER_BASE_URL")]
+        provider_base_url: Option<String>,
+
+        /// Model identifier requested from the provider gateway.
+        #[arg(long, value_name = "MODEL", env = "ATOM_PROVIDER_MODEL")]
+        provider_model: Option<String>,
+
+        /// Gateway bearer token. Supply via environment; never from a flag value passed by a user.
+        #[arg(long, value_name = "API_KEY", env = "ATOM_PROVIDER_API_KEY")]
+        provider_api_key: Option<String>,
     },
 
     /// Seal bytes into a content-addressed, signed artifact (SUP-001).
@@ -126,6 +144,10 @@ pub fn run(cli: Cli) -> Result<()> {
             addr,
             state_db,
             no_executor,
+            no_provider,
+            provider_base_url,
+            provider_model,
+            provider_api_key,
         } => {
             let version = env!("CARGO_PKG_VERSION");
             let crates_loaded = boot::subsystem_count();
@@ -142,8 +164,19 @@ pub fn run(cli: Cli) -> Result<()> {
                 .with_context(|| format!("parsing bind address `{addr}`"))?;
             let future = async move {
                 if !no_executor {
+                    let mut executor_config = atom_executor::ExecutorConfig::default();
+                    if !no_provider {
+                        if let (Some(base_url), Some(model)) = (provider_base_url, provider_model) {
+                            executor_config.provider = atom_executor::ProviderConfig {
+                                enabled: true,
+                                base_url,
+                                model,
+                                api_key: provider_api_key.unwrap_or_default(),
+                            };
+                        }
+                    }
                     let executor =
-                        atom_executor::AtomExecutor::new(store.clone(), Default::default());
+                        atom_executor::AtomExecutor::new(store.clone(), executor_config);
                     let exec_handle = tokio::spawn(executor.run());
                     let serve = atom_server::app::serve(version, crates_loaded, addr, store);
                     let (_, serve_res) = tokio::join!(exec_handle, serve);

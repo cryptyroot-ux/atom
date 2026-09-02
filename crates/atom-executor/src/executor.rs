@@ -11,9 +11,11 @@ use anyhow::{anyhow, Context};
 use tokio::sync::{watch, Mutex};
 
 use atom_ledger::{CheckpointSigner, HmacSha256Signer, Ledger};
+use atom_provider::ProviderCognition;
 use atom_runtime::{CounterRng, FixedClock, ReferenceActivityPort, RunStatus};
 use atom_server::store::Store;
 
+use crate::provider::{CachedProvider, HttpProposalClient, ProviderConfig};
 use crate::queue::{ClaimOutcome, MissionQueue, RunResult};
 
 /// Tuning knobs for the execution spine.
@@ -27,6 +29,8 @@ pub struct ExecutorConfig {
     pub signing_key: String,
     /// HMAC secret used for each mission's sovereign runtime ledger.
     pub signing_secret: Vec<u8>,
+    /// Optional HTTP model-provider cognition backend (disabled by default).
+    pub provider: ProviderConfig,
 }
 
 impl Default for ExecutorConfig {
@@ -36,6 +40,7 @@ impl Default for ExecutorConfig {
             max_steps: 256,
             signing_key: "atom-executor".to_owned(),
             signing_secret: b"atom-executor-daemon-key".to_vec(),
+            provider: ProviderConfig::default(),
         }
     }
 }
@@ -126,7 +131,48 @@ impl AtomExecutor {
 
         let clock = FixedClock::new(chrono::Utc::now());
         let random = CounterRng::new(0xDAE0_0002);
-        let mut runtime = match atom_runtime::Runtime::native(mission_id, ledger, clock, random) {
+
+        // Build a mission-specific cognition backend. When a model provider is
+        // configured, fetch its plan once (asynchronously, before the runtime
+        // loop) and replay it through a deterministic cached provider. On any
+        // provider failure we refuse to fabricate a run: the mission is sealed
+        // honestly as unsatisfiable below.
+        if self.config.provider.enabled {
+            let client = HttpProposalClient::new(self.config.provider.clone());
+            let plan = match client.propose(mission_id, "CREATED").await {
+                Ok(plan) => plan,
+                Err(e) => {
+                    return RunResult {
+                        mission_id: mission_id.to_owned(),
+                        phase: "VERIFYING",
+                        outcome: None,
+                        steps: 0,
+                        reason: Some(format!("provider plan failed: {e}")),
+                    };
+                }
+            };
+            let runtime = match atom_runtime::Runtime::new(
+                mission_id,
+                ledger,
+                clock,
+                random,
+                ProviderCognition::new(CachedProvider::new(plan)),
+            ) {
+                Ok(r) => r,
+                Err(e) => {
+                    return RunResult {
+                        mission_id: mission_id.to_owned(),
+                        phase: "VERIFYING",
+                        outcome: None,
+                        steps: 0,
+                        reason: Some(format!("runtime boot failed: {e}")),
+                    };
+                }
+            };
+            return self.drive_runtime(mission_id, runtime);
+        }
+
+        let runtime = match atom_runtime::Runtime::native(mission_id, ledger, clock, random) {
             Ok(r) => r,
             Err(e) => {
                 return RunResult {
@@ -135,10 +181,17 @@ impl AtomExecutor {
                     outcome: None,
                     steps: 0,
                     reason: Some(format!("runtime boot failed: {e}")),
-                }
+                };
             }
         };
+        self.drive_runtime(mission_id, runtime)
+    }
 
+    /// Drives one runtime to a terminal status and maps it onto a `RunResult`.
+    fn drive_runtime<N>(&self, mission_id: &str, mut runtime: atom_runtime::Runtime<FixedClock, CounterRng, N>) -> RunResult
+    where
+        N: atom_runtime::Cognition,
+    {
         let mut port = ReferenceActivityPort::default();
         match runtime.run_until_terminal(&mut port, self.config.max_steps) {
             Ok(RunStatus::Terminal { state, steps }) => {
