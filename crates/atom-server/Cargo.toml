@@ -1,6 +1,6 @@
 [package]
 name = "atom-server"
-version = "0.0.0-alpha.0"
+version = "0.0.0-alpha.1"
 edition = "2021"
 license = "Apache-2.0"
 description = "ATOM Sovereign Agent Runtime HTTP API server (spec/openapi.yaml)"

@@ -49,7 +49,7 @@ cargo install --path cli/atom-cli --locked
 
 # 3. Verify installation
 atom --version
-# → atom 0.0.0-alpha.0
+# → atom 0.0.0-alpha.1
 ```
 
 The binary is installed to `~/.cargo/bin/atom` (ensure `~/.cargo/bin` is in your `PATH`).
@@ -147,7 +147,7 @@ Smoke check against the running server (OpenAPI `/health`):
 
 ```bash
 curl -s http://127.0.0.1:8420/health
-# → {"status":"healthy","version":"0.0.0-alpha.0","crates_loaded":24}
+# → {"status":"healthy","version":"0.0.0-alpha.1","crates_loaded":24}
 ```
 
 This starts the durable HTTP control plane with the native cognition loop. To
@@ -173,7 +173,7 @@ honest `UNSATISFIABLE` mission outcome. External effects are not dispatched.
 
 ```bash
 # Build image
-docker build -t atom:0.0.0-alpha.0 -f pkg/Dockerfile .
+docker build -t atom:0.0.0-alpha.1 -f pkg/Dockerfile .
 
 # Run the HTTP API server on host port 8420
 docker run --rm -p 8420:8420 \
@@ -181,10 +181,10 @@ docker run --rm -p 8420:8420 \
   -e ATOM_SIGNING_KEY_ID=container-key \
   -e ATOM_SIGNING_SECRET=replace-with-a-managed-secret \
   -v atom-state:/var/lib/atom \
-  atom:0.0.0-alpha.0
+  atom:0.0.0-alpha.1
 
 # Or run another subcommand (--help / run / seal)
-docker run --rm atom:0.0.0-alpha.0 --help
+docker run --rm atom:0.0.0-alpha.1 --help
 ```
 
 ## Uninstall
@@ -211,6 +211,6 @@ cargo uninstall atom-cli
 - [ ] `atom seal file` produces JSON with `sha256:` ID
 - [ ] `atom verify file.atom.json` returns `OK`
 - [ ] Tampered artifact is rejected with `SignatureInvalid`
-- [ ] `cargo test --workspace` → 374+ tests pass
+- [ ] `cargo test --workspace` passes
 - [ ] `cargo clippy --workspace --all-targets -- -D warnings` → clean
 - [ ] Secret scan: no `sk-` keys, no private keys in source

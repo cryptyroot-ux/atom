@@ -472,8 +472,10 @@ mod tests {
     }
 
     fn executor_with(store: Arc<Mutex<Store>>, recovery_dir: Option<PathBuf>) -> AtomExecutor {
-        let mut config = ExecutorConfig::default();
-        config.recovery_dir = recovery_dir;
+        let config = ExecutorConfig {
+            recovery_dir,
+            ..ExecutorConfig::default()
+        };
         AtomExecutor::new(store, config)
     }
 

@@ -1,200 +1,186 @@
-![ATOM Banner](assets/banner.png)
+<div align="center">
+
+<img src="assets/banner.png" alt="ATOM — sovereign agent runtime" width="900">
 
 # ATOM
 
-**Sovereign Recursive Agent Architecture** — a provider-agnostic Sovereign Agentic Operating System written in Rust.
+**A sovereign, provider-agnostic agent runtime written in Rust.**
 
-> Capability may recursively grow; authority may not.
-> Cognition proposes. Sovereign authority permits. Reality determines outcome.
+Capability may recursively grow; authority may not.
 
-[![crates](https://img.shields.io/badge/crates-43-blue)](crates/)
-[![tests](https://img.shields.io/badge/tests-482%20passing-brightgreen)](https://github.com/cryptyroot-ux/atom/actions/workflows/ci.yml)
-[![license](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.0.0--alpha.1%20(unreleased)-orange)](https://github.com/cryptyroot-ux/atom/releases)
-[![rust](https://img.shields.io/badge/rust-edition%202021-93450a)](https://www.rust-lang.org/)
 [![CI](https://github.com/cryptyroot-ux/atom/actions/workflows/ci.yml/badge.svg)](https://github.com/cryptyroot-ux/atom/actions/workflows/ci.yml)
-[![CoC](https://img.shields.io/badge/code%20of%20conduct-Contributor%20Covenant-blueviolet)](CODE_OF_CONDUCT.md)
+[![version](https://img.shields.io/badge/version-0.0.0--alpha.1-orange)](https://github.com/cryptyroot-ux/atom/releases)
+[![Rust 2021](https://img.shields.io/badge/rust-edition%202021-93450a)](https://www.rust-lang.org/)
+[![license](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
----
+[Install](#install) · [Quick start](#quick-start) · [Architecture](#architecture) · [Security model](#security-model) · [Docs](#documentation)
 
-## Why ATOM exists
+</div>
 
-Most agent frameworks let *any* component mutate state, call tools, and escalate
-privilege. That is fine until an agent is wrong — and agents are wrong often.
+ATOM is the control plane for agents that must remain auditable and bounded. A
+model may propose a plan, but only the sovereign kernel can authorize an effect;
+the append-only ledger records what actually happened. The design is useful when
+you want agent capabilities without giving the model ambient authority.
 
-ATOM draws a hard constitutional line:
+> **Alpha status:** the runtime, durable mission API, provider adapter, recovery
+> path, read-only tools, and approval ledger are real and tested. Consequential
+> external effects are still proposal-only. ATOM is not yet a drop-in replacement
+> for Hermes or OpenClaw, and no 2G superiority claim is made.
 
-- **Cognition proposes.** The probabilistic brain explores, plans, and suggests.
-  It can *never* touch authoritative state.
-- **Sovereign authority permits.** A single, unbypassable kernel gates every
-  consequential mutation behind typed capabilities + effect revalidation.
-- **Reality determines outcome.** An append-only, hash-chained ledger is the
-  source of truth — not memory, not the model, not the last caller.
+## Install
 
-The result: an agent that can **grow its own capabilities recursively** without
-ever growing its own authority. That is the "sovereign" in the name.
+### From a checkout (development)
 
-## What it gives you
+Requires Rust 1.80+ and the native build dependencies listed in
+[`pkg/INSTALL.md`](pkg/INSTALL.md).
 
-- **43 composable Rust crates** — 32 core/plane crates (a sovereign kernel,
-  capability grants, an effect reducer, a tamper-evident ledger, epistemic memory,
-  taint tracking, deterministic replay, a fault classifier, supply-chain artifact
-  sealing, and more), a 4-module evolution lab (experience compiler, cognition JIT,
-  architecture learner, evaluator), 5 versioned adapters, plus CLI and SDK.
-- **Verified experience as a primitive** — claims, taint, and replay turn runtime
-  observations into compounding, auditable evidence instead of vibes.
-- **Provider-agnostic** — plug any model/runtime through versioned adapters
-  (MCP, A2A, agent-skills, Hermes, OpenClaw). Adapters *cannot* widen authority.
-- **Content-addressed artifacts** — `atom-artifact` seals builds with SHA-256
-  identity, provenance, SBOM, and signature; tampering is detectable.
+```bash
+git clone https://github.com/cryptyroot-ux/atom.git
+cd atom
+cargo install --path cli/atom-cli --locked
+atom --version
+```
 
-## Status (honest)
+### As a Linux service (operator deployment)
 
-| Gate | State |
-|---|---|
-| G0 Spec Freeze | ✅ done |
-| G1 Sovereign Core | ✅ done |
-| G2 Useful Operator | 🔧 partial — durable HTTP control plane and optional provider-backed cognition exist; effects remain proposal-only |
-| G3 Epistemics | ✅ done |
-| G4 Foundry | 🔧 partial — source binary/artifact tooling exists; no certified release/install pipeline yet |
-| G5–G7 Compounding / Learning / Evolution | ✅ built & merged — capability foundry, experience compiler, architecture safety, architecture learner, cognition JIT, evaluator, evolution ring, and a reproducible 2G benchmark harness. Candidate-only (Lab-stage), **not yet a trained learner**; the 2G superiority claim stays **FROZEN** (INV-020). |
+The installer creates the `atom` service user, state directory, root-owned
+credentials, environment file, and systemd unit in one repeatable operation:
 
-This is an **alpha**. The constitutional core is real and tested. The G5–G7 evolution/learning tracks
-are merged as candidate-only code — no trained learner is deployed, and no 2G
-superiority claim is made (INV-020 frozen: no claim without pinned competitor
-versions, comparable budgets, a reproducible harness, and published failure
-traces). The HTTP API has a durable SQLite-backed control-plane slice, but it
-can run an optional OpenAI-compatible model provider, but does not perform real
-external tool execution; it is not installability parity with Hermes/OpenClaw. Packaging artifacts are
-source-oriented and have not been certified on a fresh host.
+```bash
+sudo ./pkg/scripts/install.sh --no-provider
+atom doctor
+atom status
+```
+
+To connect an OpenAI-compatible gateway, provide a root-readable key file. The
+key is installed through systemd credentials and is never printed:
+
+```bash
+sudo ./pkg/scripts/install.sh \
+  --provider-key-file /root/.secrets/provider-api-key \
+  --provider-base-url https://gateway.example \
+  --provider-model auto
+sudo systemctl status atom --no-pager
+```
+
+See the complete [installation and operations guide](pkg/INSTALL.md).
+
+`install.sh` already runs setup, enables, and restarts the service. Use
+`sudo atom setup ...` later only when changing provider or listener settings.
 
 ## Quick start
 
-**Prerequisites:** Rust edition 2021 toolchain, rustc 1.80+ (`rustup`).
+Once the daemon is running, `atom` opens the interactive operator session:
 
-```sh
-# install the `atom` CLI from this repo
-cargo install --path cli/atom-cli
-# or build from a checkout:
-cargo build --release -p atom-cli
-
-# run the workspace test suite
-cargo test --workspace
-```
-
-**Try the sovereign binary:**
-
-```sh
-# signing identity (required for artifact seal/verify — keep the secret out of source)
-export ATOM_SIGNING_KEY_ID="my-key"
-export ATOM_SIGNING_SECRET="$(openssl rand -hex 32)"   # demo only; use a real secret
-
-# seal bytes into a content-addressed, signed artifact (SUP-001)
-echo "hello sovereignty" | atom seal --input /dev/stdin --out artifact.json
-cat artifact.json
-
-# verify it — exits non-zero if the artifact was tampered with
-atom verify artifact.json
-
-# boot the runtime and drive one real mutation
-atom run
-```
-
-**Try the HTTP API server (`spec/openapi.yaml`):**
-
-```sh
-# run the durable v1 API on 127.0.0.1:8420
-# `serve` requires both a signing identity and an explicit SQLite state path.
-mkdir -p ./state
-ATOM_STATE_DB=./state/atom.sqlite atom serve
-
-# or bind elsewhere
-atom serve --addr 0.0.0.0:8420 --state-db ./state/atom.sqlite
-
-# health + readiness
-curl -s http://127.0.0.1:8420/health
-# → {"status":"healthy","version":"0.0.0-alpha.0","uptime_seconds":0,"crates_loaded":24}
-curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8420/ready   # → 200
-
-# missions (create → list → get). A goal alone is intentionally rejected:
-# a complete durable acceptance contract is required.
-curl -s -X POST http://127.0.0.1:8420/missions \
-  -H 'content-type: application/json' \
-  -d '{
-    "goal":"verify the API persistence contract",
-    "success_criteria":["the mission survives a restart"],
-    "constraints":["do not dispatch external effects"],
-    "budgets":{"max_steps":8},
-    "authority_profile_ref":"authority/read-only",
-    "evidence_requirements":["ledger event"],
-    "stopping_rules":["stop on a policy denial"]
-  }'
-
-# capabilities, evidence, ledger replay, secret handles
-curl -s http://127.0.0.1:8420/capabilities
-curl -s http://127.0.0.1:8420/evidence
-curl -s http://127.0.0.1:8420/ledger/events
-```
-
-> **For Hermes / OpenClaw operators:** this is currently a durable API
-> control-plane with optional OpenAI-compatible cognition, not a drop-in active
-> agent. Provider output is validated against the mission state machine and
-> remains proposal-only; no external dispatcher is wired yet.
-> `/ready` currently reports HTTP/ledger readiness only, not model-provider
-> readiness.
-
-**Interactive operator session:**
-
-```sh
-# With atom.service already installed and configured:
+```bash
 atom
-# You> summarize the current task
-# ATOM> mission <id> ........ SUCCEEDED
-# Type /quit to exit.
 ```
 
-The interactive command is a thin client over the durable mission API. It does
-not bypass the ledger, authority profile, or provider plan validation. Use
-`atom setup`, `atom status`, and `atom doctor` for first-run configuration and
-diagnostics.
+Type a mission, inspect the result, then use `/quit` to exit. The session is a
+thin client over the durable API; it does not bypass authority, validation, or
+the ledger.
 
-See [`spec/`](spec/) for the authoritative machine-readable contracts
-(schemas, state-machines, enums, requirements, invariants).
+For a direct API smoke test:
 
-## How ATOM differs
+```bash
+curl -sS http://127.0.0.1:8420/health | jq
+curl -sS http://127.0.0.1:8420/ready
+curl -sS http://127.0.0.1:8420/capabilities | jq
+```
 
-Most agent frameworks treat the model as trusted: it plans, it calls tools, it
-mutates state. ATOM does not. The difference is architectural, not cosmetic:
+To run without systemd from a checkout, set a signing identity and persistent
+state path:
 
-| Property | Typical agent framework | ATOM |
+```bash
+export ATOM_SIGNING_KEY_ID=local-dev
+export ATOM_SIGNING_SECRET="$(openssl rand -hex 32)"
+mkdir -p state
+atom serve --state-db state/atom.sqlite
+```
+
+## What works today
+
+| Capability | State | Notes |
+|---|---:|---|
+| Interactive `atom` session | ✅ | Mission submission and terminal status polling |
+| Durable HTTP control plane | ✅ | SQLite state, missions, evidence, ledger replay |
+| OpenAI-compatible cognition | ✅ | Timeouts, bounded retries, response/plan validation |
+| Read-only tools | ✅ | Confined path access with budgets and evidence |
+| Approval grants | ✅ | Durable, one-shot redemption in the control plane |
+| Crash recovery | ✅ | Sidecar snapshots and kill/restart evidence |
+| Consequential external effects | 🚧 | Kernel contracts exist; dispatcher is not enabled |
+| Certified multi-platform release | 🚧 | Source and Linux installer are available; release gate remains open |
+
+## Architecture
+
+```mermaid
+flowchart LR
+    U[Operator / CLI / SDK] --> API[atom-server\nDurable HTTP API]
+    API --> M[Mission state machine]
+    M --> K[Sovereign kernel\npolicy + capabilities]
+    K --> A{Approval /\nrevalidation}
+    A -->|read-only| T[Bounded tool dispatcher]
+    A -->|consequential| P[Proposal only\nnot dispatched in alpha]
+    M --> L[(Hash-chained ledger)]
+    M --> E[Evidence + replay]
+    C[Provider adapter\nOpenAI-compatible] --> M
+```
+
+The provider is advisory. It can suggest a state-machine-valid plan, but it
+cannot grant itself capabilities or write authoritative state. Every accepted
+transition is represented by evidence and a ledger event.
+
+## Security model
+
+- **Cognition proposes.** Provider output is untrusted input and is validated
+  before it enters the mission state machine.
+- **Authority permits.** Typed capability grants, policy checks, and commit-time
+  revalidation sit between a proposal and an effect.
+- **Reality wins.** The append-only, hash-chained ledger is the source of truth.
+- **Taint is non-launderable.** Untrusted data cannot silently become trusted
+  evidence or authorization.
+- **Unsafe Rust is forbidden.** Workspace crates use `#![forbid(unsafe_code)]`.
+
+## ATOM alongside Hermes and OpenClaw
+
+Hermes and OpenClaw are excellent operator-facing assistants with broad tool and
+channel ecosystems. ATOM currently focuses on a different boundary: making
+authority, effects, and evidence explicit and enforceable.
+
+| Concern | Hermes / OpenClaw | ATOM alpha |
 |---|---|---|
-| Who can mutate state | The model, directly | A single unbypassable kernel |
-| Mutation authority | Implicit / ambient | Typed capability grants + commit-time revalidation |
-| Memory of what happened | Chat log / DB writes | Append-only hash-chained ledger (tamper-evident) |
-| Untrusted input | Flows through | Non-launderable taint labels govern disclosure |
-| Unsafe code | Varies | `#![forbid(unsafe_code)]` in every crate |
-| Evidence | Vibes | Claims + provenance + deterministic replay |
+| Start a conversation | Mature interactive UX | `atom` interactive session |
+| Model choice | Multiple providers | OpenAI-compatible gateway + native fallback |
+| Tools and channels | Broad, production-oriented ecosystem | Read-only bounded tools; adapters in progress |
+| Consequential effects | Product feature | Proposal-only until dispatcher/release gates close |
+| Auditability | Application-dependent | Ledger, evidence, replay, typed approvals by design |
 
-The result is an agent that can **recursively grow its own capabilities** without
-ever growing its own authority — and leaves an auditable trail of every mutation.
+The goal is interoperability, not lock-in: versioned adapters for MCP, A2A,
+agent-skills, Hermes, and OpenClaw are kept authority-safe.
 
-## Layout
+## Documentation
 
+- [`pkg/INSTALL.md`](pkg/INSTALL.md) — source install, service deployment, provider configuration, Docker, and troubleshooting
+- [`spec/`](spec/) — canonical schemas, state machines, requirements, and invariants
+- [`docs/`](docs/) — design notes and implementation plans
+- [`ORCHESTRATOR.md`](ORCHESTRATOR.md) — runtime orchestration contract
+- [`SECURITY.md`](SECURITY.md) — vulnerability disclosure
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — development workflow
+- [`GOVERNANCE.md`](GOVERNANCE.md) — project governance and release policy
+
+## Development
+
+```bash
+cargo fmt --all -- --check
+cargo test --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+bash tools/secret_scan.sh .
 ```
-spec/          canonical contracts (authoritative)
-crates/        32 Rust crates — sovereign core + planes, capability foundry, evolution ring, benchmark harness + runtime, conformance, architecture safety
-evolution/     Evolution Lab (candidate-only): experience-compiler, cognition-jit, architecture-learner, evaluator
-adapters/      mcp, a2a, agent-skills, hermes, openclaw (versioned, authority-safe)
-cli/atom-cli   `atom` CLI
-sdk/atom-sdk   typed clients for the /v1 API
-```
+
+ATOM is a 45-package Rust workspace. The evolution and 2G benchmark tracks are
+candidate-only research code; benchmark claims remain frozen until the required
+competitor pins, budgets, harness, and published failure traces exist.
 
 ## License
 
 Licensed under the [Apache License, Version 2.0](LICENSE).
-
-## Governance & Conduct
-
-- [GOVERNANCE.md](GOVERNANCE.md) — roles, decision process, release policy
-- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Contributor Covenant v2.1
-- [SECURITY.md](SECURITY.md) — vulnerability disclosure process
