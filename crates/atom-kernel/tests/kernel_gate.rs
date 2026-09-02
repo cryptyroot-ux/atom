@@ -46,9 +46,10 @@ fn base_grant(now: DateTime<Utc>, generation: u64) -> CapabilityGrant {
         parent_grant_id: None,
         nonce: None,
         constraints: None,
-    }
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
 }
-
 fn base_intent() -> EffectIntent {
     EffectIntent::builder(EFFECT_ID, "mission-1", GRANT_ID, TARGET_ID)
         .canonical_request_digest(

@@ -22,7 +22,6 @@ fn arb_parent(depth: u32) -> impl Strategy<Value = CapabilityGrant> {
     )
         .prop_map(move |(ops, resources, max_cost)| {
             let now = Utc::now();
-            CapabilityGrant {
                 grant_id: "parent".into(),
                 subject_id: "s".into(),
                 workload_id: "w".into(),
@@ -42,7 +41,9 @@ fn arb_parent(depth: u32) -> impl Strategy<Value = CapabilityGrant> {
                 parent_grant_id: None,
                 nonce: None,
                 constraints: None,
-            }
+                authority_digest: None,
+                holder_binding: None,
+                parent_authority_digest: None,
         })
 }
 

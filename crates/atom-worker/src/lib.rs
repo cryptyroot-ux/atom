@@ -285,6 +285,9 @@ mod tests {
             parent_grant_id: None,
             nonce: None,
             constraints: None,
+            authority_digest: None,
+            holder_binding: None,
+            parent_authority_digest: None,
         }
     }
 

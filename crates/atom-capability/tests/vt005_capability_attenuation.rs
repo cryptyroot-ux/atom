@@ -12,7 +12,6 @@ use chrono::Utc;
 
 fn parent_grant() -> CapabilityGrant {
     let now = Utc::now();
-    CapabilityGrant {
         grant_id: "parent-001".into(),
         subject_id: "owner".into(),
         workload_id: "wl-parent".into(),
@@ -41,11 +40,12 @@ fn parent_grant() -> CapabilityGrant {
         parent_grant_id: None,
         nonce: None,
         constraints: None,
-    }
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
 }
 
 fn child_from_parent(parent: &CapabilityGrant) -> CapabilityGrant {
-    CapabilityGrant {
         grant_id: "child-001".into(),
         subject_id: "worker".into(),
         workload_id: "wl-child".into(),
@@ -68,7 +68,9 @@ fn child_from_parent(parent: &CapabilityGrant) -> CapabilityGrant {
         parent_grant_id: Some(parent.grant_id.clone()),
         nonce: None,
         constraints: None,
-    }
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
 }
 
 // --- VT-005a: broader operations ---

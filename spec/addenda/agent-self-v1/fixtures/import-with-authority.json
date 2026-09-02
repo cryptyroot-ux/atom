@@ -1,0 +1,15 @@
+{
+  "import_id": "823e4567-e89b-12d3-a456-426614174071",
+  "source": "HERMES",
+  "agent_id": "123e4567-e89b-12d3-a456-426614174001",
+  "imported_fields": {
+    "display_name": "Hermes",
+    "credentials": "AKIA1234567890ABCDEF",
+    "capability_grants": [{"operation": "*", "resource": "*"}],
+    "tool_permissions": ["shell", "filesystem", "network"]
+  },
+  "excluded_fields": [],
+  "content_digest": "sha256:1818181818181818181818181818181818181818181818181818181818181818",
+  "status": "REJECTED",
+  "created_at": "2026-03-30T09:00:00Z"
+}

@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-2020-12/schema#",
+  "$id": "spec/addenda/agent-self-v1/schemas/agent-self-revision.schema.json",
+  "title": "AgentSelfRevision",
+  "description": "Lifecycle-managed revision of agent identity or soul",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "revision_id",
+    "agent_id",
+    "revision_type",
+    "target_profile_id",
+    "parent_revision_digest",
+    "content_digest",
+    "state",
+    "proposed_by",
+    "authorized_by",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "revision_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this revision"
+    },
+    "agent_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Agent being revised"
+    },
+    "revision_type": {
+      "type": "string",
+      "enum": ["IDENTITY", "SOUL"],
+      "description": "Whether this revises identity or soul"
+    },
+    "target_profile_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Profile being revised"
+    },
+    "parent_revision_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Domain-separated SHA-256 of parent ACTIVE revision content"
+    },
+    "content_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Domain-separated SHA-256 of proposed content"
+    },
+    "state": {
+      "type": "string",
+      "enum": ["DRAFT", "PROPOSED", "PENDING_AUTHORIZATION", "ACTIVE", "SUPERSEDED", "REVOKED", "ROLLED_BACK", "QUARANTINED", "DENIED"],
+      "description": "Lifecycle state"
+    },
+    "proposed_by": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Principal who proposed this revision (agent or owner)"
+    },
+    "authorized_by": {
+      "type": ["string", "null"],
+      "format": "uuid",
+      "description": "Principal who authorized activation (null if pending)"
+    },
+    "approval_grant_id": {
+      "type": ["string", "null"],
+      "format": "uuid",
+      "description": "ApprovalGrant authorizing activation (null if pending)"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Creation timestamp"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    }
+  }
+}

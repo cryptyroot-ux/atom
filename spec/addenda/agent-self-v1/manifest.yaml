@@ -1,0 +1,30 @@
+spec_version: 4.1.0
+status: CANDIDATE_ADDENDUM
+addendum_id: agent-self-v1
+parent_baseline: v4.1.0
+g0: PASS_AT_DOCUMENT_PACKAGE
+implementation_status: NOT_ASSESSED
+counts:
+  requirements: 12
+  trace_rows: 28
+  acceptance_tests: 22
+  legacy_dispositions: 0
+  semantic_rules: 8
+  invariants: 6
+  schemas: 9
+  state_machines: 7
+source_documents:
+- ATOM_Architecture_Constitution_v4.1 (Articles II, IV, VII, VIII, X)
+- ATOM_Technical_Blueprint_v4.1 (Sections 5, 11)
+- ATOM_PRD_v4.1 (Sections 1, 2, 3)
+body_coverage:
+  schema_bodies_authored: 9
+  schema_bodies_required: 9
+  schema_fixtures_authored: 2
+  schema_fixtures_required: 18
+  state_machine_bodies_authored: 7
+  state_machine_bodies_required: 7
+honest_gaps:
+  - "Acceptance tests: 22 authored, 6 required tests from spec not yet authored (delegation chain, effect finality, E2E constitutional path)"
+  - "Schema fixtures: 2/18 (only profile-valid.json and profile-tampered.json; remaining 8 schemas lack valid+invalid fixtures)"
+  - "Requirements: 12 authored covering data models, lifecycle, workspace, context assembly, CLI; delegation/effect/E2E requirements pending"

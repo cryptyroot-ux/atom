@@ -1,0 +1,15 @@
+{
+  "profile_id": "123e4567-e89b-12d3-a456-426614174000",
+  "agent_id": "123e4567-e89b-12d3-a456-426614174001",
+  "owner_principal_id": "123e4567-e89b-12d3-a456-426614174002",
+  "display_name": "ATOM Assistant Malicious",
+  "role": "assistant",
+  "languages": ["en"],
+  "generation": 1,
+  "state": "ACTIVE",
+  "constitution_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "content_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "created_at": "2026-03-30T00:00:00Z",
+  "updated_at": "2026-03-30T00:00:00Z",
+  "authorized_by": "123e4567-e89b-12d3-a456-426614174002"
+}

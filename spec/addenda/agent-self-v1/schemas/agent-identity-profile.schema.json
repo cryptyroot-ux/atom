@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-2020-12/schema#",
+  "$id": "spec/addenda/agent-self-v1/schemas/agent-identity-profile.schema.json",
+  "title": "AgentIdentityProfile",
+  "description": "Presentation identity for an ATOM agent. NOT a security principal.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile_id",
+    "agent_id",
+    "owner_principal_id",
+    "display_name",
+    "role",
+    "languages",
+    "generation",
+    "state",
+    "constitution_digest",
+    "content_digest",
+    "created_at",
+    "updated_at",
+    "authorized_by"
+  ],
+  "properties": {
+    "profile_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this profile revision"
+    },
+    "agent_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Agent this profile belongs to"
+    },
+    "owner_principal_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Owner principal who authorized this profile"
+    },
+    "display_name": {
+      "type": "string",
+      "maxLength": 128,
+      "description": "Human-readable display name"
+    },
+    "role": {
+      "type": "string",
+      "maxLength": 64,
+      "description": "Role or archetype (e.g., 'assistant', 'operator', 'researcher')"
+    },
+    "archetype": {
+      "type": "string",
+      "maxLength": 64,
+      "description": "Optional archetype classification"
+    },
+    "avatar_ref": {
+      "type": "string",
+      "format": "uri",
+      "description": "Optional avatar reference"
+    },
+    "signature_symbol": {
+      "type": "string",
+      "maxLength": 8,
+      "description": "Optional signature symbol"
+    },
+    "languages": {
+      "type": "array",
+      "items": { "type": "string", "maxLength": 16 },
+      "minItems": 1,
+      "description": "Supported languages (ISO 639-1 codes)"
+    },
+    "generation": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Monotonic generation counter"
+    },
+    "state": {
+      "type": "string",
+      "enum": ["DRAFT", "PROPOSED", "PENDING_AUTHORIZATION", "ACTIVE", "SUPERSEDED", "REVOKED", "ROLLED_BACK", "QUARANTINED", "DENIED"],
+      "description": "Lifecycle state"
+    },
+    "constitution_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Domain-separated SHA-256 digest of pinned Constitution"
+    },
+    "content_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Domain-separated SHA-256 digest of profile content (excluding this field)"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Creation timestamp"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    },
+    "authorized_by": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Principal who authorized this version"
+    }
+  }
+}

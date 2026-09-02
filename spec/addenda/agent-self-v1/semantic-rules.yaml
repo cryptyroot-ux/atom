@@ -1,0 +1,98 @@
+spec_version: 4.1.0
+addendum_id: agent-self-v1
+semantic_rules:
+- id: ATOM-AS-SEM-001
+  title: Profile digest integrity
+  description: |
+    AgentIdentityProfile.content_digest MUST equal domain-separated SHA-256 of normalized profile
+    content (excluding content_digest field itself). Any mutation without digest update MUST fail validation.
+  reference_hook: semantic_profile_digest
+  applies_to: [AgentIdentityProfile, SoulProfile]
+  test_fixtures:
+    valid: spec/addenda/agent-self-v1/fixtures/profile-valid.json
+    invalid: spec/addenda/agent-self-v1/fixtures/profile-tampered.json
+
+- id: ATOM-AS-SEM-002
+  title: Soul profile change policy binding
+  description: |
+    SoulProfile.change_policy MUST reference a valid change policy schema. Agent-initiated changes
+    to own SoulProfile MUST result in DRAFT/PROPOSED state, never ACTIVE without owner approval.
+  reference_hook: semantic_soul_change_policy
+  applies_to: [SoulProfile, AgentSelfRevision]
+  test_fixtures:
+    valid: spec/addenda/agent-self-v1/fixtures/soul-change-proposed.json
+    invalid: spec/addenda/agent-self-v1/fixtures/soul-change-self-activated.json
+
+- id: ATOM-AS-SEM-003
+  title: Revision lifecycle enforcement
+  description: |
+    AgentSelfRevision state transitions MUST follow DRAFT → PROPOSED → PENDING_AUTHORIZATION → ACTIVE
+    → SUPERSEDED/REVOKED/ROLLED_BACK. Invalid transitions (e.g., DRAFT→ACTIVE, self-approval) MUST be
+    QUARANTINED or DENIED.
+  reference_hook: semantic_revision_lifecycle
+  applies_to: [AgentSelfRevision]
+  test_fixtures:
+    valid: spec/addenda/agent-self-v1/fixtures/revision-proposed.json
+    invalid: spec/addenda/agent-self-v1/fixtures/revision-self-approved.json
+
+- id: ATOM-AS-SEM-004
+  title: EffectiveSelfView non-authority
+  description: |
+    EffectiveSelfView MUST NOT contain operations, resources, or budget authority fields.
+    MUST carry derivation_digest, source_digests, generation, scope, expiry.
+    MUST NOT be accepted by Authority Kernel as grant input.
+  reference_hook: semantic_effective_self_view
+  applies_to: [EffectiveSelfView]
+  test_fixtures:
+    valid: spec/addenda/agent-self-v1/fixtures/effective-self-view.json
+    invalid: spec/addenda/agent-self-v1/fixtures/effective-self-view-with-authority.json
+
+- id: ATOM-AS-SEM-005
+  title: Workspace file validation
+  description: |
+    SOUL.md, IDENTITY.md, USER.md, MEMORY.md MUST pass: UTF-8 validation, deterministic normalization,
+    domain-separated SHA-256 digest, max file size (1 MiB), NUL/invalid encoding rejection,
+    atomic write, symlink escape protection, owner/permission check, generation counter,
+    rollback history, no plaintext secrets (entropy scan).
+  reference_hook: semantic_workspace_file
+  applies_to: [SOUL.md, IDENTITY.md, USER.md, MEMORY.md]
+  test_fixtures:
+    valid: spec/addenda/agent-self-v1/fixtures/identity-valid.md
+    invalid: spec/addenda/agent-self-v1/fixtures/identity-with-secret.md
+
+- id: ATOM-AS-SEM-006
+  title: Private profile egress blocking
+  description: |
+    Context assembler MUST NOT include raw USER.md or private MEMORY.md in: group channel,
+    peer protocol, delegated sub-agent context, external provider violating egress policy.
+    Sub-agent context MUST only contain DelegatedSelfView without private user profile.
+  reference_hook: semantic_context_isolation
+  applies_to: [ContextAssembly]
+  test_fixtures:
+    valid: spec/addenda/agent-self-v1/fixtures/context-delegated-view.json
+    invalid: spec/addenda/agent-self-v1/fixtures/context-with-private-profile.json
+
+- id: ATOM-AS-SEM-007
+  title: Revision digest chain integrity
+  description: |
+    AgentSelfRevision MUST carry parent_revision_digest linking to prior ACTIVE revision.
+    Content digest MUST be domain-separated SHA-256 of normalized content. Broken chain
+    or digest mismatch MUST produce QUARANTINED.
+  reference_hook: semantic_revision_digest_chain
+  applies_to: [AgentSelfRevision]
+  test_fixtures:
+    valid: spec/addenda/agent-self-v1/fixtures/revision-chain-valid.json
+    invalid: spec/addenda/agent-self-v1/fixtures/revision-chain-broken.json
+
+- id: ATOM-AS-SEM-008
+  title: Import scope restriction
+  description: |
+    atom workspace import --from openclaw/hermes MUST only populate persona/display metadata
+    (display_name, role, avatar_ref, signature_symbol, languages, voice, tone).
+    MUST NOT populate: owner_principal_id, workload identity, credentials, capability grants,
+    approval grants, tool permissions, authority profiles.
+  reference_hook: semantic_import_scope
+  applies_to: [WorkspaceImport]
+  test_fixtures:
+    valid: spec/addenda/agent-self-v1/fixtures/import-hermes-valid.json
+    invalid: spec/addenda/agent-self-v1/fixtures/import-with-authority.json

@@ -1,0 +1,14 @@
+{
+  "revision_id": "323e4567-e89b-12d3-a456-426614174020",
+  "agent_id": "123e4567-e89b-12d3-a456-426614174001",
+  "revision_type": "SOUL",
+  "target_profile_id": "223e4567-e89b-12d3-a456-426614174010",
+  "parent_revision_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "content_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "state": "PROPOSED",
+  "proposed_by": "123e4567-e89b-12d3-a456-426614174001",
+  "authorized_by": null,
+  "approval_grant_id": null,
+  "created_at": "2026-03-30T03:00:00Z",
+  "updated_at": "2026-03-30T03:00:00Z"
+}

@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-2020-12/schema#",
+  "$id": "spec/addenda/agent-self-v1/schemas/identity-command.schema.json",
+  "title": "IdentityCommand",
+  "description": "CLI command for identity/soul management with approval workflow",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "command",
+    "subcommand",
+    "agent_id",
+    "proposed_changes",
+    "requires_approval",
+    "approval_grant_id",
+    "status",
+    "created_at"
+  ],
+  "properties": {
+    "command": {
+      "type": "string",
+      "enum": ["identity", "soul", "workspace"],
+      "description": "Top-level command"
+    },
+    "subcommand": {
+      "type": "string",
+      "enum": ["show", "edit", "propose", "approve", "history", "rollback", "init", "import"],
+      "description": "Subcommand"
+    },
+    "agent_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Target agent"
+    },
+    "proposed_changes": {
+      "type": "object",
+      "description": "Proposed changes (diff or full new content)"
+    },
+    "requires_approval": {
+      "type": "boolean",
+      "description": "Whether owner approval is required per change_policy"
+    },
+    "approval_grant_id": {
+      "type": ["string", "null"],
+      "format": "uuid",
+      "description": "ApprovalGrant authorizing activation (null if pending)"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "PROPOSED", "PENDING_AUTHORIZATION", "ACTIVE", "SUPERSEDED", "REVOKED", "ROLLED_BACK", "QUARANTINED", "DENIED"],
+      "description": "Lifecycle status of the proposed change"
+    },
+    "diff": {
+      "type": ["string", "null"],
+      "description": "Human-readable diff shown to owner before approval"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "activated_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "When the change was activated (null if not yet)"
+    }
+  }
+}

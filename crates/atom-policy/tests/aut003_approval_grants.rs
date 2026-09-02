@@ -46,7 +46,27 @@ fn capability(
         parent_grant_id: None,
         nonce: None,
         constraints: None,
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
     }
+        workload_id: "workload-1".into(),
+        operations: operations.into_iter().map(str::to_owned).collect(),
+        resources,
+        purpose: "test-policy".into(),
+        not_before: now() - Duration::minutes(1),
+        expires_at: now() + Duration::hours(1),
+        budget,
+        delegation_depth: 1,
+        audience: "test".into(),
+        generation: 1,
+        revocation_state: RevocationState::Active,
+        parent_grant_id: None,
+        nonce: None,
+        constraints: None,
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
 }
 
 fn intent(

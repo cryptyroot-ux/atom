@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-2020-12/schema#",
+  "$id": "spec/addenda/agent-self-v1/schemas/context-assembly.schema.json",
+  "title": "ContextAssembly",
+  "description": "Deterministic context assembly with precedence order and provenance tracking",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "assembly_id",
+    "agent_id",
+    "precedence_order",
+    "items",
+    "derivation_digest",
+    "created_at"
+  ],
+  "properties": {
+    "assembly_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this assembly"
+    },
+    "agent_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Agent this context is assembled for"
+    },
+    "precedence_order": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "CANONICAL_CONSTITUTION",
+          "DEPLOYMENT_POLICY",
+          "AGENT_IDENTITY_PROFILE",
+          "SOUL_PROFILE",
+          "USER_PROFILE",
+          "MISSION_SPEC",
+          "CONTEXT_ITEMS",
+          "CURRENT_TURN"
+        ]
+      },
+      "minItems": 8,
+      "maxItems": 8,
+      "description": "Deterministic precedence order (must match exactly)"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "provenance", "trust_level", "sensitivity", "injection_risk", "digest"],
+        "properties": {
+          "source": { "type": "string" },
+          "provenance": { "type": "string" },
+          "trust_level": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW", "UNTRUSTED"] },
+          "sensitivity": { "type": "string", "enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"] },
+          "injection_risk": { "type": "string", "enum": ["NONE", "LOW", "MEDIUM", "HIGH"] },
+          "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        }
+      }
+    },
+    "derivation_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Domain-separated SHA-256 of all assembled items"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

@@ -1,0 +1,202 @@
+spec_version: 4.1.0
+addendum_id: agent-self-v1
+trace_rows:
+- id: ATOM-AS-TR-001
+  requirement: ATOM-AS-REQ-001
+  test: ATOM-AS-AT-001
+  invariant: ATOM-AS-INV-001
+  clause: CONS-ADD-002
+  schema: spec/addenda/agent-self-v1/schemas/agent-identity-profile.schema.json
+  note: AgentIdentityProfile data model
+
+- id: ATOM-AS-TR-002
+  requirement: ATOM-AS-REQ-002
+  test: ATOM-AS-AT-002
+  invariant: ATOM-AS-INV-001, ATOM-AS-INV-002
+  clause: CONS-ADD-001
+  schema: spec/addenda/agent-self-v1/schemas/soul-profile.schema.json
+  note: SoulProfile data model
+
+- id: ATOM-AS-TR-003
+  requirement: ATOM-AS-REQ-003
+  test: ATOM-AS-AT-003, ATOM-AS-AT-004, ATOM-AS-AT-005
+  invariant: ATOM-AS-INV-003
+  clause: CONS-ADD-003
+  schema: spec/addenda/agent-self-v1/schemas/agent-self-revision.schema.json
+  note: AgentSelfRevision lifecycle
+
+- id: ATOM-AS-TR-004
+  requirement: ATOM-AS-REQ-004
+  test: ATOM-AS-AT-006
+  invariant: ATOM-AS-INV-004
+  clause: CONS-ADD-001, CONS-ADD-002
+  schema: spec/addenda/agent-self-v1/schemas/effective-self-view.schema.json
+  note: EffectiveSelfView derivation
+
+- id: ATOM-AS-TR-005
+  requirement: ATOM-AS-REQ-005
+  test: ATOM-AS-AT-007, ATOM-AS-AT-008
+  invariant: ATOM-AS-INV-005
+  clause: CONS-ADD-006
+  schema: spec/addenda/agent-self-v1/schemas/workspace-file.schema.json
+  note: Workspace template and runtime layout
+
+- id: ATOM-AS-TR-006
+  requirement: ATOM-AS-REQ-006
+  test: ATOM-AS-AT-009
+  invariant: ATOM-AS-INV-004
+  clause: CONS-ADD-005, CONS-ADD-006
+  schema: spec/addenda/agent-self-v1/schemas/context-assembly.schema.json
+  note: Context assembly precedence
+
+- id: ATOM-AS-TR-007
+  requirement: ATOM-AS-REQ-007
+  test: ATOM-AS-AT-010, ATOM-AS-AT-011
+  invariant: ATOM-AS-INV-005
+  clause: CONS-ADD-005
+  schema: spec/addenda/agent-self-v1/schemas/context-assembly.schema.json
+  note: Private profile isolation
+
+- id: ATOM-AS-TR-008
+  requirement: ATOM-AS-REQ-008
+  test: ATOM-AS-AT-012, ATOM-AS-AT-013, ATOM-AS-AT-014
+  invariant: ATOM-AS-INV-003, ATOM-AS-INV-006
+  clause: CONS-ADD-003, CONS-ADD-006
+  schema: spec/addenda/agent-self-v1/schemas/identity-command.schema.json
+  note: CLI workspace and identity commands
+
+- id: ATOM-AS-TR-009
+  requirement: ATOM-AS-REQ-009
+  test: ATOM-AS-AT-015
+  invariant: ATOM-AS-INV-001, ATOM-AS-INV-002
+  clause: CONS-ADD-002, CONS-ADD-005
+  schema: spec/addenda/agent-self-v1/schemas/workspace-import.schema.json
+  note: Workspace import from external agents
+
+- id: ATOM-AS-TR-010
+  requirement: ATOM-AS-REQ-010
+  test: ATOM-AS-AT-016, ATOM-AS-AT-017, ATOM-AS-AT-018, ATOM-AS-AT-019, ATOM-AS-AT-020
+  invariant: ATOM-AS-INV-001, ATOM-AS-INV-002, ATOM-AS-INV-003, ATOM-AS-INV-004, ATOM-AS-INV-005
+  clause: CONS-ADD-001, CONS-ADD-002, CONS-ADD-003, CONS-ADD-004, CONS-ADD-005, CONS-ADD-006
+  schema: spec/addenda/agent-self-v1/schemas/constitutional-enforcement.schema.json
+  note: Constitutional clauses enforcement
+
+- id: ATOM-AS-TR-011
+  requirement: ATOM-AS-REQ-011
+  test: ATOM-AS-AT-021
+  invariant: ATOM-AS-INV-001
+  clause: CONS-ADD-006
+  schema: N/A (crate implementation)
+  note: atom-agent-profile crate implementation
+
+- id: ATOM-AS-TR-012
+  requirement: ATOM-AS-REQ-012
+  test: ATOM-AS-AT-001 through ATOM-AS-AT-020
+  invariant: ATOM-AS-INV-001 through ATOM-AS-INV-005
+  clause: CONS-ADD-001 through CONS-ADD-006
+  schema: N/A (test implementations)
+  note: Agent Self acceptance tests
+
+- id: ATOM-AS-TR-013
+  requirement: ATOM-AS-REQ-001
+  test: ATOM-AS-AT-001
+  invariant: ATOM-AS-INV-001
+  semantic: ATOM-AS-SEM-001
+  note: Profile digest integrity
+
+- id: ATOM-AS-TR-014
+  requirement: ATOM-AS-REQ-002
+  test: ATOM-AS-AT-002
+  invariant: ATOM-AS-INV-001, ATOM-AS-INV-002
+  semantic: ATOM-AS-SEM-002
+  note: Soul profile change policy binding
+
+- id: ATOM-AS-TR-015
+  requirement: ATOM-AS-REQ-003
+  test: ATOM-AS-AT-003, ATOM-AS-AT-004, ATOM-AS-AT-005
+  invariant: ATOM-AS-INV-003
+  semantic: ATOM-AS-SEM-003
+  note: Revision lifecycle enforcement
+
+- id: ATOM-AS-TR-016
+  requirement: ATOM-AS-REQ-004
+  test: ATOM-AS-AT-006
+  invariant: ATOM-AS-INV-004
+  semantic: ATOM-AS-SEM-004
+  note: EffectiveSelfView non-authority
+
+- id: ATOM-AS-TR-017
+  requirement: ATOM-AS-REQ-005
+  test: ATOM-AS-AT-007, ATOM-AS-AT-008
+  invariant: ATOM-AS-INV-005
+  semantic: ATOM-AS-SEM-005
+  note: Workspace file validation
+
+- id: ATOM-AS-TR-018
+  requirement: ATOM-AS-REQ-007
+  test: ATOM-AS-AT-010, ATOM-AS-AT-011
+  invariant: ATOM-AS-INV-005
+  semantic: ATOM-AS-SEM-006
+  note: Private profile egress blocking
+
+- id: ATOM-AS-TR-019
+  requirement: ATOM-AS-REQ-003
+  test: ATOM-AS-AT-003
+  invariant: ATOM-AS-INV-003
+  semantic: ATOM-AS-SEM-007
+  note: Revision digest chain integrity
+
+- id: ATOM-AS-TR-020
+  requirement: ATOM-AS-REQ-009
+  test: ATOM-AS-AT-015
+  invariant: ATOM-AS-INV-001, ATOM-AS-INV-002
+  semantic: ATOM-AS-SEM-008
+  note: Import scope restriction
+
+- id: ATOM-AS-TR-021
+  requirement: ATOM-AS-REQ-003
+  test: ATOM-AS-AT-003, ATOM-AS-AT-004, ATOM-AS-AT-005
+  state_machine: spec/addenda/agent-self-v1/state-machines/agent-self-revision.yaml
+  note: AgentSelfRevision state machine
+
+- id: ATOM-AS-TR-022
+  requirement: ATOM-AS-REQ-004
+  test: ATOM-AS-AT-006
+  state_machine: spec/addenda/agent-self-v1/state-machines/effective-self-view.yaml
+  note: EffectiveSelfView lifecycle
+
+- id: ATOM-AS-TR-023
+  requirement: ATOM-AS-REQ-005
+  test: ATOM-AS-AT-007, ATOM-AS-AT-008
+  state_machine: spec/addenda/agent-self-v1/state-machines/workspace-file.yaml
+  note: Workspace file lifecycle
+
+- id: ATOM-AS-TR-024
+  requirement: ATOM-AS-REQ-007
+  test: ATOM-AS-AT-010, ATOM-AS-AT-011
+  state_machine: spec/addenda/agent-self-v1/state-machines/context-isolation.yaml
+  note: Context isolation state machine
+
+- id: ATOM-AS-TR-025
+  requirement: ATOM-AS-REQ-008
+  test: ATOM-AS-AT-012, ATOM-AS-AT-013, ATOM-AS-AT-014
+  state_machine: spec/addenda/agent-self-v1/state-machines/identity-command.yaml
+  note: Identity command state machine
+
+- id: ATOM-AS-TR-026
+  requirement: ATOM-AS-REQ-009
+  test: ATOM-AS-AT-015
+  state_machine: spec/addenda/agent-self-v1/state-machines/workspace-import.yaml
+  note: Workspace import state machine
+
+- id: ATOM-AS-TR-027
+  requirement: ATOM-AS-REQ-010
+  test: ATOM-AS-AT-016 through ATOM-AS-AT-020
+  state_machine: spec/addenda/agent-self-v1/state-machines/constitutional-enforcement.yaml
+  note: Constitutional enforcement state machine
+
+- id: ATOM-AS-TR-028
+  requirement: ATOM-AS-REQ-011
+  test: ATOM-AS-AT-021
+  state_machine: N/A
+  note: atom-agent-profile crate integration

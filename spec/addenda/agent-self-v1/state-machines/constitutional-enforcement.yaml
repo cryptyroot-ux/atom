@@ -1,0 +1,12 @@
+spec_version: 4.1.0
+addendum_id: agent-self-v1
+state_machine: ConstitutionalEnforcement
+states: [EVALUATING, ALLOWED, DENIED, QUARANTINED]
+initial_state: EVALUATING
+transitions:
+  - from: EVALUATING
+    to: [ALLOWED]
+    trigger: invariant_satisfied
+  - from: EVALUATING
+    to: [DENIED, QUARANTINED]
+    trigger: invariant_violation_detected

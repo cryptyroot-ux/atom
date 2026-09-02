@@ -71,7 +71,6 @@ pub fn all_ops() -> Vec<HostOp> {
 /// An active grant that authorises the operation `op` names on its resource.
 #[must_use]
 pub fn grant_for(op: &HostOp) -> CapabilityGrant {
-    CapabilityGrant {
         grant_id: GRANT_ID.into(),
         subject_id: PRINCIPAL.into(),
         workload_id: "workload/atomd".into(),
@@ -94,7 +93,9 @@ pub fn grant_for(op: &HostOp) -> CapabilityGrant {
         parent_grant_id: None,
         nonce: None,
         constraints: None,
-    }
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
 }
 
 /// A grant that covers `read`/`write` on several files at once.
@@ -103,7 +104,6 @@ pub fn grant_for(op: &HostOp) -> CapabilityGrant {
 /// another the same grant happens to cover.
 #[must_use]
 pub fn grant_covering(paths: &[&str]) -> CapabilityGrant {
-    CapabilityGrant {
         resources: paths
             .iter()
             .map(|path| ResourceSelector {
@@ -115,25 +115,29 @@ pub fn grant_covering(paths: &[&str]) -> CapabilityGrant {
             path: paths[0].into(),
             contents: String::new(),
         })
-    }
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
 }
 
 /// The same grant after the owner revoked it (ATOM-VT-003).
 #[must_use]
 pub fn revoked(grant: &CapabilityGrant) -> CapabilityGrant {
-    CapabilityGrant {
         revocation_state: RevocationState::Revoked,
         ..grant.clone()
-    }
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
 }
 
 /// The same grant after a re-issue bumped its generation (ATOM-VT-003).
 #[must_use]
 pub fn regenerated(grant: &CapabilityGrant) -> CapabilityGrant {
-    CapabilityGrant {
         generation: GRANT_GENERATION + 1,
         ..grant.clone()
-    }
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
 }
 
 /// A witness of `value` on the resource `op` targets.

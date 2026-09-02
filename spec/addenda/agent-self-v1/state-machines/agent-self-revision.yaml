@@ -1,0 +1,22 @@
+spec_version: 4.1.0
+addendum_id: agent-self-v1
+state_machine: AgentSelfRevision
+states: [DRAFT, PROPOSED, PENDING_AUTHORIZATION, ACTIVE, SUPERSEDED, REVOKED, ROLLED_BACK, QUARANTINED, DENIED]
+initial_state: DRAFT
+transitions:
+  - from: DRAFT
+    to: [PROPOSED, QUARANTINED, DENIED]
+    trigger: propose_revision
+  - from: PROPOSED
+    to: [PENDING_AUTHORIZATION, QUARANTINED, DENIED]
+    trigger: request_authorization
+  - from: PENDING_AUTHORIZATION
+    to: [ACTIVE, QUARANTINED, DENIED]
+    trigger: authorize_and_activate
+    constraint: owner_approval_required_and_not_self_approved
+  - from: ACTIVE
+    to: [SUPERSEDED, REVOKED, ROLLED_BACK]
+    trigger: supersede_or_rollback
+  - from: [*]
+    to: [QUARANTINED, DENIED]
+    trigger: invariant_violation_or_tampering

@@ -1,0 +1,15 @@
+spec_version: 4.1.0
+addendum_id: agent-self-v1
+state_machine: WorkspaceFile
+states: [DRAFT, VALIDATED, ACTIVE, ARCHIVED, QUARANTINED]
+initial_state: DRAFT
+transitions:
+  - from: DRAFT
+    to: [VALIDATED, QUARANTINED]
+    trigger: validate_frontmatter_and_digest
+  - from: VALIDATED
+    to: [ACTIVE]
+    trigger: mount_in_workspace
+  - from: ACTIVE
+    to: [ARCHIVED, QUARANTINED]
+    trigger: supersede_or_tamper_detected

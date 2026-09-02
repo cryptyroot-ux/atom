@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-2020-12/schema#",
+  "$id": "spec/addenda/agent-self-v1/schemas/workspace-import.schema.json",
+  "title": "WorkspaceImport",
+  "description": "Import of persona/display metadata from external agents (Hermes, OpenClaw)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "import_id",
+    "source",
+    "agent_id",
+    "imported_fields",
+    "excluded_fields",
+    "content_digest",
+    "status",
+    "created_at"
+  ],
+  "properties": {
+    "import_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique import operation identifier"
+    },
+    "source": {
+      "type": "string",
+      "enum": ["HERMES", "OPENCLAW", "MCP", "A2A"],
+      "description": "External agent source"
+    },
+    "agent_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Target agent receiving import"
+    },
+    "imported_fields": {
+      "type": "object",
+      "description": "Persona/display metadata imported (display_name, role, avatar_ref, signature_symbol, languages, voice, tone, tone_config)",
+      "additionalProperties": true
+    },
+    "excluded_fields": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Fields explicitly NOT imported (owner_principal_id, workload_id, credentials, grants, tool_permissions, authority_profiles)"
+    },
+    "content_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Domain-separated SHA-256 of imported data"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["SUCCESS", "PARTIAL", "FAILED", "REJECTED"],
+      "description": "Import operation status"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}
