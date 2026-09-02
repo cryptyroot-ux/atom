@@ -20,6 +20,7 @@ pub mod artifact_ops;
 pub mod boot;
 pub mod config;
 pub mod diagnostics;
+pub mod setup;
 
 pub use config::SigningConfig;
 
@@ -57,6 +58,21 @@ pub struct Cli {
 /// The `atom` subcommands.
 #[derive(Debug, Subcommand)]
 pub enum Command {
+    /// Configure the installed daemon and optional model provider.
+    Setup {
+        /// Read the provider bearer key from this file (never printed).
+        #[arg(long, value_name = "PATH", conflicts_with = "no_provider")]
+        provider_key_file: Option<PathBuf>,
+        /// OpenAI-compatible gateway root URL.
+        #[arg(long, value_name = "URL")]
+        provider_base_url: Option<String>,
+        /// Provider model identifier.
+        #[arg(long, value_name = "MODEL")]
+        provider_model: Option<String>,
+        /// Disable provider cognition and use native cognition.
+        #[arg(long)]
+        no_provider: bool,
+    },
     /// Show whether the installed daemon and local health endpoint are ready.
     Status,
 
@@ -179,6 +195,17 @@ pub enum Command {
 /// exit non-zero).
 pub fn run(cli: Cli) -> Result<()> {
     match cli.command {
+        Command::Setup {
+            provider_key_file,
+            provider_base_url,
+            provider_model,
+            no_provider,
+        } => setup::run(setup::SetupOptions {
+            provider_key_file,
+            provider_base_url,
+            provider_model,
+            no_provider,
+        }),
         Command::Status => diagnostics::status(&diagnostics::default_addr()),
         Command::Doctor => diagnostics::doctor(&diagnostics::default_addr()),
         Command::Serve {
@@ -251,6 +278,7 @@ pub fn run(cli: Cli) -> Result<()> {
 fn run_signed(cli: Cli, cfg: SigningConfig) -> Result<()> {
     match cli.command {
         Command::Status | Command::Doctor => unreachable!("diagnostics are handled before signing"),
+        Command::Setup { .. } => unreachable!("setup is handled before signing"),
         Command::Run => {
             let report = boot::boot(&cfg)?;
             print!("{report}");
@@ -319,6 +347,7 @@ mod tests {
     fn parses_run_seal_verify() {
         assert!(Cli::try_parse_from(["atom", "status"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "doctor"]).is_ok());
+        assert!(Cli::try_parse_from(["atom", "setup", "--no-provider"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "run"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "serve"]).is_err());
         assert!(Cli::try_parse_from([
