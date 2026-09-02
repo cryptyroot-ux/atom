@@ -14,7 +14,9 @@
 mod broker;
 mod executor;
 mod op;
+mod sandbox;
 
 pub use broker::{AdmissionRequest, Admitted, DenyReason, PrivilegeBroker};
 pub use executor::{ExecError, HostExecutor, OpOutcome};
 pub use op::{HostOp, OpError};
+pub use sandbox::SandboxedHostExecutor;
