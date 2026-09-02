@@ -16,9 +16,11 @@
 pub mod executor;
 pub mod provider;
 pub mod queue;
+pub mod tools;
 
 pub use executor::{AtomExecutor, ExecutorConfig};
 pub use provider::{
     CachedProvider, HttpProposalClient, ProviderConfig, ProviderError, ProviderPlan,
 };
 pub use queue::{ClaimOutcome, MissionPhaseTag, MissionQueue, RunResult, TransitionError};
+pub use tools::{ReadOnlyDispatcher, ReadOnlyTool, ToolError};
