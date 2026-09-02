@@ -104,6 +104,7 @@ pub fn grant_for(op: &HostOp) -> CapabilityGrant {
 /// another the same grant happens to cover.
 #[must_use]
 pub fn grant_covering(paths: &[&str]) -> CapabilityGrant {
+    CapabilityGrant {
         resources: paths
             .iter()
             .map(|path| ResourceSelector {
@@ -115,29 +116,25 @@ pub fn grant_covering(paths: &[&str]) -> CapabilityGrant {
             path: paths[0].into(),
             contents: String::new(),
         })
-        authority_digest: None,
-        holder_binding: None,
-        parent_authority_digest: None,
+    }
 }
 
 /// The same grant after the owner revoked it (ATOM-VT-003).
 #[must_use]
 pub fn revoked(grant: &CapabilityGrant) -> CapabilityGrant {
+    CapabilityGrant {
         revocation_state: RevocationState::Revoked,
         ..grant.clone()
-        authority_digest: None,
-        holder_binding: None,
-        parent_authority_digest: None,
+    }
 }
 
 /// The same grant after a re-issue bumped its generation (ATOM-VT-003).
 #[must_use]
 pub fn regenerated(grant: &CapabilityGrant) -> CapabilityGrant {
+    CapabilityGrant {
         generation: GRANT_GENERATION + 1,
         ..grant.clone()
-        authority_digest: None,
-        holder_binding: None,
-        parent_authority_digest: None,
+    }
 }
 
 /// A witness of `value` on the resource `op` targets.

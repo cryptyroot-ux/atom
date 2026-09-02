@@ -35,7 +35,9 @@ fn parent_grant() -> CapabilityGrant {
         authority_digest: None,
         holder_binding: None,
         parent_authority_digest: None,
+    }
 }
+
 fn child_subset(parent: &CapabilityGrant) -> CapabilityGrant {
     let mut c = parent.clone();
     c.grant_id = "child".into();

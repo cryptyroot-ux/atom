@@ -281,6 +281,7 @@ impl HostExecutor for RecordingExecutor {
 }
 
 fn host_grant(now: DateTime<Utc>, target_id: &str) -> CapabilityGrant {
+    CapabilityGrant {
         grant_id: "host-grant".to_owned(),
         subject_id: "runtime-workload".to_owned(),
         workload_id: "runtime".to_owned(),
@@ -306,6 +307,7 @@ fn host_grant(now: DateTime<Utc>, target_id: &str) -> CapabilityGrant {
         authority_digest: None,
         holder_binding: None,
         parent_authority_digest: None,
+    }
 }
 
 #[test]

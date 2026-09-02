@@ -31,9 +31,6 @@ fn high_risk_item() -> ContextItem {
 }
 
 fn declassify_grant() -> CapabilityGrant {
-    authority_digest: None,
-    holder_binding: None,
-    parent_authority_digest: None,
     let mut grant = AuthorityProfile::Admin.compile("owner", "governance", "declassify-review");
     grant.operations = vec!["declassify".into()];
     grant.not_before = now() - Duration::hours(1);
