@@ -217,6 +217,11 @@ impl Store {
                 object_field(payload, "grant", APPROVAL_STREAM)?,
                 "approval grant",
             ),
+            "redeemed" => {
+                let grant = object_field(payload, "grant", APPROVAL_STREAM)?;
+                upsert(&mut self.approvals, "grant_id", grant, "approval grant")?;
+                Ok(())
+            }
             other => bail!("unknown `{APPROVAL_STREAM}` event `{other}`"),
         }
     }
@@ -260,6 +265,28 @@ impl Store {
             now_millis(),
         )?;
         upsert(&mut self.approvals, "grant_id", grant, "approval grant")
+    }
+
+    pub fn redeem_approval(&mut self, grant_id: &str) -> anyhow::Result<Value> {
+        let Some(mut grant) = self
+            .approvals
+            .iter()
+            .find(|v| v["grant_id"] == grant_id)
+            .cloned()
+        else {
+            bail!("approval grant `{grant_id}` not found")
+        };
+        if grant["redeemed"].as_bool().unwrap_or(false) {
+            bail!("approval grant `{grant_id}` already redeemed")
+        }
+        grant["redeemed"] = Value::Bool(true);
+        self.ledger.append(
+            APPROVAL_STREAM,
+            &serde_json::json!({"event":"redeemed", "grant_id":grant_id, "grant":grant}),
+            now_millis(),
+        )?;
+        upsert(&mut self.approvals, "grant_id", &grant, "approval grant")?;
+        Ok(grant)
     }
 
     pub fn append_mission_created(&mut self, mission: &Value) -> anyhow::Result<()> {
