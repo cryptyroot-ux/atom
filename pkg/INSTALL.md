@@ -140,6 +140,28 @@ curl -sS http://127.0.0.1:8420/health
 Re-running the installer is safe and preserves the existing signing secret and
 state database.
 
+### One-liner installer (deterministic revisions)
+
+The universal installer pulls a release binary **only when it resolves to the
+same commit as the pinned source ref**; otherwise it builds from source. The
+installer, binary, and systemd templates therefore always come from one revision:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cryptyroot-ux/atom/atom-v4.1-migration-hardening/pkg/scripts/install-universal.sh | bash
+```
+
+- `ATOM_REF` (default `atom-v4.1-migration-hardening`) pins the source ref.
+- `ATOM_VERSION` pins an exact release tag; that tag is used or source-built, never a different one.
+- Without `ATOM_VERSION`, the latest release is used only when its commit SHA
+  equals the pinned ref's; a release behind the branch falls back to a source build.
+- `ATOM_BINARY_URL` + `ATOM_BINARY_SHA256` accept an operator-supplied binary (never replaced).
+
+For example, to force the official `0.0.0-alpha.1` release instead of the moving branch:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cryptyroot-ux/atom/atom-v4.1-migration-hardening/pkg/scripts/install-universal.sh | ATOM_VERSION=0.0.0-alpha.1 bash
+```
+
 ### Manual installation
 
 For a complete unattended setup, use `pkg/scripts/install.sh` above. If you
