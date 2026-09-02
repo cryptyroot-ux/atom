@@ -1,9 +1,12 @@
+use std::sync::Arc;
+
 use atom_ledger::HmacSha256Signer;
 use atom_server::app::build_router;
 use atom_server::store::Store;
 use axum::body::Body;
 use axum::http::Request;
 use http_body_util::BodyExt;
+use tokio::sync::Mutex;
 use tower::ServiceExt;
 
 fn test_router() -> axum::Router {
@@ -12,7 +15,12 @@ fn test_router() -> axum::Router {
         b"00000000000000000000000000000000",
     ));
     let store = Store::open_in_memory(signer).unwrap();
-    build_router("0.0.0-alpha", 32, std::time::Instant::now(), store)
+    build_router(
+        "0.0.0-alpha",
+        32,
+        std::time::Instant::now(),
+        Arc::new(Mutex::new(store)),
+    )
 }
 
 async fn body_json(resp: axum::response::Response) -> serde_json::Value {
@@ -20,10 +28,22 @@ async fn body_json(resp: axum::response::Response) -> serde_json::Value {
     serde_json::from_slice(&bytes).unwrap()
 }
 
+fn complete_contract(goal: &str) -> serde_json::Value {
+    serde_json::json!({
+        "goal": goal,
+        "success_criteria": ["return verified result"],
+        "constraints": ["do not dispatch an unapproved effect"],
+        "budgets": { "max_steps": 16 },
+        "authority_profile_ref": "authority/test-read-only",
+        "evidence_requirements": ["record a test report"],
+        "stopping_rules": ["stop when a policy denial occurs"]
+    })
+}
+
 #[tokio::test]
 async fn create_and_get_mission_roundtrip() {
     let app = test_router();
-    let body = serde_json::json!({ "goal": "compare atom vs hermes vs openclaw" });
+    let body = complete_contract("compare atom vs hermes vs openclaw");
     let created = app
         .clone()
         .oneshot(
@@ -74,7 +94,7 @@ async fn get_missing_mission_is_not_found() {
 #[tokio::test]
 async fn cancel_mission_returns_ok() {
     let app = test_router();
-    let body = serde_json::json!({ "goal": "cancel me" });
+    let body = complete_contract("cancel me");
     let created = app
         .clone()
         .oneshot(
@@ -120,7 +140,7 @@ async fn cancel_mission_returns_ok() {
 #[tokio::test]
 async fn create_mission_empty_goal_is_bad_request() {
     let app = test_router();
-    let body = serde_json::json!({ "goal": "  " });
+    let body = complete_contract("  ");
     let resp = app
         .oneshot(
             Request::builder()
@@ -133,4 +153,26 @@ async fn create_mission_empty_goal_is_bad_request() {
         .await
         .unwrap();
     assert_eq!(resp.status(), axum::http::StatusCode::BAD_REQUEST);
+}
+
+/// ATOM-V4-MSN-001: a goal alone is not a mission contract. The daemon needs
+/// criteria, constraints, budget, authority, evidence, and stopping rules
+/// before it can honestly accept work.
+#[tokio::test]
+async fn create_mission_rejects_an_incomplete_contract() {
+    let app = test_router();
+    let body = serde_json::json!({ "goal": "an underspecified mission" });
+    let response = app
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/missions")
+                .header("content-type", "application/json")
+                .body(Body::from(body.to_string()))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), axum::http::StatusCode::BAD_REQUEST);
 }

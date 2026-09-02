@@ -1,9 +1,12 @@
+use std::sync::Arc;
+
 use atom_ledger::HmacSha256Signer;
 use atom_server::app::build_router;
 use atom_server::store::Store;
 use axum::body::Body;
 use axum::http::Request;
 use http_body_util::BodyExt;
+use tokio::sync::Mutex;
 use tower::ServiceExt;
 
 fn test_router() -> axum::Router {
@@ -12,7 +15,12 @@ fn test_router() -> axum::Router {
         b"00000000000000000000000000000000",
     ));
     let store = Store::open_in_memory(signer).unwrap();
-    build_router("0.0.0-alpha", 32, std::time::Instant::now(), store)
+    build_router(
+        "0.0.0-alpha",
+        32,
+        std::time::Instant::now(),
+        Arc::new(Mutex::new(store)),
+    )
 }
 
 async fn body_json(resp: axum::response::Response) -> serde_json::Value {

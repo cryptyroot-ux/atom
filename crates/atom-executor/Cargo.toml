@@ -1,0 +1,26 @@
+[package]
+name = "atom-executor"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "ATOM daemon execution spine: a persistent mission queue that claims missions idempotently, drives each through the sovereign runtime, and records durable phase transitions on the server ledger."
+
+[dependencies]
+atom-server = { path = "../atom-server" }
+atom-runtime = { path = "../atom-runtime" }
+atom-scheduler = { path = "../atom-scheduler" }
+atom-worker = { path = "../atom-worker" }
+atom-mission = { path = "../atom-mission" }
+atom-provider = { path = "../atom-provider" }
+atom-ledger = { path = "../atom-ledger" }
+tokio = { version = "1", features = ["macros", "rt", "sync", "net", "time"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"
+httpmock = "0.7"

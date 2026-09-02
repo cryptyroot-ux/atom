@@ -1,9 +1,11 @@
 use std::io::{Read, Write};
 use std::net::TcpListener;
+use std::sync::Arc;
 
 use atom_ledger::HmacSha256Signer;
 use atom_server::app::serve;
 use atom_server::store::Store;
+use tokio::sync::Mutex;
 
 /// Finds a free ephemeral port, returns it, and releases the listener so the
 /// server can bind it.
@@ -22,7 +24,7 @@ async fn serve_health_reports_healthy() {
         "test",
         b"00000000000000000000000000000000",
     ));
-    let store = Store::open_in_memory(signer).unwrap();
+    let store = Arc::new(Mutex::new(Store::open_in_memory(signer).unwrap()));
     let handle = tokio::spawn(async move {
         serve("0.0.0-alpha", 24, addr, store).await.unwrap();
     });

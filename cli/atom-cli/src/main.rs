@@ -8,5 +8,8 @@
 use clap::Parser;
 
 fn main() -> anyhow::Result<()> {
+    if std::env::args_os().len() == 1 {
+        return atom_cli::interactive::run();
+    }
     atom_cli::run(atom_cli::Cli::parse())
 }

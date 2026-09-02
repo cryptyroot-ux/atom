@@ -19,10 +19,16 @@
 pub mod artifact_ops;
 pub mod boot;
 pub mod config;
+pub mod diagnostics;
+pub mod interactive;
+pub mod setup;
 
 pub use config::SigningConfig;
 
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 use anyhow::{anyhow, Context, Result};
 use clap::{Parser, Subcommand};
@@ -53,6 +59,27 @@ pub struct Cli {
 /// The `atom` subcommands.
 #[derive(Debug, Subcommand)]
 pub enum Command {
+    /// Configure the installed daemon and optional model provider.
+    Setup {
+        /// Read the provider bearer key from this file (never printed).
+        #[arg(long, value_name = "PATH", conflicts_with = "no_provider")]
+        provider_key_file: Option<PathBuf>,
+        /// OpenAI-compatible gateway root URL.
+        #[arg(long, value_name = "URL")]
+        provider_base_url: Option<String>,
+        /// Provider model identifier.
+        #[arg(long, value_name = "MODEL")]
+        provider_model: Option<String>,
+        /// Disable provider cognition and use native cognition.
+        #[arg(long)]
+        no_provider: bool,
+    },
+    /// Show whether the installed daemon and local health endpoint are ready.
+    Status,
+
+    /// Run read-only checks for the local installation.
+    Doctor,
+
     /// Boot runtime + scheduler + worker in-process and drive one real mutation.
     Run,
 
@@ -66,6 +93,65 @@ pub enum Command {
             env = "ATOM_SERVE_ADDR"
         )]
         addr: String,
+
+        /// SQLite database containing authoritative daemon state. Required so
+        /// a restarted server rebuilds from the ledger rather than losing missions.
+        #[arg(long, value_name = "PATH", env = "ATOM_STATE_DB")]
+        state_db: PathBuf,
+
+        /// Disable the background mission executor (useful for testing).
+        #[arg(long, env = "ATOM_NO_EXECUTOR")]
+        no_executor: bool,
+
+        /// Disable the HTTP model-provider cognition backend (falls back to the
+        /// built-in native cognition loop).
+        #[arg(long, env = "ATOM_NO_PROVIDER", default_value_t = false)]
+        no_provider: bool,
+
+        /// Base URL of the OpenAI-compatible model gateway used as the mission
+        /// cognition backend, e.g. `https://free.pango.fun`.
+        #[arg(long, value_name = "BASE_URL", env = "ATOM_PROVIDER_BASE_URL")]
+        provider_base_url: Option<String>,
+
+        /// Model identifier requested from the provider gateway.
+        #[arg(long, value_name = "MODEL", env = "ATOM_PROVIDER_MODEL")]
+        provider_model: Option<String>,
+
+        /// Total provider HTTP timeout in milliseconds.
+        #[arg(
+            long,
+            value_name = "MILLISECONDS",
+            env = "ATOM_PROVIDER_TIMEOUT_MS",
+            default_value_t = 30_000
+        )]
+        provider_timeout_ms: u64,
+
+        /// Number of retries after the initial provider request.
+        #[arg(
+            long,
+            value_name = "COUNT",
+            env = "ATOM_PROVIDER_MAX_RETRIES",
+            default_value_t = 2
+        )]
+        provider_max_retries: u32,
+
+        /// Initial provider retry backoff in milliseconds.
+        #[arg(
+            long,
+            value_name = "MILLISECONDS",
+            env = "ATOM_PROVIDER_BACKOFF_MS",
+            default_value_t = 250
+        )]
+        provider_backoff_ms: u64,
+
+        /// Maximum number of commands accepted in one provider plan.
+        #[arg(
+            long,
+            value_name = "COUNT",
+            env = "ATOM_PROVIDER_MAX_PLAN_STEPS",
+            default_value_t = 8
+        )]
+        provider_max_plan_steps: usize,
     },
 
     /// Seal bytes into a content-addressed, signed artifact (SUP-001).
@@ -110,14 +196,78 @@ pub enum Command {
 /// exit non-zero).
 pub fn run(cli: Cli) -> Result<()> {
     match cli.command {
-        Command::Serve { addr } => {
+        Command::Setup {
+            provider_key_file,
+            provider_base_url,
+            provider_model,
+            no_provider,
+        } => setup::run(setup::SetupOptions {
+            provider_key_file,
+            provider_base_url,
+            provider_model,
+            no_provider,
+        }),
+        Command::Status => diagnostics::status(&diagnostics::default_addr()),
+        Command::Doctor => diagnostics::doctor(&diagnostics::default_addr()),
+        Command::Serve {
+            addr,
+            state_db,
+            no_executor,
+            no_provider,
+            provider_base_url,
+            provider_model,
+            provider_timeout_ms,
+            provider_max_retries,
+            provider_backoff_ms,
+            provider_max_plan_steps,
+        } => {
             let version = env!("CARGO_PKG_VERSION");
             let crates_loaded = boot::subsystem_count();
-            let store = atom_server::store::Store::open(None)?;
+            let signing = SigningConfig::load(cli.config.as_deref())?;
+            let signer = Box::new(atom_ledger::HmacSha256Signer::new(
+                &signing.key_id,
+                &signing.secret,
+            ));
+            let store = Arc::new(tokio::sync::Mutex::new(atom_server::store::Store::open(
+                &state_db, signer,
+            )?));
             let addr = addr
                 .parse::<std::net::SocketAddr>()
                 .with_context(|| format!("parsing bind address `{addr}`"))?;
-            let future = atom_server::app::serve(version, crates_loaded, addr, store);
+            let future = async move {
+                if !no_executor {
+                    let mut executor_config = atom_executor::ExecutorConfig::default();
+                    // Durable crash recovery lives beside the ledger state db
+                    // (e.g. `/var/lib/atom/recovery`), so a dead daemon's
+                    // `RUNNING` missions can be replayed deterministically.
+                    if let Some(parent) = std::path::Path::new(&state_db).parent() {
+                        executor_config.recovery_dir = Some(parent.to_path_buf());
+                    }
+                    if !no_provider {
+                        if let (Some(base_url), Some(model)) = (provider_base_url, provider_model) {
+                            executor_config.provider = atom_executor::ProviderConfig {
+                                enabled: true,
+                                base_url,
+                                model,
+                                api_key: std::env::var("ATOM_PROVIDER_API_KEY").unwrap_or_default(),
+                                timeout_ms: provider_timeout_ms,
+                                max_retries: provider_max_retries,
+                                backoff_ms: provider_backoff_ms,
+                                max_plan_steps: provider_max_plan_steps,
+                                ..atom_executor::ProviderConfig::default()
+                            };
+                        }
+                    }
+                    let executor = atom_executor::AtomExecutor::new(store.clone(), executor_config);
+                    let exec_handle = tokio::spawn(executor.run());
+                    let serve = atom_server::app::serve(version, crates_loaded, addr, store);
+                    let (_, serve_res) = tokio::join!(exec_handle, serve);
+                    serve_res?;
+                } else {
+                    atom_server::app::serve(version, crates_loaded, addr, store).await?;
+                }
+                Ok::<(), anyhow::Error>(())
+            };
             let runtime = tokio::runtime::Builder::new_multi_thread()
                 .enable_all()
                 .build()
@@ -134,12 +284,14 @@ pub fn run(cli: Cli) -> Result<()> {
 
 fn run_signed(cli: Cli, cfg: SigningConfig) -> Result<()> {
     match cli.command {
+        Command::Status | Command::Doctor => unreachable!("diagnostics are handled before signing"),
+        Command::Setup { .. } => unreachable!("setup is handled before signing"),
         Command::Run => {
             let report = boot::boot(&cfg)?;
             print!("{report}");
             Ok(())
         }
-        Command::Serve { .. } => Err(anyhow!("`atom serve` does not load a signing config")),
+        Command::Serve { .. } => Err(anyhow!("`atom serve` is dispatched before signed commands")),
         Command::Seal {
             content,
             input,
@@ -200,9 +352,20 @@ mod tests {
 
     #[test]
     fn parses_run_seal_verify() {
+        assert!(Cli::try_parse_from(["atom", "status"]).is_ok());
+        assert!(Cli::try_parse_from(["atom", "doctor"]).is_ok());
+        assert!(Cli::try_parse_from(["atom", "setup", "--no-provider"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "run"]).is_ok());
-        assert!(Cli::try_parse_from(["atom", "serve"]).is_ok());
-        assert!(Cli::try_parse_from(["atom", "serve", "--addr", "0.0.0.0:9000"]).is_ok());
+        assert!(Cli::try_parse_from(["atom", "serve"]).is_err());
+        assert!(Cli::try_parse_from([
+            "atom",
+            "serve",
+            "--addr",
+            "0.0.0.0:9000",
+            "--state-db",
+            "atom.sqlite",
+        ])
+        .is_ok());
         assert!(Cli::try_parse_from(["atom", "seal", "hello"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "verify", "a.json"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "bogus-subcommand"]).is_err());

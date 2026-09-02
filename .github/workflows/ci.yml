@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Rust (edition 2022)
+      - name: Install Rust (edition 2021)
         uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt

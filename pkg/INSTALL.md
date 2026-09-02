@@ -22,10 +22,12 @@ This guide documents how to install and run the `atom` sovereign binary on a fre
 
 ## Environment Configuration
 
-`atom` signs and verifies content-addressed artifacts (SUP-001). You **must** provide a signing key via environment variables — **never hardcode secrets**.
+`atom` signs and verifies content-addressed artifacts (SUP-001), and `atom serve`
+uses the same signing identity for its authoritative ledger. You **must** provide
+a signing key via environment variables — **never hardcode secrets**.
 
 ```bash
-# Required for `atom seal` and `atom verify`
+# Required for `atom seal`, `atom verify`, and `atom serve`
 export ATOM_SIGNING_KEY_ID="my-signing-key-v1"     # arbitrary identifier
 export ATOM_SIGNING_SECRET="base64-or-hex-secret"   # the actual secret bytes
 ```
@@ -47,7 +49,7 @@ cargo install --path cli/atom-cli --locked
 
 # 3. Verify installation
 atom --version
-# → atom 0.0.0-alpha.0
+# → atom 0.0.0-alpha.1
 ```
 
 The binary is installed to `~/.cargo/bin/atom` (ensure `~/.cargo/bin` is in your `PATH`).
@@ -88,54 +90,101 @@ atom verify test.atom.json
 
 ## Running as a Daemon (systemd)
 
+### Automatic installer (Debian/Ubuntu)
+
+From an Atom checkout, run as root. The installer builds the release binary,
+creates the unprivileged `atom` user, provisions `/var/lib/atom`, generates a
+root-owned signing credential, installs the systemd unit, and enables it at boot:
+
 ```bash
-# 1. Copy the service file
-sudo cp atom.service /etc/systemd/system/atom.service
-
-# 2. Set env in service or drop a file at /etc/atom/env
-sudo mkdir -p /etc/atom
-cat <<'EOF' | sudo tee /etc/atom/env
-ATOM_SERVE_ADDR=127.0.0.1:8420
-EOF
-sudo chmod 600 /etc/atom/env
-
-# 3. Enable + start
-sudo systemctl daemon-reload
-sudo systemctl enable --now atom
+sudo ./pkg/scripts/install.sh --no-provider
 ```
+
+To enable an OpenAI-compatible gateway, pass a root-readable key file. The key
+contents are copied into `/etc/atom/provider-api-key` with mode `0640` and are
+loaded through systemd credentials; they are never printed:
+
+```bash
+sudo ./pkg/scripts/install.sh \
+  --provider-key-file /root/.secrets/provider-api-key \
+  --provider-base-url https://free.pango.fun \
+  --provider-model auto
+```
+
+The provider base URL is the gateway root; Atom appends `/v1/chat/completions`.
+Verify the installation with:
+
+```bash
+systemctl status atom --no-pager
+curl -sS http://127.0.0.1:8420/health
+```
+
+Re-running the installer is safe and preserves the existing signing secret and
+state database.
+
+### Manual installation
+
+For a complete unattended setup, use `pkg/scripts/install.sh` above. If you
+install manually, the unit expects `/etc/atom/signing-secret` and
+`/etc/atom/provider-api-key` as root-owned files readable by group `atom`, plus
+optional non-secret settings in `/etc/atom/env`.
 
 ## Running the HTTP API Server
 
 ```bash
-# Bind the HTTP API on the default address 127.0.0.1:8420
-atom serve
+# Bind the durable HTTP API on the default address 127.0.0.1:8420.
+# A state DB is required; use a non-temporary location in real operation.
+mkdir -p ./state
+atom serve --state-db ./state/atom.sqlite
 
 # Or pick a specific address
-atom serve --addr 0.0.0.0:8420
+atom serve --addr 0.0.0.0:8420 --state-db ./state/atom.sqlite
 # Equivalent via environment:
-ATOM_SERVE_ADDR=0.0.0.0:8420 atom serve
+ATOM_SERVE_ADDR=0.0.0.0:8420 ATOM_STATE_DB=./state/atom.sqlite atom serve
 ```
 
 Smoke check against the running server (OpenAPI `/health`):
 
 ```bash
 curl -s http://127.0.0.1:8420/health
-# → {"status":"healthy","version":"0.0.0-alpha.0","crates_loaded":24}
+# → {"status":"healthy","version":"0.0.0-alpha.1","crates_loaded":24}
 ```
+
+This starts the durable HTTP control plane with the native cognition loop. To
+enable the optional OpenAI-compatible cognition backend, provide the gateway
+base URL and model; keep the bearer token in the environment (never in a command
+line argument):
+
+```bash
+export ATOM_PROVIDER_API_KEY="managed-secret"
+atom serve --state-db ./state/atom.sqlite \
+  --provider-base-url https://gateway.example \
+  --provider-model model-id \
+  --provider-timeout-ms 30000 \
+  --provider-max-retries 2 \
+  --provider-backoff-ms 250
+```
+
+The provider is advisory and proposal-only. Responses must contain a complete,
+state-machine-valid lifecycle plan; invalid or unreachable responses produce an
+honest `UNSATISFIABLE` mission outcome. External effects are not dispatched.
 
 ## Docker (Distroless)
 
 ```bash
 # Build image
-docker build -t atom:0.0.0-alpha.0 -f Dockerfile .
+docker build -t atom:0.0.0-alpha.1 -f pkg/Dockerfile .
 
 # Run the HTTP API server on host port 8420
 docker run --rm -p 8420:8420 \
   -e ATOM_SERVE_ADDR=0.0.0.0:8420 \
-  atom:0.0.0-alpha.0
+  -e ATOM_SIGNING_KEY_ID=container-key \
+  -e ATOM_SIGNING_SECRET=replace-with-a-managed-secret \
+  -v atom-state:/var/lib/atom \
+  atom:0.0.0-alpha.1
 
 # Or run another subcommand (--help / run / seal)
-docker run --rm atom:0.0.0-alpha.0 --help
+docker run --rm atom:0.0.0-alpha.1 --help
 ```
 
 ## Uninstall
@@ -162,6 +211,6 @@ cargo uninstall atom-cli
 - [ ] `atom seal file` produces JSON with `sha256:` ID
 - [ ] `atom verify file.atom.json` returns `OK`
 - [ ] Tampered artifact is rejected with `SignatureInvalid`
-- [ ] `cargo test --workspace` → 374+ tests pass
+- [ ] `cargo test --workspace` passes
 - [ ] `cargo clippy --workspace --all-targets -- -D warnings` → clean
 - [ ] Secret scan: no `sk-` keys, no private keys in source
