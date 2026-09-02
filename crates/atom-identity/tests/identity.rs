@@ -45,10 +45,12 @@ fn free_named_grant(subject: &str, workload: &str) -> CapabilityGrant {
         parent_grant_id: None,
         nonce: None,
         constraints: None,
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
     }
 }
 
-#[test]
 fn content_address_binds_material_not_names() {
     let a = sample_identity(b"public-key-A", "att-1");
     let a_again = sample_identity(b"public-key-A", "att-1");

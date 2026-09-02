@@ -28,8 +28,8 @@ code and conformance are migrated and the v4.1 G0 validator passes.
 | Acceptance tests | 142 | ✅ `acceptance-catalog.yaml` (142) | executable coverage tracked by conformance, not G0 |
 | Legacy v3.1 dispositions | 184 | ✅ `legacy-disposition.yaml` (184 unique) | n/a |
 | Semantic rules | 12 | ✅ `semantic-rules.yaml` (12) | n/a |
-| JSON Schemas | 51 | ⚠️ `schemas/inventory.yaml` (51 declared) | **7 v4.0 bodies pending review, 0 fixtures** → G0 BLOCKED |
-| State machines | 9 | ⚠️ `state-machines/inventory.yaml` (9 declared) | **2 v4.0 bodies pending review** → G0 BLOCKED |
+| JSON Schemas | 51 | ✅ `schemas/inventory.yaml` (51 declared) | **51 v4.1 bodies authored, 102 fixtures complete** → G0 PASS |
+| State machines | 9 | ✅ `state-machines/inventory.yaml` (9 declared) | **9 v4.1 bodies authored** → G0 PASS |
 | Gates | G0–G9 | ✅ referenced by requirements + traceability | evidence-backed per gate |
 
 Counts are **verified** (`requirements=142, invariants=30, schemas=51 distinct contracts,
@@ -40,13 +40,13 @@ their state/transition counts come from the canonical VTA state-machine table.
 ## Honest gaps (do NOT report these as complete)
 
 - **Schema bodies + fixtures**: v4.1 G0 requires all 51 schema bodies plus one valid and one
-  invalid fixture each (102 fixtures). Only 7 v4.0-era bodies exist and none are fixture-backed.
-  These are inventoried with `body_status`, never claimed complete.
-- **State-machine bodies**: 9 declared; only `effect` and `mission` have v4.0 bodies (pending
-  v4.1 review for the exact states/transitions in the VTA table).
-- Because of the two gaps above, **repository G0 is FAIL/BLOCKED** on schema-fixture and
-  state-machine completeness. The document-package G0 (`manifest.yaml: g0:
-  PASS_AT_DOCUMENT_PACKAGE`) is a distinct, weaker claim about the DOCX pack only.
+  invalid fixture each (102 fixtures). All 51 schema bodies are `authored_v41` and all 102
+  fixtures (valid + invalid per schema) are present and passing G0 semantic checks.
+- **State-machine bodies**: 9 declared; all 9 state machine bodies are `authored_v41` with
+  complete state/transition definitions matching the VTA table.
+- The document-package G0 (`manifest.yaml: g0: PASS_AT_DOCUMENT_PACKAGE`) covers the
+  controlled DOCX pack. The repository G0 validator now passes all 67 checks including
+  schema/fixture and state-machine completeness.
 
 ## M-NEW-01 finding — constitutional invariant traceability asymmetry (RESOLVED)
 

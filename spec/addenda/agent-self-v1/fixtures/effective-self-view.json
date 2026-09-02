@@ -1,0 +1,23 @@
+{
+  "view_id": "523e4567-e89b-12d3-a456-426614174040",
+  "agent_id": "123e4567-e89b-12d3-a456-426614174001",
+  "derivation_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+  "source_digests": {
+    "constitution": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+    "identity_profile": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "soul_profile": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "user_profile": null,
+    "channel_policy": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "mission_scope": null
+  },
+  "generation": 1,
+  "scope": "SESSION",
+  "expiry": "2026-03-30T12:00:00Z",
+  "identity_profile_ref": "123e4567-e89b-12d3-a456-426614174000",
+  "soul_profile_ref": "223e4567-e89b-12d3-a456-426614174010",
+  "user_profile_ref": null,
+  "constitution_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+  "channel_policy_ref": "623e4567-e89b-12d3-a456-426614174050",
+  "mission_scope_ref": null,
+  "created_at": "2026-03-30T07:00:00Z"
+}

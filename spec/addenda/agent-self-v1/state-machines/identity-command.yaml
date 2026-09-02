@@ -1,0 +1,15 @@
+spec_version: 4.1.0
+addendum_id: agent-self-v1
+state_machine: IdentityCommand
+states: [INITIATED, PROPOSED, PENDING_APPROVAL, EXECUTED, REJECTED]
+initial_state: INITIATED
+transitions:
+  - from: INITIATED
+    to: [PROPOSED]
+    trigger: generate_diff
+  - from: PROPOSED
+    to: [PENDING_APPROVAL, REJECTED]
+    trigger: check_change_policy
+  - from: PENDING_APPROVAL
+    to: [EXECUTED, REJECTED]
+    trigger: owner_decision

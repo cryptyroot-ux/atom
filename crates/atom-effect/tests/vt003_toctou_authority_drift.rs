@@ -498,6 +498,9 @@ fn a_permit_cannot_be_consumed_by_a_grant_naming_a_different_audience() {
     // The same subject, generation, operations, resources, windows — only the
     // audience (the sink the commit drains into) moved.
     let other_sink = CapabilityGrant {
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
         audience: "atom:hospital-lab".into(),
         ..gate.grant.clone()
     };
@@ -536,6 +539,9 @@ fn a_permit_cannot_be_consumed_by_a_grant_naming_a_different_workload() {
     // The same subject, generation, operations, resources, windows,
     // audience — only the workload identity the grant binds moved.
     let other_workload = CapabilityGrant {
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
         workload_id: "workload/scanner-2".into(),
         ..gate.grant.clone()
     };

@@ -32,10 +32,12 @@ fn parent_grant() -> CapabilityGrant {
         parent_grant_id: None,
         nonce: None,
         constraints: None,
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
     }
 }
 
-/// A strict *subset* of the parent (valid attenuation).
 fn child_subset(parent: &CapabilityGrant) -> CapabilityGrant {
     let mut c = parent.clone();
     c.grant_id = "child".into();

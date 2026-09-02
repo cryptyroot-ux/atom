@@ -1,0 +1,26 @@
+{
+  "assembly_id": "723e4567-e89b-12d3-a456-426614174060",
+  "agent_id": "123e4567-e89b-12d3-a456-426614174001",
+  "precedence_order": [
+    "CANONICAL_CONSTITUTION",
+    "DEPLOYMENT_POLICY",
+    "AGENT_IDENTITY_PROFILE",
+    "SOUL_PROFILE",
+    "USER_PROFILE",
+    "MISSION_SPEC",
+    "CONTEXT_ITEMS",
+    "CURRENT_TURN"
+  ],
+  "items": [
+    {
+      "source": "delegated_self_view",
+      "provenance": "atom-agent-profile",
+      "trust_level": "HIGH",
+      "sensitivity": "INTERNAL",
+      "injection_risk": "NONE",
+      "digest": "sha256:1212121212121212121212121212121212121212121212121212121212121212"
+    }
+  ],
+  "derivation_digest": "sha256:1313131313131313131313131313131313131313131313131313131313131313",
+  "created_at": "2026-03-30T08:00:00Z"
+}

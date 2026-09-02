@@ -17,6 +17,7 @@ serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 # The kernel double gate and grant windows are timestamped (Phase A/B `now`).
 chrono = "0.4"
+console = "0.15"
 
 # The subsystems the sovereign process wires together (Blueprint §17).
 atom-kernel = { path = "../../crates/atom-kernel" }

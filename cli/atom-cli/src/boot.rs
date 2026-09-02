@@ -103,6 +103,9 @@ fn boot_grant(now: DateTime<Utc>) -> CapabilityGrant {
         parent_grant_id: None,
         nonce: None,
         constraints: None,
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
     }
 }
 

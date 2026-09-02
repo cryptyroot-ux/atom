@@ -71,7 +71,6 @@ pub fn all_ops() -> Vec<HostOp> {
 /// An active grant that authorises the operation `op` names on its resource.
 #[must_use]
 pub fn grant_for(op: &HostOp) -> CapabilityGrant {
-    CapabilityGrant {
         grant_id: GRANT_ID.into(),
         subject_id: PRINCIPAL.into(),
         workload_id: "workload/atomd".into(),
@@ -94,7 +93,9 @@ pub fn grant_for(op: &HostOp) -> CapabilityGrant {
         parent_grant_id: None,
         nonce: None,
         constraints: None,
-    }
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
 }
 
 /// A grant that covers `read`/`write` on several files at once.

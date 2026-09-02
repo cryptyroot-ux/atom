@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-2020-12/schema#",
+  "$id": "spec/addenda/agent-self-v1/schemas/constitutional-enforcement.schema.json",
+  "title": "ConstitutionalEnforcement",
+  "description": "Enforcement record for constitutional addendum clauses",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "enforcement_id",
+    "clause_id",
+    "agent_id",
+    "trigger",
+    "decision",
+    "reason",
+    "created_at"
+  ],
+  "properties": {
+    "enforcement_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique enforcement event identifier"
+    },
+    "clause_id": {
+      "type": "string",
+      "enum": [
+        "CONS-ADD-001",
+        "CONS-ADD-002",
+        "CONS-ADD-003",
+        "CONS-ADD-004",
+        "CONS-ADD-005",
+        "CONS-ADD-006"
+      ],
+      "description": "Constitutional addendum clause enforced"
+    },
+    "agent_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Agent subject to enforcement"
+    },
+    "trigger": {
+      "type": "object",
+      "description": "What triggered enforcement (e.g., SOUL.md content, identity change, import attempt)"
+    },
+    "decision": {
+      "type": "string",
+      "enum": ["ALLOW", "DENY", "QUARANTINE", "BLOCK"],
+      "description": "Enforcement decision"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Human-readable reason for decision"
+    },
+    "evidence_digest": {
+      "type": ["string", "null"],
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Digest of supporting evidence"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

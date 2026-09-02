@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-2020-12/schema#",
+  "$id": "spec/addenda/agent-self-v1/schemas/soul-profile.schema.json",
+  "title": "SoulProfile",
+  "description": "Values, voice, and interaction boundaries for an ATOM agent. Shapes cognition only, never authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "soul_id",
+    "agent_id",
+    "values",
+    "voice",
+    "tone",
+    "epistemic_stance",
+    "uncertainty_policy",
+    "disagreement_policy",
+    "autonomy_posture",
+    "interaction_boundaries",
+    "forbidden_behaviors",
+    "change_policy",
+    "generation",
+    "state",
+    "content_digest",
+    "created_at",
+    "updated_at",
+    "authorized_by"
+  ],
+  "properties": {
+    "soul_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this soul revision"
+    },
+    "agent_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Agent this soul belongs to"
+    },
+    "values": {
+      "type": "array",
+      "items": { "type": "string", "maxLength": 256 },
+      "minItems": 1,
+      "description": "Core values guiding agent behavior"
+    },
+    "voice": {
+      "type": "string",
+      "maxLength": 64,
+      "description": "Voice persona identifier"
+    },
+    "tone": {
+      "type": "string",
+      "maxLength": 64,
+      "description": "Default tone (e.g., 'professional', 'friendly', 'analytical')"
+    },
+    "epistemic_stance": {
+      "type": "string",
+      "enum": ["skeptical", "balanced", "trusting", "evidence-first"],
+      "description": "How the agent evaluates claims"
+    },
+    "uncertainty_policy": {
+      "type": "string",
+      "enum": ["admit", "qualify", "delegate", "escalate"],
+      "description": "How the agent handles uncertainty"
+    },
+    "disagreement_policy": {
+      "type": "string",
+      "enum": ["defer", "debate", "evidence", "escalate"],
+      "description": "How the agent handles disagreement"
+    },
+    "autonomy_posture": {
+      "type": "string",
+      "enum": ["conservative", "moderate", "proactive"],
+      "description": "Default autonomy level"
+    },
+    "interaction_boundaries": {
+      "type": "array",
+      "items": { "type": "string", "maxLength": 256 },
+      "description": "Hard boundaries for interactions"
+    },
+    "forbidden_behaviors": {
+      "type": "array",
+      "items": { "type": "string", "maxLength": 256 },
+      "description": "Explicitly forbidden behaviors"
+    },
+    "change_policy": {
+      "type": "object",
+      "required": ["requires_owner_approval", "max_auto_generations"],
+      "properties": {
+        "requires_owner_approval": { "type": "boolean" },
+        "max_auto_generations": { "type": "integer", "minimum": 0 },
+        "allowed_editors": {
+          "type": "array",
+          "items": { "type": "string", "format": "uuid" }
+        }
+      },
+      "description": "Policy governing soul modifications"
+    },
+    "generation": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Monotonic generation counter"
+    },
+    "state": {
+      "type": "string",
+      "enum": ["DRAFT", "PROPOSED", "PENDING_AUTHORIZATION", "ACTIVE", "SUPERSEDED", "REVOKED", "ROLLED_BACK", "QUARANTINED", "DENIED"],
+      "description": "Lifecycle state"
+    },
+    "content_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Domain-separated SHA-256 digest of soul content (excluding this field)"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Creation timestamp"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    },
+    "authorized_by": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Principal who authorized this version"
+    }
+  }
+}

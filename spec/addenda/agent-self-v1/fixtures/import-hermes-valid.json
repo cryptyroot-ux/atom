@@ -1,0 +1,24 @@
+{
+  "import_id": "823e4567-e89b-12d3-a456-426614174070",
+  "source": "HERMES",
+  "agent_id": "123e4567-e89b-12d3-a456-426614174001",
+  "imported_fields": {
+    "display_name": "Hermes",
+    "role": "messenger",
+    "languages": ["en"],
+    "voice": "eloquent",
+    "tone": "professional"
+  },
+  "excluded_fields": [
+    "owner_principal_id",
+    "workload_id",
+    "credentials",
+    "capability_grants",
+    "approval_grants",
+    "tool_permissions",
+    "authority_profiles"
+  ],
+  "content_digest": "sha256:1717171717171717171717171717171717171717171717171717171717171717",
+  "status": "SUCCESS",
+  "created_at": "2026-03-30T09:00:00Z"
+}

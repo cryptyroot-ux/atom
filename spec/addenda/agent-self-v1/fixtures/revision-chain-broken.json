@@ -1,0 +1,14 @@
+{
+  "revision_id": "323e4567-e89b-12d3-a456-426614174023",
+  "agent_id": "123e4567-e89b-12d3-a456-426614174001",
+  "revision_type": "IDENTITY",
+  "target_profile_id": "123e4567-e89b-12d3-a456-426614174000",
+  "parent_revision_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "content_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+  "state": "ACTIVE",
+  "proposed_by": "123e4567-e89b-12d3-a456-426614174001",
+  "authorized_by": "123e4567-e89b-12d3-a456-426614174001",
+  "approval_grant_id": null,
+  "created_at": "2026-03-30T06:00:00Z",
+  "updated_at": "2026-03-30T06:00:00Z"
+}

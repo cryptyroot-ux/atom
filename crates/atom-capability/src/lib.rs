@@ -34,6 +34,9 @@
 //!     generation: 0,
 //!     revocation_state: RevocationState::Active,
 //!     parent_grant_id: None,
+//!     parent_authority_digest: None,
+//!     holder_binding: None,
+//!     authority_digest: None,
 //!     nonce: None,
 //!     constraints: None,
 //! };
@@ -150,6 +153,19 @@ pub struct CapabilityGrant {
     // optional
     #[serde(default)]
     pub parent_grant_id: Option<String>,
+    /// Domain-separated SHA-256 digest of the parent grant's canonical bytes.
+    /// Required when `parent_grant_id` is `Some`. PR C: child cryptographically
+    /// commits to the exact parent artifact (no silent substitution).
+    #[serde(default)]
+    pub parent_authority_digest: Option<String>,
+    /// Binds the grant to the concrete holder (workload + principal fingerprint)
+    /// so the same grant cannot be replayed by another workload. PR C.
+    #[serde(default)]
+    pub holder_binding: Option<String>,
+    /// Domain-separated SHA-256 digest of this grant's canonical bytes
+    /// (excluding this field). PR C: every attenuation step links via this.
+    #[serde(default)]
+    pub authority_digest: Option<String>,
     #[serde(default)]
     pub nonce: Option<String>,
     #[serde(default)]
@@ -266,6 +282,9 @@ impl AuthorityProfile {
             parent_grant_id: None,
             nonce: None,
             constraints: None,
+            authority_digest: None,
+            holder_binding: None,
+            parent_authority_digest: None,
         }
     }
 }
@@ -464,6 +483,9 @@ mod tests {
             parent_grant_id: None,
             nonce: None,
             constraints: None,
+            authority_digest: None,
+            holder_binding: None,
+            parent_authority_digest: None,
         }
     }
 
@@ -496,6 +518,9 @@ mod tests {
             parent_grant_id: Some(parent.grant_id.clone()),
             nonce: None,
             constraints: None,
+            authority_digest: None,
+            holder_binding: None,
+            parent_authority_digest: None,
         }
     }
 

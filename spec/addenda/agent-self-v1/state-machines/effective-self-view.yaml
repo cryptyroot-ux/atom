@@ -1,0 +1,15 @@
+spec_version: 4.1.0
+addendum_id: agent-self-v1
+state_machine: EffectiveSelfView
+states: [DERIVED, VALID, EXPIRED, REVOKED]
+initial_state: DERIVED
+transitions:
+  - from: DERIVED
+    to: [VALID]
+    trigger: validate_derivation_digest
+  - from: VALID
+    to: [EXPIRED]
+    trigger: reach_boundary_or_time_limit
+  - from: [DERIVED, VALID]
+    to: [REVOKED]
+    trigger: parent_profile_changed_or_session_terminated

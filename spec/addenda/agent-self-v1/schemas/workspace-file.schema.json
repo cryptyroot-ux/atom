@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-2020-12/schema#",
+  "$id": "spec/addenda/agent-self-v1/schemas/workspace-file.schema.json",
+  "title": "WorkspaceFile",
+  "description": "Validated workspace file (SOUL.md, IDENTITY.md, USER.md, MEMORY.md) with YAML frontmatter",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "file_type",
+    "frontmatter",
+    "content",
+    "content_digest",
+    "generation",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "file_type": {
+      "type": "string",
+      "enum": ["SOUL", "IDENTITY", "USER", "MEMORY", "CONSTITUTION"],
+      "description": "Type of workspace file"
+    },
+    "frontmatter": {
+      "type": "object",
+      "required": ["version", "agent_id", "generation", "content_digest", "created_at", "updated_at"],
+      "properties": {
+        "version": { "type": "integer", "const": 1 },
+        "agent_id": { "type": "string", "format": "uuid" },
+        "generation": { "type": "integer", "minimum": 1 },
+        "content_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "author": { "type": "string", "format": "uuid" },
+        "rollback_from": { "type": ["string", "null"], "format": "uuid" }
+      }
+    },
+    "content": {
+      "type": "string",
+      "description": "UTF-8 content (Markdown for SOUL/IDENTITY/USER, curated entries for MEMORY)"
+    },
+    "content_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Domain-separated SHA-256 of normalized content"
+    },
+    "generation": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Monotonic generation counter"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

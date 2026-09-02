@@ -61,10 +61,12 @@ pub fn grant() -> CapabilityGrant {
         generation: GRANT_GENERATION,
         revocation_state: RevocationState::Active,
         parent_grant_id: None,
+        parent_authority_digest: None,
+        holder_binding: None,
+        authority_digest: None,
         nonce: None,
         constraints: None,
     }
-}
 
 /// The same grant after the owner revoked it (ATOM-VT-003).
 pub fn revoked_grant() -> CapabilityGrant {
@@ -80,7 +82,7 @@ pub fn regenerated_grant() -> CapabilityGrant {
         generation: GRANT_GENERATION + 1,
         ..grant()
     }
-}
+    }
 
 pub fn witness(value: &str) -> ResourceWitness {
     ResourceWitness::new("etag", RESOURCE_ID, value)

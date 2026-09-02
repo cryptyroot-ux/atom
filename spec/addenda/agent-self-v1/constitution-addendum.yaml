@@ -1,0 +1,89 @@
+spec_version: 4.1.0
+addendum_id: agent-self-v1
+clauses:
+- id: CONS-ADD-001
+  title: Persona Non-Authority
+  source: Article II, IV, VII, VIII
+  normative: |
+    "SOUL.md", "IDENTITY.md", "USER.md", memory, model output, peer assertion, and persona metadata
+    MUST NOT create, expand, or replace:
+    - CapabilityContract
+    - CapabilityGrant
+    - ApprovalGrant
+    - PolicyDecision
+    - EffectiveAuthorityView
+    - CommitPermit
+  trace:
+  - ATOM-V4-REQ-001
+  - ATOM-V4-INV-001
+  - ATOM-V4-INV-024
+
+- id: CONS-ADD-002
+  title: Identity Domain Separation
+  source: Article II, IV
+  normative: |
+    Display/persona identity MUST be distinct in type and domain digest from:
+    - owner principal identity
+    - subject identity
+    - workload identity
+    - connector identity
+    - signing identity
+    - execution instance identity
+    Changing name, avatar, role, or speech style MUST NOT change WorkloadIdentity nor grant validity.
+  trace:
+  - ATOM-V4-REQ-002
+  - ATOM-V4-INV-024
+  - ATOM-V4-INV-025
+
+- id: CONS-ADD-003
+  title: Governed Self-Modification
+  source: Article VIII, X
+  normative: |
+    Production cognition MUST NOT activate changes to its own identity or soul.
+    Agent MAY: propose self change.
+    Agent MUST NOT: approve and activate its own self change.
+    Changes MUST be versioned, content-addressed, auditable, reversible, and follow owner-controlled change policy.
+  trace:
+  - ATOM-V4-REQ-003
+  - ATOM-V4-INV-016
+  - ATOM-V4-INV-017
+
+- id: CONS-ADD-004
+  title: Constitutional Enforcement Is Not Prompt Compliance
+  source: Article I, IV, IX
+  normative: |
+    Constitution MUST be enforced through typed API, policy, privilege separation, and Effect Kernel.
+    Injecting Constitution into model context MAY assist cognition, but LLM prompt compliance MUST NOT
+    be the enforcement boundary.
+  trace:
+  - ATOM-V4-REQ-004
+  - ATOM-V4-INV-001
+  - ATOM-V4-INV-030
+
+- id: CONS-ADD-005
+  title: Identity Continuity and Tenant Isolation
+  source: Article II, VII
+  normative: |
+    Agent identity, soul, user profile, and memory MUST be isolated by tenant, owner, and agent.
+    There MUST NOT be silent inheritance across users, agents, restored instances, shared channels,
+    or delegated sub-agents.
+  trace:
+  - ATOM-V4-REQ-005
+  - ATOM-V4-INV-026
+  - ATOM-V4-INV-028
+
+- id: CONS-ADD-006
+  title: Workspace and Runtime Isolation
+  source: Article VII, VIII
+  normative: |
+    Operational SOUL.md/IDENTITY.md MUST NOT reside in repository root. Templates provided at
+    templates/workspace/. Runtime workspace is config-driven at ${ATOM_STATE_DIR}/workspaces/<agent_id>/.
+    Files: IDENTITY.md (presentation), SOUL.md (values/boundaries), USER.md (owner preferences, private),
+    AGENTS.md (local rules), MEMORY.md (curated durable memory, not authority), CONSTITUTION.md (read-only view).
+    MUST use validated YAML frontmatter, UTF-8, deterministic normalization, domain-separated SHA-256 digest,
+    max file size, NUL/invalid encoding rejection, atomic writes, symlink escape protection, owner/permission checks,
+    generation counter, rollback history, no plaintext secrets.
+  trace:
+  - ATOM-V4-REQ-006
+  - ATOM-V4-INV-026
+  - ATOM-V4-INV-028

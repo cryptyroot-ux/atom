@@ -1,0 +1,15 @@
+spec_version: 4.1.0
+addendum_id: agent-self-v1
+state_machine: ContextIsolation
+states: [ASSEMBLED, FILTERED, DISPATCHED, BLOCKED]
+initial_state: ASSEMBLED
+transitions:
+  - from: ASSEMBLED
+    to: [FILTERED]
+    trigger: apply_egress_and_tenant_policy
+  - from: FILTERED
+    to: [DISPATCHED]
+    trigger: send_to_channel_or_subagent
+  - from: [ASSEMBLED, FILTERED]
+    to: [BLOCKED]
+    trigger: private_profile_leak_detected

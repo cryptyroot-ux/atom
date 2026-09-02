@@ -1,0 +1,137 @@
+spec_version: 4.1.0
+addendum_id: agent-self-v1
+requirements:
+- id: ATOM-AS-REQ-001
+  title: Agent Identity Profile data model
+  description: |
+    System MUST provide a typed AgentIdentityProfile with fields: profile_id, agent_id, owner_principal_id,
+    display_name, role, archetype?, avatar_ref?, signature_symbol?, languages[], generation, state,
+    constitution_digest, content_digest, created_at, updated_at, authorized_by.
+    This is a presentation identity, NOT a security principal.
+  invariants: [ATOM-AS-INV-001]
+  acceptance: [ATOM-AS-AT-001]
+  trace: [CONS-ADD-002]
+
+- id: ATOM-AS-REQ-002
+  title: Soul Profile data model
+  description: |
+    System MUST provide a typed SoulProfile with fields: soul_id, agent_id, values[], voice, tone,
+    epistemic_stance, uncertainty_policy, disagreement_policy, autonomy_posture,
+    interaction_boundaries[], forbidden_behaviors[], change_policy, generation, state,
+    content_digest, created_at, updated_at, authorized_by.
+  invariants: [ATOM-AS-INV-001, ATOM-AS-INV-002]
+  acceptance: [ATOM-AS-AT-002]
+  trace: [CONS-ADD-001]
+
+- id: ATOM-AS-REQ-003
+  title: Agent Self Revision lifecycle
+  description: |
+    System MUST enforce AgentSelfRevision lifecycle: DRAFT → PROPOSED → PENDING_AUTHORIZATION → ACTIVE
+    → SUPERSEDED/REVOKED/ROLLED_BACK. Invalid digest, unknown schema, owner mismatch, or unauthorized
+    mutation MUST produce QUARANTINED or DENIED state.
+  invariants: [ATOM-AS-INV-003]
+  acceptance: [ATOM-AS-AT-003, ATOM-AS-AT-004, ATOM-AS-AT-005]
+  trace: [CONS-ADD-003]
+
+- id: ATOM-AS-REQ-004
+  title: EffectiveSelfView derivation
+  description: |
+    System MUST derive EffectiveSelfView from: pinned Constitution, active AgentIdentityProfile,
+    active SoulProfile, permitted UserProfile, channel policy, mission scope, context eligibility policy.
+    EffectiveSelfView MUST be short-lived, carry derivation digest, source digests, generation, scope, expiry.
+    MUST NOT be root-of-truth, MUST NOT have operations/resources/budget authority, MUST NOT be accepted
+    as authority grant input. Rebuilt at session/mission boundary.
+  invariants: [ATOM-AS-INV-004]
+  acceptance: [ATOM-AS-AT-006]
+  trace: [CONS-ADD-001, CONS-ADD-002]
+
+- id: ATOM-AS-REQ-005
+  title: Workspace template and runtime layout
+  description: |
+    System MUST provide templates at templates/workspace/: AGENTS.md, SOUL.md, IDENTITY.md, USER.md,
+    MEMORY.md, memory/. Runtime workspace at ${ATOM_STATE_DIR}/workspaces/<agent_id>/.
+    Files MUST use validated YAML frontmatter, UTF-8, deterministic normalization, domain-separated SHA-256,
+    max file size, reject NUL/invalid encoding, atomic writes, symlink escape protection, owner/permission
+    checks, generation counter, rollback history, no plaintext secrets.
+  invariants: [ATOM-AS-INV-005]
+  acceptance: [ATOM-AS-AT-007, ATOM-AS-AT-008]
+  trace: [CONS-ADD-006]
+
+- id: ATOM-AS-REQ-006
+  title: Context assembly precedence
+  description: |
+    Context assembler MUST use deterministic order: 1) Canonical Constitution view, 2) Deployment/owner
+    policy, 3) Active AgentIdentityProfile, 4) Active SoulProfile, 5) Channel-eligible UserProfile,
+    6) MissionSpec, 7) Eligible ContextItems, 8) Current user turn. All items MUST carry provenance,
+    trust, sensitivity, injection-risk, digest. Identity/soul/constitution digests MUST be added to
+    session metadata, provider-call record, mission trace, decision trace, replay input, audit evidence.
+  invariants: [ATOM-AS-INV-004]
+  acceptance: [ATOM-AS-AT-009]
+  trace: [CONS-ADD-005, CONS-ADD-006]
+
+- id: ATOM-AS-REQ-007
+  title: Private profile isolation
+  description: |
+    Raw USER.md and private MEMORY.md MUST NOT be included in group channel, peer protocol, delegated
+    sub-agent, or external provider violating egress policy. Sub-agent MUST only receive DelegatedSelfView
+    derived explicitly without private user profile by default.
+  invariants: [ATOM-AS-INV-005]
+  acceptance: [ATOM-AS-AT-010, ATOM-AS-AT-011]
+  trace: [CONS-ADD-005]
+
+- id: ATOM-AS-REQ-008
+  title: CLI workspace and identity commands
+  description: |
+    Extend 'atom setup' to create governed workspace without overwriting existing files.
+    Provide commands: atom workspace init, atom identity show/edit/propose/history/rollback,
+    atom soul show/edit/propose/approve/history/rollback.
+    Requirements: edit MUST NOT auto-activate if change policy requires approval; agent changes
+    always proposals; owner sees diff before activation; each activation produces ledger/audit event;
+    restart preserves active generation; missing files use safe defaults without granting authority.
+  invariants: [ATOM-AS-INV-003, ATOM-AS-INV-006]
+  acceptance: [ATOM-AS-AT-012, ATOM-AS-AT-013, ATOM-AS-AT-014]
+  trace: [CONS-ADD-003, CONS-ADD-006]
+
+- id: ATOM-AS-REQ-009
+  title: Workspace import from external agents
+  description: |
+    Provide P1 import: atom workspace import --from openclaw, --from hermes.
+    Import MUST only convert persona/display metadata. MUST NEVER import authority, credential,
+    or ambient tool permission.
+  invariants: [ATOM-AS-INV-001, ATOM-AS-INV-002]
+  acceptance: [ATOM-AS-AT-015]
+  trace: [CONS-ADD-002, CONS-ADD-005]
+
+- id: ATOM-AS-REQ-010
+  title: Constitutional clauses enforcement
+  description: |
+    System MUST enforce the 6 constitutional addendum clauses (Persona Non-Authority, Identity Domain
+    Separation, Governed Self-Modification, Constitutional Enforcement Not Prompt Compliance,
+    Identity Continuity and Tenant Isolation, Workspace and Runtime Isolation) through typed API,
+    policy, privilege separation, and Effect Kernel — NOT through LLM prompt compliance.
+  invariants: [ATOM-AS-INV-001, ATOM-AS-INV-002, ATOM-AS-INV-003, ATOM-AS-INV-004, ATOM-AS-INV-005]
+  acceptance: [ATOM-AS-AT-016, ATOM-AS-AT-017, ATOM-AS-AT-018, ATOM-AS-AT-018, ATOM-AS-AT-019, ATOM-AS-AT-020]
+  trace: [CONS-ADD-001, CONS-ADD-002, CONS-ADD-003, CONS-ADD-004, CONS-ADD-005, CONS-ADD-006]
+
+- id: ATOM-AS-REQ-011
+  title: atom-agent-profile crate
+  description: |
+    Implement separate crate 'atom-agent-profile' (NOT in atom-identity) containing AgentIdentityProfile,
+    SoulProfile, AgentSelfRevision, EffectiveSelfView, workspace templates, context assembly logic,
+    CLI command handlers. Must integrate with atom-policy, atom-ledger, atom-identity, atom-effect.
+  invariants: [ATOM-AS-INV-001]
+  acceptance: [ATOM-AS-AT-021]
+  trace: [CONS-ADD-006]
+
+- id: ATOM-AS-REQ-012
+  title: Agent Self acceptance tests
+  description: |
+    Implement acceptance tests: soul_authority_escalation→DENY, identity_display_change_does_not_change_workload_identity→PASS,
+    unapproved_self_mutation→NOT_ACTIVATED, agent_self_approves_own_change→DENY, tampered_soul_digest→QUARANTINED,
+    constitution_digest_mismatch→STARTUP_BLOCKED, provider_switch_preserves_agent_identity→PASS,
+    agent_restart_preserves_active_self_generation→PASS, tenant_a_profile_visible_to_tenant_b→DENY,
+    private_user_profile_in_shared_channel→DENY, private_user_profile_in_subagent→DENY,
+    rollback_restores_exact_prior_profile→PASS.
+  invariants: [ATOM-AS-INV-001, ATOM-AS-INV-002, ATOM-AS-INV-003, ATOM-AS-INV-004, ATOM-AS-INV-005]
+  acceptance: [ATOM-AS-AT-001 through ATOM-AS-AT-020]
+  trace: [CONS-ADD-001 through CONS-ADD-006]

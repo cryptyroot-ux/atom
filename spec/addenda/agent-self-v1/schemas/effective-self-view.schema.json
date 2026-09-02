@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-2020-12/schema#",
+  "$id": "spec/addenda/agent-self-v1/schemas/effective-self-view.schema.json",
+  "title": "EffectiveSelfView",
+  "description": "Derived, short-lived view for context assembly. NOT a root-of-truth. No authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "view_id",
+    "agent_id",
+    "derivation_digest",
+    "source_digests",
+    "generation",
+    "scope",
+    "expiry",
+    "identity_profile_ref",
+    "soul_profile_ref",
+    "user_profile_ref",
+    "constitution_digest",
+    "channel_policy_ref",
+    "mission_scope_ref",
+    "created_at"
+  ],
+  "properties": {
+    "view_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this view"
+    },
+    "agent_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Agent this view is for"
+    },
+    "derivation_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Domain-separated SHA-256 of all source inputs"
+    },
+    "source_digests": {
+      "type": "object",
+      "required": ["constitution", "identity_profile", "soul_profile", "user_profile", "channel_policy", "mission_scope"],
+      "properties": {
+        "constitution": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "identity_profile": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "soul_profile": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "user_profile": { "type": ["string", "null"], "pattern": "^sha256:[a-f0-9]{64}$" },
+        "channel_policy": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "mission_scope": { "type": ["string", "null"], "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "generation": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Generation of this view"
+    },
+    "scope": {
+      "type": "string",
+      "enum": ["SESSION", "MISSION", "CHANNEL"],
+      "description": "Validity scope of this view"
+    },
+    "expiry": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this view expires"
+    },
+    "identity_profile_ref": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Reference to active AgentIdentityProfile"
+    },
+    "soul_profile_ref": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Reference to active SoulProfile"
+    },
+    "user_profile_ref": {
+      "type": ["string", "null"],
+      "format": "uuid",
+      "description": "Reference to permitted UserProfile (if any)"
+    },
+    "constitution_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Pinned Constitution digest"
+    },
+    "channel_policy_ref": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Reference to channel policy"
+    },
+    "mission_scope_ref": {
+      "type": ["string", "null"],
+      "format": "uuid",
+      "description": "Reference to MissionSpec scope (if mission-bound)"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "View creation timestamp"
+    }
+  }
+}

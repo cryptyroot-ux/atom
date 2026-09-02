@@ -1,0 +1,12 @@
+spec_version: 4.1.0
+addendum_id: agent-self-v1
+state_machine: WorkspaceImport
+states: [RECEIVED, FILTERED, IMPORTED, REJECTED]
+initial_state: RECEIVED
+transitions:
+  - from: RECEIVED
+    to: [FILTERED]
+    trigger: strip_authority_and_credentials
+  - from: FILTERED
+    to: [IMPORTED, REJECTED]
+    trigger: validate_persona_metadata
