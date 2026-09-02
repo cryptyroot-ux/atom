@@ -100,6 +100,24 @@ root-owned signing credential, installs the systemd unit, and enables it at boot
 sudo ./pkg/scripts/install.sh --no-provider
 ```
 
+For an interactive first-run configuration after installation, run:
+
+```bash
+sudo atom setup
+```
+
+The wizard asks for provider usage, gateway URL, model id, and an API key
+(hidden input). It stages the key as a root-owned systemd credential, writes
+`/etc/atom/env`, restarts the daemon, and reports the exact `atom doctor` and
+`atom status` checks. Choose native cognition explicitly with:
+
+```bash
+sudo atom setup --no-provider
+```
+
+Re-run the same wizard at any time with `sudo atom model` to change the gateway,
+model, or API key without rebuilding the binary.
+
 To enable an OpenAI-compatible gateway, pass a root-readable key file. The key
 contents are copied into `/etc/atom/provider-api-key` with mode `0640` and are
 loaded through systemd credentials; they are never printed:

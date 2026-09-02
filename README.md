@@ -44,16 +44,33 @@ atom --version
 ### Universal installer (Linux, macOS, WSL)
 
 For a fresh machine, the installer can be streamed directly from GitHub. It
-downloads the pinned source branch and builds locally; no opaque executable is
-downloaded. Linux root installs also configure systemd automatically.
+uses a checksum-verified release asset when one exists and falls back to a
+pinned source build. Linux root installs configure systemd and open the
+provider onboarding wizard automatically.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/cryptyroot-ux/atom/atom-v4.1-migration-hardening/pkg/scripts/install-universal.sh | bash
 ```
 
-Use `--no-service` on Linux when you only want the CLI, or set `ATOM_REF` to a
-release branch/tag. Published, checksum-verified binary assets will be enabled
-once the release gate is closed.
+The wizard asks, in order, whether to use a provider, the OpenAI-compatible
+gateway URL, model id, and a hidden API key. It then writes root-only
+credentials, restarts the daemon, and prints the verification commands. For
+unattended installs, pass the same values explicitly:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cryptyroot-ux/atom/atom-v4.1-migration-hardening/pkg/scripts/install-universal.sh \
+  | bash -s -- \
+      --provider-key-file /root/.secrets/provider-api-key \
+      --provider-base-url https://free.pango.fun \
+      --provider-model auto
+```
+
+Use `--no-provider` only when native cognition is intentional, or
+`--no-service` when you only want the CLI. To change the provider later, run:
+
+```bash
+sudo atom model
+```
 
 ### As a Linux service (operator deployment)
 
@@ -90,9 +107,11 @@ Once the daemon is running, `atom` opens the interactive operator session:
 atom
 ```
 
-Type a mission, inspect the result, then use `/quit` to exit. The session is a
-thin client over the durable API; it does not bypass authority, validation, or
-the ledger.
+Type a message to chat with the configured model. Use `/mission <goal>` when you
+want to create and execute a governed mission, `/status` for daemon health, and
+`/model` for the configuration hint, or `/quit` to exit. A plain greeting is never converted into a fake successful
+mission. The session is a thin client over the durable API; it does not bypass
+authority, validation, or the ledger.
 
 For a direct API smoke test:
 
@@ -100,6 +119,10 @@ For a direct API smoke test:
 curl -sS http://127.0.0.1:8420/health | jq
 curl -sS http://127.0.0.1:8420/ready
 curl -sS http://127.0.0.1:8420/capabilities | jq
+# conversational smoke test (requires provider onboarding)
+curl -sS -X POST http://127.0.0.1:8420/chat \
+  -H 'content-type: application/json' \
+  -d '{"messages":[{"role":"user","content":"Say hello in one sentence."}]}' | jq
 ```
 
 To run without systemd from a checkout, set a signing identity and persistent

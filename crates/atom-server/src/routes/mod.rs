@@ -1,5 +1,6 @@
 pub mod approvals;
 pub mod capabilities;
+pub mod chat;
 pub mod effects;
 pub mod evidence;
 pub mod health;

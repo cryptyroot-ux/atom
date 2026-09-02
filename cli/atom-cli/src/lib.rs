@@ -74,6 +74,8 @@ pub enum Command {
         #[arg(long)]
         no_provider: bool,
     },
+    /// Re-run the provider/model onboarding wizard.
+    Model,
     /// Show whether the installed daemon and local health endpoint are ready.
     Status,
 
@@ -207,6 +209,12 @@ pub fn run(cli: Cli) -> Result<()> {
             provider_model,
             no_provider,
         }),
+        Command::Model => setup::run(setup::SetupOptions {
+            provider_key_file: None,
+            provider_base_url: None,
+            provider_model: None,
+            no_provider: false,
+        }),
         Command::Status => diagnostics::status(&diagnostics::default_addr()),
         Command::Doctor => diagnostics::doctor(&diagnostics::default_addr()),
         Command::Serve {
@@ -234,6 +242,20 @@ pub fn run(cli: Cli) -> Result<()> {
             let addr = addr
                 .parse::<std::net::SocketAddr>()
                 .with_context(|| format!("parsing bind address `{addr}`"))?;
+            let chat_config = if !no_provider {
+                provider_base_url
+                    .as_ref()
+                    .zip(provider_model.as_ref())
+                    .map(|(base_url, model)| atom_server::app::ChatConfig {
+                        base_url: base_url.clone(),
+                        model: model.clone(),
+                        api_key: std::env::var("ATOM_PROVIDER_API_KEY").unwrap_or_default(),
+                        timeout_ms: provider_timeout_ms,
+                        max_response_bytes: 1_048_576,
+                    })
+            } else {
+                None
+            };
             let future = async move {
                 if !no_executor {
                     let mut executor_config = atom_executor::ExecutorConfig::default();
@@ -260,11 +282,24 @@ pub fn run(cli: Cli) -> Result<()> {
                     }
                     let executor = atom_executor::AtomExecutor::new(store.clone(), executor_config);
                     let exec_handle = tokio::spawn(executor.run());
-                    let serve = atom_server::app::serve(version, crates_loaded, addr, store);
+                    let serve = atom_server::app::serve_with_chat(
+                        version,
+                        crates_loaded,
+                        addr,
+                        store,
+                        chat_config.clone(),
+                    );
                     let (_, serve_res) = tokio::join!(exec_handle, serve);
                     serve_res?;
                 } else {
-                    atom_server::app::serve(version, crates_loaded, addr, store).await?;
+                    atom_server::app::serve_with_chat(
+                        version,
+                        crates_loaded,
+                        addr,
+                        store,
+                        chat_config,
+                    )
+                    .await?;
                 }
                 Ok::<(), anyhow::Error>(())
             };
@@ -285,7 +320,7 @@ pub fn run(cli: Cli) -> Result<()> {
 fn run_signed(cli: Cli, cfg: SigningConfig) -> Result<()> {
     match cli.command {
         Command::Status | Command::Doctor => unreachable!("diagnostics are handled before signing"),
-        Command::Setup { .. } => unreachable!("setup is handled before signing"),
+        Command::Setup { .. } | Command::Model => unreachable!("setup is handled before signing"),
         Command::Run => {
             let report = boot::boot(&cfg)?;
             print!("{report}");
@@ -355,6 +390,7 @@ mod tests {
         assert!(Cli::try_parse_from(["atom", "status"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "doctor"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "setup", "--no-provider"]).is_ok());
+        assert!(Cli::try_parse_from(["atom", "model"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "run"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "serve"]).is_err());
         assert!(Cli::try_parse_from([
