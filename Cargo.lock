@@ -585,8 +585,12 @@ name = "atom-executor"
 version = "0.0.0-alpha.1"
 dependencies = [
  "anyhow",
+ "atom-approval",
+ "atom-capability",
+ "atom-effect",
  "atom-ledger",
  "atom-mission",
+ "atom-privd",
  "atom-provider",
  "atom-runtime",
  "atom-scheduler",
