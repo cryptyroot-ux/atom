@@ -12,6 +12,7 @@ use crate::routes::health::{get_health, get_ready};
 use crate::routes::ledger::list_ledger_events;
 use crate::routes::missions::{cancel_mission, create_mission, get_mission, list_missions};
 use crate::routes::secrets::create_secret_handle;
+use crate::routes::tools::read_only;
 use crate::store::Store;
 
 /// Router state shared by all handlers.
@@ -50,6 +51,7 @@ pub fn build_router(
         .route("/evidence", get(list_evidence))
         .route("/ledger/events", get(list_ledger_events))
         .route("/secrets", axum::routing::post(create_secret_handle))
+        .route("/tools/read-only", axum::routing::post(read_only))
         .with_state(state)
 }
 
