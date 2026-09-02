@@ -90,28 +90,44 @@ atom verify test.atom.json
 
 ## Running as a Daemon (systemd)
 
+### Automatic installer (Debian/Ubuntu)
+
+From an Atom checkout, run as root. The installer builds the release binary,
+creates the unprivileged `atom` user, provisions `/var/lib/atom`, generates a
+root-owned signing credential, installs the systemd unit, and enables it at boot:
+
 ```bash
-# 1. Copy the service file
-sudo cp pkg/atom.service /etc/systemd/system/atom.service
-
-# 2. Build, then install the release binary at the path used by the unit
-cargo build --release -p atom-cli --locked
-sudo install -Dm755 target/release/atom /usr/local/bin/atom
-
-# 3. Set env in service or drop a root-only file at /etc/atom/env
-sudo mkdir -p /etc/atom
-cat <<'EOF' | sudo tee /etc/atom/env
-ATOM_SERVE_ADDR=127.0.0.1:8420
-# Set both values from a root-only secret source; do not use literal placeholders.
-# ATOM_SIGNING_KEY_ID=prod-signing-key
-# ATOM_SIGNING_SECRET=managed-secret-value
-EOF
-sudo chmod 600 /etc/atom/env
-
-# 4. Enable + start
-sudo systemctl daemon-reload
-sudo systemctl enable --now atom
+sudo ./pkg/scripts/install.sh --no-provider
 ```
+
+To enable an OpenAI-compatible gateway, pass a root-readable key file. The key
+contents are copied into `/etc/atom/provider-api-key` with mode `0640` and are
+loaded through systemd credentials; they are never printed:
+
+```bash
+sudo ./pkg/scripts/install.sh \
+  --provider-key-file /root/.secrets/provider-api-key \
+  --provider-base-url https://free.pango.fun \
+  --provider-model auto
+```
+
+The provider base URL is the gateway root; Atom appends `/v1/chat/completions`.
+Verify the installation with:
+
+```bash
+systemctl status atom --no-pager
+curl -sS http://127.0.0.1:8420/health
+```
+
+Re-running the installer is safe and preserves the existing signing secret and
+state database.
+
+### Manual installation
+
+For a complete unattended setup, use `pkg/scripts/install.sh` above. If you
+install manually, the unit expects `/etc/atom/signing-secret` and
+`/etc/atom/provider-api-key` as root-owned files readable by group `atom`, plus
+optional non-secret settings in `/etc/atom/env`.
 
 ## Running the HTTP API Server
 
