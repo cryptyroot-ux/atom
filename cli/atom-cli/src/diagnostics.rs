@@ -32,7 +32,7 @@ pub fn doctor(addr: &str) -> Result<()> {
             .parent()
             .is_some_and(std::path::Path::exists),
     );
-    let provider = std::env::var("ATOM_PROVIDER_BASE_URL").ok();
+    let provider = configured_provider();
     println!(
         "  provider: {}",
         provider
@@ -43,6 +43,20 @@ pub fn doctor(addr: &str) -> Result<()> {
         anyhow::bail!("doctor found {failures} failing check(s)");
     }
     Ok(())
+}
+
+fn configured_provider() -> Option<String> {
+    if let Ok(value) = std::env::var("ATOM_PROVIDER_BASE_URL") {
+        return Some(value);
+    }
+    std::fs::read_to_string("/etc/atom/env")
+        .ok()
+        .and_then(|contents| {
+            contents.lines().find_map(|line| {
+                line.strip_prefix("ATOM_PROVIDER_BASE_URL=")
+                    .map(str::to_owned)
+            })
+        })
 }
 
 fn check(name: &str, ok: bool) -> u8 {
