@@ -19,6 +19,7 @@
 pub mod artifact_ops;
 pub mod boot;
 pub mod config;
+pub mod diagnostics;
 
 pub use config::SigningConfig;
 
@@ -56,6 +57,12 @@ pub struct Cli {
 /// The `atom` subcommands.
 #[derive(Debug, Subcommand)]
 pub enum Command {
+    /// Show whether the installed daemon and local health endpoint are ready.
+    Status,
+
+    /// Run read-only checks for the local installation.
+    Doctor,
+
     /// Boot runtime + scheduler + worker in-process and drive one real mutation.
     Run,
 
@@ -172,6 +179,8 @@ pub enum Command {
 /// exit non-zero).
 pub fn run(cli: Cli) -> Result<()> {
     match cli.command {
+        Command::Status => diagnostics::status(&diagnostics::default_addr()),
+        Command::Doctor => diagnostics::doctor(&diagnostics::default_addr()),
         Command::Serve {
             addr,
             state_db,
@@ -241,6 +250,7 @@ pub fn run(cli: Cli) -> Result<()> {
 
 fn run_signed(cli: Cli, cfg: SigningConfig) -> Result<()> {
     match cli.command {
+        Command::Status | Command::Doctor => unreachable!("diagnostics are handled before signing"),
         Command::Run => {
             let report = boot::boot(&cfg)?;
             print!("{report}");
@@ -307,6 +317,8 @@ mod tests {
 
     #[test]
     fn parses_run_seal_verify() {
+        assert!(Cli::try_parse_from(["atom", "status"]).is_ok());
+        assert!(Cli::try_parse_from(["atom", "doctor"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "run"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "serve"]).is_err());
         assert!(Cli::try_parse_from([
