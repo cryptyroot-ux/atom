@@ -212,11 +212,7 @@ fn parse_mission_spec_content(goal: &str, content: &str) -> Option<Value> {
 
 /// Ask the model to draft a full mission spec via `/chat`; fall back to the
 /// safe built-in spec when no provider is reachable or its reply is unusable.
-fn draft_mission_spec(
-    client: &reqwest::blocking::Client,
-    base: &str,
-    goal: &str,
-) -> Result<Value> {
+fn draft_mission_spec(client: &reqwest::blocking::Client, base: &str, goal: &str) -> Result<Value> {
     let prompt = "Return a single JSON object for an ATOM mission spec with exactly these keys: \
 goal, success_criteria, constraints, budgets, authority_profile_ref, evidence_requirements, \
 stopping_rules. goal is one short present-tense sentence. success_criteria, constraints, \
@@ -263,12 +259,18 @@ fn render_evidence(client: &reqwest::blocking::Client, base: &str) -> Result<()>
         .send()
         .context("fetching mission evidence")?;
     if !response.status().is_success() {
-        println!("ATOM> could not fetch evidence (HTTP {})", response.status());
+        println!(
+            "ATOM> could not fetch evidence (HTTP {})",
+            response.status()
+        );
         return Ok(());
     }
     let body: Value = response.json().context("decoding evidence response")?;
     let observations = body["observations"].as_array().cloned().unwrap_or_default();
-    println!("ATOM> evidence: {} observation(s) recorded", observations.len());
+    println!(
+        "ATOM> evidence: {} observation(s) recorded",
+        observations.len()
+    );
     for obs in observations {
         let tool = obs["tool"].as_str().unwrap_or("?");
         let path = obs["path"].as_str().unwrap_or("");
@@ -287,9 +289,15 @@ mod tests {
         let content = "```json\n{\"goal\":\"run a demo\",\"success_criteria\":[\"s1\"],\"constraints\":[\"c1\"],\"budgets\":{\"max_steps\":3},\"authority_profile_ref\":\"authority/escape\",\"evidence_requirements\":[\"e1\"],\"stopping_rules\":[\"r1\"],\"sneaky\":true}\n```";
         let spec = parse_mission_spec_content("MY REAL GOAL", content).expect("spec");
         assert_eq!(spec["goal"].as_str(), Some("MY REAL GOAL"));
-        assert_eq!(spec["authority_profile_ref"].as_str(), Some("authority/read-only"));
+        assert_eq!(
+            spec["authority_profile_ref"].as_str(),
+            Some("authority/read-only")
+        );
         assert_eq!(spec["budgets"]["max_steps"].as_u64(), Some(3));
-        assert!(spec.get("sneaky").is_none(), "unknown fields must be dropped");
+        assert!(
+            spec.get("sneaky").is_none(),
+            "unknown fields must be dropped"
+        );
     }
 
     #[test]
