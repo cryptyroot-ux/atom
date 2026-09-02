@@ -41,6 +41,20 @@ cargo install --path cli/atom-cli --locked
 atom --version
 ```
 
+### Universal installer (Linux, macOS, WSL)
+
+For a fresh machine, the installer can be streamed directly from GitHub. It
+downloads the pinned source branch and builds locally; no opaque executable is
+downloaded. Linux root installs also configure systemd automatically.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cryptyroot-ux/atom/atom-v4.1-migration-hardening/pkg/scripts/install-universal.sh | bash
+```
+
+Use `--no-service` on Linux when you only want the CLI, or set `ATOM_REF` to a
+release branch/tag. Published, checksum-verified binary assets will be enabled
+once the release gate is closed.
+
 ### As a Linux service (operator deployment)
 
 The installer creates the `atom` service user, state directory, root-owned
