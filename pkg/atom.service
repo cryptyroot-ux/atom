@@ -24,7 +24,7 @@ ExecStart=/bin/sh -c 'export ATOM_SIGNING_SECRET="$(cat "$CREDENTIALS_DIRECTORY/
 # Address the HTTP API binds (override via EnvironmentFile if needed)
 Environment=ATOM_SERVE_ADDR=127.0.0.1:8420
 Environment=ATOM_SIGNING_KEY_ID=atom-prod-v1
-Environment=ATOM_PROVIDER_BASE_URL=https://free.pango.fun/v1
+Environment=ATOM_PROVIDER_BASE_URL=https://free.pango.fun
 Environment=ATOM_PROVIDER_MODEL=auto
 # Creates /var/lib/atom and gives the service user write access to its ledger.
 StateDirectory=atom
