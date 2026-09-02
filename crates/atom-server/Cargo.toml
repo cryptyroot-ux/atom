@@ -13,6 +13,7 @@ serde_json = "1"
 tower = { version = "0.4", features = ["util"] }
 anyhow = "1"
 atom-effect = { path = "../atom-effect" }
+atom-approval = { path = "../atom-approval" }
 atom-ledger = { path = "../atom-ledger" }
 atom-mission = { path = "../atom-mission" }
 atom-secret = { path = "../atom-secret" }

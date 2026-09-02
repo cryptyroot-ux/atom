@@ -9,12 +9,14 @@ const EFFECT_STREAM: &str = "effect";
 const GRANT_STREAM: &str = "grant";
 const EVIDENCE_STREAM: &str = "evidence";
 const SECRET_STREAM: &str = "secret";
-const SERVER_STREAMS: [&str; 5] = [
+const APPROVAL_STREAM: &str = "approval";
+const SERVER_STREAMS: [&str; 6] = [
     MISSION_STREAM,
     EFFECT_STREAM,
     GRANT_STREAM,
     EVIDENCE_STREAM,
     SECRET_STREAM,
+    APPROVAL_STREAM,
 ];
 
 /// Durable application state backed by the authoritative `atom_ledger` SQLite
@@ -32,6 +34,7 @@ pub struct Store {
     grants: Vec<Value>,
     observations: Vec<Value>,
     secret_handles: Vec<Value>,
+    approvals: Vec<Value>,
 }
 
 impl Store {
@@ -60,6 +63,7 @@ impl Store {
             grants: Vec::new(),
             observations: Vec::new(),
             secret_handles: Vec::new(),
+            approvals: Vec::new(),
         };
         store.rebuild_projections()?;
         Ok(store)
@@ -72,6 +76,7 @@ impl Store {
         self.grants.clear();
         self.observations.clear();
         self.secret_handles.clear();
+        self.approvals.clear();
 
         for stream_id in SERVER_STREAMS {
             let report = self
@@ -124,6 +129,10 @@ impl Store {
             .context("scanning secret-handle projection stream")?;
         for record in secret_records {
             self.apply_secret_handle_event(&record.payload)?;
+        }
+
+        for record in self.ledger.scan(APPROVAL_STREAM, 1)? {
+            self.apply_approval_event(&record.payload)?;
         }
 
         Ok(())
@@ -200,6 +209,18 @@ impl Store {
         }
     }
 
+    fn apply_approval_event(&mut self, payload: &Value) -> anyhow::Result<()> {
+        match event_name(payload, APPROVAL_STREAM)? {
+            "issued" => upsert(
+                &mut self.approvals,
+                "grant_id",
+                object_field(payload, "grant", APPROVAL_STREAM)?,
+                "approval grant",
+            ),
+            other => bail!("unknown `{APPROVAL_STREAM}` event `{other}`"),
+        }
+    }
+
     pub fn missions(&self) -> &[Value] {
         &self.missions
     }
@@ -225,6 +246,20 @@ impl Store {
 
     pub fn secret_handles(&self) -> &[Value] {
         &self.secret_handles
+    }
+
+    pub fn approvals(&self) -> &[Value] {
+        &self.approvals
+    }
+
+    pub fn add_approval(&mut self, grant: &Value) -> anyhow::Result<()> {
+        ensure_identifier(grant, "grant_id", "approval grant")?;
+        self.ledger.append(
+            APPROVAL_STREAM,
+            &serde_json::json!({"event":"issued", "grant": grant}),
+            now_millis(),
+        )?;
+        upsert(&mut self.approvals, "grant_id", grant, "approval grant")
     }
 
     pub fn append_mission_created(&mut self, mission: &Value) -> anyhow::Result<()> {

@@ -1,3 +1,4 @@
+pub mod approvals;
 pub mod capabilities;
 pub mod effects;
 pub mod evidence;

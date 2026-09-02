@@ -5,6 +5,7 @@ use axum::routing::get;
 use axum::Router;
 use tokio::sync::Mutex;
 
+use crate::routes::approvals::{issue as issue_approval, list as list_approvals};
 use crate::routes::capabilities::list_capabilities;
 use crate::routes::effects::{dispatch_effect, get_effect};
 use crate::routes::evidence::list_evidence;
@@ -52,6 +53,7 @@ pub fn build_router(
         .route("/ledger/events", get(list_ledger_events))
         .route("/secrets", axum::routing::post(create_secret_handle))
         .route("/tools/read-only", axum::routing::post(read_only))
+        .route("/approvals", get(list_approvals).post(issue_approval))
         .with_state(state)
 }
 
