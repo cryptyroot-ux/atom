@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "crates/atom-kernel",
     "crates/atom-identity",
+    "crates/atom-agent-profile",
     "crates/atom-capability",
     "crates/atom-policy",
     "crates/atom-approval",

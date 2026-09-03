@@ -48,6 +48,7 @@ atom-server = { path = "../../crates/atom-server" }
 atom-executor = { path = "../../crates/atom-executor" }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time"] }
 reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+atom-agent-profile = { path = "../../crates/atom-agent-profile" }
 
 [dev-dependencies]
 tempfile = "3"

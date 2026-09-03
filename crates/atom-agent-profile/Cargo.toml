@@ -1,0 +1,18 @@
+[package]
+name = "atom-agent-profile"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "ATOM Agent Profile: governed SOUL.md, IDENTITY.md, USER.md with constitutional enforcement (ATOM-SELF-001..028)"
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = { workspace = true }
+sha2 = "0.10"
+hex = "0.4"
+uuid = { version = "1", features = ["v4"] }
+
+[dev-dependencies]
+tempfile = "3"

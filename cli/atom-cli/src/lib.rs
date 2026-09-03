@@ -21,8 +21,11 @@ pub mod boot;
 pub mod config;
 pub mod diagnostics;
 pub mod display;
+pub mod identity;
 pub mod interactive;
 pub mod setup;
+pub mod soul;
+pub mod workspace;
 
 pub use config::SigningConfig;
 
@@ -188,6 +191,114 @@ pub enum Command {
         /// Path to the artifact JSON produced by `atom seal`.
         file: PathBuf,
     },
+    /// Initialize a governed workspace.
+    Workspace {
+        #[command(subcommand)]
+        action: WorkspaceAction,
+    },
+    /// Manage agent identity profiles.
+    Identity {
+        #[command(subcommand)]
+        action: IdentityAction,
+    },
+    /// Manage agent soul profiles.
+    Soul {
+        #[command(subcommand)]
+        action: SoulAction,
+    },
+}
+
+/// Workspace subcommands.
+#[derive(Debug, Subcommand)]
+pub enum WorkspaceAction {
+    /// Initialize a governed workspace.
+    Init {
+        /// Agent ID for the workspace.
+        #[arg(long, value_name = "ID")]
+        agent_id: String,
+    },
+    /// Import persona from OpenClaw or Hermes.
+    Import {
+        /// Source platform.
+        #[arg(long, value_name = "SOURCE", value_enum)]
+        from: ImportSource,
+        /// Input file path.
+        #[arg(long, value_name = "PATH")]
+        input: PathBuf,
+    },
+}
+
+/// Import source platforms.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+pub enum ImportSource {
+    Openclaw,
+    Hermes,
+}
+
+/// Identity subcommands.
+#[derive(Debug, Subcommand)]
+pub enum IdentityAction {
+    /// Show current identity profile.
+    Show,
+    /// Edit identity profile (creates proposal).
+    Edit {
+        /// Field to edit.
+        #[arg(long, value_name = "FIELD")]
+        field: String,
+        /// New value.
+        #[arg(long, value_name = "VALUE")]
+        value: String,
+    },
+    /// Propose identity change.
+    Propose {
+        /// Path to proposal JSON.
+        #[arg(long, value_name = "PATH")]
+        proposal: PathBuf,
+    },
+    /// View revision history.
+    History,
+    /// Rollback to previous generation.
+    Rollback {
+        /// Generation to rollback to.
+        #[arg(long, value_name = "GENERATION")]
+        generation: u64,
+    },
+}
+
+/// Soul subcommands.
+#[derive(Debug, Subcommand)]
+pub enum SoulAction {
+    /// Show current soul profile.
+    Show,
+    /// Edit soul profile (creates proposal).
+    Edit {
+        /// Field to edit.
+        #[arg(long, value_name = "FIELD")]
+        field: String,
+        /// New value.
+        #[arg(long, value_name = "VALUE")]
+        value: String,
+    },
+    /// Propose soul change.
+    Propose {
+        /// Path to proposal JSON.
+        #[arg(long, value_name = "PATH")]
+        proposal: PathBuf,
+    },
+    /// Approve pending soul change (owner only).
+    Approve {
+        /// Revision ID to approve.
+        #[arg(long, value_name = "ID")]
+        revision_id: String,
+    },
+    /// View revision history.
+    History,
+    /// Rollback to previous generation.
+    Rollback {
+        /// Generation to rollback to.
+        #[arg(long, value_name = "GENERATION")]
+        generation: u64,
+    },
 }
 
 /// Runs the parsed CLI to completion.
@@ -328,6 +439,9 @@ fn run_signed(cli: Cli, cfg: SigningConfig) -> Result<()> {
             Ok(())
         }
         Command::Serve { .. } => Err(anyhow!("`atom serve` is dispatched before signed commands")),
+        Command::Workspace { action } => workspace::run(action),
+        Command::Identity { action } => identity::run(action),
+        Command::Soul { action } => soul::run(action),
         Command::Seal {
             content,
             input,

@@ -320,6 +320,20 @@ name = "atom-adapter-openclaw"
 version = "0.0.0-alpha.1"
 
 [[package]]
+name = "atom-agent-profile"
+version = "0.0.0-alpha.1"
+dependencies = [
+ "chrono",
+ "hex",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror 1.0.69",
+ "uuid",
+]
+
+[[package]]
 name = "atom-approval"
 version = "0.0.0-alpha.1"
 dependencies = [
@@ -452,6 +466,7 @@ version = "0.0.0-alpha.1"
 dependencies = [
  "anyhow",
  "atom-adapter",
+ "atom-agent-profile",
  "atom-approval",
  "atom-artifact",
  "atom-capability",
