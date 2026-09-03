@@ -71,6 +71,7 @@ pub fn all_ops() -> Vec<HostOp> {
 /// An active grant that authorises the operation `op` names on its resource.
 #[must_use]
 pub fn grant_for(op: &HostOp) -> CapabilityGrant {
+    CapabilityGrant {
         grant_id: GRANT_ID.into(),
         subject_id: PRINCIPAL.into(),
         workload_id: "workload/atomd".into(),

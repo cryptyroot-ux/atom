@@ -1,32 +1,28 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://atom.run/spec/v4/schemas/schema-inventory.schema.json",
-  "title": "Schema Inventory",
+  "$id": "https://atom.dev/schemas/schema-inventory.schema.json",
+  "title": "ATOM Schema Inventory",
+  "description": "Cross-language canonical schema inventory (ATOM-V4-SCM-001/002)",
   "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "inventory_id",
-    "pack_version",
-    "schemas",
-    "generated_at"
-  ],
+  "required": ["spec_version", "schemas"],
   "properties": {
-    "inventory_id": {
-      "type": "string"
-    },
-    "pack_version": {
-      "type": "string"
-    },
+    "spec_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
     "schemas": {
       "type": "array",
       "items": {
-        "type": "object"
-      },
-      "minItems": 1
-    },
-    "generated_at": {
-      "type": "string",
-      "format": "date-time"
+        "type": "object",
+        "required": ["id", "path", "format", "scope", "semantic_hooks"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "path": { "type": "string" },
+          "format": { "enum": ["json-schema", "openapi", "protobuf", "wit"] },
+          "scope": { "type": "string" },
+          "semantic_hooks": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
     }
   }
 }
