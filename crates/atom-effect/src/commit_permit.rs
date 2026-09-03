@@ -95,6 +95,14 @@ pub struct CommitPermit {
     approval_id: Option<String>,
     /// How fresh the evidence behind the decision was.
     evidence_freshness_digest: Option<String>,
+    /// The sink this permit is bound to — wrong sink is refused.
+    dispatch_sink_id: String,
+    /// The connector identity this permit was issued to.
+    connector_identity: String,
+    /// The connector version at issuance time.
+    connector_version: String,
+    /// The connector instance epoch — stale epoch is refused.
+    connector_instance_epoch: u64,
     /// When the permit was issued.
     issued_at: DateTime<Utc>,
     /// When it dies.
@@ -297,6 +305,30 @@ pub enum PermitError {
         /// The workload the grant in hand actually names.
         observed: String,
     },
+    /// The permit was presented to the wrong dispatch sink.
+    #[error("permit was issued for sink {expected}, not {observed}")]
+    WrongDispatchSink {
+        expected: String,
+        observed: String,
+    },
+    /// The permit was presented by the wrong connector identity.
+    #[error("permit was issued to connector {expected}, not {observed}")]
+    WrongConnectorIdentity {
+        expected: String,
+        observed: String,
+    },
+    /// The permit was presented by the wrong connector version.
+    #[error("permit was issued to connector version {expected}, not {observed}")]
+    WrongConnectorVersion {
+        expected: String,
+        observed: String,
+    },
+    /// The permit was presented by a stale connector instance epoch.
+    #[error("permit was issued to instance epoch {expected}, not {observed}")]
+    StaleInstanceEpoch {
+        expected: u64,
+        observed: u64,
+    },
     /// The grant does not cover the operation being attempted.
     #[error("grant does not allow {operation}")]
     OperationNotGranted {
@@ -386,6 +418,14 @@ pub struct PermitRequest<'a> {
     pub approval_id: Option<&'a str>,
     /// How fresh the evidence behind the decision was.
     pub evidence_freshness_digest: Option<&'a str>,
+    /// The sink this permit is bound to.
+    pub dispatch_sink_id: &'a str,
+    /// The connector identity this permit was issued to.
+    pub connector_identity: &'a str,
+    /// The connector version at issuance time.
+    pub connector_version: &'a str,
+    /// The connector instance epoch.
+    pub connector_instance_epoch: u64,
 }
 
 /// Everything the commit gate revalidates before it spends a permit (EFX-004).
@@ -401,6 +441,14 @@ pub struct ConsumeRequest<'a> {
     pub observed_witness: &'a ResourceWitness,
     /// The instant of consumption.
     pub now: DateTime<Utc>,
+    /// The sink this permit is being presented to.
+    pub dispatch_sink_id: &'a str,
+    /// The connector identity presenting the permit.
+    pub connector_identity: &'a str,
+    /// The connector version presenting the permit.
+    pub connector_version: &'a str,
+    /// The connector instance epoch.
+    pub connector_instance_epoch: u64,
 }
 /// The authority checks, run identically at issuance and at consumption.
 ///
@@ -552,6 +600,10 @@ pub fn issue_commit_permit(request: PermitRequest<'_>) -> Result<CommitPermit, P
         resource_version_witness: request.observed_witness.clone(),
         approval_id: request.approval_id.map(str::to_owned),
         evidence_freshness_digest: request.evidence_freshness_digest.map(str::to_owned),
+        dispatch_sink_id: request.dispatch_sink_id.to_owned(),
+        connector_identity: request.connector_identity.to_owned(),
+        connector_version: request.connector_version.to_owned(),
+        connector_instance_epoch: request.connector_instance_epoch,
         issued_at: request.now,
         expires_at: request.now + Duration::seconds(i64::from(request.ttl_seconds)),
         one_shot_nonce: request.one_shot_nonce.to_owned(),
@@ -619,6 +671,10 @@ impl NonceRegistry {
             grant,
             observed_witness,
             now,
+            dispatch_sink_id,
+            connector_identity,
+            connector_version,
+            connector_instance_epoch,
         } = request;
 
         if self.is_used(&permit.one_shot_nonce) {
@@ -637,6 +693,30 @@ impl NonceRegistry {
         if intent.state != EffectState::CommitRevalidating {
             return Err(PermitError::EffectNotRevalidating {
                 state: intent.state,
+            });
+        }
+        if request.dispatch_sink_id != permit.dispatch_sink_id {
+            return Err(PermitError::WrongDispatchSink {
+                expected: permit.dispatch_sink_id.clone(),
+                observed: request.dispatch_sink_id.to_owned(),
+            });
+        }
+        if request.connector_identity != permit.connector_identity {
+            return Err(PermitError::WrongConnectorIdentity {
+                expected: permit.connector_identity.clone(),
+                observed: request.connector_identity.to_owned(),
+            });
+        }
+        if request.connector_version != permit.connector_version {
+            return Err(PermitError::WrongConnectorVersion {
+                expected: permit.connector_version.clone(),
+                observed: request.connector_version.to_owned(),
+            });
+        }
+        if request.connector_instance_epoch != permit.connector_instance_epoch {
+            return Err(PermitError::StaleInstanceEpoch {
+                expected: permit.connector_instance_epoch,
+                observed: request.connector_instance_epoch,
             });
         }
         // Against the permit, not against a fresh plan: these are exactly the

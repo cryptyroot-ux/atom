@@ -327,6 +327,10 @@ fn host_operation_crosses_only_the_atom_privd_permit_gate() {
             .expect("valid pre-dispatch transition");
     }
     let permit = issue_commit_permit(PermitRequest {
+        dispatch_sink_id: "atom-cli",
+        connector_identity: "atom-cli",
+        connector_version: "atom-cli",
+        connector_instance_epoch: 0,
         intent: &intent,
         grant: &grant,
         principal_id: "runtime-workload",
@@ -359,6 +363,10 @@ fn host_operation_crosses_only_the_atom_privd_permit_gate() {
             grant: &grant,
             observed_witness: &witness,
             now,
+            dispatch_sink_id: "atom-cli",
+            connector_identity: "atom-cli",
+            connector_version: "atom-cli",
+            connector_instance_epoch: grant.generation,
         })
         .expect("only atom-privd may admit a host operation");
 

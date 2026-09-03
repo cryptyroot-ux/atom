@@ -231,6 +231,10 @@ pub fn permit_for(
     witness: &ResourceWitness,
 ) -> CommitPermit {
     issue_commit_permit(PermitRequest {
+        dispatch_sink_id: "atom-cli",
+        connector_identity: "atom-cli",
+        connector_version: "atom-cli",
+        connector_instance_epoch: 0,
         intent,
         grant,
         principal_id: PRINCIPAL,

@@ -437,6 +437,10 @@ impl Kernel {
             now: request.now,
             approval_id: request.approval_id,
             evidence_freshness_digest: request.evidence_freshness_digest,
+            dispatch_sink_id: "atom-cli",
+            connector_identity: &authorization.principal_id,
+            connector_version: "atom-cli",
+            connector_instance_epoch: authorization.grant_generation,
         })?;
 
         // Spend it exactly once. Consumption re-validates everything against the
@@ -447,6 +451,10 @@ impl Kernel {
             grant,
             observed_witness: request.observed_witness,
             now: request.now,
+            dispatch_sink_id: "atom-cli",
+            connector_identity: &authorization.principal_id,
+            connector_version: "atom-cli",
+            connector_instance_epoch: authorization.grant_generation,
         })?;
 
         // Advance the lifecycle through the durable CommitPermitted event.

@@ -40,6 +40,14 @@ pub struct AdmissionRequest<'a> {
     pub observed_witness: &'a ResourceWitness,
     /// The instant of the crossing; supplied, never read from a clock.
     pub now: DateTime<Utc>,
+    /// The sink this permit is being presented to.
+    pub dispatch_sink_id: &'a str,
+    /// The connector identity presenting the permit.
+    pub connector_identity: &'a str,
+    /// The connector version presenting the permit.
+    pub connector_version: &'a str,
+    /// The connector instance epoch.
+    pub connector_instance_epoch: u64,
 }
 
 /// The record of an operation that crossed the boundary and reached the host.
@@ -155,6 +163,10 @@ impl<E: HostExecutor> PrivilegeBroker<E> {
             grant,
             observed_witness,
             now,
+            dispatch_sink_id,
+            connector_identity,
+            connector_version,
+            connector_instance_epoch,
         } = request;
 
         // 1. Deny-by-default: an op that fails its own schema never named a
@@ -204,6 +216,10 @@ impl<E: HostExecutor> PrivilegeBroker<E> {
                 grant,
                 observed_witness,
                 now,
+                dispatch_sink_id,
+                connector_identity,
+                connector_version,
+                connector_instance_epoch,
             })
             .map_err(DenyReason::PermitRejected)?;
 

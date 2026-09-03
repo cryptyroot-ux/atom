@@ -1343,6 +1343,14 @@ pub struct HostOperationRequest<'a> {
     pub observed_witness: &'a ResourceWitness,
     /// Injected crossing time.
     pub now: DateTime<Utc>,
+    /// The sink this permit is bound to.
+    pub dispatch_sink_id: &'a str,
+    /// The connector identity presenting the permit.
+    pub connector_identity: &'a str,
+    /// The connector version presenting the permit.
+    pub connector_version: &'a str,
+    /// The connector instance epoch.
+    pub connector_instance_epoch: u64,
 }
 
 /// Client interface to atom-privd.
@@ -1363,6 +1371,10 @@ impl<E: HostExecutor> PrivdClient for PrivilegeBroker<E> {
                 grant: request.grant,
                 observed_witness: request.observed_witness,
                 now: request.now,
+                dispatch_sink_id: request.dispatch_sink_id,
+                connector_identity: request.connector_identity,
+                connector_version: request.connector_version,
+                connector_instance_epoch: request.connector_instance_epoch,
             },
         )
     }

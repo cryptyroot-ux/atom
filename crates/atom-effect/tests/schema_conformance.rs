@@ -151,6 +151,10 @@ fn the_commit_permit_matches_its_spec_schema() {
     let proof = durability();
 
     let request = PermitRequest {
+        dispatch_sink_id: "atom-cli",
+        connector_identity: "atom-cli",
+        connector_version: "atom-cli",
+        connector_instance_epoch: 0,
         intent: &effect,
         grant: &authority,
         principal_id: PRINCIPAL,
@@ -175,6 +179,10 @@ fn the_commit_permit_matches_its_spec_schema() {
     );
 
     let bare = issue_commit_permit(PermitRequest {
+        dispatch_sink_id: "atom-cli",
+        connector_identity: "atom-cli",
+        connector_version: "atom-cli",
+        connector_instance_epoch: 0,
         approval_id: None,
         evidence_freshness_digest: None,
         ..request

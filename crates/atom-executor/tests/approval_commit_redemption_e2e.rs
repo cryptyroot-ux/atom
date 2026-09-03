@@ -183,6 +183,10 @@ fn approval_redemption_authorises_a_real_sandboxed_commit() {
         now,
         approval_id: Some(receipt.grant_id.as_str()),
         evidence_freshness_digest: None,
+        dispatch_sink_id: "atom-cli",
+        connector_identity: "runtime-workload",
+        connector_version: "atom-cli",
+        connector_instance_epoch: grant.generation,
     })
     .expect("valid commit permit");
 
@@ -201,6 +205,10 @@ fn approval_redemption_authorises_a_real_sandboxed_commit() {
             grant: &grant,
             observed_witness: &witness,
             now,
+            dispatch_sink_id: "atom-cli",
+            connector_identity: "atom-cli",
+            connector_version: "atom-cli",
+            connector_instance_epoch: grant.generation,
         })
         .expect("redemption-backed permit admits the write");
 
@@ -220,6 +228,10 @@ fn approval_redemption_authorises_a_real_sandboxed_commit() {
         grant: &grant,
         observed_witness: &witness,
         now,
+        dispatch_sink_id: "atom-cli",
+        connector_identity: "atom-cli",
+        connector_version: "atom-cli",
+        connector_instance_epoch: grant.generation,
     });
     assert!(
         second.is_err(),

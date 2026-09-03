@@ -1,16 +1,16 @@
 # ATOM Master Implementation — Execution Plan
 
 ## Phase 0: Foundation (Current State)
-- [x] P0-1: DurabilityProof binding
-- [x] P0-3: CapabilityGrant field expansion
-- [x] Display layer (banners, panels, markdown)
-- [x] NLU routing (20 patterns)
-- [x] G0 truth drift reconciliation
-- [x] GOVERNANCE.md, SECURITY.md, schema-inventory.schema.json
+- [x] P0-1: DurabilityProof binding ✅
+- [x] P0-3: CapabilityGrant field expansion ✅
+- [x] Display layer ✅
+- [x] NLU routing ✅
+- [x] G0 truth drift reconciliation ✅
+- [x] GOVERNANCE.md, SECURITY.md ✅
 
 ---
 
-## Phase 1: Constitutional Agent Self Addendum (PR B)
+## Phase 1: Constitutional Agent Self Addendum (PR B) ✅ COMPLETE
 
 ### 1.1 Create `spec/addenda/agent-self-v1/` (complete)
 - manifest.yaml (version, digest, parent baseline)

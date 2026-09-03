@@ -47,6 +47,10 @@ impl Gate {
     /// The request a well-behaved commit gate submits.
     fn request(&self) -> PermitRequest<'_> {
         PermitRequest {
+            dispatch_sink_id: "atom-cli",
+            connector_identity: "atom-cli",
+            connector_version: "atom-cli",
+            connector_instance_epoch: 0,
             intent: &self.effect,
             grant: &self.grant,
             principal_id: PRINCIPAL,
@@ -123,6 +127,10 @@ fn a_grant_revoked_after_planning_blocks_issuance() {
     let gate = Gate::new();
     let revoked = revoked_grant();
     let error = issue_commit_permit(PermitRequest {
+        dispatch_sink_id: "atom-cli",
+        connector_identity: "atom-cli",
+        connector_version: "atom-cli",
+        connector_instance_epoch: 0,
         grant: &revoked,
         ..gate.request()
     })
@@ -138,6 +146,10 @@ fn a_grant_regenerated_after_planning_blocks_issuance() {
     let gate = Gate::new();
     let regenerated = regenerated_grant();
     let error = issue_commit_permit(PermitRequest {
+        dispatch_sink_id: "atom-cli",
+        connector_identity: "atom-cli",
+        connector_version: "atom-cli",
+        connector_instance_epoch: 0,
         grant: &regenerated,
         ..gate.request()
     })
@@ -159,6 +171,10 @@ fn a_resource_witness_that_changed_after_planning_blocks_issuance() {
     let gate = Gate::new();
     let drifted = drifted_witness();
     let error = issue_commit_permit(PermitRequest {
+        dispatch_sink_id: "atom-cli",
+        connector_identity: "atom-cli",
+        connector_version: "atom-cli",
+        connector_instance_epoch: 0,
         observed_witness: &drifted,
         ..gate.request()
     })
@@ -174,6 +190,10 @@ fn a_grant_outside_its_validity_window_blocks_issuance() {
     let gate = Gate::new();
     for instant in [at(10, 59, 59), at(13, 0, 1)] {
         let error = issue_commit_permit(PermitRequest {
+            dispatch_sink_id: "atom-cli",
+            connector_identity: "atom-cli",
+            connector_version: "atom-cli",
+            connector_instance_epoch: 0,
             now: instant,
             ..gate.request()
         })
@@ -190,6 +210,10 @@ fn a_grant_that_does_not_cover_the_operation_or_resource_blocks_issuance() {
     let gate = Gate::new();
 
     let error = issue_commit_permit(PermitRequest {
+        dispatch_sink_id: "atom-cli",
+        connector_identity: "atom-cli",
+        connector_version: "atom-cli",
+        connector_instance_epoch: 0,
         operation: "delete",
         ..gate.request()
     })
@@ -200,6 +224,10 @@ fn a_grant_that_does_not_cover_the_operation_or_resource_blocks_issuance() {
     );
 
     let error = issue_commit_permit(PermitRequest {
+        dispatch_sink_id: "atom-cli",
+        connector_identity: "atom-cli",
+        connector_version: "atom-cli",
+        connector_instance_epoch: 0,
         resource_type: "queue",
         ..gate.request()
     })
@@ -210,6 +238,10 @@ fn a_grant_that_does_not_cover_the_operation_or_resource_blocks_issuance() {
     );
 
     let error = issue_commit_permit(PermitRequest {
+        dispatch_sink_id: "atom-cli",
+        connector_identity: "atom-cli",
+        connector_version: "atom-cli",
+        connector_instance_epoch: 0,
         principal_id: "principal/someone-else",
         ..gate.request()
     })
@@ -240,6 +272,10 @@ fn an_effect_that_was_never_made_durable_blocks_issuance() {
     );
 
     let error = issue_commit_permit(PermitRequest {
+        dispatch_sink_id: "atom-cli",
+        connector_identity: "atom-cli",
+        connector_version: "atom-cli",
+        connector_instance_epoch: 0,
         durability: &other_effects_proof,
         ..gate.request()
     })
@@ -265,6 +301,10 @@ fn a_proof_over_a_different_payload_blocks_issuance() {
     let swapped_proof = proof_over(EFFECT_ID, &swapped_payload);
 
     let error = issue_commit_permit(PermitRequest {
+        dispatch_sink_id: "atom-cli",
+        connector_identity: "atom-cli",
+        connector_version: "atom-cli",
+        connector_instance_epoch: 0,
         durability: &swapped_proof,
         ..gate.request()
     })
@@ -282,6 +322,10 @@ fn a_permit_must_be_short_lived() {
 
     for ttl in [0, MAX_PERMIT_TTL_SECONDS + 1, 3_600] {
         let error = issue_commit_permit(PermitRequest {
+            dispatch_sink_id: "atom-cli",
+            connector_identity: "atom-cli",
+            connector_version: "atom-cli",
+            connector_instance_epoch: 0,
             ttl_seconds: ttl,
             ..gate.request()
         })
@@ -293,6 +337,10 @@ fn a_permit_must_be_short_lived() {
     }
 
     let permit = issue_commit_permit(PermitRequest {
+        dispatch_sink_id: "atom-cli",
+        connector_identity: "atom-cli",
+        connector_version: "atom-cli",
+        connector_instance_epoch: 0,
         ttl_seconds: MAX_PERMIT_TTL_SECONDS,
         ..gate.request()
     })
