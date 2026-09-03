@@ -1,7 +1,7 @@
-spec_version: 4.1.0
-addendum_id: agent-self-v1
-state_machine: AgentSelfRevision
-initial_state: DRAFT
+version: 1.0.0
+name: AgentSelfRevision
+description: Lifecycle for agent identity/soul revisions
+initial: DRAFT
 terminals: [SUPERSEDED, REVOKED, ROLLED_BACK, QUARANTINED, DENIED]
 states:
   - DRAFT
@@ -14,15 +14,13 @@ states:
   - QUARANTINED
   - DENIED
 transitions:
-  - { from: DRAFT, to: PROPOSED, trigger: propose_revision }
-  - { from: DRAFT, to: QUARANTINED, trigger: invariant_violation_or_tampering }
+  - { from: DRAFT, to: PROPOSED, trigger: propose }
   - { from: DRAFT, to: DENIED, trigger: deny }
   - { from: PROPOSED, to: PENDING_AUTHORIZATION, trigger: request_authorization }
-  - { from: PROPOSED, to: QUARANTINED, trigger: invariant_violation_or_tampering }
   - { from: PROPOSED, to: DENIED, trigger: deny }
-  - { from: PENDING_AUTHORIZATION, to: ACTIVE, trigger: authorize_and_activate, constraint: owner_approval_required_and_not_self_approved }
-  - { from: PENDING_AUTHORIZATION, to: QUARANTINED, trigger: invariant_violation_or_tampering }
+  - { from: PENDING_AUTHORIZATION, to: ACTIVE, trigger: authorize, constraint: owner_approval_required }
   - { from: PENDING_AUTHORIZATION, to: DENIED, trigger: deny }
-  - { from: ACTIVE, to: SUPERSEDED, trigger: supersede_or_rollback }
+  - { from: ACTIVE, to: SUPERSEDED, trigger: supersede }
   - { from: ACTIVE, to: REVOKED, trigger: revoke }
   - { from: ACTIVE, to: ROLLED_BACK, trigger: rollback }
+  - { from: '*', to: QUARANTINED, trigger: invariant_violation_or_tampering }

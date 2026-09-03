@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.dev/schemas/workspace-import.schema.json",
+  "title": "WorkspaceImport",
+  "type": "object",
+  "required": ["source", "persona_metadata"],
+  "properties": {
+    "source": { "enum": ["openclaw", "hermes"] },
+    "persona_metadata": { "type": "object" }
+  }
+}

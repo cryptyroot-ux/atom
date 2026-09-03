@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.dev/schemas/agent-self-revision.schema.json",
+  "title": "AgentSelfRevision",
+  "type": "object",
+  "required": ["revision_id", "profile_id", "change_type", "proposal", "state", "generation", "content_digest", "created_at", "proposed_by"],
+  "properties": {
+    "revision_id": { "type": "string" },
+    "profile_id": { "type": "string" },
+    "change_type": { "enum": ["IDENTITY", "SOUL", "USER"] },
+    "proposal": { "type": "object" },
+    "state": { "enum": ["DRAFT", "PROPOSED", "PENDING_AUTHORIZATION", "ACTIVE", "SUPERSEDED", "REVOKED", "ROLLED_BACK", "QUARANTINED", "DENIED"] },
+    "generation": { "type": "integer", "minimum": 0 },
+    "content_digest": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "proposed_by": { "type": "string" }
+  }
+}

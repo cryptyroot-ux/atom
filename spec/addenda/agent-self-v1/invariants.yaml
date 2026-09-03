@@ -1,62 +1,26 @@
 spec_version: 4.1.0
 addendum_id: agent-self-v1
 invariants:
-- id: ATOM-AS-INV-001
-  class: requirement-linked
-  statement: |
-    Persona metadata (SOUL.md, IDENTITY.md, USER.md, memory, model output, peer assertion) MUST NOT
-    create, expand, or replace CapabilityContract, CapabilityGrant, ApprovalGrant, PolicyDecision,
-    EffectiveAuthorityView, or CommitPermit. Authority originates only from typed grants and permits.
-  linked_requirements: [ATOM-AS-REQ-001, ATOM-AS-REQ-002, ATOM-AS-REQ-010]
-  trace: [CONS-ADD-001, CONS-ADD-002]
+- id: ATOM-INV-SELF-001
+  invariant: Persona metadata MUST NOT appear in any authorization evaluation path.
+  enforcement: Type system + Effect Kernel
 
-- id: ATOM-AS-INV-002
-  class: requirement-linked
-  statement: |
-    Display/persona identity (name, avatar, role, speech style) MUST be type-distinct and
-    domain-digest-separated from owner principal identity, subject identity, workload identity,
-    connector identity, signing identity, and execution instance identity. Changing persona
-    metadata MUST NOT alter WorkloadIdentity or grant validity.
-  linked_requirements: [ATOM-AS-REQ-001, ATOM-AS-REQ-002, ATOM-AS-REQ-010]
-  trace: [CONS-ADD-002]
+- id: ATOM-INV-SELF-002
+  invariant: WorkloadIdentity digest MUST NOT change when display name, avatar, or role changes.
+  enforcement: Domain-separated content-addressed identity
 
-- id: ATOM-AS-INV-003
-  class: requirement-linked
-  statement: |
-    Agent self-modification MUST follow governed lifecycle: DRAFT → PROPOSED → PENDING_AUTHORIZATION
-    → ACTIVE → SUPERSEDED/REVOKED/ROLLED_BACK. Agent MUST NOT approve and activate its own change.
-    Invalid digest, unknown schema, owner mismatch, or unauthorized mutation MUST produce
-    QUARANTINED or DENIED. Changes are versioned, content-addressed, auditable, reversible.
-  linked_requirements: [ATOM-AS-REQ-003, ATOM-AS-REQ-008, ATOM-AS-REQ-010]
-  trace: [CONS-ADD-003]
+- id: ATOM-INV-SELF-003
+  invariant: Self-approval MUST NOT activate a self-change proposal.
+  enforcement: Owner-controlled change policy + audit logging
 
-- id: ATOM-AS-INV-004
-  class: requirement-linked
-  statement: |
-    EffectiveSelfView is a derived, short-lived view. It MUST carry derivation digest, source digests,
-    generation, scope, expiry. It MUST NOT be root-of-truth, MUST NOT have operations/resources/budget
-    authority, MUST NOT be accepted as authority grant input. Rebuilt at session/mission boundary.
-  linked_requirements: [ATOM-AS-REQ-004, ATOM-AS-REQ-006, ATOM-AS-REQ-010]
-  trace: [CONS-ADD-001, CONS-ADD-005]
+- id: ATOM-INV-SELF-004
+  invariant: EffectiveSelfView MUST expire at session/mission boundary.
+  enforcement: Short-lived cache with derivation digest
 
-- id: ATOM-AS-INV-005
-  class: requirement-linked
-  statement: |
-    Agent identity, soul, user profile, and memory MUST be isolated by tenant, owner, and agent.
-    No silent inheritance across users, agents, restored instances, shared channels, or delegated
-    sub-agents. Private USER.md and MEMORY.md MUST NOT enter group channel, peer protocol,
-    delegated sub-agent, or external provider violating egress policy. Sub-agent receives only
-    DelegatedSelfView without private user profile by default.
-  linked_requirements: [ATOM-AS-REQ-005, ATOM-AS-REQ-006, ATOM-AS-REQ-007, ATOM-AS-REQ-010]
-  trace: [CONS-ADD-005, CONS-ADD-006]
+- id: ATOM-INV-SELF-005
+  invariant: Private user profile MUST NOT cross tenant or channel boundaries.
+  enforcement: Context assembly + egress policy
 
-- id: ATOM-AS-INV-006
-  class: requirement-linked
-  statement: |
-    Workspace files MUST use validated YAML frontmatter, UTF-8, deterministic normalization,
-    domain-separated SHA-256 digest, max file size, reject NUL/invalid encoding, atomic writes,
-    symlink escape protection, owner/permission checks, generation counter, rollback history,
-    no plaintext secrets. Operational SOUL.md/IDENTITY.md MUST NOT reside in repository root.
-    Runtime workspace is config-driven at ${ATOM_STATE_DIR}/workspaces/<agent_id>/.
-  linked_requirements: [ATOM-AS-REQ-005, ATOM-AS-REQ-008, ATOM-AS-REQ-010]
-  trace: [CONS-ADD-006]
+- id: ATOM-INV-SELF-006
+  invariant: Constitution enforcement MUST rely on typed API, not LLM prompt compliance.
+  enforcement: Policy Decision + Effect Kernel

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.dev/schemas/effective-self-view.schema.json",
+  "title": "EffectiveSelfView",
+  "type": "object",
+  "required": ["derivation_digest", "source_digests", "generation", "scope", "expiry"],
+  "properties": {
+    "derivation_digest": { "type": "string" },
+    "source_digests": { "type": "array", "items": { "type": "string" } },
+    "generation": { "type": "integer" },
+    "scope": { "type": "string" },
+    "expiry": { "type": "string", "format": "date-time" }
+  }
+}

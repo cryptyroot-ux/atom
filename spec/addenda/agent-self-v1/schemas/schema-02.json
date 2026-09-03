@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.dev/schemas/soul-profile.schema.json",
+  "title": "SoulProfile",
+  "type": "object",
+  "required": ["soul_id", "agent_id", "values", "voice", "tone", "epistemic_stance", "uncertainty_policy", "disagreement_policy", "autonomy_posture", "interaction_boundaries", "forbidden_behaviors", "change_policy", "generation", "state", "content_digest", "created_at", "updated_at", "authorized_by"],
+  "properties": {
+    "soul_id": { "type": "string" },
+    "agent_id": { "type": "string" },
+    "values": { "type": "array", "items": { "type": "string" } },
+    "voice": { "type": "string" },
+    "tone": { "type": "string" },
+    "epistemic_stance": { "type": "string" },
+    "uncertainty_policy": { "type": "string" },
+    "disagreement_policy": { "type": "string" },
+    "autonomy_posture": { "type": "string" },
+    "interaction_boundaries": { "type": "array", "items": { "type": "string" } },
+    "forbidden_behaviors": { "type": "array", "items": { "type": "string" } },
+    "change_policy": { "type": "string" },
+    "generation": { "type": "integer", "minimum": 0 },
+    "state": { "enum": ["DRAFT", "PROPOSED", "PENDING_AUTHORIZATION", "ACTIVE", "SUPERSEDED", "REVOKED", "ROLLED_BACK", "QUARANTINED", "DENIED"] },
+    "content_digest": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "authorized_by": { "type": "string" }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.dev/schemas/constitutional-enforcement.schema.json",
+  "title": "ConstitutionalEnforcement",
+  "type": "object",
+  "required": ["constitution_digest", "enforcement_state"],
+  "properties": {
+    "constitution_digest": { "type": "string" },
+    "enforcement_state": { "enum": ["VERIFYING", "ENFORCED", "BLOCKED"] }
+  }
+}

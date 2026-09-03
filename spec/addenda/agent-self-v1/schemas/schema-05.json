@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.dev/schemas/identity-command.schema.json",
+  "title": "IdentityCommand",
+  "type": "object",
+  "required": ["command", "target_id"],
+  "properties": {
+    "command": { "enum": ["show", "edit", "propose", "approve", "history", "rollback"] },
+    "target_id": { "type": "string" },
+    "payload": { "type": "object" }
+  }
+}

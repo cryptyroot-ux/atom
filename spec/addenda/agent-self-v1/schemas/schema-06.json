@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.dev/schemas/context-assembly.schema.json",
+  "title": "ContextAssembly",
+  "type": "object",
+  "required": ["constitution", "owner_policy", "identity_profile", "soul_profile", "user_profile", "mission_spec", "context_items", "user_turn"],
+  "properties": {
+    "constitution": { "type": "object" },
+    "owner_policy": { "type": "object" },
+    "identity_profile": { "$ref": "https://atom.dev/schemas/agent-identity-profile.schema.json" },
+    "soul_profile": { "$ref": "https://atom.dev/schemas/soul-profile.schema.json" },
+    "user_profile": { "type": "object" },
+    "mission_spec": { "type": "object" },
+    "context_items": { "type": "array" },
+    "user_turn": { "type": "object" }
+  }
+}

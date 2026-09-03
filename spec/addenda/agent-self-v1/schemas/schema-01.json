@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.dev/schemas/agent-identity-profile.schema.json",
+  "title": "AgentIdentityProfile",
+  "type": "object",
+  "required": ["profile_id", "agent_id", "owner_principal_id", "display_name", "role", "generation", "state", "constitution_digest", "content_digest", "created_at", "updated_at", "authorized_by"],
+  "properties": {
+    "profile_id": { "type": "string" },
+    "agent_id": { "type": "string" },
+    "owner_principal_id": { "type": "string" },
+    "display_name": { "type": "string", "maxLength": 120 },
+    "role": { "type": "string" },
+    "archetype": { "type": "string" },
+    "avatar_ref": { "type": "string" },
+    "signature_symbol": { "type": "string" },
+    "languages": { "type": "array", "items": { "type": "string" } },
+    "generation": { "type": "integer", "minimum": 0 },
+    "state": { "enum": ["DRAFT", "PROPOSED", "PENDING_AUTHORIZATION", "ACTIVE", "SUPERSEDED", "REVOKED", "ROLLED_BACK", "QUARANTINED", "DENIED"] },
+    "constitution_digest": { "type": "string" },
+    "content_digest": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "authorized_by": { "type": "string" }
+  }
+}

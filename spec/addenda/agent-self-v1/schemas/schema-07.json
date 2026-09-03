@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.dev/schemas/workspace-file.schema.json",
+  "title": "WorkspaceFile",
+  "type": "object",
+  "required": ["path", "content", "digest", "encoding", "size_bytes", "updated_at"],
+  "properties": {
+    "path": { "type": "string" },
+    "content": { "type": "string" },
+    "digest": { "type": "string" },
+    "encoding": { "enum": ["utf-8"] },
+    "size_bytes": { "type": "integer", "maximum": 65536 },
+    "updated_at": { "type": "string", "format": "date-time" }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atom.dev/schemas/soul-profile.schema.json",
+  "title": "SoulProfile",
+  "type": "object",
+  "required": ["soul_id", "agent_id", "values", "voice", "tone", "generation", "state", "content_digest"],
+  "properties": {
+    "soul_id": { "type": "string" },
+    "agent_id": { "type": "string" },
+    "values": { "type": "array", "items": { "type": "string" } },
+    "voice": { "type": "string" },
+    "tone": { "type": "string" },
+    "generation": { "type": "integer" },
+    "state": { "type": "string" },
+    "content_digest": { "type": "string" }
+  }
+}

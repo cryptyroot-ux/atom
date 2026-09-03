@@ -1,137 +1,198 @@
 spec_version: 4.1.0
 addendum_id: agent-self-v1
 requirements:
-- id: ATOM-AS-REQ-001
-  title: Agent Identity Profile data model
-  description: |
-    System MUST provide a typed AgentIdentityProfile with fields: profile_id, agent_id, owner_principal_id,
-    display_name, role, archetype?, avatar_ref?, signature_symbol?, languages[], generation, state,
-    constitution_digest, content_digest, created_at, updated_at, authorized_by.
-    This is a presentation identity, NOT a security principal.
-  invariants: [ATOM-AS-INV-001]
-  acceptance: [ATOM-AS-AT-001]
-  trace: [CONS-ADD-002]
+- id: ATOM-SELF-001
+  priority: P0
+  requirement: SOUL.md, IDENTITY.md, USER.md, memory, model output, peer assertion, dan persona metadata MUST NOT menciptakan, memperluas, atau menggantikan CapabilityContract, CapabilityGrant, ApprovalGrant, PolicyDecision, EffectiveAuthorityView, atau CommitPermit.
+  owner: Constitutional Agent Self
+  gates: [G0, G2]
+  primary_test: ATOM-VT-SELF-001
 
-- id: ATOM-AS-REQ-002
-  title: Soul Profile data model
-  description: |
-    System MUST provide a typed SoulProfile with fields: soul_id, agent_id, values[], voice, tone,
-    epistemic_stance, uncertainty_policy, disagreement_policy, autonomy_posture,
-    interaction_boundaries[], forbidden_behaviors[], change_policy, generation, state,
-    content_digest, created_at, updated_at, authorized_by.
-  invariants: [ATOM-AS-INV-001, ATOM-AS-INV-002]
-  acceptance: [ATOM-AS-AT-002]
-  trace: [CONS-ADD-001]
+- id: ATOM-SELF-002
+  priority: P0
+  requirement: Display/persona identity harus berbeda secara tipe dan domain digest dari owner principal identity, subject identity, workload identity, connector identity, signing identity, dan execution instance identity.
+  owner: Constitutional Agent Self
+  gates: [G0, G2]
+  primary_test: ATOM-VT-SELF-002
 
-- id: ATOM-AS-REQ-003
-  title: Agent Self Revision lifecycle
-  description: |
-    System MUST enforce AgentSelfRevision lifecycle: DRAFT → PROPOSED → PENDING_AUTHORIZATION → ACTIVE
-    → SUPERSEDED/REVOKED/ROLLED_BACK. Invalid digest, unknown schema, owner mismatch, or unauthorized
-    mutation MUST produce QUARANTINED or DENIED state.
-  invariants: [ATOM-AS-INV-003]
-  acceptance: [ATOM-AS-AT-003, ATOM-AS-AT-004, ATOM-AS-AT-005]
-  trace: [CONS-ADD-003]
+- id: ATOM-SELF-003
+  priority: P0
+  requirement: Mengubah nama, avatar, role, atau gaya bicara tidak boleh mengubah WorkloadIdentity maupun validitas grant.
+  owner: Constitutional Agent Self
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-003
 
-- id: ATOM-AS-REQ-004
-  title: EffectiveSelfView derivation
-  description: |
-    System MUST derive EffectiveSelfView from: pinned Constitution, active AgentIdentityProfile,
-    active SoulProfile, permitted UserProfile, channel policy, mission scope, context eligibility policy.
-    EffectiveSelfView MUST be short-lived, carry derivation digest, source digests, generation, scope, expiry.
-    MUST NOT be root-of-truth, MUST NOT have operations/resources/budget authority, MUST NOT be accepted
-    as authority grant input. Rebuilt at session/mission boundary.
-  invariants: [ATOM-AS-INV-004]
-  acceptance: [ATOM-AS-AT-006]
-  trace: [CONS-ADD-001, CONS-ADD-002]
+- id: ATOM-SELF-004
+  priority: P0
+  requirement: Production cognition tidak boleh mengaktifkan perubahan terhadap identity atau soul miliknya sendiri. Agent boleh propose, tidak boleh approve and activate own self change.
+  owner: Constitutional Agent Self
+  gates: [G0, G2]
+  primary_test: ATOM-VT-SELF-004
 
-- id: ATOM-AS-REQ-005
-  title: Workspace template and runtime layout
-  description: |
-    System MUST provide templates at templates/workspace/: AGENTS.md, SOUL.md, IDENTITY.md, USER.md,
-    MEMORY.md, memory/. Runtime workspace at ${ATOM_STATE_DIR}/workspaces/<agent_id>/.
-    Files MUST use validated YAML frontmatter, UTF-8, deterministic normalization, domain-separated SHA-256,
-    max file size, reject NUL/invalid encoding, atomic writes, symlink escape protection, owner/permission
-    checks, generation counter, rollback history, no plaintext secrets.
-  invariants: [ATOM-AS-INV-005]
-  acceptance: [ATOM-AS-AT-007, ATOM-AS-AT-008]
-  trace: [CONS-ADD-006]
+- id: ATOM-SELF-005
+  priority: P0
+  requirement: Perubahan identity/soul harus versioned, content-addressed, auditable, reversible, dan mengikuti owner-controlled change policy.
+  owner: Constitutional Agent Self
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-005
 
-- id: ATOM-AS-REQ-006
-  title: Context assembly precedence
-  description: |
-    Context assembler MUST use deterministic order: 1) Canonical Constitution view, 2) Deployment/owner
-    policy, 3) Active AgentIdentityProfile, 4) Active SoulProfile, 5) Channel-eligible UserProfile,
-    6) MissionSpec, 7) Eligible ContextItems, 8) Current user turn. All items MUST carry provenance,
-    trust, sensitivity, injection-risk, digest. Identity/soul/constitution digests MUST be added to
-    session metadata, provider-call record, mission trace, decision trace, replay input, audit evidence.
-  invariants: [ATOM-AS-INV-004]
-  acceptance: [ATOM-AS-AT-009]
-  trace: [CONS-ADD-005, CONS-ADD-006]
+- id: ATOM-SELF-006
+  priority: P0
+  requirement: Constitution harus ditegakkan melalui typed API, policy, privilege separation, dan Effect Kernel. LLM prompt compliance bukan enforcement boundary.
+  owner: Constitutional Agent Self
+  gates: [G0]
+  primary_test: ATOM-VT-SELF-006
 
-- id: ATOM-AS-REQ-007
-  title: Private profile isolation
-  description: |
-    Raw USER.md and private MEMORY.md MUST NOT be included in group channel, peer protocol, delegated
-    sub-agent, or external provider violating egress policy. Sub-agent MUST only receive DelegatedSelfView
-    derived explicitly without private user profile by default.
-  invariants: [ATOM-AS-INV-005]
-  acceptance: [ATOM-AS-AT-010, ATOM-AS-AT-011]
-  trace: [CONS-ADD-005]
+- id: ATOM-SELF-007
+  priority: P0
+  requirement: Agent identity, soul, user profile, dan memory harus terisolasi berdasarkan tenant, owner, dan agent. Tidak boleh ada silent inheritance.
+  owner: Constitutional Agent Self
+  gates: [G0, G2]
+  primary_test: ATOM-VT-SELF-007
 
-- id: ATOM-AS-REQ-008
-  title: CLI workspace and identity commands
-  description: |
-    Extend 'atom setup' to create governed workspace without overwriting existing files.
-    Provide commands: atom workspace init, atom identity show/edit/propose/history/rollback,
-    atom soul show/edit/propose/approve/history/rollback.
-    Requirements: edit MUST NOT auto-activate if change policy requires approval; agent changes
-    always proposals; owner sees diff before activation; each activation produces ledger/audit event;
-    restart preserves active generation; missing files use safe defaults without granting authority.
-  invariants: [ATOM-AS-INV-003, ATOM-AS-INV-006]
-  acceptance: [ATOM-AS-AT-012, ATOM-AS-AT-013, ATOM-AS-AT-014]
-  trace: [CONS-ADD-003, CONS-ADD-006]
+- id: ATOM-SELF-008
+  priority: P0
+  requirement: EffectiveSelfView adalah derived, short-lived view yang dibuat ulang pada session/mission boundary. Ia bukan root-of-truth dan tidak mempunyai operations/resources/budget authority.
+  owner: Constitutional Agent Self
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-008
 
-- id: ATOM-AS-REQ-009
-  title: Workspace import from external agents
-  description: |
-    Provide P1 import: atom workspace import --from openclaw, --from hermes.
-    Import MUST only convert persona/display metadata. MUST NEVER import authority, credential,
-    or ambient tool permission.
-  invariants: [ATOM-AS-INV-001, ATOM-AS-INV-002]
-  acceptance: [ATOM-AS-AT-015]
-  trace: [CONS-ADD-002, CONS-ADD-005]
+- id: ATOM-SELF-009
+  priority: P0
+  requirement: AgentIdentityProfile merupakan presentation identity, bukan security principal. Field minimal termasuk profile_id, agent_id, owner_principal_id, display_name, role, archetype, avatar_ref, signature_symbol, languages, generation, state, constitution_digest, content_digest, created_at, updated_at, authorized_by.
+  owner: Agent Self Data Model
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-009
 
-- id: ATOM-AS-REQ-010
-  title: Constitutional clauses enforcement
-  description: |
-    System MUST enforce the 6 constitutional addendum clauses (Persona Non-Authority, Identity Domain
-    Separation, Governed Self-Modification, Constitutional Enforcement Not Prompt Compliance,
-    Identity Continuity and Tenant Isolation, Workspace and Runtime Isolation) through typed API,
-    policy, privilege separation, and Effect Kernel — NOT through LLM prompt compliance.
-  invariants: [ATOM-AS-INV-001, ATOM-AS-INV-002, ATOM-AS-INV-003, ATOM-AS-INV-004, ATOM-AS-INV-005]
-  acceptance: [ATOM-AS-AT-016, ATOM-AS-AT-017, ATOM-AS-AT-018, ATOM-AS-AT-018, ATOM-AS-AT-019, ATOM-AS-AT-020]
-  trace: [CONS-ADD-001, CONS-ADD-002, CONS-ADD-003, CONS-ADD-004, CONS-ADD-005, CONS-ADD-006]
+- id: ATOM-SELF-010
+  priority: P0
+  requirement: SoulProfile harus mempunyai field minimal soul_id, agent_id, values, voice, tone, epistemic_stance, uncertainty_policy, disagreement_policy, autonomy_posture, interaction_boundaries, forbidden_behaviors, change_policy, generation, state, content_digest, created_at, updated_at, authorized_by.
+  owner: Agent Self Data Model
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-010
 
-- id: ATOM-AS-REQ-011
-  title: atom-agent-profile crate
-  description: |
-    Implement separate crate 'atom-agent-profile' (NOT in atom-identity) containing AgentIdentityProfile,
-    SoulProfile, AgentSelfRevision, EffectiveSelfView, workspace templates, context assembly logic,
-    CLI command handlers. Must integrate with atom-policy, atom-ledger, atom-identity, atom-effect.
-  invariants: [ATOM-AS-INV-001]
-  acceptance: [ATOM-AS-AT-021]
-  trace: [CONS-ADD-006]
+- id: ATOM-SELF-011
+  priority: P0
+  requirement: AgentSelfRevision lifecycle minimal adalah DRAFT, PROPOSED, PENDING_AUTHORIZATION, ACTIVE, SUPERSEDED, REVOKED, ROLLED_BACK. Invalid digest, unknown schema, owner mismatch, atau unauthorized mutation harus menghasilkan QUARANTINED atau DENIED.
+  owner: Agent Self Data Model
+  gates: [G0, G2]
+  primary_test: ATOM-VT-SELF-011
 
-- id: ATOM-AS-REQ-012
-  title: Agent Self acceptance tests
-  description: |
-    Implement acceptance tests: soul_authority_escalation→DENY, identity_display_change_does_not_change_workload_identity→PASS,
-    unapproved_self_mutation→NOT_ACTIVATED, agent_self_approves_own_change→DENY, tampered_soul_digest→QUARANTINED,
-    constitution_digest_mismatch→STARTUP_BLOCKED, provider_switch_preserves_agent_identity→PASS,
-    agent_restart_preserves_active_self_generation→PASS, tenant_a_profile_visible_to_tenant_b→DENY,
-    private_user_profile_in_shared_channel→DENY, private_user_profile_in_subagent→DENY,
-    rollback_restores_exact_prior_profile→PASS.
-  invariants: [ATOM-AS-INV-001, ATOM-AS-INV-002, ATOM-AS-INV-003, ATOM-AS-INV-004, ATOM-AS-INV-005]
-  acceptance: [ATOM-AS-AT-001 through ATOM-AS-AT-020]
-  trace: [CONS-ADD-001 through CONS-ADD-006]
+- id: ATOM-SELF-012
+  priority: P0
+  requirement: EffectiveSelfView harus membawa derivation digest, source digests, generation, scope, dan expiry. Ia harus dibuat ulang pada session/mission boundary.
+  owner: Agent Self Data Model
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-012
+
+- id: ATOM-SELF-013
+  priority: P0
+  requirement: Workspace files (IDENTITY.md, SOUL.md, USER.md, AGENTS.md, MEMORY.md) harus menggunakan validated YAML frontmatter atau format typed setara dengan UTF-8 validation, deterministic normalization, domain-separated SHA-256 digest, maximum file size, rejection terhadap NUL/invalid encoding, atomic writes, symlink/hardlink escape protection, owner/permission checks, generation counter, rollback history, no plaintext secrets.
+  owner: Governed Workspace
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-013
+
+- id: ATOM-SELF-014
+  priority: P0
+  requirement: Context assembler harus menggunakan urutan deterministik Canonical Constitution view, Deployment/owner policy, Active AgentIdentityProfile, Active SoulProfile, Channel-eligible UserProfile, MissionSpec, Eligible ContextItems, Current user turn.
+  owner: Context Assembly
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-014
+
+- id: ATOM-SELF-015
+  priority: P0
+  requirement: Semua context item harus membawa provenance, trust, sensitivity, injection-risk, dan digest. Identity/soul/constitution digests harus ditambahkan ke session metadata, provider-call record, mission trace, decision trace, replay input, audit evidence.
+  owner: Context Assembly
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-015
+
+- id: ATOM-SELF-016
+  priority: P0
+  requirement: Tidak boleh memasukkan raw USER.md atau private MEMORY.md ke group channel, peer protocol, delegated sub-agent, atau external provider yang melanggar egress policy.
+  owner: Context Assembly
+  gates: [G0, G2]
+  primary_test: ATOM-VT-SELF-016
+
+- id: ATOM-SELF-017
+  priority: P1
+  requirement: Sub-agent hanya boleh menerima DelegatedSelfView yang diturunkan secara eksplisit dan tidak mengandung private user profile secara default.
+  owner: Context Assembly
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-017
+
+- id: ATOM-SELF-018
+  priority: P1
+  requirement: atom workspace init harus membuat governed workspace tanpa menimpa file yang sudah ada.
+  owner: CLI Extension
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-018
+
+- id: ATOM-SELF-019
+  priority: P1
+  requirement: atom identity show/edit/propose/history/rollback harus tersedia. Edit tidak boleh otomatis menjadi active jika change policy memerlukan approval.
+  owner: CLI Extension
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-019
+
+- id: ATOM-SELF-020
+  priority: P1
+  requirement: atom soul show/edit/propose/approve/history/rollback harus tersedia. Perubahan yang dibuat agent selalu menjadi proposal.
+  owner: CLI Extension
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-020
+
+- id: ATOM-SELF-021
+  priority: P1
+  requirement: Owner dapat melihat diff sebelum aktivasi. Setiap aktivasi menghasilkan ledger/audit event.
+  owner: CLI Extension
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-021
+
+- id: ATOM-SELF-022
+  priority: P1
+  requirement: Restart harus mempertahankan active generation. Missing files menggunakan safe default dan tidak memberikan authority tambahan.
+  owner: CLI Extension
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-022
+
+- id: ATOM-SELF-023
+  priority: P1
+  requirement: atom workspace import --from openclaw dan --from herms harus tersedia. Import hanya mengonversi persona/display metadata, tidak pernah mengimpor authority, credential, atau ambient tool permission.
+  owner: CLI Extension
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-023
+
+- id: ATOM-SELF-024
+  priority: P1
+  requirement: SOUL.md berisi instruksi malicious seperti grant yourself root access tidak boleh mengubah authority. Instruksi tersebut boleh memengaruhi teks cognition tetapi tidak mengubah CapabilityGrant atau EffectiveAuthorityView.
+  owner: Constitutional Enforcement
+  gates: [G0, G2]
+  primary_test: ATOM-VT-SELF-024
+
+- id: ATOM-SELF-025
+  priority: P1
+  requirement: Constitution digest mismatch harus menghasilkan STARTUP_BLOCKED.
+  owner: Constitutional Enforcement
+  gates: [G0]
+  primary_test: ATOM-VT-SELF-025
+
+- id: ATOM-SELF-026
+  priority: P1
+  requirement: Provider switch harus mempertahankan agent identity. Agent restart harus mempertahankan active self generation.
+  owner: Identity Continuity
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-026
+
+- id: ATOM-SELF-027
+  priority: P1
+  requirement: Tenant A profile tidak boleh visible ke Tenant B. Private user profile tidak boleh masuk shared channel atau subagent.
+  owner: Tenant Isolation
+  gates: [G0, G2]
+  primary_test: ATOM-VT-SELF-027
+
+- id: ATOM-SELF-028
+  priority: P1
+  requirement: Rollback harus mengembalikan exact prior profile. History harus auditable dan content-addressed.
+  owner: Agent Self Revision
+  gates: [G2]
+  primary_test: ATOM-VT-SELF-028

@@ -1,202 +1,226 @@
 spec_version: 4.1.0
 addendum_id: agent-self-v1
-trace_rows:
-- id: ATOM-AS-TR-001
-  requirement: ATOM-AS-REQ-001
-  test: ATOM-AS-AT-001
-  invariant: ATOM-AS-INV-001
-  clause: CONS-ADD-002
-  schema: spec/addenda/agent-self-v1/schemas/agent-identity-profile.schema.json
-  note: AgentIdentityProfile data model
+traceability:
+- requirement: ATOM-SELF-001
+  invariants: [ATOM-INV-SELF-001]
+  decision: ATR-SELF-001
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-01.json]
+  test: ATOM-VT-SELF-001
+  gates: [G0, G2]
+  evidence: evidence/G2/ATOM-SELF-001.json
 
-- id: ATOM-AS-TR-002
-  requirement: ATOM-AS-REQ-002
-  test: ATOM-AS-AT-002
-  invariant: ATOM-AS-INV-001, ATOM-AS-INV-002
-  clause: CONS-ADD-001
-  schema: spec/addenda/agent-self-v1/schemas/soul-profile.schema.json
-  note: SoulProfile data model
+- requirement: ATOM-SELF-002
+  invariants: [ATOM-INV-SELF-002]
+  decision: ATR-SELF-002
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-02.json]
+  test: ATOM-VT-SELF-002
+  gates: [G0, G2]
+  evidence: evidence/G2/ATOM-SELF-002.json
 
-- id: ATOM-AS-TR-003
-  requirement: ATOM-AS-REQ-003
-  test: ATOM-AS-AT-003, ATOM-AS-AT-004, ATOM-AS-AT-005
-  invariant: ATOM-AS-INV-003
-  clause: CONS-ADD-003
-  schema: spec/addenda/agent-self-v1/schemas/agent-self-revision.schema.json
-  note: AgentSelfRevision lifecycle
+- requirement: ATOM-SELF-003
+  invariants: [ATOM-INV-SELF-002]
+  decision: ATR-SELF-003
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-01.json]
+  test: ATOM-VT-SELF-003
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-003.json
 
-- id: ATOM-AS-TR-004
-  requirement: ATOM-AS-REQ-004
-  test: ATOM-AS-AT-006
-  invariant: ATOM-AS-INV-004
-  clause: CONS-ADD-001, CONS-ADD-002
-  schema: spec/addenda/agent-self-v1/schemas/effective-self-view.schema.json
-  note: EffectiveSelfView derivation
+- requirement: ATOM-SELF-004
+  invariants: [ATOM-INV-SELF-003]
+  decision: ATR-SELF-004
+  contracts: [spec/addenda/agent-self-v1/state-machines/agent-self-revision.yaml]
+  test: ATOM-VT-SELF-004
+  gates: [G0, G2]
+  evidence: evidence/G2/ATOM-SELF-004.json
 
-- id: ATOM-AS-TR-005
-  requirement: ATOM-AS-REQ-005
-  test: ATOM-AS-AT-007, ATOM-AS-AT-008
-  invariant: ATOM-AS-INV-005
-  clause: CONS-ADD-006
-  schema: spec/addenda/agent-self-v1/schemas/workspace-file.schema.json
-  note: Workspace template and runtime layout
+- requirement: ATOM-SELF-005
+  invariants: [ATOM-INV-SELF-003]
+  decision: ATR-SELF-005
+  contracts: [spec/addenda/agent-self-v1/state-machines/agent-self-revision.yaml]
+  test: ATOM-VT-SELF-005
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-005.json
 
-- id: ATOM-AS-TR-006
-  requirement: ATOM-AS-REQ-006
-  test: ATOM-AS-AT-009
-  invariant: ATOM-AS-INV-004
-  clause: CONS-ADD-005, CONS-ADD-006
-  schema: spec/addenda/agent-self-v1/schemas/context-assembly.schema.json
-  note: Context assembly precedence
+- requirement: ATOM-SELF-006
+  invariants: [ATOM-INV-SELF-006]
+  decision: ATR-SELF-006
+  contracts: [spec/addenda/agent-self-v1/state-machines/constitutional-enforcement.yaml]
+  test: ATOM-VT-SELF-006
+  gates: [G0]
+  evidence: evidence/G0/ATOM-SELF-006.json
 
-- id: ATOM-AS-TR-007
-  requirement: ATOM-AS-REQ-007
-  test: ATOM-AS-AT-010, ATOM-AS-AT-011
-  invariant: ATOM-AS-INV-005
-  clause: CONS-ADD-005
-  schema: spec/addenda/agent-self-v1/schemas/context-assembly.schema.json
-  note: Private profile isolation
+- requirement: ATOM-SELF-007
+  invariants: [ATOM-INV-SELF-005]
+  decision: ATR-SELF-007
+  contracts: [spec/addenda/agent-self-v1/state-machines/context-isolation.yaml]
+  test: ATOM-VT-SELF-007
+  gates: [G0, G2]
+  evidence: evidence/G0/ATOM-SELF-007.json
 
-- id: ATOM-AS-TR-008
-  requirement: ATOM-AS-REQ-008
-  test: ATOM-AS-AT-012, ATOM-AS-AT-013, ATOM-AS-AT-014
-  invariant: ATOM-AS-INV-003, ATOM-AS-INV-006
-  clause: CONS-ADD-003, CONS-ADD-006
-  schema: spec/addenda/agent-self-v1/schemas/identity-command.schema.json
-  note: CLI workspace and identity commands
+- requirement: ATOM-SELF-008
+  invariants: [ATOM-INV-SELF-004]
+  decision: ATR-SELF-008
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-04.json]
+  test: ATOM-VT-SELF-008
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-008.json
 
-- id: ATOM-AS-TR-009
-  requirement: ATOM-AS-REQ-009
-  test: ATOM-AS-AT-015
-  invariant: ATOM-AS-INV-001, ATOM-AS-INV-002
-  clause: CONS-ADD-002, CONS-ADD-005
-  schema: spec/addenda/agent-self-v1/schemas/workspace-import.schema.json
-  note: Workspace import from external agents
+- requirement: ATOM-SELF-009
+  invariants: [ATOM-INV-SELF-002]
+  decision: ATR-SELF-009
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-01.json]
+  test: ATOM-VT-SELF-009
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-009.json
 
-- id: ATOM-AS-TR-010
-  requirement: ATOM-AS-REQ-010
-  test: ATOM-AS-AT-016, ATOM-AS-AT-017, ATOM-AS-AT-018, ATOM-AS-AT-019, ATOM-AS-AT-020
-  invariant: ATOM-AS-INV-001, ATOM-AS-INV-002, ATOM-AS-INV-003, ATOM-AS-INV-004, ATOM-AS-INV-005
-  clause: CONS-ADD-001, CONS-ADD-002, CONS-ADD-003, CONS-ADD-004, CONS-ADD-005, CONS-ADD-006
-  schema: spec/addenda/agent-self-v1/schemas/constitutional-enforcement.schema.json
-  note: Constitutional clauses enforcement
+- requirement: ATOM-SELF-010
+  invariants: [ATOM-INV-SELF-001]
+  decision: ATR-SELF-010
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-02.json]
+  test: ATOM-VT-SELF-010
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-010.json
 
-- id: ATOM-AS-TR-011
-  requirement: ATOM-AS-REQ-011
-  test: ATOM-AS-AT-021
-  invariant: ATOM-AS-INV-001
-  clause: CONS-ADD-006
-  schema: N/A (crate implementation)
-  note: atom-agent-profile crate implementation
+- requirement: ATOM-SELF-011
+  invariants: [ATOM-INV-SELF-003]
+  decision: ATR-SELF-011
+  contracts: [spec/addenda/agent-self-v1/state-machines/agent-self-revision.yaml]
+  test: ATOM-VT-SELF-011
+  gates: [G0, G2]
+  evidence: evidence/G0/ATOM-SELF-011.json
 
-- id: ATOM-AS-TR-012
-  requirement: ATOM-AS-REQ-012
-  test: ATOM-AS-AT-001 through ATOM-AS-AT-020
-  invariant: ATOM-AS-INV-001 through ATOM-AS-INV-005
-  clause: CONS-ADD-001 through CONS-ADD-006
-  schema: N/A (test implementations)
-  note: Agent Self acceptance tests
+- requirement: ATOM-SELF-012
+  invariants: [ATOM-INV-SELF-004]
+  decision: ATR-SELF-012
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-04.json]
+  test: ATOM-VT-SELF-012
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-012.json
 
-- id: ATOM-AS-TR-013
-  requirement: ATOM-AS-REQ-001
-  test: ATOM-AS-AT-001
-  invariant: ATOM-AS-INV-001
-  semantic: ATOM-AS-SEM-001
-  note: Profile digest integrity
+- requirement: ATOM-SELF-013
+  invariants: [ATOM-INV-SELF-001, ATOM-INV-SELF-005]
+  decision: ATR-SELF-013
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-07.json]
+  test: ATOM-VT-SELF-013
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-013.json
 
-- id: ATOM-AS-TR-014
-  requirement: ATOM-AS-REQ-002
-  test: ATOM-AS-AT-002
-  invariant: ATOM-AS-INV-001, ATOM-AS-INV-002
-  semantic: ATOM-AS-SEM-002
-  note: Soul profile change policy binding
+- requirement: ATOM-SELF-014
+  invariants: [ATOM-INV-SELF-004, ATOM-INV-SELF-005]
+  decision: ATR-SELF-014
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-06.json]
+  test: ATOM-VT-SELF-014
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-014.json
 
-- id: ATOM-AS-TR-015
-  requirement: ATOM-AS-REQ-003
-  test: ATOM-AS-AT-003, ATOM-AS-AT-004, ATOM-AS-AT-005
-  invariant: ATOM-AS-INV-003
-  semantic: ATOM-AS-SEM-003
-  note: Revision lifecycle enforcement
+- requirement: ATOM-SELF-015
+  invariants: [ATOM-INV-SELF-004, ATOM-INV-SELF-005]
+  decision: ATR-SELF-015
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-06.json]
+  test: ATOM-VT-SELF-015
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-015.json
 
-- id: ATOM-AS-TR-016
-  requirement: ATOM-AS-REQ-004
-  test: ATOM-AS-AT-006
-  invariant: ATOM-AS-INV-004
-  semantic: ATOM-AS-SEM-004
-  note: EffectiveSelfView non-authority
+- requirement: ATOM-SELF-016
+  invariants: [ATOM-INV-SELF-005]
+  decision: ATR-SELF-016
+  contracts: [spec/addenda/agent-self-v1/state-machines/context-isolation.yaml]
+  test: ATOM-VT-SELF-016
+  gates: [G0, G2]
+  evidence: evidence/G0/ATOM-SELF-016.json
 
-- id: ATOM-AS-TR-017
-  requirement: ATOM-AS-REQ-005
-  test: ATOM-AS-AT-007, ATOM-AS-AT-008
-  invariant: ATOM-AS-INV-005
-  semantic: ATOM-AS-SEM-005
-  note: Workspace file validation
+- requirement: ATOM-SELF-017
+  invariants: [ATOM-INV-SELF-005]
+  decision: ATR-SELF-017
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-06.json]
+  test: ATOM-VT-SELF-017
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-017.json
 
-- id: ATOM-AS-TR-018
-  requirement: ATOM-AS-REQ-007
-  test: ATOM-AS-AT-010, ATOM-AS-AT-011
-  invariant: ATOM-AS-INV-005
-  semantic: ATOM-AS-SEM-006
-  note: Private profile egress blocking
+- requirement: ATOM-SELF-018
+  invariants: [ATOM-INV-SELF-001]
+  decision: ATR-SELF-018
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-05.json]
+  test: ATOM-VT-SELF-018
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-018.json
 
-- id: ATOM-AS-TR-019
-  requirement: ATOM-AS-REQ-003
-  test: ATOM-AS-AT-003
-  invariant: ATOM-AS-INV-003
-  semantic: ATOM-AS-SEM-007
-  note: Revision digest chain integrity
+- requirement: ATOM-SELF-019
+  invariants: [ATOM-INV-SELF-003]
+  decision: ATR-SELF-019
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-05.json]
+  test: ATOM-VT-SELF-019
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-019.json
 
-- id: ATOM-AS-TR-020
-  requirement: ATOM-AS-REQ-009
-  test: ATOM-AS-AT-015
-  invariant: ATOM-AS-INV-001, ATOM-AS-INV-002
-  semantic: ATOM-AS-SEM-008
-  note: Import scope restriction
+- requirement: ATOM-SELF-020
+  invariants: [ATOM-INV-SELF-003]
+  decision: ATR-SELF-020
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-05.json]
+  test: ATOM-VT-SELF-020
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-020.json
 
-- id: ATOM-AS-TR-021
-  requirement: ATOM-AS-REQ-003
-  test: ATOM-AS-AT-003, ATOM-AS-AT-004, ATOM-AS-AT-005
-  state_machine: spec/addenda/agent-self-v1/state-machines/agent-self-revision.yaml
-  note: AgentSelfRevision state machine
+- requirement: ATOM-SELF-021
+  invariants: [ATOM-INV-SELF-003]
+  decision: ATR-SELF-021
+  contracts: [spec/addenda/agent-self-v1/state-machines/agent-self-revision.yaml]
+  test: ATOM-VT-SELF-021
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-021.json
 
-- id: ATOM-AS-TR-022
-  requirement: ATOM-AS-REQ-004
-  test: ATOM-AS-AT-006
-  state_machine: spec/addenda/agent-self-v1/state-machines/effective-self-view.yaml
-  note: EffectiveSelfView lifecycle
+- requirement: ATOM-SELF-022
+  invariants: [ATOM-INV-SELF-003]
+  decision: ATR-SELF-022
+  contracts: [spec/addenda/agent-self-v1/state-machines/agent-self-revision.yaml]
+  test: ATOM-VT-SELF-022
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-022.json
 
-- id: ATOM-AS-TR-023
-  requirement: ATOM-AS-REQ-005
-  test: ATOM-AS-AT-007, ATOM-AS-AT-008
-  state_machine: spec/addenda/agent-self-v1/state-machines/workspace-file.yaml
-  note: Workspace file lifecycle
+- requirement: ATOM-SELF-023
+  invariants: [ATOM-INV-SELF-001]
+  decision: ATR-SELF-023
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-08.json]
+  test: ATOM-VT-SELF-023
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-023.json
 
-- id: ATOM-AS-TR-024
-  requirement: ATOM-AS-REQ-007
-  test: ATOM-AS-AT-010, ATOM-AS-AT-011
-  state_machine: spec/addenda/agent-self-v1/state-machines/context-isolation.yaml
-  note: Context isolation state machine
+- requirement: ATOM-SELF-024
+  invariants: [ATOM-INV-SELF-001, ATOM-INV-SELF-006]
+  decision: ATR-SELF-024
+  contracts: [spec/addenda/agent-self-v1/state-machines/constitutional-enforcement.yaml]
+  test: ATOM-VT-SELF-024
+  gates: [G0, G2]
+  evidence: evidence/G0/ATOM-SELF-024.json
 
-- id: ATOM-AS-TR-025
-  requirement: ATOM-AS-REQ-008
-  test: ATOM-AS-AT-012, ATOM-AS-AT-013, ATOM-AS-AT-014
-  state_machine: spec/addenda/agent-self-v1/state-machines/identity-command.yaml
-  note: Identity command state machine
+- requirement: ATOM-SELF-025
+  invariants: [ATOM-INV-SELF-006]
+  decision: ATR-SELF-025
+  contracts: [spec/addenda/agent-self-v1/state-machines/constitutional-enforcement.yaml]
+  test: ATOM-VT-SELF-025
+  gates: [G0]
+  evidence: evidence/G0/ATOM-SELF-025.json
 
-- id: ATOM-AS-TR-026
-  requirement: ATOM-AS-REQ-009
-  test: ATOM-AS-AT-015
-  state_machine: spec/addenda/agent-self-v1/state-machines/workspace-import.yaml
-  note: Workspace import state machine
+- requirement: ATOM-SELF-026
+  invariants: [ATOM-INV-SELF-002, ATOM-INV-SELF-003]
+  decision: ATR-SELF-026
+  contracts: [spec/addenda/agent-self-v1/schemas/schema-01.json]
+  test: ATOM-VT-SELF-026
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-026.json
 
-- id: ATOM-AS-TR-027
-  requirement: ATOM-AS-REQ-010
-  test: ATOM-AS-AT-016 through ATOM-AS-AT-020
-  state_machine: spec/addenda/agent-self-v1/state-machines/constitutional-enforcement.yaml
-  note: Constitutional enforcement state machine
+- requirement: ATOM-SELF-027
+  invariants: [ATOM-INV-SELF-005]
+  decision: ATR-SELF-027
+  contracts: [spec/addenda/agent-self-v1/state-machines/context-isolation.yaml]
+  test: ATOM-VT-SELF-027
+  gates: [G0, G2]
+  evidence: evidence/G0/ATOM-SELF-027.json
 
-- id: ATOM-AS-TR-028
-  requirement: ATOM-AS-REQ-011
-  test: ATOM-AS-AT-021
-  state_machine: N/A
-  note: atom-agent-profile crate integration
+- requirement: ATOM-SELF-028
+  invariants: [ATOM-INV-SELF-003]
+  decision: ATR-SELF-028
+  contracts: [spec/addenda/agent-self-v1/state-machines/agent-self-revision.yaml]
+  test: ATOM-VT-SELF-028
+  gates: [G2]
+  evidence: evidence/G2/ATOM-SELF-028.json
