@@ -1,24 +1,238 @@
 {
-  "schema_version": "ATOM-CONF-COVERAGE-v1",
-  "spec_version": "4.0.0",
-  "covered": [
+  "spec_version": "4.1.0",
+  "generated_at": "2026-09-03",
+  "coverage": [
     {
-      "id": "ATOM-VT-011",
+      "id": "ATOM-VT41-001",
+      "name": "Crash-safe authoritative state",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-ledger/tests/vt001_crash_safety.rs",
+      "requirement": "ATOM-V4-KRN-001"
+    },
+    {
+      "id": "ATOM-VT41-002",
+      "name": "Unknown external effect",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-effect/tests/vt002_unknown_outcome.rs",
+      "requirement": "ATOM-V4-KRN-002"
+    },
+    {
+      "id": "ATOM-VT41-003",
+      "name": "TOCTOU authority drift",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-effect/tests/vt003_toctou_authority_drift.rs",
+      "requirement": "ATOM-V4-AUT-001"
+    },
+    {
+      "id": "ATOM-VT41-004",
+      "name": "Secret isolation",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-secret/tests/vt004_canary.rs",
+      "requirement": "ATOM-V4-AUT-002"
+    },
+    {
+      "id": "ATOM-VT41-005",
+      "name": "Capability attenuation",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-capability/tests/vt005_capability_attenuation.rs",
+      "requirement": "ATOM-V4-AUT-003"
+    },
+    {
+      "id": "ATOM-VT41-006",
+      "name": "Ledger tamper",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-ledger/tests/vt006_ledger_tamper.rs",
+      "requirement": "ATOM-V4-EFX-001"
+    },
+    {
+      "id": "ATOM-VT41-007",
+      "name": "Native independence",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-runtime/tests/native_loop.rs",
+      "requirement": "ATOM-V4-EFX-002"
+    },
+    {
+      "id": "ATOM-VT41-008",
+      "name": "Snapshot split-brain",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-ledger/tests/vt001_crash_safety.rs",
+      "requirement": "ATOM-V4-EFX-003"
+    },
+    {
+      "id": "ATOM-VT41-009",
+      "name": "Memory poisoning lifecycle",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-memory/tests/",
+      "requirement": "ATOM-V4-EFX-004"
+    },
+    {
+      "id": "ATOM-VT41-010",
+      "name": "Foundry holdout",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-capability-foundry/tests/foundry.rs",
+      "requirement": "ATOM-V4-LED-001"
+    },
+    {
+      "id": "ATOM-VT41-011",
       "name": "Repeated-task learning",
-      "crate_under_test": "atom-experience-compiler",
-      "pass_criterion": "A repeated task family yields an actionable, non-authoritative compiled capability whose holdout cost falls (cost_improvement_ratio < 1.0) while verified correctness stays within threshold (correctness_ratio >= 0.90)."
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-conformance/src/checks.rs (check_vt011)",
+      "requirement": "ATOM-V4-MSN-001"
     },
     {
-      "id": "ATOM-VT-012",
+      "id": "ATOM-VT41-012",
       "name": "Evolution rollback",
-      "crate_under_test": "atom-restore",
-      "pass_criterion": "When a promoted canary regresses at ACTIVE, the router downgrades it to CANARY and restores the exact prior certified route, matching the declared chaos expectation field-for-field."
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-conformance/src/checks.rs (check_vt012)",
+      "requirement": "ATOM-V4-MSN-002"
     },
     {
-      "id": "ATOM-VT-015",
+      "id": "ATOM-VT41-013",
+      "name": "MCP/A2A hostile peer",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-adapter/tests/",
+      "requirement": "ATOM-V4-MSN-003"
+    },
+    {
+      "id": "ATOM-VT41-014",
+      "name": "Scheduler restart/DST",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-scheduler/tests/",
+      "requirement": "ATOM-V4-MSN-004"
+    },
+    {
+      "id": "ATOM-VT41-015",
       "name": "2G benchmark reproducibility",
-      "crate_under_test": "atom-benchmark + atom-benchmark-runtime",
-      "pass_criterion": "The checked-in native-runtime benchmark artifact loads from disk and two executions reproduce identical results and run digests. This does NOT open the frozen INV-020 superiority gate."
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-conformance/src/checks.rs (check_vt015)",
+      "requirement": "ATOM-V4-MSN-005"
+    },
+    {
+      "id": "ATOM-VT41-016",
+      "name": "Agent Self: soul authority escalation DENY",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-agent-profile/tests/soul_authority_escalation.rs",
+      "requirement": "ATOM-SELF-001"
+    },
+    {
+      "id": "ATOM-VT41-017",
+      "name": "Agent Self: identity display change does not change workload identity",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-agent-profile/tests/identity_display_change.rs",
+      "requirement": "ATOM-SELF-003"
+    },
+    {
+      "id": "ATOM-VT41-018",
+      "name": "Agent Self: unapproved self mutation NOT_ACTIVATED",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-agent-profile/tests/unapproved_self_mutation.rs",
+      "requirement": "ATOM-SELF-004"
+    },
+    {
+      "id": "ATOM-VT41-019",
+      "name": "Agent Self: self-approval DENY",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-agent-profile/tests/self_approval_deny.rs",
+      "requirement": "ATOM-SELF-004"
+    },
+    {
+      "id": "ATOM-VT41-020",
+      "name": "Agent Self: tampered soul digest QUARANTINED",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-agent-profile/tests/tampered_soul_digest.rs",
+      "requirement": "ATOM-SELF-011"
+    },
+    {
+      "id": "ATOM-VT41-021",
+      "name": "Agent Self: constitution digest mismatch STARTUP_BLOCKED",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-agent-profile/tests/constitution_digest_mismatch.rs",
+      "requirement": "ATOM-SELF-025"
+    },
+    {
+      "id": "ATOM-VT41-022",
+      "name": "Agent Self: provider switch preserves agent identity",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-agent-profile/tests/provider_switch_identity.rs",
+      "requirement": "ATOM-SELF-026"
+    },
+    {
+      "id": "ATOM-VT41-023",
+      "name": "Agent Self: tenant isolation DENY",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-agent-profile/tests/tenant_isolation.rs",
+      "requirement": "ATOM-SELF-007"
+    },
+    {
+      "id": "ATOM-VT41-024",
+      "name": "Agent Self: private user profile in shared channel DENY",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom_agent_profile/tests/private_profile_shared_channel.rs",
+      "requirement": "ATOM-SELF-016"
+    },
+    {
+      "id": "ATOM-VT41-025",
+      "name": "Agent Self: rollback restores exact prior profile PASS",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-agent-profile/tests/rollback_restore.rs",
+      "requirement": "ATOM-SELF-028"
+    },
+    {
+      "id": "ATOM-VT41-026",
+      "name": "Delegation: parent substitution DENY",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-capability/tests/delegation_chain.rs",
+      "requirement": "ATOM-V4-AUT-002"
+    },
+    {
+      "id": "ATOM-VT41-027",
+      "name": "Delegation: child operation wider than parent DENY",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-capability/tests/vt005_capability_attenuation.rs",
+      "requirement": "ATOM-V4-AUT-002"
+    },
+    {
+      "id": "ATOM-VT41-028",
+      "name": "Delegation: child budget greater than parent DENY",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-capability/tests/budget_conservation.rs",
+      "requirement": "ATOM-V4-AUT-003"
+    },
+    {
+      "id": "ATOM-VT41-029",
+      "name": "Delegation: fan-out total exceeds parent budget DENY",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-capability/tests/fanout_budget.rs",
+      "requirement": "ATOM-V4-AUT-003"
+    },
+    {
+      "id": "ATOM-VT41-030",
+      "name": "Effect: valid permit wrong connector DENY",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-effect/tests/vt003_toctou_authority_drift.rs",
+      "requirement": "ATOM-V4-EFX-004"
+    },
+    {
+      "id": "ATOM-VT41-031",
+      "name": "Effect: replayed one-shot nonce after restart DENY",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-ledger/tests/vt001_crash_safety.rs",
+      "requirement": "ATOM-V4-EFX-004"
+    },
+    {
+      "id": "ATOM-VT41-032",
+      "name": "Effect: synthetic durability witness DENY",
+      "status": "IMPLEMENTED",
+      "mapped_to": "crates/atom-effect/tests/synthetic_witness.rs",
+      "requirement": "ATOM-V4-EFX-001"
     }
-  ]
+  ],
+  "summary": {
+    "total": 142,
+    "implemented": 32,
+    "mapped_existing": 0,
+    "partial": 0,
+    "not_implemented": 110,
+    "blocked": 0
+  }
 }
