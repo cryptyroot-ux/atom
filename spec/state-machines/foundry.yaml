@@ -1,26 +1,28 @@
 version: 1.0.0
+name: foundry
+description: Foundry lifecycle — build, test, quarantine, certify, and manage artifact lifecycle
+initial: DRAFT
+terminals: [REJECTED, REVOKED]
 states:
-- DRAFT
-- BUILDING
-- TESTING
-- QUARANTINED
-- REJECTED
-- CERTIFIED
-- ACTIVE
-- STALE
-- RECERTIFYING
-- REVOKED
-happy_path:
-- DRAFT
-- BUILDING
-- TESTING
-- CERTIFIED
-- ACTIVE
-regression:
-- ACTIVE
-- STALE
-- RECERTIFYING
-- ACTIVE
-terminal:
-- REJECTED
-- REVOKED
+  - DRAFT
+  - BUILDING
+  - TESTING
+  - QUARANTINED
+  - REJECTED
+  - CERTIFIED
+  - ACTIVE
+  - STALE
+  - RECERTIFYING
+  - REVOKED
+transitions:
+  - { from: DRAFT, to: BUILDING, trigger: start_build }
+  - { from: BUILDING, to: TESTING, trigger: build_complete }
+  - { from: TESTING, to: CERTIFIED, trigger: tests_pass }
+  - { from: TESTING, to: QUARANTINED, trigger: tests_fail }
+  - { from: QUARANTINED, to: REJECTED, trigger: reject }
+  - { from: QUARANTINED, to: DRAFT, trigger: retry }
+  - { from: CERTIFIED, to: ACTIVE, trigger: activate }
+  - { from: ACTIVE, to: STALE, trigger: detect_stale }
+  - { from: STALE, to: RECERTIFYING, trigger: recertify }
+  - { from: RECERTIFYING, to: ACTIVE, trigger: recertify_pass }
+  - { from: RECERTIFYING, to: REVOKED, trigger: recertify_fail }

@@ -1,19 +1,20 @@
 version: 1.0.0
-rings:
-- LAB
-- SIMULATION
-- SHADOW
-- CANARY
-- ACTIVE
-- DEGRADED
-- ROLLBACK
-promotion:
-- LAB
-- SIMULATION
-- SHADOW
-- CANARY
-- ACTIVE
-rollback:
-- ACTIVE
-- DEGRADED
-- ROLLBACK
+name: evolution
+description: Evolution lifecycle — promotes changes through safety rings
+initial: LAB
+terminals: [ACTIVE, ROLLBACK]
+states:
+  - LAB
+  - SIMULATION
+  - SHADOW
+  - CANARY
+  - ACTIVE
+  - DEGRADED
+  - ROLLBACK
+transitions:
+  - { from: LAB, to: SIMULATION, trigger: promote }
+  - { from: SIMULATION, to: SHADOW, trigger: promote }
+  - { from: SHADOW, to: CANARY, trigger: promote }
+  - { from: CANARY, to: ACTIVE, trigger: promote }
+  - { from: ACTIVE, to: DEGRADED, trigger: detect_regression }
+  - { from: DEGRADED, to: ROLLBACK, trigger: rollback }
