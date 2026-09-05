@@ -47,6 +47,13 @@ impl Subsystem {
             status: status.into(),
         }
     }
+
+    /// Test-only constructor so display-layer tests can build a report without
+    /// booting the full runtime.
+    #[cfg(test)]
+    pub fn for_test(crate_name: &'static str, status: impl Into<String>) -> Self {
+        Self::new(crate_name, status)
+    }
 }
 
 /// The result of a successful boot: proof the double gate ran and the

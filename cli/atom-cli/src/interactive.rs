@@ -4,13 +4,14 @@
 
 use anyhow::{Context, Result};
 use serde_json::{json, Value};
-use std::io::{self, BufRead, Write};
+use std::io::{self, BufRead};
 use std::time::Duration;
 
 use crate::display::{
     print_banner, print_prompt, print_panel, print_atom_prefix, print_success, print_error,
     print_warning, print_info, print_divider, Spinner, render_markdown, clear_progress,
-    RESET, CYAN, DIM, GOLD,
+    print_phase, print_tool_call, print_outcome, print_feed,
+    RESET, CYAN, DIM, GOLD, GREEN,
 };
 
 /// Opens a conversational session.
@@ -158,7 +159,8 @@ pub fn run() -> Result<()> {
             history.drain(1..history.len() - 20);
         }
 
-        // Show spinner while waiting
+        // Show a live spinner while the sovereign daemon works the request.
+        print_feed("◐", GOLD, "cognition", "drafting a response via the ATOM daemon");
         let mut spinner = Spinner::new("thinking");
         spinner.tick();
 
@@ -183,7 +185,11 @@ pub fn run() -> Result<()> {
         }
 
         let answer = body["content"].as_str().unwrap_or("(empty model response)");
+        let model = body["model"].as_str().unwrap_or("");
         clear_progress();
+        if !model.is_empty() {
+            print_feed("✓", GREEN, "cognition", &format!("model {model}"));
+        }
         println!();
         print_atom_prefix();
         println!();
@@ -215,18 +221,58 @@ fn submit_mission(client: &reqwest::blocking::Client, base: &str, goal: &str) ->
         return Ok(());
     };
     print_success(&format!("mission {id} submitted"));
+    println!();
+    print_feed("▸", GOLD, "MISSION", goal.trim());
+    print_divider();
+
+    // ── Live activity feed ────────────────────────────────────────────────
+    // Poll the durable mission and its ledger and render every *observed*
+    // phase transition and tool observation as it lands. This is honest live
+    // visibility: we render only what the daemon has actually sealed, never a
+    // fabricated step. The initial CREATED/READY phase is shown immediately.
+    let mut last_phase = created["phase"].as_str().unwrap_or("CREATED").to_owned();
+    print_phase(&last_phase);
+    let mut seen_observations = std::collections::HashSet::new();
     let mut outcome = "TIMEOUT".to_owned();
-    for _ in 0..60 {
-        std::thread::sleep(Duration::from_secs(1));
+
+    for _ in 0..120 {
+        std::thread::sleep(Duration::from_millis(500));
         let value: Value = client.get(format!("{base}/missions/{id}")).send()?.json()?;
-        if value["phase"].as_str() == Some("TERMINAL") {
+
+        // Surface any new tool observations sealed on the evidence ledger.
+        if let Ok(evidence) = client.get(format!("{base}/evidence")).send() {
+            if let Ok(body) = evidence.json::<Value>() {
+                if let Some(observations) = body["observations"].as_array() {
+                    for obs in observations {
+                        let obs_id = obs["observation_id"].as_str().unwrap_or("");
+                        if !obs_id.is_empty() && seen_observations.insert(obs_id.to_owned()) {
+                            let tool = obs["tool"].as_str().unwrap_or("tool");
+                            let path = obs["path"].as_str().unwrap_or("");
+                            print_tool_call(tool, path);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Render a phase transition the moment the daemon records it.
+        let phase = value["phase"]
+            .as_str()
+            .unwrap_or(last_phase.as_str())
+            .to_owned();
+        if phase != last_phase {
+            print_phase(&phase);
+            last_phase = phase.clone();
+        }
+
+        if phase == "TERMINAL" {
             outcome = value["outcome"].as_str().unwrap_or("UNKNOWN").to_owned();
             break;
         }
-        print!(".");
-        io::stdout().flush()?;
     }
-    println!(" {outcome}");
+
+    print_divider();
+    print_outcome(&outcome);
     render_evidence(client, base)?;
     Ok(())
 }
