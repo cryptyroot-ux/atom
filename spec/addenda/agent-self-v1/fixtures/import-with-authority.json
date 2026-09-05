@@ -4,7 +4,7 @@
   "agent_id": "123e4567-e89b-12d3-a456-426614174001",
   "imported_fields": {
     "display_name": "Hermes",
-    "credentials": "AKIA1234567890ABCDEF",
+    "credentials": "<aws-access-key-id-placeholder>",
     "capability_grants": [{"operation": "*", "resource": "*"}],
     "tool_permissions": ["shell", "filesystem", "network"]
   },
