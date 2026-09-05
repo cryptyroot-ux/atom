@@ -554,7 +554,10 @@ mod tests {
     #[test]
     fn default_budget_when_missing_or_garbage() {
         for content in [
-            r#"{"goal":"g","success_criteria":["s"],"constraints":["c"],"budgets\":{\"max_steps\":\"lots"},"evidence_requirements":["e"],"stopping_rules":["r"]}"#,
+            // Non-numeric max_steps: valid JSON, but the string value can't be
+            // read as u64, so the clamp falls back to the default of 8.
+            r#"{"goal":"g","success_criteria":["s"],"constraints":["c"],"budgets":{"max_steps":"lots"},"evidence_requirements":["e"],"stopping_rules":["r"]}"#,
+            // No budgets object at all: also falls back to the default of 8.
             r#"{"goal":"g","success_criteria":["s"],"constraints":["c"],"evidence_requirements":["e"],"stopping_rules":["r"]}"#,
         ] {
             let spec = parse_mission_spec_content("g", content).expect("spec");
