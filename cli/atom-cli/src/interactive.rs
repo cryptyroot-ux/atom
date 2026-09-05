@@ -11,7 +11,7 @@ use crate::display::{
     print_banner, print_prompt, print_panel, print_atom_prefix, print_success, print_error,
     print_warning, print_info, print_divider, Spinner, render_markdown, clear_progress,
     print_phase, print_tool_call, print_outcome, print_feed,
-    RESET, CYAN, DIM, GOLD, GREEN,
+    RESET, CYAN, DIM, GOLD, GREEN, BOLD,
 };
 
 /// Opens a conversational session.
@@ -120,6 +120,8 @@ pub fn run() -> Result<()> {
                 println!("  {GOLD}/read <path>{RESET}    Read file (via tool boundary)");
                 println!("  {GOLD}/grep <path> <needle>{RESET}  Search file contents");
                 println!("  {GOLD}/evidence{RESET}       Show evidence ledger");
+                println!("  {GOLD}/caps{RESET}           Show capability grants (authority view)");
+                println!("  {GOLD}/ledger{RESET}         Show sealed ledger events + checkpoint");
                 println!("  {GOLD}/model{RESET}          Configure gateway/model/key");
                 println!("  {GOLD}/status{RESET}         Show service health");
                 println!("  {GOLD}/help{RESET}           Show this help");
@@ -169,6 +171,53 @@ pub fn run() -> Result<()> {
             }
             "/evidence" => {
                 render_evidence(&client, &base)?;
+                continue;
+            }
+            "/caps" => {
+                print_feed("⚙", CYAN, "capabilities", "GET /capabilities");
+                match client.get(format!("{base}/capabilities")).send() {
+                    Ok(resp) if resp.status().is_success() => {
+                        let body: Value = resp.json()?;
+                        let grants = body["grants"].as_array().cloned().unwrap_or_default();
+                        print_feed("✓", GREEN, "capabilities", &format!("{} grant(s)", grants.len()));
+                        if grants.is_empty() {
+                            println!("  {DIM}no capability grants bound (deny-by-default){RESET}");
+                        }
+                        for g in grants {
+                            let id = g["grant_id"].as_str().or_else(|| g["id"].as_str()).unwrap_or("?");
+                            let gen = g["generation"].as_u64().unwrap_or(0);
+                            let op = g["operation"].as_str().or_else(|| g["capability_id"].as_str()).unwrap_or("");
+                            println!("  {CYAN}•{RESET} {BOLD}{id}{RESET} {DIM}gen {gen} {op}{RESET}");
+                        }
+                    }
+                    _ => print_warning("capabilities unavailable (daemon not running?)"),
+                }
+                continue;
+            }
+            "/ledger" => {
+                print_feed("⚙", CYAN, "ledger", "GET /ledger/events");
+                match client.get(format!("{base}/ledger/events")).send() {
+                    Ok(resp) if resp.status().is_success() => {
+                        let body: Value = resp.json()?;
+                        let checkpoint = body["checkpoint"].as_u64().unwrap_or(0);
+                        let events = body["events"].as_array().cloned().unwrap_or_default();
+                        print_feed(
+                            "✓",
+                            GREEN,
+                            "ledger",
+                            &format!("{} event(s), checkpoint {checkpoint} (HMAC-SHA256 chained)", events.len()),
+                        );
+                        // Show the newest 12 sealed events, most recent last.
+                        let tail = events.iter().rev().take(12).collect::<Vec<_>>();
+                        for ev in tail.into_iter().rev() {
+                            let kind = ev["event_type"].as_str().unwrap_or("?");
+                            let hash = ev["payload_hash"].as_str().unwrap_or("");
+                            let short = hash.get(..12).unwrap_or(hash);
+                            println!("  {GOLD}▪{RESET} {BOLD}{kind}{RESET} {DIM}{short}{RESET}");
+                        }
+                    }
+                    _ => print_warning("ledger unavailable (daemon not running?)"),
+                }
                 continue;
             }
             command if command.starts_with("/ls ") => {
