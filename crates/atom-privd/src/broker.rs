@@ -126,6 +126,26 @@ impl<E: HostExecutor> PrivilegeBroker<E> {
         }
     }
 
+    /// A broker whose one-shot memory is rebuilt from nonces a durable ledger
+    /// already recorded as burned.
+    ///
+    /// A restarted daemon must refuse a permit it spent in a prior life, so the
+    /// registry is seeded from the ledger rather than starting empty
+    /// (ATOM-V4-EFX-004 · durable nonce).
+    #[must_use]
+    pub fn with_burned_nonces(executor: E, burned: impl IntoIterator<Item = String>) -> Self {
+        Self {
+            executor,
+            nonces: NonceRegistry::from_used(burned),
+        }
+    }
+
+    /// Whether `nonce` has already been burned by this broker.
+    #[must_use]
+    pub fn is_spent(&self, nonce: &str) -> bool {
+        self.nonces.is_used(nonce)
+    }
+
     /// A shared view of the executor, for inspection only — never mutable.
     ///
     /// Handing out `&E` and never `&mut E` is what makes `admit` the sole path

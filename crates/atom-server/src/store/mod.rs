@@ -10,13 +10,19 @@ const GRANT_STREAM: &str = "grant";
 const EVIDENCE_STREAM: &str = "evidence";
 const SECRET_STREAM: &str = "secret";
 const APPROVAL_STREAM: &str = "approval";
-const SERVER_STREAMS: [&str; 6] = [
+/// Planned host operations awaiting authorization (never executed by planning).
+const HOST_PLAN_STREAM: &str = "host_plan";
+/// Burned one-shot permit nonces: the durable half of the one-shot guarantee.
+pub const NONCE_BURN_STREAM: &str = "nonce_burn";
+const SERVER_STREAMS: [&str; 8] = [
     MISSION_STREAM,
     EFFECT_STREAM,
     GRANT_STREAM,
     EVIDENCE_STREAM,
     SECRET_STREAM,
     APPROVAL_STREAM,
+    HOST_PLAN_STREAM,
+    NONCE_BURN_STREAM,
 ];
 
 /// Durable application state backed by the authoritative `atom_ledger` SQLite
@@ -35,6 +41,8 @@ pub struct Store {
     observations: Vec<Value>,
     secret_handles: Vec<Value>,
     approvals: Vec<Value>,
+    host_plans: Vec<Value>,
+    burned_nonces: Vec<String>,
 }
 
 impl Store {
@@ -64,6 +72,8 @@ impl Store {
             observations: Vec::new(),
             secret_handles: Vec::new(),
             approvals: Vec::new(),
+            host_plans: Vec::new(),
+            burned_nonces: Vec::new(),
         };
         store.rebuild_projections()?;
         Ok(store)
@@ -77,6 +87,8 @@ impl Store {
         self.observations.clear();
         self.secret_handles.clear();
         self.approvals.clear();
+        self.host_plans.clear();
+        self.burned_nonces.clear();
 
         for stream_id in SERVER_STREAMS {
             let report = self
@@ -133,6 +145,20 @@ impl Store {
 
         for record in self.ledger.scan(APPROVAL_STREAM, 1)? {
             self.apply_approval_event(&record.payload)?;
+        }
+
+        for record in self.ledger.scan(HOST_PLAN_STREAM, 1)? {
+            self.apply_host_plan_event(&record.payload)?;
+        }
+
+        // The one-shot memory: every nonce a prior life burned. A restarted
+        // daemon rebuilds this before it will admit any crossing, so a permit
+        // spent before the restart stays spent (ATOM-V4-EFX-004).
+        for record in self.ledger.scan(NONCE_BURN_STREAM, 1)? {
+            let nonce = string_field(&record.payload, "nonce", NONCE_BURN_STREAM)?;
+            if !self.burned_nonces.iter().any(|seen| seen == nonce) {
+                self.burned_nonces.push(nonce.to_owned());
+            }
         }
 
         Ok(())
@@ -226,6 +252,18 @@ impl Store {
         }
     }
 
+    fn apply_host_plan_event(&mut self, payload: &Value) -> anyhow::Result<()> {
+        match event_name(payload, HOST_PLAN_STREAM)? {
+            "planned" | "committed" | "refused" => upsert(
+                &mut self.host_plans,
+                "plan_id",
+                object_field(payload, "plan", HOST_PLAN_STREAM)?,
+                "host plan",
+            ),
+            other => bail!("unknown `{HOST_PLAN_STREAM}` event `{other}`"),
+        }
+    }
+
     pub fn missions(&self) -> &[Value] {
         &self.missions
     }
@@ -255,6 +293,70 @@ impl Store {
 
     pub fn approvals(&self) -> &[Value] {
         &self.approvals
+    }
+
+    /// Planned host operations, oldest first. A plan is a *declaration*, never a
+    /// crossing: nothing here has touched the host.
+    pub fn host_plans(&self) -> &[Value] {
+        &self.host_plans
+    }
+
+    /// One host plan by id.
+    pub fn host_plan(&self, plan_id: &str) -> Option<Value> {
+        self.host_plans
+            .iter()
+            .find(|plan| plan["plan_id"] == plan_id)
+            .cloned()
+    }
+
+    /// Every one-shot nonce a prior life burned, rebuilt from the ledger.
+    pub fn burned_nonces(&self) -> &[String] {
+        &self.burned_nonces
+    }
+
+    /// Records a planned host operation (no host contact, no authority).
+    pub fn add_host_plan(&mut self, plan: &Value) -> anyhow::Result<()> {
+        ensure_identifier(plan, "plan_id", "host plan")?;
+        self.ledger.append(
+            HOST_PLAN_STREAM,
+            &serde_json::json!({ "event": "planned", "plan": plan }),
+            now_millis(),
+        )?;
+        upsert(&mut self.host_plans, "plan_id", plan, "host plan")
+    }
+
+    /// Records the terminal fate of a plan: `committed` after the privilege
+    /// boundary admitted it, or `refused` with the denial that stopped it.
+    pub fn resolve_host_plan(&mut self, plan: &Value, committed: bool) -> anyhow::Result<()> {
+        ensure_identifier(plan, "plan_id", "host plan")?;
+        let event = if committed { "committed" } else { "refused" };
+        self.ledger.append(
+            HOST_PLAN_STREAM,
+            &serde_json::json!({ "event": event, "plan": plan }),
+            now_millis(),
+        )?;
+        upsert(&mut self.host_plans, "plan_id", plan, "host plan")
+    }
+
+    /// Durably burns `nonce`, so the one-shot guarantee survives a restart.
+    ///
+    /// The append must commit before the caller may treat the permit as spent:
+    /// a crash before it returns leaves the nonce unburned, which is the honest
+    /// state (the crossing did not happen).
+    pub fn burn_nonce(&mut self, nonce: &str) -> anyhow::Result<()> {
+        if nonce.trim().is_empty() {
+            bail!("refusing to burn an empty nonce");
+        }
+        if self.burned_nonces.iter().any(|seen| seen == nonce) {
+            bail!("nonce `{nonce}` was already burned");
+        }
+        self.ledger.append(
+            NONCE_BURN_STREAM,
+            &serde_json::json!({ "nonce": nonce }),
+            now_millis(),
+        )?;
+        self.burned_nonces.push(nonce.to_owned());
+        Ok(())
     }
 
     pub fn add_approval(&mut self, grant: &Value) -> anyhow::Result<()> {

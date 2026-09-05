@@ -15,11 +15,16 @@ anyhow = "1"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 atom-effect = { path = "../atom-effect" }
 atom-approval = { path = "../atom-approval" }
+atom-capability = { path = "../atom-capability" }
+atom-privd = { path = "../atom-privd" }
+atom-runtime = { path = "../atom-runtime" }
 atom-ledger = { path = "../atom-ledger" }
 atom-mission = { path = "../atom-mission" }
 atom-secret = { path = "../atom-secret" }
 uuid = { version = "1", features = ["v4"] }
 chrono = { version = "0.4", features = ["serde"] }
+sha2 = "0.10"
+hex = "0.4"
 
 [dev-dependencies]
 axum = { version = "0.8", features = ["http1"] }

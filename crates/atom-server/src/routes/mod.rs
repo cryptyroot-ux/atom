@@ -4,6 +4,7 @@ pub mod chat;
 pub mod effects;
 pub mod evidence;
 pub mod health;
+pub mod host;
 pub mod ledger;
 pub mod missions;
 pub mod secrets;
