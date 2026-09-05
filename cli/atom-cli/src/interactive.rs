@@ -8,16 +8,14 @@ use std::io::{self, BufRead};
 use std::time::Duration;
 
 use crate::display::{
-    print_banner, print_prompt, print_panel, print_atom_prefix, print_success, print_error,
-    print_warning, print_info, print_divider, Spinner, render_markdown, clear_progress,
-    print_phase, print_tool_call, print_outcome, print_feed,
-    RESET, CYAN, DIM, GOLD, GREEN, BOLD,
+    clear_progress, print_atom_prefix, print_banner, print_divider, print_error, print_feed,
+    print_info, print_outcome, print_panel, print_phase, print_prompt, print_success,
+    print_tool_call, print_warning, render_markdown, Spinner, BOLD, CYAN, DIM, GOLD, GREEN, RESET,
 };
 
 /// Opens a conversational session.
 pub fn run() -> Result<()> {
-    let base = std::env::var("ATOM_SERVER_URL")
-        .unwrap_or_else(|_| "http://127.0.0.1:8420".into());
+    let base = std::env::var("ATOM_SERVER_URL").unwrap_or_else(|_| "http://127.0.0.1:8420".into());
 
     let client = reqwest::blocking::Client::builder()
         .timeout(Duration::from_secs(120))
@@ -51,21 +49,36 @@ pub fn run() -> Result<()> {
         // sending generic text to the LLM.
         let lower = input.to_lowercase();
         let nlu_status = [
-            "check server", "ceeck server", "cek server", "status server",
-            "status atom", "atom status", "health check", "check health",
-            "server health", "is atom running", "is the server up",
+            "check server",
+            "ceeck server",
+            "cek server",
+            "status server",
+            "status atom",
+            "atom status",
+            "health check",
+            "check health",
+            "server health",
+            "is atom running",
+            "is the server up",
         ];
         let nlu_version = [
-            "show version", "which version", "atom version", "version info",
-            "what version", "display version",
+            "show version",
+            "which version",
+            "atom version",
+            "version info",
+            "what version",
+            "display version",
         ];
         let nlu_model = [
-            "which model", "what model", "show model", "current model",
-            "model info", "what provider", "which provider",
+            "which model",
+            "what model",
+            "show model",
+            "current model",
+            "model info",
+            "what provider",
+            "which provider",
         ];
-        let nlu_uptime = [
-            "show uptime", "how long", "uptime info", "running time",
-        ];
+        let nlu_uptime = ["show uptime", "how long", "uptime info", "running time"];
 
         if nlu_status.iter().any(|p| lower.contains(p)) {
             let response = client.get(format!("{base}/health")).send()?;
@@ -179,15 +192,28 @@ pub fn run() -> Result<()> {
                     Ok(resp) if resp.status().is_success() => {
                         let body: Value = resp.json()?;
                         let grants = body["grants"].as_array().cloned().unwrap_or_default();
-                        print_feed("✓", GREEN, "capabilities", &format!("{} grant(s)", grants.len()));
+                        print_feed(
+                            "✓",
+                            GREEN,
+                            "capabilities",
+                            &format!("{} grant(s)", grants.len()),
+                        );
                         if grants.is_empty() {
                             println!("  {DIM}no capability grants bound (deny-by-default){RESET}");
                         }
                         for g in grants {
-                            let id = g["grant_id"].as_str().or_else(|| g["id"].as_str()).unwrap_or("?");
+                            let id = g["grant_id"]
+                                .as_str()
+                                .or_else(|| g["id"].as_str())
+                                .unwrap_or("?");
                             let gen = g["generation"].as_u64().unwrap_or(0);
-                            let op = g["operation"].as_str().or_else(|| g["capability_id"].as_str()).unwrap_or("");
-                            println!("  {CYAN}•{RESET} {BOLD}{id}{RESET} {DIM}gen {gen} {op}{RESET}");
+                            let op = g["operation"]
+                                .as_str()
+                                .or_else(|| g["capability_id"].as_str())
+                                .unwrap_or("");
+                            println!(
+                                "  {CYAN}•{RESET} {BOLD}{id}{RESET} {DIM}gen {gen} {op}{RESET}"
+                            );
                         }
                     }
                     _ => print_warning("capabilities unavailable (daemon not running?)"),
@@ -205,7 +231,10 @@ pub fn run() -> Result<()> {
                             "✓",
                             GREEN,
                             "ledger",
-                            &format!("{} event(s), checkpoint {checkpoint} (HMAC-SHA256 chained)", events.len()),
+                            &format!(
+                                "{} event(s), checkpoint {checkpoint} (HMAC-SHA256 chained)",
+                                events.len()
+                            ),
                         );
                         // Show the newest 12 sealed events, most recent last.
                         let tail = events.iter().rev().take(12).collect::<Vec<_>>();
@@ -231,7 +260,12 @@ pub fn run() -> Result<()> {
                     let body: Value = response.json()?;
                     if let Some(entries) = body["result"].as_array() {
                         let obs_id = body["observation_id"].as_str().unwrap_or("");
-                        print_feed("✓", GREEN, "list_directory", &format!("{} entries, obs={obs_id}", entries.len()));
+                        print_feed(
+                            "✓",
+                            GREEN,
+                            "list_directory",
+                            &format!("{} entries, obs={obs_id}", entries.len()),
+                        );
                         for entry in entries {
                             if let Some(s) = entry.as_str() {
                                 println!("  {DIM}{s}{RESET}");
@@ -259,7 +293,12 @@ pub fn run() -> Result<()> {
                     let body: Value = response.json()?;
                     let content = body["result"].as_str().unwrap_or("");
                     let obs_id = body["observation_id"].as_str().unwrap_or("");
-                    print_feed("✓", GREEN, "read_file", &format!("{} bytes, obs={obs_id}", content.len()));
+                    print_feed(
+                        "✓",
+                        GREEN,
+                        "read_file",
+                        &format!("{} bytes, obs={obs_id}", content.len()),
+                    );
                     print!("{}", render_markdown(&format!("```\n{content}\n```")));
                 } else {
                     let body: Value = response.json().unwrap_or_default();
@@ -287,7 +326,12 @@ pub fn run() -> Result<()> {
                     let results = body["result"].as_array();
                     let obs_id = body["observation_id"].as_str().unwrap_or("");
                     let count = results.map_or(0, |a| a.len());
-                    print_feed("✓", GREEN, "search_text", &format!("{count} matching lines, obs={obs_id}"));
+                    print_feed(
+                        "✓",
+                        GREEN,
+                        "search_text",
+                        &format!("{count} matching lines, obs={obs_id}"),
+                    );
                     if let Some(matches) = results {
                         for line in matches {
                             if let Some(text) = line.as_str() {
@@ -320,7 +364,12 @@ pub fn run() -> Result<()> {
         }
 
         // Show a live spinner while the sovereign daemon works the request.
-        print_feed("◐", GOLD, "cognition", "drafting a response via the ATOM daemon");
+        print_feed(
+            "◐",
+            GOLD,
+            "cognition",
+            "drafting a response via the ATOM daemon",
+        );
         let mut spinner = Spinner::new("thinking");
         spinner.tick();
 
@@ -372,7 +421,10 @@ fn submit_mission(client: &reqwest::blocking::Client, base: &str, goal: &str) ->
         .send()
         .context("submitting mission to ATOM")?;
     if !response.status().is_success() {
-        print_error(&format!("mission submission failed (HTTP {})", response.status()));
+        print_error(&format!(
+            "mission submission failed (HTTP {})",
+            response.status()
+        ));
         return Ok(());
     }
     let created: Value = response.json().context("decoding mission response")?;
@@ -555,13 +607,20 @@ fn render_evidence(client: &reqwest::blocking::Client, base: &str) -> Result<()>
         .send()
         .context("fetching mission evidence")?;
     if !response.status().is_success() {
-        print_warning(&format!("could not fetch evidence (HTTP {})", response.status()));
+        print_warning(&format!(
+            "could not fetch evidence (HTTP {})",
+            response.status()
+        ));
         return Ok(());
     }
     let body: Value = response.json().context("decoding evidence response")?;
     let observations = body["observations"].as_array().cloned().unwrap_or_default();
     println!();
-    print_panel("Evidence", &format!("{} observation(s) recorded", observations.len()), CYAN);
+    print_panel(
+        "Evidence",
+        &format!("{} observation(s) recorded", observations.len()),
+        CYAN,
+    );
     for obs in observations {
         let tool = obs["tool"].as_str().unwrap_or("?");
         let path = obs["path"].as_str().unwrap_or("");

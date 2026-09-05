@@ -246,16 +246,12 @@ pub async fn plan(
     let witness = observe_witness(&config.root, &resource_id);
 
     // EFX-001: the declaration is written down before anything may act on it.
-    let payload = intent.declared_payload().map_err(|e| {
-        ApiError::bad_request("/host/plan", format!("canonicalising intent: {e}"))
-    })?;
+    let payload = intent
+        .declared_payload()
+        .map_err(|e| ApiError::bad_request("/host/plan", format!("canonicalising intent: {e}")))?;
     store
         .ledger
-        .append(
-            &intent.effect_id,
-            &payload,
-            Utc::now().timestamp_millis(),
-        )
+        .append(&intent.effect_id, &payload, Utc::now().timestamp_millis())
         .map_err(|e| {
             ApiError::bad_request("/host/plan", format!("sealing intent durably failed: {e}"))
         })?;
@@ -274,9 +270,9 @@ pub async fn plan(
         "planned_witness": witness,
         "state": "PLANNED",
     });
-    store.add_host_plan(&plan).map_err(|e| {
-        ApiError::bad_request("/host/plan", format!("recording plan failed: {e}"))
-    })?;
+    store
+        .add_host_plan(&plan)
+        .map_err(|e| ApiError::bad_request("/host/plan", format!("recording plan failed: {e}")))?;
 
     Ok((
         StatusCode::CREATED,
@@ -330,9 +326,7 @@ pub async fn commit(
     let intent = intent_for(&mission_id, &grant_id, &op)?;
     let effect_digest = intent.digest();
     let planned_witness: ResourceWitness = serde_json::from_value(plan["planned_witness"].clone())
-        .map_err(|e| {
-        ApiError::bad_request(instance, format!("stored witness is invalid: {e}"))
-    })?;
+        .map_err(|e| ApiError::bad_request(instance, format!("stored witness is invalid: {e}")))?;
 
     // AUT-003: a durable approval must cover this exact effect digest, now.
     //
@@ -398,7 +392,10 @@ pub async fn commit(
         EffectEvent::CommitRevalidationStarted,
     ] {
         at_boundary = at_boundary.try_advance(&event).map_err(|e| {
-            ApiError::bad_request(instance, format!("reducer refused a pre-dispatch step: {e}"))
+            ApiError::bad_request(
+                instance,
+                format!("reducer refused a pre-dispatch step: {e}"),
+            )
         })?;
     }
 
@@ -425,9 +422,7 @@ pub async fn commit(
         connector_version: env!("CARGO_PKG_VERSION"),
         connector_instance_epoch: grant.generation,
     })
-    .map_err(|e| {
-        ApiError::conflict(instance, format!("commit permit refused: {e}"))
-    })?;
+    .map_err(|e| ApiError::conflict(instance, format!("commit permit refused: {e}")))?;
 
     // The broker owns the only executor. Its one-shot memory is rebuilt from the
     // ledger, so a nonce burned in a prior life is still refused.
@@ -472,7 +467,10 @@ pub async fn commit(
     // crossing, and identical material yields an identical digest, so leaving it
     // unspent would let a second plan reuse this owner decision.
     store.redeem_approval(&receipt.grant_id).map_err(|e| {
-        ApiError::bad_request(instance, format!("recording approval redemption failed: {e}"))
+        ApiError::bad_request(
+            instance,
+            format!("recording approval redemption failed: {e}"),
+        )
     })?;
 
     let observation_id = uuid::Uuid::new_v4().to_string();
@@ -487,9 +485,9 @@ pub async fn commit(
         "effect_digest": effect_digest,
         "taint": "HOST_MUTATION_COMMITTED",
     });
-    store.add_observation(&observation).map_err(|e| {
-        ApiError::bad_request(instance, format!("sealing evidence failed: {e}"))
-    })?;
+    store
+        .add_observation(&observation)
+        .map_err(|e| ApiError::bad_request(instance, format!("sealing evidence failed: {e}")))?;
 
     plan["state"] = serde_json::Value::String("COMMITTED".into());
     plan["permit_id"] = serde_json::Value::String(admitted.permit_id.clone());

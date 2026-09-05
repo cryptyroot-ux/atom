@@ -461,7 +461,9 @@ pub fn run(cli: Cli) -> Result<()> {
                             };
                         }
                     }
-                    let host_config = host_root.as_ref().map(|r| atom_server::routes::host::HostConfig { root: r.clone() });
+                    let host_config = host_root
+                        .as_ref()
+                        .map(|r| atom_server::routes::host::HostConfig { root: r.clone() });
                     let executor = atom_executor::AtomExecutor::new(store.clone(), executor_config);
                     let exec_handle = tokio::spawn(executor.run());
                     let serve = atom_server::app::serve_with(
@@ -475,7 +477,8 @@ pub fn run(cli: Cli) -> Result<()> {
                     let (_, serve_res) = tokio::join!(exec_handle, serve);
                     serve_res?;
                 } else {
-                    let host_config = host_root.map(|r| atom_server::routes::host::HostConfig { root: r });
+                    let host_config =
+                        host_root.map(|r| atom_server::routes::host::HostConfig { root: r });
                     atom_server::app::serve_with(
                         version,
                         crates_loaded,

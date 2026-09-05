@@ -4,10 +4,12 @@ use atom_agent_profile::*;
 fn soul_authority_escalation_deny() {
     // SOUL.md must NOT create or replace authority
     let soul = SoulProfile::new("agent-1".to_string(), "owner-1".to_string());
-    
+
     // SoulProfile must not have operations, resources, budget fields
     // This is enforced by type system - SoulProfile has no such fields
-    assert!(soul.forbidden_behaviors.contains(&"no_authority_escalation".to_string()));
+    assert!(soul
+        .forbidden_behaviors
+        .contains(&"no_authority_escalation".to_string()));
     assert_eq!(soul.autonomy_posture, "propose_only");
 }
 
@@ -91,15 +93,15 @@ fn unapproved_self_mutation_not_activated() {
         serde_json::json!({"display_name": "New"}),
         "agent-1".to_string(),
     );
-    
+
     // Agent can propose
     revision.propose().unwrap();
     assert_eq!(revision.state, RevisionState::Proposed);
-    
+
     // Agent can request authorization
     revision.request_authorization().unwrap();
     assert_eq!(revision.state, RevisionState::PendingAuthorization);
-    
+
     // Without owner approval, cannot activate
     // (In real implementation, this would check authorization)
     // For now, just verify the state machine works
@@ -113,10 +115,10 @@ fn self_approval_deny() {
         serde_json::json!({"display_name": "New"}),
         "agent-1".to_string(),
     );
-    
+
     revision.propose().unwrap();
     revision.request_authorization().unwrap();
-    
+
     // Self-approval must be denied
     let result = revision.authorize("agent-1".to_string());
     assert!(result.is_err());
@@ -125,7 +127,7 @@ fn self_approval_deny() {
 #[test]
 fn tampered_soul_digest_quarantined() {
     let soul = SoulProfile::new("agent-1".to_string(), "owner-1".to_string());
-    
+
     // Verify digest check works
     let content = b"tampered content";
     let result = soul.verify_digest(content);
@@ -141,7 +143,7 @@ fn constitution_digest_mismatch_startup_blocked() {
         "assistant".to_string(),
         "sha256:correct".to_string(),
     );
-    
+
     // Wrong constitution digest should fail
     let result = profile.verify_constitution("sha256:wrong");
     assert!(result.is_err());
@@ -156,7 +158,7 @@ fn provider_switch_preserves_agent_identity() {
         "assistant".to_string(),
         "sha256:abc".to_string(),
     );
-    
+
     // Agent identity should be stable across provider changes
     assert_eq!(profile.agent_id, "agent-1");
     assert_eq!(profile.owner_principal_id, "owner-1");
@@ -171,7 +173,7 @@ fn tenant_isolation_deny() {
         "assistant".to_string(),
         "sha256:abc".to_string(),
     );
-    
+
     let profile_b = AgentIdentityProfile::new(
         "agent-b".to_string(),
         "owner-b".to_string(),
@@ -179,7 +181,7 @@ fn tenant_isolation_deny() {
         "assistant".to_string(),
         "sha256:def".to_string(),
     );
-    
+
     // Different agents should have different identities
     assert_ne!(profile_a.agent_id, profile_b.agent_id);
     assert_ne!(profile_a.owner_principal_id, profile_b.owner_principal_id);
@@ -197,7 +199,7 @@ fn private_user_profile_in_shared_channel_deny() {
         "assistant".to_string(),
         "sha256:abc".to_string(),
     );
-    
+
     // Profile is presentation identity, not private user data
     assert_eq!(profile.agent_id, "agent-1");
 }
@@ -210,14 +212,14 @@ fn rollback_restores_exact_prior_profile() {
         serde_json::json!({"display_name": "New"}),
         "agent-1".to_string(),
     );
-    
+
     revision.propose().unwrap();
     revision.request_authorization().unwrap();
     revision.authorize("owner-1".to_string()).unwrap();
-    
+
     assert_eq!(revision.state, RevisionState::Active);
     assert_eq!(revision.generation, 1);
-    
+
     // Rollback should work
     revision.rollback().unwrap();
     assert_eq!(revision.state, RevisionState::RolledBack);
@@ -232,7 +234,7 @@ fn effective_self_view_expiry() {
         "test-scope".to_string(),
         1, // 1 second TTL
     );
-    
+
     assert!(!view.is_expired());
     assert_eq!(view.scope, "test-scope");
     assert!(!view.derivation_digest.is_empty());

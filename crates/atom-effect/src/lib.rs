@@ -7,8 +7,8 @@
 
 #![forbid(unsafe_code)]
 
-pub mod attenuation;
 pub mod admission;
+pub mod attenuation;
 pub mod canonical;
 pub mod commit_permit;
 pub mod event;

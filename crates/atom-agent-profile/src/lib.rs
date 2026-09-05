@@ -10,14 +10,14 @@
 //! - Constitutional Enforcement: Via typed API, not LLM prompt compliance
 //! - Identity Continuity: Tenant/owner/agent isolation
 
-pub mod types;
 pub mod profile;
 pub mod revision;
+pub mod types;
 pub mod view;
 pub mod workspace;
 
-pub use types::*;
 pub use profile::*;
 pub use revision::*;
+pub use types::*;
 pub use view::*;
 pub use workspace::*;

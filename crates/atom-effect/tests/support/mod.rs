@@ -83,7 +83,7 @@ pub fn regenerated_grant() -> CapabilityGrant {
         generation: GRANT_GENERATION + 1,
         ..grant()
     }
-    }
+}
 
 pub fn witness(value: &str) -> ResourceWitness {
     ResourceWitness::new("etag", RESOURCE_ID, value)

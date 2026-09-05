@@ -11,7 +11,10 @@ pub fn run(action: crate::IdentityAction) -> anyhow::Result<()> {
         }
         crate::IdentityAction::Propose { proposal } => {
             let content = std::fs::read_to_string(&proposal)?;
-            println!("Identity change proposed: {}", content.lines().next().unwrap_or(""));
+            println!(
+                "Identity change proposed: {}",
+                content.lines().next().unwrap_or("")
+            );
             Ok(())
         }
         crate::IdentityAction::History => {

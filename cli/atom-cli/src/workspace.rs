@@ -11,10 +11,16 @@ pub fn run(action: crate::WorkspaceAction) -> anyhow::Result<()> {
             let content = std::fs::read_to_string(&input)?;
             match from {
                 crate::ImportSource::Openclaw => {
-                    println!("Importing persona from Openclaw: {}", content.lines().next().unwrap_or(""));
+                    println!(
+                        "Importing persona from Openclaw: {}",
+                        content.lines().next().unwrap_or("")
+                    );
                 }
                 crate::ImportSource::Hermes => {
-                    println!("Importing persona from Hermes: {}", content.lines().next().unwrap_or(""));
+                    println!(
+                        "Importing persona from Hermes: {}",
+                        content.lines().next().unwrap_or("")
+                    );
                 }
             }
             Ok(())

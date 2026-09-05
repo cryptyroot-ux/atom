@@ -103,10 +103,7 @@ impl fmt::Display for DenyReason {
                 )
             }
             Self::ExpiryLongerThanParent { parent, child } => {
-                write!(
-                    f,
-                    "child expiry {child} exceeds parent expiry {parent}"
-                )
+                write!(f, "child expiry {child} exceeds parent expiry {parent}")
             }
             Self::DepthExhausted {
                 parent_depth,
@@ -360,10 +357,7 @@ pub fn attenuate(
 /// Check if child constraints are compatible with parent constraints.
 /// Currently supports: basic key subset check. Any unknown key → false.
 /// This is conservative: unknown constraint semantics → Deny.
-fn constraints_compatible(
-    parent: &serde_json::Value,
-    child: &serde_json::Value,
-) -> bool {
+fn constraints_compatible(parent: &serde_json::Value, child: &serde_json::Value) -> bool {
     // If both are objects, every key in child must exist in parent
     if let (Some(parent_obj), Some(child_obj)) = (parent.as_object(), child.as_object()) {
         for key in child_obj.keys() {
@@ -782,12 +776,28 @@ mod tests {
 
         // Two children: 2000 + 2000 = 4000. 3000+4000 = 7000 ≤ 10000 ✓
         let children = vec![(2_000u64, 800u64), (2_000, 800)];
-        assert!(verify_fanout_budget(parent_cost, parent_seconds, consumed_cost, consumed_seconds, &children).is_ok());
+        assert!(verify_fanout_budget(
+            parent_cost,
+            parent_seconds,
+            consumed_cost,
+            consumed_seconds,
+            &children
+        )
+        .is_ok());
 
         // Two children: 4000 + 4000 = 8000. 3000+8000 = 11000 > 10000 ✗
         let children = vec![(4_000u64, 1_500u64), (4_000, 1_500)];
-        let err = verify_fanout_budget(parent_cost, parent_seconds, consumed_cost, consumed_seconds, &children).unwrap_err();
-        assert!(matches!(err, DenyReason::BudgetGreaterThanParent { ref dim, .. } if dim.contains("fan-out")));
+        let err = verify_fanout_budget(
+            parent_cost,
+            parent_seconds,
+            consumed_cost,
+            consumed_seconds,
+            &children,
+        )
+        .unwrap_err();
+        assert!(
+            matches!(err, DenyReason::BudgetGreaterThanParent { ref dim, .. } if dim.contains("fan-out"))
+        );
     }
 
     #[test]

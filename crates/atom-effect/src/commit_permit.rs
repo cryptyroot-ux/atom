@@ -307,28 +307,16 @@ pub enum PermitError {
     },
     /// The permit was presented to the wrong dispatch sink.
     #[error("permit was issued for sink {expected}, not {observed}")]
-    WrongDispatchSink {
-        expected: String,
-        observed: String,
-    },
+    WrongDispatchSink { expected: String, observed: String },
     /// The permit was presented by the wrong connector identity.
     #[error("permit was issued to connector {expected}, not {observed}")]
-    WrongConnectorIdentity {
-        expected: String,
-        observed: String,
-    },
+    WrongConnectorIdentity { expected: String, observed: String },
     /// The permit was presented by the wrong connector version.
     #[error("permit was issued to connector version {expected}, not {observed}")]
-    WrongConnectorVersion {
-        expected: String,
-        observed: String,
-    },
+    WrongConnectorVersion { expected: String, observed: String },
     /// The permit was presented by a stale connector instance epoch.
     #[error("permit was issued to instance epoch {expected}, not {observed}")]
-    StaleInstanceEpoch {
-        expected: u64,
-        observed: u64,
-    },
+    StaleInstanceEpoch { expected: u64, observed: u64 },
     /// The grant does not cover the operation being attempted.
     #[error("grant does not allow {operation}")]
     OperationNotGranted {

@@ -104,10 +104,7 @@ pub fn run(action: crate::GrantAction, cfg: &SigningConfig) -> Result<()> {
                 constraints: None,
             };
 
-            let signer = Box::new(atom_ledger::HmacSha256Signer::new(
-                &cfg.key_id,
-                &cfg.secret,
-            ));
+            let signer = Box::new(atom_ledger::HmacSha256Signer::new(&cfg.key_id, &cfg.secret));
             let mut store = atom_server::store::Store::open(&state_db, signer)
                 .with_context(|| format!("opening state db `{}`", state_db.display()))?;
             store

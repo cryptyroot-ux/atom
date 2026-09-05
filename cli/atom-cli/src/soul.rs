@@ -19,7 +19,10 @@ pub fn run(action: crate::SoulAction) -> anyhow::Result<()> {
         }
         crate::SoulAction::Propose { proposal } => {
             let content = std::fs::read_to_string(&proposal)?;
-            println!("Soul change proposed: {}", content.lines().next().unwrap_or(""));
+            println!(
+                "Soul change proposed: {}",
+                content.lines().next().unwrap_or("")
+            );
             Ok(())
         }
         crate::SoulAction::Approve { revision_id } => {

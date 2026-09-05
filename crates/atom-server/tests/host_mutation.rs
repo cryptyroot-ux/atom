@@ -184,7 +184,10 @@ async fn approved_plan_commits_a_real_host_write() {
     let (status, plan) = h
         .post(
             "/host/plan",
-            plan_body("grant/write-hello", write_op("/hello.txt", "governed world")),
+            plan_body(
+                "grant/write-hello",
+                write_op("/hello.txt", "governed world"),
+            ),
         )
         .await;
     assert_eq!(status, StatusCode::CREATED, "plan rejected: {plan}");
@@ -268,7 +271,10 @@ async fn plan_without_a_capability_grant_is_refused() {
         .await;
     assert_eq!(status, StatusCode::BAD_REQUEST);
     assert!(
-        body["detail"].as_str().unwrap_or_default().contains("deny-by-default"),
+        body["detail"]
+            .as_str()
+            .unwrap_or_default()
+            .contains("deny-by-default"),
         "expected a deny-by-default refusal, got {body}"
     );
     assert!(h.on_disk("/nope.txt").is_none());
@@ -333,7 +339,10 @@ async fn commit_without_an_approval_never_reaches_the_host() {
         "an unapproved commit wrote to the host"
     );
     let (_, plans) = h.get("/host/plans").await;
-    assert_eq!(plans["burned_nonces"], 0, "no permit should have been spent");
+    assert_eq!(
+        plans["burned_nonces"], 0,
+        "no permit should have been spent"
+    );
 }
 
 #[tokio::test]
@@ -400,7 +409,10 @@ async fn a_committed_plan_cannot_be_committed_twice() {
     let h = Harness::enabled();
     h.grant_write("grant/once", "/once.txt").await;
     let (_, plan) = h
-        .post("/host/plan", plan_body("grant/once", write_op("/once.txt", "first")))
+        .post(
+            "/host/plan",
+            plan_body("grant/once", write_op("/once.txt", "first")),
+        )
         .await;
     let digest = plan["effect_digest"].as_str().unwrap().to_owned();
     h.approve("approval/once", &digest).await;

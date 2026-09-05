@@ -13,8 +13,8 @@ use atom_effect::{
     PermitRequest,
 };
 use support::{
-    durability, grant, intent_in, now, planned_witness, regenerated_grant, upstream_intent,
-    advanced, GRANT_GENERATION, OPERATION, PRINCIPAL, RESOURCE_TYPE,
+    advanced, durability, grant, intent_in, now, planned_witness, regenerated_grant,
+    upstream_intent, GRANT_GENERATION, OPERATION, PRINCIPAL, RESOURCE_TYPE,
 };
 
 const PERMIT_ID: &str = "permit/01J8ZPFINALITY";
