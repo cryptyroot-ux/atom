@@ -228,23 +228,22 @@ pub fn run() -> Result<()> {
                         continue;
                     }
                 };
-                print_tool_call("search_files", &format!("{path} needle={needle}"));
+                print_tool_call("search_text", &format!("{path} needle={needle}"));
                 let response = client
                     .post(format!("{base}/tools/read-only"))
-                    .json(&json!({"tool": "search_files", "path": path, "needle": needle}))
+                    .json(&json!({"tool": "search_text", "path": path, "needle": needle}))
                     .send()?;
                 if response.status().is_success() {
                     let body: Value = response.json()?;
                     let results = body["result"].as_array();
                     let obs_id = body["observation_id"].as_str().unwrap_or("");
                     let count = results.map_or(0, |a| a.len());
-                    print_feed("✓", GREEN, "search_files", &format!("{count} matches, obs={obs_id}"));
+                    print_feed("✓", GREEN, "search_text", &format!("{count} matching lines, obs={obs_id}"));
                     if let Some(matches) = results {
-                        for m in matches {
-                            let file = m["path"].as_str().unwrap_or("?");
-                            let line = m["line"].as_u64().unwrap_or(0);
-                            let text = m["text"].as_str().unwrap_or("");
-                            println!("  {CYAN}{file}:{line}{RESET}  {DIM}{text}{RESET}");
+                        for line in matches {
+                            if let Some(text) = line.as_str() {
+                                println!("  {CYAN}▎{RESET} {DIM}{text}{RESET}");
+                            }
                         }
                     }
                 } else {
