@@ -4,7 +4,6 @@
 //! Uses pulldown-cmark for markdown rendering and console for terminal detection.
 
 use std::io::{self, Write};
-use std::time::Duration;
 
 // ── Skin-aware color palette (ATOM brand: sovereign gold/bronze) ──────────
 
@@ -284,4 +283,163 @@ pub fn print_atom_prefix() {
 pub fn print_thinking() {
     print!("{DIM}{ITALIC}thinking...{RESET}");
     io::stdout().flush().ok();
+}
+
+// ── Live activity feed (mission execution + tool visibility) ────────────────
+//
+// Hermes shows every step and tool call as it happens. ATOM's sovereign
+// pipeline is phase-driven (CREATED → COMPILED → READY → RUNNING → VERIFYING →
+// TERMINAL) and every durable step is sealed on the ledger. These renderers
+// surface that real, already-happening work in the terminal instead of a row
+// of anonymous dots — the feed reflects ledger truth, never a fabricated step.
+
+/// The glyph and color used to render one mission phase.
+///
+/// Kept pure (no I/O) so the mapping is unit-testable and stable.
+pub fn phase_glyph(phase: &str) -> (&'static str, &'static str) {
+    match phase {
+        "CREATED" => ("◇", DIM),
+        "COMPILED" => ("◈", CYAN),
+        "READY" => ("○", CYAN),
+        "RUNNING" => ("◐", GOLD),
+        "VERIFYING" => ("◑", YELLOW),
+        "TERMINAL" => ("●", GREEN),
+        _ => ("•", WHITE),
+    }
+}
+
+/// Renders one phase transition as a live feed line, e.g. `◐ phase RUNNING`.
+pub fn print_phase(phase: &str) {
+    let (glyph, color) = phase_glyph(phase);
+    println!("  {color}{glyph}{RESET} {DIM}phase{RESET} {BOLD}{color}{phase}{RESET}");
+    io::stdout().flush().ok();
+}
+
+/// Renders one activity line in the feed: an icon, a bold label, and a dim
+/// detail. Used for tool calls, ledger seals, and executor steps.
+pub fn print_feed(icon: &str, color: &str, label: &str, detail: &str) {
+    if detail.is_empty() {
+        println!("  {color}{icon}{RESET} {BOLD}{label}{RESET}");
+    } else {
+        println!("  {color}{icon}{RESET} {BOLD}{label}{RESET} {DIM}{detail}{RESET}");
+    }
+    io::stdout().flush().ok();
+}
+
+/// Renders a tool invocation as it is dispatched (visible tool-use).
+pub fn print_tool_call(tool: &str, target: &str) {
+    print_feed("⚙", CYAN, tool, target);
+}
+
+/// Renders the outcome banner at the end of a mission run.
+pub fn print_outcome(outcome: &str) {
+    let (glyph, color) = match outcome {
+        "SUCCEEDED" => ("✓", GREEN),
+        "FAILED" | "UNSATISFIABLE" => ("✗", RED),
+        "CANCELLED" => ("⊘", YELLOW),
+        "TIMEOUT" => ("⧗", YELLOW),
+        _ => ("•", WHITE),
+    };
+    println!("  {color}{glyph}{RESET} {DIM}outcome{RESET} {BOLD}{color}{outcome}{RESET}");
+    io::stdout().flush().ok();
+}
+
+/// Renders the `atom run` boot report as a colored subsystem inventory, so a
+/// live boot shows every wired crate and the double-gate proof in ATOM's skin
+/// instead of flat text.
+pub fn render_boot_report(report: &crate::boot::BootReport) -> String {
+    use std::fmt::Write as _;
+    let mut out = String::new();
+    let _ = writeln!(
+        out,
+        "{BOLD}{GOLD}atom{RESET} {DIM}sovereign process booted{RESET}"
+    );
+    let _ = writeln!(out, "  {DIM}mission{RESET}        {CYAN}{}{RESET}", report.mission_id);
+    let _ = writeln!(out, "  {DIM}signing key id{RESET} {CYAN}{}{RESET}", report.key_id);
+    let _ = writeln!(
+        out,
+        "  {GREEN}✓{RESET} {BOLD}double gate{RESET} {DIM}commit token minted (KRN-001){RESET}"
+    );
+    let _ = writeln!(out, "      {DIM}effect{RESET}       {}", report.commit_effect_id);
+    let _ = writeln!(
+        out,
+        "      {DIM}grant{RESET}        {} {DIM}(gen {}){RESET}",
+        report.commit_grant_id, report.commit_grant_generation
+    );
+    let _ = writeln!(out, "      {DIM}resource{RESET}     {}", report.commit_resource_id);
+    let _ = writeln!(out, "      {DIM}nonce burned{RESET} {}", report.commit_nonce);
+    let _ = writeln!(out, "      {DIM}nonces spent{RESET} {}", report.nonces_spent);
+    let _ = writeln!(out, "      {DIM}intent state{RESET} {GREEN}{}{RESET}", report.intent_state);
+    let _ = writeln!(
+        out,
+        "  {GREEN}✓{RESET} {BOLD}worker{RESET} {} {DIM}admitted `{}` (WKR-001){RESET}",
+        report.worker_id, report.admitted_operation
+    );
+    let _ = writeln!(
+        out,
+        "  {BOLD}{GOLD}subsystems{RESET} {DIM}({} wired crates){RESET}",
+        report.subsystems.len()
+    );
+    for subsystem in &report.subsystems {
+        let _ = writeln!(
+            out,
+            "    {GOLD}•{RESET} {BOLD}{:<24}{RESET} {DIM}{}{RESET}",
+            subsystem.crate_name, subsystem.status
+        );
+    }
+    out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn phase_glyph_maps_every_canonical_phase() {
+        for phase in [
+            "CREATED",
+            "COMPILED",
+            "READY",
+            "RUNNING",
+            "VERIFYING",
+            "TERMINAL",
+        ] {
+            let (glyph, color) = phase_glyph(phase);
+            assert!(!glyph.is_empty(), "phase {phase} must have a glyph");
+            assert!(color.starts_with('\x1b'), "phase {phase} must have a color");
+        }
+    }
+
+    #[test]
+    fn phase_glyph_has_a_fallback_for_unknown_phases() {
+        let (glyph, _) = phase_glyph("WAT");
+        assert_eq!(glyph, "•");
+    }
+
+    #[test]
+    fn boot_report_render_includes_every_subsystem_and_gate_proof() {
+        let report = crate::boot::BootReport {
+            mission_id: "mission-x".into(),
+            key_id: "key-x".into(),
+            nonces_spent: 1,
+            commit_effect_id: "effect-x".into(),
+            commit_grant_id: "grant-x".into(),
+            commit_grant_generation: 2,
+            commit_resource_id: "resource-x".into(),
+            commit_nonce: "nonce-x".into(),
+            worker_id: "worker-x".into(),
+            admitted_operation: "write".into(),
+            intent_state: "Dispatching".into(),
+            subsystems: vec![
+                crate::boot::Subsystem::for_test("atom-kernel", "double gate closed"),
+                crate::boot::Subsystem::for_test("atom-ledger", "append-only"),
+            ],
+        };
+        let rendered = render_boot_report(&report);
+        assert!(rendered.contains("atom-kernel"));
+        assert!(rendered.contains("atom-ledger"));
+        assert!(rendered.contains("mission-x"));
+        assert!(rendered.contains("KRN-001"));
+        assert!(rendered.contains("2 wired crates"));
+    }
 }

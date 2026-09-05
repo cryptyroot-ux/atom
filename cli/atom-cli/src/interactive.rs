@@ -4,13 +4,14 @@
 
 use anyhow::{Context, Result};
 use serde_json::{json, Value};
-use std::io::{self, BufRead, Write};
+use std::io::{self, BufRead};
 use std::time::Duration;
 
 use crate::display::{
     print_banner, print_prompt, print_panel, print_atom_prefix, print_success, print_error,
     print_warning, print_info, print_divider, Spinner, render_markdown, clear_progress,
-    RESET, CYAN, DIM, GOLD,
+    print_phase, print_tool_call, print_outcome, print_feed,
+    RESET, CYAN, DIM, GOLD, GREEN, BOLD,
 };
 
 /// Opens a conversational session.
@@ -114,18 +115,45 @@ pub fn run() -> Result<()> {
                 println!();
                 print_info("ATOM commands:");
                 println!("  {GOLD}/mission <goal>{RESET}  Run a governed mission");
-                println!("  {GOLD}/model{RESET}           Configure gateway/model/key");
-                println!("  {GOLD}/status{RESET}          Show service health");
-                println!("  {GOLD}/help{RESET}            Show this help");
-                println!("  {GOLD}/quit{RESET}            Exit session");
+                println!("  {GOLD}/tools{RESET}          List available read-only tools");
+                println!("  {GOLD}/ls <path>{RESET}      List directory (via tool boundary)");
+                println!("  {GOLD}/read <path>{RESET}    Read file (via tool boundary)");
+                println!("  {GOLD}/grep <path> <needle>{RESET}  Search file contents");
+                println!("  {GOLD}/evidence{RESET}       Show evidence ledger");
+                println!("  {GOLD}/caps{RESET}           Show capability grants (authority view)");
+                println!("  {GOLD}/ledger{RESET}         Show sealed ledger events + checkpoint");
+                println!("  {GOLD}/model{RESET}          Configure gateway/model/key");
+                println!("  {GOLD}/status{RESET}         Show service health");
+                println!("  {GOLD}/help{RESET}           Show this help");
+                println!("  {GOLD}/quit{RESET}           Exit session");
                 println!();
                 print_info("You can also ask naturally:");
-                println!("  {DIM}\"check server\", \"ceeck server\", \"status atom\"{RESET}");
-                println!("  {DIM}\"show version\", \"which model\", \"health check\"{RESET}");
+                println!("  {DIM}\"check server\", \"status atom\", \"which model\"{RESET}");
                 continue;
             }
             "/model" => {
                 print_warning("Run `sudo atom model` to configure the gateway, model, and API key");
+                continue;
+            }
+            "/tools" => {
+                print_feed("⚙", CYAN, "tools", "POST /tools/read-only");
+                let response = client
+                    .post(format!("{base}/tools/read-only"))
+                    .json(&json!({"tool": "list_directory", "path": "/var/lib/atom"}))
+                    .send()?;
+                if response.status().is_success() {
+                    let body: Value = response.json()?;
+                    if let Some(entries) = body["result"].as_array() {
+                        print_info("Available observations from tool boundary:");
+                        for entry in entries {
+                            if let Some(s) = entry.as_str() {
+                                println!("  {CYAN}•{RESET} {s}");
+                            }
+                        }
+                    }
+                } else {
+                    print_warning("Tool boundary unavailable (daemon not running?)");
+                }
                 continue;
             }
             "/status" => {
@@ -139,6 +167,139 @@ pub fn run() -> Result<()> {
                 print_panel("ATOM Status", &format!(
                     "Status:  {status}\nVersion: {version}\nUptime:  {uptime}s\nCrates:  {crates} loaded"
                 ), CYAN);
+                continue;
+            }
+            "/evidence" => {
+                render_evidence(&client, &base)?;
+                continue;
+            }
+            "/caps" => {
+                print_feed("⚙", CYAN, "capabilities", "GET /capabilities");
+                match client.get(format!("{base}/capabilities")).send() {
+                    Ok(resp) if resp.status().is_success() => {
+                        let body: Value = resp.json()?;
+                        let grants = body["grants"].as_array().cloned().unwrap_or_default();
+                        print_feed("✓", GREEN, "capabilities", &format!("{} grant(s)", grants.len()));
+                        if grants.is_empty() {
+                            println!("  {DIM}no capability grants bound (deny-by-default){RESET}");
+                        }
+                        for g in grants {
+                            let id = g["grant_id"].as_str().or_else(|| g["id"].as_str()).unwrap_or("?");
+                            let gen = g["generation"].as_u64().unwrap_or(0);
+                            let op = g["operation"].as_str().or_else(|| g["capability_id"].as_str()).unwrap_or("");
+                            println!("  {CYAN}•{RESET} {BOLD}{id}{RESET} {DIM}gen {gen} {op}{RESET}");
+                        }
+                    }
+                    _ => print_warning("capabilities unavailable (daemon not running?)"),
+                }
+                continue;
+            }
+            "/ledger" => {
+                print_feed("⚙", CYAN, "ledger", "GET /ledger/events");
+                match client.get(format!("{base}/ledger/events")).send() {
+                    Ok(resp) if resp.status().is_success() => {
+                        let body: Value = resp.json()?;
+                        let checkpoint = body["checkpoint"].as_u64().unwrap_or(0);
+                        let events = body["events"].as_array().cloned().unwrap_or_default();
+                        print_feed(
+                            "✓",
+                            GREEN,
+                            "ledger",
+                            &format!("{} event(s), checkpoint {checkpoint} (HMAC-SHA256 chained)", events.len()),
+                        );
+                        // Show the newest 12 sealed events, most recent last.
+                        let tail = events.iter().rev().take(12).collect::<Vec<_>>();
+                        for ev in tail.into_iter().rev() {
+                            let kind = ev["event_type"].as_str().unwrap_or("?");
+                            let hash = ev["payload_hash"].as_str().unwrap_or("");
+                            let short = hash.get(..12).unwrap_or(hash);
+                            println!("  {GOLD}▪{RESET} {BOLD}{kind}{RESET} {DIM}{short}{RESET}");
+                        }
+                    }
+                    _ => print_warning("ledger unavailable (daemon not running?)"),
+                }
+                continue;
+            }
+            command if command.starts_with("/ls ") => {
+                let path = command.trim_start_matches("/ls ");
+                print_tool_call("list_directory", path);
+                let response = client
+                    .post(format!("{base}/tools/read-only"))
+                    .json(&json!({"tool": "list_directory", "path": path}))
+                    .send()?;
+                if response.status().is_success() {
+                    let body: Value = response.json()?;
+                    if let Some(entries) = body["result"].as_array() {
+                        let obs_id = body["observation_id"].as_str().unwrap_or("");
+                        print_feed("✓", GREEN, "list_directory", &format!("{} entries, obs={obs_id}", entries.len()));
+                        for entry in entries {
+                            if let Some(s) = entry.as_str() {
+                                println!("  {DIM}{s}{RESET}");
+                            }
+                        }
+                    } else {
+                        let detail = body["detail"].as_str().unwrap_or("unexpected response");
+                        print_error(detail);
+                    }
+                } else {
+                    let body: Value = response.json().unwrap_or_default();
+                    let detail = body["detail"].as_str().unwrap_or("tool call failed");
+                    print_error(detail);
+                }
+                continue;
+            }
+            command if command.starts_with("/read ") => {
+                let path = command.trim_start_matches("/read ");
+                print_tool_call("read_file", path);
+                let response = client
+                    .post(format!("{base}/tools/read-only"))
+                    .json(&json!({"tool": "read_file", "path": path}))
+                    .send()?;
+                if response.status().is_success() {
+                    let body: Value = response.json()?;
+                    let content = body["result"].as_str().unwrap_or("");
+                    let obs_id = body["observation_id"].as_str().unwrap_or("");
+                    print_feed("✓", GREEN, "read_file", &format!("{} bytes, obs={obs_id}", content.len()));
+                    print!("{}", render_markdown(&format!("```\n{content}\n```")));
+                } else {
+                    let body: Value = response.json().unwrap_or_default();
+                    let detail = body["detail"].as_str().unwrap_or("tool call failed");
+                    print_error(detail);
+                }
+                continue;
+            }
+            command if command.starts_with("/grep ") => {
+                let rest = command.trim_start_matches("/grep ");
+                let (path, needle) = match rest.split_once(' ') {
+                    Some((p, n)) => (p, n),
+                    None => {
+                        print_warning("usage: /grep <path> <needle>");
+                        continue;
+                    }
+                };
+                print_tool_call("search_text", &format!("{path} needle={needle}"));
+                let response = client
+                    .post(format!("{base}/tools/read-only"))
+                    .json(&json!({"tool": "search_text", "path": path, "needle": needle}))
+                    .send()?;
+                if response.status().is_success() {
+                    let body: Value = response.json()?;
+                    let results = body["result"].as_array();
+                    let obs_id = body["observation_id"].as_str().unwrap_or("");
+                    let count = results.map_or(0, |a| a.len());
+                    print_feed("✓", GREEN, "search_text", &format!("{count} matching lines, obs={obs_id}"));
+                    if let Some(matches) = results {
+                        for line in matches {
+                            if let Some(text) = line.as_str() {
+                                println!("  {CYAN}▎{RESET} {DIM}{text}{RESET}");
+                            }
+                        }
+                    }
+                } else {
+                    let body: Value = response.json().unwrap_or_default();
+                    let detail = body["detail"].as_str().unwrap_or("tool call failed");
+                    print_error(detail);
+                }
                 continue;
             }
             command if command.starts_with("/mission ") => {
@@ -158,7 +319,8 @@ pub fn run() -> Result<()> {
             history.drain(1..history.len() - 20);
         }
 
-        // Show spinner while waiting
+        // Show a live spinner while the sovereign daemon works the request.
+        print_feed("◐", GOLD, "cognition", "drafting a response via the ATOM daemon");
         let mut spinner = Spinner::new("thinking");
         spinner.tick();
 
@@ -183,7 +345,11 @@ pub fn run() -> Result<()> {
         }
 
         let answer = body["content"].as_str().unwrap_or("(empty model response)");
+        let model = body["model"].as_str().unwrap_or("");
         clear_progress();
+        if !model.is_empty() {
+            print_feed("✓", GREEN, "cognition", &format!("model {model}"));
+        }
         println!();
         print_atom_prefix();
         println!();
@@ -215,18 +381,58 @@ fn submit_mission(client: &reqwest::blocking::Client, base: &str, goal: &str) ->
         return Ok(());
     };
     print_success(&format!("mission {id} submitted"));
+    println!();
+    print_feed("▸", GOLD, "MISSION", goal.trim());
+    print_divider();
+
+    // ── Live activity feed ────────────────────────────────────────────────
+    // Poll the durable mission and its ledger and render every *observed*
+    // phase transition and tool observation as it lands. This is honest live
+    // visibility: we render only what the daemon has actually sealed, never a
+    // fabricated step. The initial CREATED/READY phase is shown immediately.
+    let mut last_phase = created["phase"].as_str().unwrap_or("CREATED").to_owned();
+    print_phase(&last_phase);
+    let mut seen_observations = std::collections::HashSet::new();
     let mut outcome = "TIMEOUT".to_owned();
-    for _ in 0..60 {
-        std::thread::sleep(Duration::from_secs(1));
+
+    for _ in 0..120 {
+        std::thread::sleep(Duration::from_millis(500));
         let value: Value = client.get(format!("{base}/missions/{id}")).send()?.json()?;
-        if value["phase"].as_str() == Some("TERMINAL") {
+
+        // Surface any new tool observations sealed on the evidence ledger.
+        if let Ok(evidence) = client.get(format!("{base}/evidence")).send() {
+            if let Ok(body) = evidence.json::<Value>() {
+                if let Some(observations) = body["observations"].as_array() {
+                    for obs in observations {
+                        let obs_id = obs["observation_id"].as_str().unwrap_or("");
+                        if !obs_id.is_empty() && seen_observations.insert(obs_id.to_owned()) {
+                            let tool = obs["tool"].as_str().unwrap_or("tool");
+                            let path = obs["path"].as_str().unwrap_or("");
+                            print_tool_call(tool, path);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Render a phase transition the moment the daemon records it.
+        let phase = value["phase"]
+            .as_str()
+            .unwrap_or(last_phase.as_str())
+            .to_owned();
+        if phase != last_phase {
+            print_phase(&phase);
+            last_phase = phase.clone();
+        }
+
+        if phase == "TERMINAL" {
             outcome = value["outcome"].as_str().unwrap_or("UNKNOWN").to_owned();
             break;
         }
-        print!(".");
-        io::stdout().flush()?;
     }
-    println!(" {outcome}");
+
+    print_divider();
+    print_outcome(&outcome);
     render_evidence(client, base)?;
     Ok(())
 }
@@ -397,7 +603,10 @@ mod tests {
     #[test]
     fn default_budget_when_missing_or_garbage() {
         for content in [
-            r#"{"goal":"g","success_criteria":["s"],"constraints":["c"],"budgets\":{\"max_steps\":\"lots"},"evidence_requirements":["e"],"stopping_rules":["r"]}"#,
+            // Non-numeric max_steps: valid JSON, but the string value can't be
+            // read as u64, so the clamp falls back to the default of 8.
+            r#"{"goal":"g","success_criteria":["s"],"constraints":["c"],"budgets":{"max_steps":"lots"},"evidence_requirements":["e"],"stopping_rules":["r"]}"#,
+            // No budgets object at all: also falls back to the default of 8.
             r#"{"goal":"g","success_criteria":["s"],"constraints":["c"],"evidence_requirements":["e"],"stopping_rules":["r"]}"#,
         ] {
             let spec = parse_mission_spec_content("g", content).expect("spec");

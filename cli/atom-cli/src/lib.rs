@@ -435,7 +435,11 @@ fn run_signed(cli: Cli, cfg: SigningConfig) -> Result<()> {
         Command::Setup { .. } | Command::Model => unreachable!("setup is handled before signing"),
         Command::Run => {
             let report = boot::boot(&cfg)?;
-            print!("{report}");
+            if display::is_terminal() {
+                print!("{}", display::render_boot_report(&report));
+            } else {
+                print!("{report}");
+            }
             Ok(())
         }
         Command::Serve { .. } => Err(anyhow!("`atom serve` is dispatched before signed commands")),
