@@ -335,9 +335,16 @@ pub async fn commit(
     })?;
 
     // AUT-003: a durable approval must cover this exact effect digest, now.
+    //
+    // Already-redeemed approvals are not loaded at all: an exact-effect approval
+    // is one-shot, and two plans over identical material share a digest, so a
+    // spent approval must not authorise the second one.
     let now = Utc::now();
     let mut approvals = ApprovalStore::new();
     for raw in store.approvals() {
+        if raw["redeemed"].as_bool().unwrap_or(false) {
+            continue;
+        }
         if let Ok(grant) = serde_json::from_value::<ApprovalGrant>(raw.clone()) {
             let _ = approvals.record(grant);
         }
@@ -459,6 +466,13 @@ pub async fn commit(
     // crash cannot leave a spent permit re-servable.
     store.burn_nonce(&admitted.one_shot_nonce).map_err(|e| {
         ApiError::bad_request(instance, format!("recording the nonce burn failed: {e}"))
+    })?;
+
+    // Spend the approval durably too: an exact-effect approval authorises one
+    // crossing, and identical material yields an identical digest, so leaving it
+    // unspent would let a second plan reuse this owner decision.
+    store.redeem_approval(&receipt.grant_id).map_err(|e| {
+        ApiError::bad_request(instance, format!("recording approval redemption failed: {e}"))
     })?;
 
     let observation_id = uuid::Uuid::new_v4().to_string();

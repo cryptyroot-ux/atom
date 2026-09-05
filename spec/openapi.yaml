@@ -397,6 +397,250 @@ paths:
               schema:
                 $ref: '#/components/schemas/SecretHandle'
 
+  /approvals:
+    get:
+      tags: [approvals]
+      summary: List approval grants
+      operationId: listApprovals
+      description: |
+        Lists owner approval grants and whether each has been redeemed. An
+        exact-effect approval authorises exactly one crossing (AUT-003).
+      responses:
+        '200':
+          description: Approval grant list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  approvals:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ApprovalGrant'
+    post:
+      tags: [approvals]
+      summary: Issue an approval grant
+      operationId: issueApproval
+      description: |
+        Records an owner decision authorising either one exact effect digest or
+        a bounded capability scope. This is the human gate in front of
+        `POST /host/commit`: obtain the digest from `POST /host/plan`, approve
+        it here, then commit.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalGrant'
+      responses:
+        '201':
+          description: Approval recorded durably
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalGrant'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /approvals/{grant_id}/redeem:
+    post:
+      tags: [approvals]
+      summary: Redeem an approval grant
+      operationId: redeemApproval
+      description: |
+        Marks an approval as spent. `POST /host/commit` performs this itself for
+        the approval it consumes; calling it directly is for surfaces that
+        redeem an approval outside the host path.
+      parameters:
+        - name: grant_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Approval redeemed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  grant_id:
+                    type: string
+                  redeemed:
+                    type: boolean
+                  grant:
+                    $ref: '#/components/schemas/ApprovalGrant'
+        '409':
+          description: Already redeemed, or no such grant
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /tools/read-only:
+    post:
+      tags: [tools]
+      summary: Run a read-only local tool
+      operationId: readOnlyTool
+      description: |
+        Runs one non-consequential tool (`list_directory`, `read_file`,
+        `search_text`) confined to the capability root, under byte and entry
+        budgets. Nothing here can change the host: consequential operations go
+        through `POST /host/plan` and `POST /host/commit`.
+
+        Every call seals an observation tainted `LOCAL_READ_ONLY`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [tool, path]
+              properties:
+                tool:
+                  type: string
+                  enum: [list_directory, read_file, search_text]
+                path:
+                  type: string
+                needle:
+                  type: string
+                  description: Required for search_text.
+      responses:
+        '200':
+          description: Tool result, with its sealed observation id
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [tool, path, result, observation_id]
+                properties:
+                  tool:
+                    type: string
+                  path:
+                    type: string
+                  result: {}
+                  observation_id:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /host/plans:
+    get:
+      tags: [host]
+      summary: List host mutation plans
+      operationId: listHostPlans
+      description: |
+        Lists every declared host mutation and its fate (PLANNED, COMMITTED, or
+        REFUSED), plus the count of one-shot permit nonces burned so far.
+
+        This is the audit view of the privilege boundary: every attempted
+        crossing appears here whether it was admitted or denied.
+      responses:
+        '200':
+          description: Host plans and burned-nonce count
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [plans, burned_nonces]
+                properties:
+                  plans:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HostPlan'
+                  burned_nonces:
+                    type: integer
+                    description: Count of one-shot permit nonces spent (durable).
+
+  /host/plan:
+    post:
+      tags: [host]
+      summary: Declare a host mutation
+      operationId: planHostOp
+      description: |
+        Declares a typed host operation as a durable effect intent and returns
+        the effect digest an owner must approve (EFX-001).
+
+        This endpoint reaches no executor and changes nothing on the host: a
+        plan is a declaration, not authority. The capability grant must already
+        cover the operation and resource, otherwise the plan is refused before
+        it is recorded (deny-by-default).
+
+        Requires the daemon to be started with `--host-root`; without it the
+        host surface is disabled and every request is refused with 503.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostPlanRequest'
+      responses:
+        '201':
+          description: Mutation declared; nothing has crossed the boundary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostPlanResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '503':
+          description: Host mutation surface is disabled (no --host-root)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /host/commit:
+    post:
+      tags: [host]
+      summary: Commit a declared host mutation
+      operationId: commitHostOp
+      description: |
+        Redeems a durable approval grant for the plan's exact effect digest,
+        re-validates authority and the resource witness at the boundary, issues
+        a one-shot CommitPermit bound to this connector identity, and only then
+        asks the privilege broker to admit the operation (KRN-002, EFX-004,
+        AUT-003).
+
+        The one-shot nonce is burned durably before the response returns, so the
+        guarantee survives a restart. The approval is spent in the same step: an
+        exact-effect approval authorises exactly one crossing.
+
+        Refusals: no approval for this digest (400), resource witness drifted
+        since planning (409), plan already committed (409), privilege boundary
+        denied the crossing (409), host surface disabled (503).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostCommitRequest'
+      responses:
+        '200':
+          description: The host was changed through the privilege boundary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostCommitResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Witness drift, spent plan, or boundary denial
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Host mutation surface is disabled (no --host-root)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
 components:
   parameters:
     MissionId:
@@ -658,6 +902,254 @@ components:
           type: string
         instance:
           type: string
+
+    HostOp:
+      description: |
+        A single host-administration operation. The set is closed and internally
+        tagged on `op`: there is no "run arbitrary command" variant, and an
+        unknown tag is refused at deserialization (deny-by-default).
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [op, path, contents]
+          properties:
+            op:
+              const: write_file
+            path:
+              type: string
+              description: Absolute path, resolved inside the sandbox root.
+            contents:
+              type: string
+        - type: object
+          additionalProperties: false
+          required: [op, path]
+          properties:
+            op:
+              const: remove_file
+            path:
+              type: string
+        - type: object
+          additionalProperties: false
+          required: [op, program, args]
+          properties:
+            op:
+              const: spawn_process
+            program:
+              type: string
+              description: Absolute path inside the sandbox; never resolved through PATH.
+            args:
+              type: array
+              items:
+                type: string
+        - type: object
+          additionalProperties: false
+          required: [op, interface, allow_cidr]
+          properties:
+            op:
+              const: configure_network
+            interface:
+              type: string
+            allow_cidr:
+              type: string
+              description: IPv4 CIDR. Refused by the filesystem sandbox executor.
+      discriminator:
+        propertyName: op
+
+    ResourceWitness:
+      type: object
+      description: |
+        The observed version of a resource. `kind` is `sha256` for an existing
+        file or `absent` when the resource does not exist — an absent resource is
+        a witness too, so creating a file somebody else created is drift.
+      required: [kind, resource_id, value]
+      properties:
+        kind:
+          type: string
+        resource_id:
+          type: string
+        value:
+          type: string
+
+    HostPlanRequest:
+      type: object
+      additionalProperties: false
+      required: [mission_id, grant_id, op]
+      properties:
+        mission_id:
+          type: string
+        grant_id:
+          type: string
+          description: The capability grant the authority must come from.
+        op:
+          $ref: '#/components/schemas/HostOp'
+
+    HostPlanResponse:
+      type: object
+      required:
+        - plan_id
+        - mission_id
+        - grant_id
+        - operation
+        - resource_type
+        - resource_id
+        - effect_digest
+        - planned_witness
+        - state
+      properties:
+        plan_id:
+          type: string
+        mission_id:
+          type: string
+        grant_id:
+          type: string
+        operation:
+          type: string
+          enum: [write, delete, spawn, configure]
+        resource_type:
+          type: string
+          enum: [file, process, network]
+        resource_id:
+          type: string
+        effect_digest:
+          type: string
+          description: The identity an exact-effect approval must name.
+        planned_witness:
+          $ref: '#/components/schemas/ResourceWitness'
+        state:
+          const: PLANNED
+
+    HostCommitRequest:
+      type: object
+      additionalProperties: false
+      required: [plan_id]
+      properties:
+        plan_id:
+          type: string
+
+    HostCommitResponse:
+      type: object
+      required:
+        - plan_id
+        - permit_id
+        - one_shot_nonce
+        - approval_id
+        - effect_digest
+        - outcome
+        - observation_id
+        - state
+      properties:
+        plan_id:
+          type: string
+        permit_id:
+          type: string
+        one_shot_nonce:
+          type: string
+          description: Burned durably before this response returned.
+        approval_id:
+          type: string
+        effect_digest:
+          type: string
+        outcome:
+          type: string
+          description: The executor's own account of what it did.
+        observation_id:
+          type: string
+          description: The sealed evidence entry, tainted HOST_MUTATION_COMMITTED.
+        state:
+          const: COMMITTED
+
+    HostPlan:
+      type: object
+      description: A declared mutation and its fate, as recorded in the ledger.
+      required: [plan_id, state]
+      properties:
+        plan_id:
+          type: string
+        mission_id:
+          type: string
+        grant_id:
+          type: string
+        operation:
+          type: string
+        resource_type:
+          type: string
+        resource_id:
+          type: string
+        effect_id:
+          type: string
+        effect_digest:
+          type: string
+        planned_witness:
+          $ref: '#/components/schemas/ResourceWitness'
+        state:
+          type: string
+          enum: [PLANNED, COMMITTED, REFUSED]
+        refusal:
+          type: string
+          description: Present when state is REFUSED; why the crossing was denied.
+        permit_id:
+          type: string
+        one_shot_nonce:
+          type: string
+        observation_id:
+          type: string
+
+    ValidityInterval:
+      type: object
+      description: A half-open interval `[not_before, expires_at)`.
+      required: [not_before, expires_at]
+      properties:
+        not_before:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+
+    ApprovalScope:
+      description: |
+        The mutually exclusive scopes AUT-003 permits. An `effect` scope names one
+        exact effect digest; a `capability` scope bounds an operation class.
+        Effect and capability targets never cross-match.
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [kind, effect_digest]
+          properties:
+            kind:
+              const: effect
+            effect_digest:
+              type: string
+        - type: object
+          required: [kind]
+          properties:
+            kind:
+              const: capability
+      discriminator:
+        propertyName: kind
+
+    ApprovalGrant:
+      type: object
+      description: A durable owner decision that can authorise a crossing.
+      required: [grant_id, approver_id, scope, validity]
+      properties:
+        grant_id:
+          type: string
+        approver_id:
+          type: string
+          description: The human or authority that approved the scope.
+        scope:
+          $ref: '#/components/schemas/ApprovalScope'
+        validity:
+          $ref: '#/components/schemas/ValidityInterval'
+        revocation_state:
+          type: string
+          enum: [ACTIVE, REVOKED, EXPIRED]
+        generation:
+          type: integer
+        redeemed:
+          type: boolean
+          description: Whether this approval has already been spent.
 
   responses:
     BadRequest:

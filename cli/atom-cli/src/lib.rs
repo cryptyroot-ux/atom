@@ -21,6 +21,7 @@ pub mod boot;
 pub mod config;
 pub mod diagnostics;
 pub mod display;
+pub mod grant;
 pub mod identity;
 pub mod interactive;
 pub mod setup;
@@ -211,6 +212,67 @@ pub enum Command {
     Soul {
         #[command(subcommand)]
         action: SoulAction,
+    },
+
+    /// Issue capability grants into the daemon's ledger (owner-only).
+    Grant {
+        #[command(subcommand)]
+        action: GrantAction,
+    },
+}
+
+/// Capability-issuance subcommands.
+///
+/// Issuance is owner-only by construction: it writes directly to the state
+/// database rather than going through the HTTP API, so the daemon has no path to
+/// widening its own authority.
+#[derive(Debug, Subcommand)]
+pub enum GrantAction {
+    /// Mint a capability grant covering specific operations on specific resources.
+    Issue {
+        /// The daemon's state database, e.g. `/var/lib/atom/atom.sqlite`.
+        #[arg(long, value_name = "PATH", env = "ATOM_STATE_DB")]
+        state_db: PathBuf,
+
+        /// Durable identity for the grant, e.g. `grant/deploy-config`.
+        #[arg(long, value_name = "ID")]
+        grant_id: String,
+
+        /// The principal the authority belongs to.
+        #[arg(long, value_name = "ID")]
+        subject_id: String,
+
+        /// The workload allowed to exercise it.
+        #[arg(long, value_name = "ID")]
+        workload_id: String,
+
+        /// Operations allowed: write, delete, spawn, configure. Repeatable.
+        #[arg(long = "operation", value_name = "OP", required = true)]
+        operations: Vec<String>,
+
+        /// Resources as `type:id`, e.g. `file:/srv/data/report.txt`. Repeatable.
+        #[arg(long = "resource", value_name = "TYPE:ID", required = true)]
+        resources: Vec<String>,
+
+        /// Why this authority exists; recorded in the ledger.
+        #[arg(long, value_name = "TEXT")]
+        purpose: String,
+
+        /// How long the grant stays valid.
+        #[arg(long, value_name = "SECONDS", default_value_t = 3600)]
+        ttl_seconds: u32,
+
+        /// Maximum cost units the holder may consume.
+        #[arg(long, value_name = "UNITS", default_value_t = 100)]
+        max_cost: u64,
+
+        /// Maximum wall-clock seconds the holder may spend.
+        #[arg(long, value_name = "SECONDS", default_value_t = 300)]
+        max_seconds: u64,
+
+        /// The audience the grant is addressed to.
+        #[arg(long, value_name = "NAME", default_value = "atom-server")]
+        audience: String,
     },
 }
 
@@ -457,6 +519,7 @@ fn run_signed(cli: Cli, cfg: SigningConfig) -> Result<()> {
         Command::Workspace { action } => workspace::run(action),
         Command::Identity { action } => identity::run(action),
         Command::Soul { action } => soul::run(action),
+        Command::Grant { action } => grant::run(action, &cfg),
         Command::Seal {
             content,
             input,
@@ -535,6 +598,49 @@ mod tests {
         assert!(Cli::try_parse_from(["atom", "seal", "hello"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "verify", "a.json"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "bogus-subcommand"]).is_err());
+    }
+
+    #[test]
+    fn grant_issue_requires_operations_and_resources() {
+        // A grant with no operation or no resource would authorise nothing yet
+        // still exist as authority; clap must refuse it outright.
+        assert!(Cli::try_parse_from([
+            "atom",
+            "grant",
+            "issue",
+            "--state-db",
+            "atom.sqlite",
+            "--grant-id",
+            "grant/x",
+            "--subject-id",
+            "owner",
+            "--workload-id",
+            "workload",
+            "--purpose",
+            "test",
+        ])
+        .is_err());
+
+        assert!(Cli::try_parse_from([
+            "atom",
+            "grant",
+            "issue",
+            "--state-db",
+            "atom.sqlite",
+            "--grant-id",
+            "grant/x",
+            "--subject-id",
+            "owner",
+            "--workload-id",
+            "workload",
+            "--operation",
+            "write",
+            "--resource",
+            "file:/srv/x.txt",
+            "--purpose",
+            "test",
+        ])
+        .is_ok());
     }
 
     #[test]
