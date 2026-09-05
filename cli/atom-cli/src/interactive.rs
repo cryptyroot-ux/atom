@@ -115,18 +115,43 @@ pub fn run() -> Result<()> {
                 println!();
                 print_info("ATOM commands:");
                 println!("  {GOLD}/mission <goal>{RESET}  Run a governed mission");
-                println!("  {GOLD}/model{RESET}           Configure gateway/model/key");
-                println!("  {GOLD}/status{RESET}          Show service health");
-                println!("  {GOLD}/help{RESET}            Show this help");
-                println!("  {GOLD}/quit{RESET}            Exit session");
+                println!("  {GOLD}/tools{RESET}          List available read-only tools");
+                println!("  {GOLD}/ls <path>{RESET}      List directory (via tool boundary)");
+                println!("  {GOLD}/read <path>{RESET}    Read file (via tool boundary)");
+                println!("  {GOLD}/grep <path> <needle>{RESET}  Search file contents");
+                println!("  {GOLD}/evidence{RESET}       Show evidence ledger");
+                println!("  {GOLD}/model{RESET}          Configure gateway/model/key");
+                println!("  {GOLD}/status{RESET}         Show service health");
+                println!("  {GOLD}/help{RESET}           Show this help");
+                println!("  {GOLD}/quit{RESET}           Exit session");
                 println!();
                 print_info("You can also ask naturally:");
-                println!("  {DIM}\"check server\", \"ceeck server\", \"status atom\"{RESET}");
-                println!("  {DIM}\"show version\", \"which model\", \"health check\"{RESET}");
+                println!("  {DIM}\"check server\", \"status atom\", \"which model\"{RESET}");
                 continue;
             }
             "/model" => {
                 print_warning("Run `sudo atom model` to configure the gateway, model, and API key");
+                continue;
+            }
+            "/tools" => {
+                print_feed("⚙", CYAN, "tools", "POST /tools/read-only");
+                let response = client
+                    .post(format!("{base}/tools/read-only"))
+                    .json(&json!({"tool": "list_directory", "path": "/var/lib/atom"}))
+                    .send()?;
+                if response.status().is_success() {
+                    let body: Value = response.json()?;
+                    if let Some(entries) = body["result"].as_array() {
+                        print_info("Available observations from tool boundary:");
+                        for entry in entries {
+                            if let Some(s) = entry.as_str() {
+                                println!("  {CYAN}•{RESET} {s}");
+                            }
+                        }
+                    }
+                } else {
+                    print_warning("Tool boundary unavailable (daemon not running?)");
+                }
                 continue;
             }
             "/status" => {
@@ -140,6 +165,93 @@ pub fn run() -> Result<()> {
                 print_panel("ATOM Status", &format!(
                     "Status:  {status}\nVersion: {version}\nUptime:  {uptime}s\nCrates:  {crates} loaded"
                 ), CYAN);
+                continue;
+            }
+            "/evidence" => {
+                render_evidence(&client, &base)?;
+                continue;
+            }
+            command if command.starts_with("/ls ") => {
+                let path = command.trim_start_matches("/ls ");
+                print_tool_call("list_directory", path);
+                let response = client
+                    .post(format!("{base}/tools/read-only"))
+                    .json(&json!({"tool": "list_directory", "path": path}))
+                    .send()?;
+                if response.status().is_success() {
+                    let body: Value = response.json()?;
+                    if let Some(entries) = body["result"].as_array() {
+                        let obs_id = body["observation_id"].as_str().unwrap_or("");
+                        print_feed("✓", GREEN, "list_directory", &format!("{} entries, obs={obs_id}", entries.len()));
+                        for entry in entries {
+                            if let Some(s) = entry.as_str() {
+                                println!("  {DIM}{s}{RESET}");
+                            }
+                        }
+                    } else {
+                        let detail = body["detail"].as_str().unwrap_or("unexpected response");
+                        print_error(detail);
+                    }
+                } else {
+                    let body: Value = response.json().unwrap_or_default();
+                    let detail = body["detail"].as_str().unwrap_or("tool call failed");
+                    print_error(detail);
+                }
+                continue;
+            }
+            command if command.starts_with("/read ") => {
+                let path = command.trim_start_matches("/read ");
+                print_tool_call("read_file", path);
+                let response = client
+                    .post(format!("{base}/tools/read-only"))
+                    .json(&json!({"tool": "read_file", "path": path}))
+                    .send()?;
+                if response.status().is_success() {
+                    let body: Value = response.json()?;
+                    let content = body["result"].as_str().unwrap_or("");
+                    let obs_id = body["observation_id"].as_str().unwrap_or("");
+                    print_feed("✓", GREEN, "read_file", &format!("{} bytes, obs={obs_id}", content.len()));
+                    print!("{}", render_markdown(&format!("```\n{content}\n```")));
+                } else {
+                    let body: Value = response.json().unwrap_or_default();
+                    let detail = body["detail"].as_str().unwrap_or("tool call failed");
+                    print_error(detail);
+                }
+                continue;
+            }
+            command if command.starts_with("/grep ") => {
+                let rest = command.trim_start_matches("/grep ");
+                let (path, needle) = match rest.split_once(' ') {
+                    Some((p, n)) => (p, n),
+                    None => {
+                        print_warning("usage: /grep <path> <needle>");
+                        continue;
+                    }
+                };
+                print_tool_call("search_files", &format!("{path} needle={needle}"));
+                let response = client
+                    .post(format!("{base}/tools/read-only"))
+                    .json(&json!({"tool": "search_files", "path": path, "needle": needle}))
+                    .send()?;
+                if response.status().is_success() {
+                    let body: Value = response.json()?;
+                    let results = body["result"].as_array();
+                    let obs_id = body["observation_id"].as_str().unwrap_or("");
+                    let count = results.map_or(0, |a| a.len());
+                    print_feed("✓", GREEN, "search_files", &format!("{count} matches, obs={obs_id}"));
+                    if let Some(matches) = results {
+                        for m in matches {
+                            let file = m["path"].as_str().unwrap_or("?");
+                            let line = m["line"].as_u64().unwrap_or(0);
+                            let text = m["text"].as_str().unwrap_or("");
+                            println!("  {CYAN}{file}:{line}{RESET}  {DIM}{text}{RESET}");
+                        }
+                    }
+                } else {
+                    let body: Value = response.json().unwrap_or_default();
+                    let detail = body["detail"].as_str().unwrap_or("tool call failed");
+                    print_error(detail);
+                }
                 continue;
             }
             command if command.starts_with("/mission ") => {
