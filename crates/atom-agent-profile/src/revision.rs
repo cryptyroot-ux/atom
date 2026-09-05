@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::types::{content_digest, AgentProfileError, ChangeType, Result, RevisionState};
+use crate::types::{AgentProfileError, ChangeType, Result, RevisionState};
 
 /// AgentSelfRevision — versioned, auditable self-change.
 ///
@@ -87,14 +87,18 @@ impl AgentSelfRevision {
         Ok(())
     }
 
-    /// Quarantine the revision.
+    /// Build a quarantined revision for material that failed validation.
+    ///
+    /// `reason` is recorded in the proposal payload so the audit trail keeps the
+    /// cause of quarantine (ATOM-SELF-011).
+    #[must_use]
     pub fn quarantine(reason: &str) -> Self {
         let now = Utc::now();
         Self {
             revision_id: uuid::Uuid::new_v4().to_string(),
             profile_id: String::new(),
             change_type: ChangeType::Identity,
-            proposal: serde_json::Value::Null,
+            proposal: serde_json::json!({ "quarantine_reason": reason }),
             state: RevisionState::Quarantined,
             generation: 0,
             content_digest: String::new(),

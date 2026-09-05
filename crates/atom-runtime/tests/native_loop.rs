@@ -330,7 +330,7 @@ fn host_operation_crosses_only_the_atom_privd_permit_gate() {
         dispatch_sink_id: "atom-cli",
         connector_identity: "atom-cli",
         connector_version: "atom-cli",
-        connector_instance_epoch: 0,
+        connector_instance_epoch: grant.generation,
         intent: &intent,
         grant: &grant,
         principal_id: "runtime-workload",

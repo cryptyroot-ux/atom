@@ -1,5 +1,4 @@
 use atom_agent_profile::*;
-use chrono::Utc;
 
 #[test]
 fn soul_authority_escalation_deny() {
@@ -21,17 +20,67 @@ fn identity_display_change_does_not_change_workload_identity() {
         "assistant".to_string(),
         "sha256:abc".to_string(),
     );
-    
+
     let original_digest = profile.content_digest.clone();
-    
-    // Changing display name should not affect workload identity
-    profile.display_name = "New Name".to_string();
-    profile.updated_at = Utc::now();
-    
-    // Content digest should change (different content)
-    // But this is presentation identity, not security principal
+    let original_agent_id = profile.agent_id.clone();
+    let original_owner = profile.owner_principal_id.clone();
+    let original_profile_id = profile.profile_id.clone();
+
+    // A freshly created profile is sealed: its stored digest matches its material.
+    assert!(!original_digest.is_empty());
+    profile.verify_self_digest().unwrap();
+
+    // Presentation change goes through the typed API (ATOM-SELF-006), which reseals.
+    profile.set_display_name("New Name".to_string());
+
+    // Content digest changes (different presentation content)...
     assert_ne!(profile.content_digest, original_digest);
+    profile.verify_self_digest().unwrap();
+
+    // ...but the security principal is untouched (ATOM-SELF-003).
+    assert_eq!(profile.agent_id, original_agent_id);
+    assert_eq!(profile.owner_principal_id, original_owner);
+    assert_eq!(profile.profile_id, original_profile_id);
     assert_eq!(profile.state, RevisionState::Draft);
+}
+
+#[test]
+fn tampered_identity_material_fails_self_digest() {
+    let mut profile = AgentIdentityProfile::new(
+        "agent-1".to_string(),
+        "owner-1".to_string(),
+        "ATOM Agent".to_string(),
+        "assistant".to_string(),
+        "sha256:abc".to_string(),
+    );
+
+    // Direct field mutation bypasses the typed API and does NOT reseal,
+    // so the stored digest no longer matches the material: detectable tamper.
+    profile.display_name = "Injected Name".to_string();
+    assert!(profile.verify_self_digest().is_err());
+}
+
+#[test]
+fn identity_content_digest_is_deterministic_over_material() {
+    let mut a = AgentIdentityProfile::new(
+        "agent-1".to_string(),
+        "owner-1".to_string(),
+        "ATOM Agent".to_string(),
+        "assistant".to_string(),
+        "sha256:abc".to_string(),
+    );
+    let mut b = a.clone();
+
+    // Same material → same digest, regardless of when it is recomputed.
+    assert_eq!(a.compute_content_digest(), b.compute_content_digest());
+
+    // Field-boundary confusion defence: moving a character across a field
+    // boundary must not collide.
+    a.set_display_name("AB".to_string());
+    a.set_role("C".to_string());
+    b.set_display_name("A".to_string());
+    b.set_role("BC".to_string());
+    assert_ne!(a.content_digest, b.content_digest);
 }
 
 #[test]

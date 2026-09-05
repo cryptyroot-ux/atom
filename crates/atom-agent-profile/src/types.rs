@@ -1,6 +1,5 @@
 //! Core types for Agent Self.
 
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 /// Lifecycle states for AgentSelfRevision.

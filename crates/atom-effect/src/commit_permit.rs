@@ -70,45 +70,45 @@ impl ResourceWitness {
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct CommitPermit {
     /// Stable identity of the permit, so its use can be named in the ledger.
-    permit_id: String,
+    pub permit_id: String,
     /// The identity digest of the effect this permit lets through.
-    effect_digest: String,
+    pub effect_digest: String,
     /// The principal the permit was issued to.
-    principal_id: String,
+    pub principal_id: String,
     /// The workload identity the permit was issued for. Frozen from the grant's
     /// workload at issuance (ATOM-V4-AUT-001, Constitution IV.1: authority is
     /// subject/workload-bound).
-    workload_id: String,
+    pub workload_id: String,
     /// The grant the authority was drawn from.
-    capability_grant_id: String,
+    pub capability_grant_id: String,
     /// The generation of that grant at issuance.
-    grant_generation: u64,
+    pub grant_generation: u64,
     /// The audience (sink) the permit was issued for — who may receive the
     /// commit. Frozen from the grant's audience at issuance (ATOM-V4-AUT-001,
     /// Constitution IV.1/V.3: authority must be audience-bound).
-    audience: String,
+    pub audience: String,
     /// The resource about to be written.
-    resource_id: String,
+    pub resource_id: String,
     /// The resource version observed at issuance.
-    resource_version_witness: ResourceWitness,
+    pub resource_version_witness: ResourceWitness,
     /// The human approval, when the risk class required one.
-    approval_id: Option<String>,
+    pub approval_id: Option<String>,
     /// How fresh the evidence behind the decision was.
-    evidence_freshness_digest: Option<String>,
+    pub evidence_freshness_digest: Option<String>,
     /// The sink this permit is bound to — wrong sink is refused.
-    dispatch_sink_id: String,
+    pub dispatch_sink_id: String,
     /// The connector identity this permit was issued to.
-    connector_identity: String,
+    pub connector_identity: String,
     /// The connector version at issuance time.
-    connector_version: String,
+    pub connector_version: String,
     /// The connector instance epoch — stale epoch is refused.
-    connector_instance_epoch: u64,
+    pub connector_instance_epoch: u64,
     /// When the permit was issued.
-    issued_at: DateTime<Utc>,
+    pub issued_at: DateTime<Utc>,
     /// When it dies.
-    expires_at: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
     /// The nonce burned on consumption, which makes the permit one-shot.
-    one_shot_nonce: String,
+    pub one_shot_nonce: String,
 }
 
 impl CommitPermit {
@@ -695,28 +695,28 @@ impl NonceRegistry {
                 state: intent.state,
             });
         }
-        if request.dispatch_sink_id != permit.dispatch_sink_id {
+        if dispatch_sink_id != permit.dispatch_sink_id {
             return Err(PermitError::WrongDispatchSink {
                 expected: permit.dispatch_sink_id.clone(),
-                observed: request.dispatch_sink_id.to_owned(),
+                observed: dispatch_sink_id.to_owned(),
             });
         }
-        if request.connector_identity != permit.connector_identity {
+        if connector_identity != permit.connector_identity {
             return Err(PermitError::WrongConnectorIdentity {
                 expected: permit.connector_identity.clone(),
-                observed: request.connector_identity.to_owned(),
+                observed: connector_identity.to_owned(),
             });
         }
-        if request.connector_version != permit.connector_version {
+        if connector_version != permit.connector_version {
             return Err(PermitError::WrongConnectorVersion {
                 expected: permit.connector_version.clone(),
-                observed: request.connector_version.to_owned(),
+                observed: connector_version.to_owned(),
             });
         }
-        if request.connector_instance_epoch != permit.connector_instance_epoch {
+        if connector_instance_epoch != permit.connector_instance_epoch {
             return Err(PermitError::StaleInstanceEpoch {
                 expected: permit.connector_instance_epoch,
-                observed: request.connector_instance_epoch,
+                observed: connector_instance_epoch,
             });
         }
         // Against the permit, not against a fresh plan: these are exactly the

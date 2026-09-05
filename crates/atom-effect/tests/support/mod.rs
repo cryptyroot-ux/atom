@@ -67,6 +67,7 @@ pub fn grant() -> CapabilityGrant {
         nonce: None,
         constraints: None,
     }
+}
 
 /// The same grant after the owner revoked it (ATOM-VT-003).
 pub fn revoked_grant() -> CapabilityGrant {

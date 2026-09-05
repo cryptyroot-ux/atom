@@ -184,7 +184,7 @@ fn approval_redemption_authorises_a_real_sandboxed_commit() {
         approval_id: Some(receipt.grant_id.as_str()),
         evidence_freshness_digest: None,
         dispatch_sink_id: "atom-cli",
-        connector_identity: "runtime-workload",
+        connector_identity: "atom-cli",
         connector_version: "atom-cli",
         connector_instance_epoch: grant.generation,
     })

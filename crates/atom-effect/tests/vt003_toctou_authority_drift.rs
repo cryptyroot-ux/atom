@@ -77,6 +77,12 @@ impl Gate {
             grant: &self.grant,
             observed_witness: &self.planned,
             now: now(),
+            // Connector/sink binding must match what `request()` froze into the
+            // permit, or consumption is refused (ATOM-V4-AUT-001).
+            dispatch_sink_id: "atom-cli",
+            connector_identity: "atom-cli",
+            connector_version: "atom-cli",
+            connector_instance_epoch: 0,
         }
     }
 }

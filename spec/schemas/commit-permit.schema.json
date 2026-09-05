@@ -12,6 +12,10 @@
     "workload_id",
     "resource_id",
     "resource_version_witness",
+    "dispatch_sink_id",
+    "connector_identity",
+    "connector_version",
+    "connector_instance_epoch",
     "issued_at",
     "expires_at",
     "one_shot_nonce"
@@ -44,6 +48,19 @@
     },
     "resource_version_witness": {
       "type": "object"
+    },
+    "dispatch_sink_id": {
+      "type": "string"
+    },
+    "connector_identity": {
+      "type": "string"
+    },
+    "connector_version": {
+      "type": "string"
+    },
+    "connector_instance_epoch": {
+      "type": "integer",
+      "minimum": 0
     },
     "approval_id": {
       "type": [

@@ -8,8 +8,8 @@ fn parent_grant() -> CapabilityGrant {
         workload_id: "wl-parent".into(),
         operations: vec!["read".into(), "write".into(), "execute".into()],
         resources: vec![ResourceSelector {
-            resource_type: "*".into(),
-            resource_id: "*".into(),
+            resource_type: "server".into(),
+            resource_id: "srv-alpha".into(),
         }],
         purpose: "deployment".into(),
         not_before: Utc::now(),

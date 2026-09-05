@@ -51,6 +51,7 @@ fn free_named_grant(subject: &str, workload: &str) -> CapabilityGrant {
     }
 }
 
+#[test]
 fn content_address_binds_material_not_names() {
     let a = sample_identity(b"public-key-A", "att-1");
     let a_again = sample_identity(b"public-key-A", "att-1");

@@ -65,7 +65,7 @@ pub fn print_banner() {
 // ── Panels ─────────────────────────────────────────────────────────────────
 
 pub fn print_panel(title: &str, content: &str, border_color: &str) {
-    let width = terminal_width().min(80).max(40);
+    let width = terminal_width().clamp(40, 80);
     let inner_width = width.saturating_sub(4);
     
     let border = "─".repeat(inner_width);
@@ -158,7 +158,7 @@ pub fn render_markdown(text: &str) -> String {
             while let Some(c) = chars.next() {
                 if c == '`' {
                     result.push_str(&format!("{DIM}{BRONZE}`"));
-                    while let Some(inner) = chars.next() {
+                    for inner in chars.by_ref() {
                         if inner == '`' {
                             result.push_str(&format!("`{RESET}"));
                             break;
@@ -177,9 +177,8 @@ pub fn render_markdown(text: &str) -> String {
             while let Some(start) = result.find("**") {
                 if let Some(end) = result[start+2..].find("**") {
                     let bold_text = &result[start+2..start+2+end];
-                    result = format!("{}{}{}", 
-                        &result[..start], 
-                        format!("{BOLD}{GOLD}{bold_text}{RESET}"),
+                    result = format!("{}{BOLD}{GOLD}{bold_text}{RESET}{}",
+                        &result[..start],
                         &result[start+2+end+2..]);
                 } else {
                     break;

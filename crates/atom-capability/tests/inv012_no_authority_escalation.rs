@@ -16,6 +16,7 @@ use chrono::Utc;
 
 fn base_grant() -> CapabilityGrant {
     let now = Utc::now();
+    CapabilityGrant {
         grant_id: "base-001".into(),
         subject_id: "s1".into(),
         workload_id: "w1".into(),
@@ -41,6 +42,7 @@ fn base_grant() -> CapabilityGrant {
         authority_digest: None,
         holder_binding: None,
         parent_authority_digest: None,
+    }
 }
 
 /// Simulate a "pressure" scenario: try to widen the child grant in various
@@ -67,6 +69,9 @@ fn attempt_widen_under_pressure(
         parent_grant_id: Some(parent.grant_id.clone()),
         nonce: None,
         constraints: None,
+        authority_digest: None,
+        holder_binding: None,
+        parent_authority_digest: None,
     };
 
     modify(&mut child);

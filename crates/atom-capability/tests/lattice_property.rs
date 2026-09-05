@@ -22,6 +22,7 @@ fn arb_parent(depth: u32) -> impl Strategy<Value = CapabilityGrant> {
     )
         .prop_map(move |(ops, resources, max_cost)| {
             let now = Utc::now();
+            CapabilityGrant {
                 grant_id: "parent".into(),
                 subject_id: "s".into(),
                 workload_id: "w".into(),
@@ -44,6 +45,7 @@ fn arb_parent(depth: u32) -> impl Strategy<Value = CapabilityGrant> {
                 authority_digest: None,
                 holder_binding: None,
                 parent_authority_digest: None,
+            }
         })
 }
 
@@ -74,6 +76,9 @@ proptest! {
             parent_grant_id: Some(parent.grant_id.clone()),
             nonce: None,
             constraints: None,
+            authority_digest: None,
+            holder_binding: None,
+            parent_authority_digest: None,
         };
 
         let result = subset_check(&parent, &child);
@@ -119,6 +124,9 @@ proptest! {
             parent_grant_id: Some(parent.grant_id.clone()),
             nonce: None,
             constraints: None,
+            authority_digest: None,
+            holder_binding: None,
+            parent_authority_digest: None,
         };
         let result = subset_check(&parent, &child);
         prop_assert!(result.is_err(),

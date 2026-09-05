@@ -305,7 +305,11 @@ pub fn attenuate(
         } else {
             // Parent has no constraints but child wants some → unknown
             // semantics unless child constraints are empty/null
-            if !child_constraints.is_null() && !child_constraints.as_object().map_or(false, |m| m.is_empty()) {
+            if !child_constraints.is_null()
+                && !child_constraints
+                    .as_object()
+                    .is_some_and(serde_json::Map::is_empty)
+            {
                 return Err(DenyReason::UnknownConstraintSemantics);
             }
         }
