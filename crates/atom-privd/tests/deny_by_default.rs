@@ -170,6 +170,10 @@ fn a_permit_is_bound_to_one_resource_within_a_multi_resource_grant() {
             grant: &grant,
             observed_witness: &witness,
             now: now(),
+            dispatch_sink_id: "atom-cli",
+            connector_identity: "atom-cli",
+            connector_version: "atom-cli",
+            connector_instance_epoch: 0,
         })
         .expect_err("the permit is bound to file A, not file B");
 

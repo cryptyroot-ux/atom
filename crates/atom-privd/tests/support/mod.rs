@@ -97,6 +97,7 @@ pub fn grant_for(op: &HostOp) -> CapabilityGrant {
         authority_digest: None,
         holder_binding: None,
         parent_authority_digest: None,
+    }
 }
 
 /// A grant that covers `read`/`write` on several files at once.
@@ -290,6 +291,12 @@ impl Scenario {
             grant: &self.grant,
             observed_witness: &self.witness,
             now: now(),
+            // Connector/sink binding must match what `permit_for` froze into the
+            // permit, or the commit gate refuses the crossing (ATOM-V4-AUT-001).
+            dispatch_sink_id: "atom-cli",
+            connector_identity: "atom-cli",
+            connector_version: "atom-cli",
+            connector_instance_epoch: 0,
         }
     }
 }
