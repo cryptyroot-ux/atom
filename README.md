@@ -137,6 +137,9 @@ atom serve --state-db state/atom.sqlite
 
 ## What works today
 
+Honest state, verified on every push by CI (`cargo fmt`, `build`, `test`,
+`clippy -D warnings`, secret scan, and the G0 spec gate).
+
 | Capability | State | Notes |
 |---|---:|---|
 | Interactive `atom` session | ✅ | Mission submission and terminal status polling |
@@ -145,8 +148,18 @@ atom serve --state-db state/atom.sqlite
 | Read-only tools | ✅ | Confined path access with budgets and evidence |
 | Approval grants | ✅ | Durable, one-shot redemption in the control plane |
 | Crash recovery | ✅ | Sidecar snapshots and kill/restart evidence |
-| Consequential external effects | 🚧 | Kernel contracts exist; dispatcher is not enabled |
+| Governed host mutation (`/host/plan` → `/host/commit`) | ✅ | Plan → owner approval → one-shot permit → sandboxed write, nonce burned durably. **Off unless `--host-root` is passed.** |
+| API authentication / multi-tenancy | ❌ | **There is none.** Anything that can reach the port can issue approvals. Bind to loopback only; do not expose. |
+| Autonomous LLM → host mutation | ❌ | Deliberate: the cognition loop cannot construct a `HostOp`. Mutation is operator-driven only. |
+| Broad tool ecosystem (shell, network, MCP) | 🚧 | Sandbox implements write/remove/spawn; network reconfiguration is refused. Adapters are skeletons. |
 | Certified multi-platform release | 🚧 | Source and Linux installer are available; release gate remains open |
+
+### Suitability
+
+ATOM alpha is for **operators evaluating the authority model** on a machine they
+control. It is not yet a general-purpose assistant and is not safe to expose on a
+network. See [Security model](#security-model) for the exact limits.
+
 
 ## Architecture
 
@@ -157,7 +170,8 @@ flowchart LR
     M --> K[Sovereign kernel\npolicy + capabilities]
     K --> A{Approval /\nrevalidation}
     A -->|read-only| T[Bounded tool dispatcher]
-    A -->|consequential| P[Proposal only\nnot dispatched in alpha]
+    A -->|consequential| PB[Privilege broker\none-shot CommitPermit]
+    PB --> SB[Sandboxed host executor\nconfined to --host-root]
     M --> L[(Hash-chained ledger)]
     M --> E[Evidence + replay]
     C[Provider adapter\nOpenAI-compatible] --> M
@@ -178,6 +192,29 @@ transition is represented by evidence and a ledger event.
   evidence or authorization.
 - **Unsafe Rust is forbidden.** Workspace crates use `#![forbid(unsafe_code)]`.
 
+### Known limits in alpha (read before deploying)
+
+These are real gaps, not roadmap prose:
+
+1. **No transport authentication.** The HTTP API has no auth layer. Any client
+   that can reach the port can `POST /approvals` and approve an effect — the
+   approver identity is a self-declared string. Run it bound to `127.0.0.1`
+   (the default) and put your own authenticated proxy in front if you must
+   expose it. Do not put it on a public interface.
+2. **Approvals are unsigned.** An `ApprovalGrant` carries no cryptographic
+   signature, so the durable record proves *what* was approved, not *who*
+   approved it.
+3. **The privilege boundary is in-process.** `atom-privd` is a linked library,
+   not a separate privileged daemon. It enforces the permit/nonce/sandbox
+   contract, but it shares the server's address space — it is a correctness
+   boundary, not yet an OS-level isolation boundary.
+4. **No multi-tenancy.** There is one authority domain per daemon. There is no
+   per-user isolation.
+5. **Host mutation is opt-in and operator-driven.** `/host/*` is disabled unless
+   the daemon is started with `--host-root`, and the cognition loop has no path
+   to construct a host operation. An LLM cannot mutate the host on its own.
+
+
 ## ATOM alongside Hermes and OpenClaw
 
 Hermes and OpenClaw are excellent operator-facing assistants with broad tool and
@@ -189,8 +226,12 @@ authority, effects, and evidence explicit and enforceable.
 | Start a conversation | Mature interactive UX | `atom` interactive session |
 | Model choice | Multiple providers | OpenAI-compatible gateway + native fallback |
 | Tools and channels | Broad, production-oriented ecosystem | Read-only bounded tools; adapters in progress |
-| Consequential effects | Product feature | Proposal-only until dispatcher/release gates close |
+| Consequential effects | Product feature, agent-driven | Governed: plan → owner approval → one-shot permit → sandbox. Operator-driven only |
 | Auditability | Application-dependent | Ledger, evidence, replay, typed approvals by design |
+| Ready for general users | Yes | **No** — alpha, unauthenticated API, narrow tool surface |
+
+If you want an assistant that gets work done today, use Hermes or OpenClaw. Use
+ATOM if you want to study or build on an enforceable authority boundary.
 
 The goal is interoperability, not lock-in: versioned adapters for MCP, A2A,
 agent-skills, Hermes, and OpenClaw are kept authority-safe.
