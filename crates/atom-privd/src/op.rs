@@ -45,6 +45,18 @@ pub enum HostOp {
         /// The CIDR block admitted, as `a.b.c.d/n`.
         allow_cidr: String,
     },
+    /// Create a directory (and parents) within the sandbox.
+    CreateDirectory {
+        /// The absolute path to create.
+        path: String,
+    },
+    /// Copy a file within the sandbox atomically.
+    CopyFile {
+        /// The absolute source path.
+        source: String,
+        /// The absolute destination path.
+        destination: String,
+    },
 }
 
 /// Why a [`HostOp`] failed its schema check.
@@ -83,6 +95,8 @@ impl HostOp {
             Self::RemoveFile { .. } => "remove_file",
             Self::SpawnProcess { .. } => "spawn_process",
             Self::ConfigureNetwork { .. } => "configure_network",
+            Self::CreateDirectory { .. } => "create_directory",
+            Self::CopyFile { .. } => "copy_file",
         }
     }
 
@@ -94,6 +108,8 @@ impl HostOp {
             Self::RemoveFile { .. } => "delete",
             Self::SpawnProcess { .. } => "spawn",
             Self::ConfigureNetwork { .. } => "configure",
+            Self::CreateDirectory { .. } => "create",
+            Self::CopyFile { .. } => "copy",
         }
     }
 
@@ -101,9 +117,12 @@ impl HostOp {
     #[must_use]
     pub fn resource_type(&self) -> &'static str {
         match self {
-            Self::WriteFile { .. } | Self::RemoveFile { .. } => "file",
+            Self::WriteFile { .. } | Self::RemoveFile { .. } | Self::CreateDirectory { .. } => {
+                "file"
+            }
             Self::SpawnProcess { .. } => "process",
             Self::ConfigureNetwork { .. } => "network",
+            Self::CopyFile { .. } => "file",
         }
     }
 
@@ -111,9 +130,15 @@ impl HostOp {
     #[must_use]
     pub fn resource_id(&self) -> String {
         match self {
-            Self::WriteFile { path, .. } | Self::RemoveFile { path } => path.clone(),
+            Self::WriteFile { path, .. }
+            | Self::RemoveFile { path }
+            | Self::CreateDirectory { path } => path.clone(),
             Self::SpawnProcess { program, .. } => program.clone(),
             Self::ConfigureNetwork { interface, .. } => interface.clone(),
+            Self::CopyFile {
+                source,
+                destination,
+            } => format!("{source} -> {destination}"),
         }
     }
 
@@ -144,6 +169,14 @@ impl HostOp {
             } => {
                 non_blank(interface, "interface")?;
                 cidr(allow_cidr, "allow_cidr")
+            }
+            Self::CreateDirectory { path } => absolute(path, "path"),
+            Self::CopyFile {
+                source,
+                destination,
+            } => {
+                absolute(source, "source")?;
+                absolute(destination, "destination")
             }
         }
     }

@@ -6,14 +6,37 @@
 
 #![forbid(unsafe_code)]
 
+use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use thiserror::Error;
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct FileStat {
+    pub path: String,
+    pub is_file: bool,
+    pub is_dir: bool,
+    pub len: u64,
+    pub readonly: bool,
+    pub created: Option<u64>,
+    pub modified: Option<u64>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct WalkEntry {
+    pub path: String,
+    pub is_file: bool,
+    pub is_dir: bool,
+    pub len: u64,
+    pub depth: usize,
+}
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ReadOnlyTool {
     ListDirectory,
     ReadFile,
     SearchText,
+    StatFile,
+    WalkDirectory,
 }
 
 impl ReadOnlyTool {
@@ -22,6 +45,8 @@ impl ReadOnlyTool {
             Self::ListDirectory => "list_directory",
             Self::ReadFile => "read_file",
             Self::SearchText => "search_text",
+            Self::StatFile => "stat_file",
+            Self::WalkDirectory => "walk_directory",
         }
     }
 }
@@ -117,6 +142,82 @@ impl ReadOnlyDispatcher {
             return Err(ToolError::BudgetExceeded);
         }
         Ok(matches)
+    }
+
+    /// Returns file metadata without reading contents (low risk, high utility).
+    pub fn stat_file(&self, path: impl AsRef<Path>) -> Result<FileStat, ToolError> {
+        let path = self.confine(path)?;
+        let meta = std::fs::metadata(&path).map_err(|e| ToolError::Io(e.to_string()))?;
+        Ok(FileStat {
+            path: path.to_string_lossy().into_owned(),
+            is_file: meta.is_file(),
+            is_dir: meta.is_dir(),
+            len: meta.len(),
+            readonly: meta.permissions().readonly(),
+            created: meta
+                .created()
+                .ok()
+                .and_then(|t| t.elapsed().ok())
+                .map(|d| d.as_secs()),
+            modified: meta
+                .modified()
+                .ok()
+                .and_then(|t| t.elapsed().ok())
+                .map(|d| d.as_secs()),
+        })
+    }
+
+    /// Recursively lists entries under `path` up to `max_depth` levels.
+    /// Respects entry budget (counts every entry returned across all levels).
+    pub fn walk_directory(
+        &self,
+        path: impl AsRef<Path>,
+        max_depth: usize,
+    ) -> Result<Vec<WalkEntry>, ToolError> {
+        if max_depth == 0 {
+            return Err(ToolError::NotAllowed("max_depth must be >= 1".into()));
+        }
+        let path = self.confine(path)?;
+        if !path.is_dir() {
+            return Err(ToolError::Io("target is not a directory".into()));
+        }
+        let mut entries = Vec::new();
+        self.walk_recursive(&path, 1, max_depth, &mut entries)?;
+        if entries.len() > self.max_entries {
+            return Err(ToolError::BudgetExceeded);
+        }
+        Ok(entries)
+    }
+
+    fn walk_recursive(
+        &self,
+        dir: &Path,
+        depth: usize,
+        max_depth: usize,
+        out: &mut Vec<WalkEntry>,
+    ) -> Result<(), ToolError> {
+        if depth > max_depth {
+            return Ok(());
+        }
+        let read_dir = std::fs::read_dir(dir).map_err(|e| ToolError::Io(e.to_string()))?;
+        for entry in read_dir {
+            if out.len() >= self.max_entries {
+                return Err(ToolError::BudgetExceeded);
+            }
+            let entry = entry.map_err(|e| ToolError::Io(e.to_string()))?;
+            let meta = entry.metadata().map_err(|e| ToolError::Io(e.to_string()))?;
+            out.push(WalkEntry {
+                path: entry.path().to_string_lossy().into_owned(),
+                is_file: meta.is_file(),
+                is_dir: meta.is_dir(),
+                len: meta.len(),
+                depth,
+            });
+            if meta.is_dir() && depth < max_depth {
+                self.walk_recursive(&entry.path(), depth + 1, max_depth, out)?;
+            }
+        }
+        Ok(())
     }
 
     fn confine(&self, path: impl AsRef<Path>) -> Result<PathBuf, ToolError> {

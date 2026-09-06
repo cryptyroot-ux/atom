@@ -249,6 +249,74 @@ impl SandboxedHostExecutor {
             "network configuration is refused by the sandboxed host executor (deny-by-default)",
         ))
     }
+
+    fn create_directory(&mut self, path: &str) -> Result<OpOutcome, ExecError> {
+        let target = self.resident_path(path)?;
+        fs::create_dir_all(&target).map_err(|source| {
+            ExecError::failed(
+                "create_directory",
+                format!("cannot create directory `{}`: {source}", target.display()),
+            )
+        })?;
+        Ok(OpOutcome::new(
+            "create_directory",
+            format!("created directory {}", target.display()),
+        ))
+    }
+
+    fn copy_file(&mut self, source: &str, destination: &str) -> Result<OpOutcome, ExecError> {
+        let src = self.resident_path(source)?;
+        let dst = self.resident_path(destination)?;
+
+        // Source must exist and be a file
+        let src_meta = fs::symlink_metadata(&src).map_err(|source| {
+            ExecError::failed(
+                "copy_file",
+                format!("cannot stat source `{}`: {source}", src.display()),
+            )
+        })?;
+        if !src_meta.is_file() {
+            return Err(ExecError::failed(
+                "copy_file",
+                format!("source `{}` is not a file", src.display()),
+            ));
+        }
+
+        // Destination parent must exist (resident_path creates parents for destination)
+        // Copy atomically: write to temp then rename
+        let temp = dst.with_extension("tmp");
+        fs::copy(&src, &temp).map_err(|source| {
+            ExecError::failed(
+                "copy_file",
+                format!(
+                    "cannot copy `{}` to `{}`: {source}",
+                    src.display(),
+                    temp.display()
+                ),
+            )
+        })?;
+        fs::rename(&temp, &dst).map_err(|source| {
+            ExecError::failed(
+                "copy_file",
+                format!(
+                    "cannot finalize copy `{}` -> `{}`: {source}",
+                    src.display(),
+                    dst.display()
+                ),
+            )
+        })?;
+
+        let src_len = fs::metadata(&src).map(|m| m.len()).unwrap_or(0);
+        Ok(OpOutcome::new(
+            "copy_file",
+            format!(
+                "copied {} bytes from {} to {}",
+                src_len,
+                src.display(),
+                dst.display()
+            ),
+        ))
+    }
 }
 
 /// Bounds `bytes` and marks any truncation, so a chatty child cannot bloat an
@@ -271,6 +339,11 @@ impl HostExecutor for SandboxedHostExecutor {
             HostOp::RemoveFile { path } => self.remove(path),
             HostOp::SpawnProcess { program, args } => self.spawn(program, args),
             HostOp::ConfigureNetwork { .. } => self.configure_network(),
+            HostOp::CreateDirectory { path } => self.create_directory(path),
+            HostOp::CopyFile {
+                source,
+                destination,
+            } => self.copy_file(source, destination),
         }
     }
 }
