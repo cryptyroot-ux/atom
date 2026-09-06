@@ -196,14 +196,21 @@ transition is represented by evidence and a ledger event.
 
 These are real gaps, not roadmap prose:
 
-1. **No transport authentication.** The HTTP API has no auth layer. Any client
-   that can reach the port can `POST /approvals` and approve an effect — the
-   approver identity is a self-declared string. Run it bound to `127.0.0.1`
-   (the default) and put your own authenticated proxy in front if you must
-   expose it. Do not put it on a public interface.
-2. **Approvals are unsigned.** An `ApprovalGrant` carries no cryptographic
-   signature, so the durable record proves *what* was approved, not *who*
-   approved it.
+1. **Transport auth is bearer-token, single-tenant.** Every route except
+   `/health` and `/ready` requires `Authorization: Bearer <token>`; the daemon
+   refuses to start without a provisioned token unless `--no-auth` is passed
+   explicitly (loopback development only). There is still no per-user identity:
+   the token proves the caller may talk to the daemon, not *who* they are —
+   and the approver identity on an approval remains a self-declared string
+   (see 2). Keep the daemon bound to `127.0.0.1` (the default).
+2. **Approvals are daemon-attested, not human-signed.** Every approval the
+   daemon issues carries an HMAC attestation over its exact bytes
+   (`attestation.{key_id,signature}`), verified at rehydrate, redeem, and
+   commit — a tampered record fails closed instead of redeeming. What that
+   proves: the approval passed through this daemon's authenticated API
+   unmodified. What it does not: *which human* approved — `approver_id`
+   remains self-declared inside the single-operator trust domain.
+   Approver-held keys are future work.
 3. **The privilege boundary is in-process.** `atom-privd` is a linked library,
    not a separate privileged daemon. It enforces the permit/nonce/sandbox
    contract, but it shares the server's address space — it is a correctness
@@ -228,7 +235,7 @@ authority, effects, and evidence explicit and enforceable.
 | Tools and channels | Broad, production-oriented ecosystem | Read-only bounded tools; adapters in progress |
 | Consequential effects | Product feature, agent-driven | Governed: plan → owner approval → one-shot permit → sandbox. Operator-driven only |
 | Auditability | Application-dependent | Ledger, evidence, replay, typed approvals by design |
-| Ready for general users | Yes | **No** — alpha, unauthenticated API, narrow tool surface |
+| Ready for general users | Yes | **No** — alpha, single-tenant bearer auth, narrow tool surface |
 
 If you want an assistant that gets work done today, use Hermes or OpenClaw. Use
 ATOM if you want to study or build on an enforceable authority boundary.

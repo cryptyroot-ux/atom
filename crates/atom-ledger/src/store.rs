@@ -114,6 +114,14 @@ impl Ledger {
         Ok(Self { conn, signer })
     }
 
+    /// The key sealing this ledger's checkpoints. Exposed so the server can
+    /// attest approval records with the same daemon identity that seals the
+    /// ledger — one key, one attested origin, no second secret to provision.
+    /// Read-only access: handing out `&dyn` never leaks key material.
+    pub fn signer(&self) -> &dyn CheckpointSigner {
+        self.signer.as_ref()
+    }
+
     /// Append one event and commit it before returning (ATOM-LED-001).
     ///
     /// `ts` is data, never a clock read: identities have to be reproducible.

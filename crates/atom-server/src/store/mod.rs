@@ -1,8 +1,10 @@
 use std::path::{Path, PathBuf};
 
 use anyhow::{anyhow, bail, Context};
-use atom_ledger::{CheckpointSigner, Ledger};
+use atom_approval::{ApprovalAttestation, ApprovalGrant};
+use atom_ledger::{CheckpointSigner, Hash, Ledger};
 use serde_json::Value;
+use sha2::{Digest, Sha256};
 
 const MISSION_STREAM: &str = "mission";
 const EFFECT_STREAM: &str = "effect";
@@ -14,6 +16,36 @@ const APPROVAL_STREAM: &str = "approval";
 const HOST_PLAN_STREAM: &str = "host_plan";
 /// Burned one-shot permit nonces: the durable half of the one-shot guarantee.
 pub const NONCE_BURN_STREAM: &str = "nonce_burn";
+/// Domain separation for approval attestations (P0-B): the signed digest binds
+/// the approval bytes to attestation specifically, so a signature lifted from
+/// any other sealed context (ledger checkpoints, sealed artifacts) can never
+/// verify as an approval attestation, even under the same key.
+const APPROVAL_ATTESTATION_DOMAIN: &str = "ATOM-APPROVAL-ATTESTATION-v1";
+
+/// Whether a stored approval carries a verifiable daemon attestation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ApprovalAttestationState {
+    /// Stapled at issue and signature-verified against this daemon's key.
+    Attested,
+    /// Predates attestation (P0-B): usable until expiry, but never treated
+    /// as attested. Accept-but-distinguish, never silently upgrade.
+    LegacyUnsigned,
+}
+
+/// The daemon-signed digest over an approval's canonical bytes.
+///
+/// Domain-separated from every other sealed context in the repo, then hashed:
+/// verifiers recompute exactly this from the stored record.
+fn approval_attestation_digest(grant: &ApprovalGrant) -> anyhow::Result<Hash> {
+    let bytes = grant
+        .attestation_bytes()
+        .context("canonicalising approval for attestation")?;
+    let mut prefixed = APPROVAL_ATTESTATION_DOMAIN.as_bytes().to_vec();
+    prefixed.extend_from_slice(&bytes);
+    let digest = Sha256::digest(&prefixed);
+    Hash::from_slice(&digest).context("hashing approval attestation bytes")
+}
+
 const SERVER_STREAMS: [&str; 8] = [
     MISSION_STREAM,
     EFFECT_STREAM,
@@ -237,14 +269,14 @@ impl Store {
 
     fn apply_approval_event(&mut self, payload: &Value) -> anyhow::Result<()> {
         match event_name(payload, APPROVAL_STREAM)? {
-            "issued" => upsert(
-                &mut self.approvals,
-                "grant_id",
-                object_field(payload, "grant", APPROVAL_STREAM)?,
-                "approval grant",
-            ),
+            "issued" => {
+                let grant = object_field(payload, "grant", APPROVAL_STREAM)?;
+                self.check_stored_approval(grant)?;
+                upsert(&mut self.approvals, "grant_id", grant, "approval grant")
+            }
             "redeemed" => {
                 let grant = object_field(payload, "grant", APPROVAL_STREAM)?;
+                self.check_stored_approval(grant)?;
                 upsert(&mut self.approvals, "grant_id", grant, "approval grant")?;
                 Ok(())
             }
@@ -361,12 +393,73 @@ impl Store {
 
     pub fn add_approval(&mut self, grant: &Value) -> anyhow::Result<()> {
         ensure_identifier(grant, "grant_id", "approval grant")?;
+        // Fail closed on malformed approvals: only a valid `ApprovalGrant`
+        // shape may enter the ledger — never an arbitrary JSON object that
+        // happens to carry a `grant_id`.
+        let mut typed: ApprovalGrant = serde_json::from_value(grant.clone())
+            .with_context(|| "approval grant is not a valid ApprovalGrant")?;
+        // Daemon attestation (P0-B): staple this daemon's seal over the exact
+        // bytes recorded, then store exactly what was sealed. Any caller
+        // supplied attestation is replaced: this daemon attests what *it*
+        // records, nothing else.
+        let digest = approval_attestation_digest(&typed)?;
+        let key_id = self.ledger.signer().key_id().to_owned();
+        let signature = hex::encode(self.ledger.signer().sign(&digest));
+        typed.attestation = Some(ApprovalAttestation { key_id, signature });
+        let mut stored =
+            serde_json::to_value(&typed).context("serializing attested approval grant")?;
+        stored["redeemed"] = grant.get("redeemed").cloned().unwrap_or(Value::Bool(false));
         self.ledger.append(
             APPROVAL_STREAM,
-            &serde_json::json!({"event":"issued", "grant": grant}),
+            &serde_json::json!({"event":"issued", "grant": stored}),
             now_millis(),
         )?;
-        upsert(&mut self.approvals, "grant_id", grant, "approval grant")
+        upsert(&mut self.approvals, "grant_id", &stored, "approval grant")
+    }
+
+    /// Verifies the attestation on a typed approval.
+    ///
+    /// Returns [`ApprovalAttestationState::LegacyUnsigned`] for pre-P0-B
+    /// records without an attestation, and fails closed on any present-but-bad
+    /// attestation (wrong key, corrupt hex, signature mismatch): an
+    /// untrustworthy approval must never redeem.
+    pub fn check_approval_attestation(
+        &self,
+        grant: &ApprovalGrant,
+    ) -> anyhow::Result<ApprovalAttestationState> {
+        let Some(attestation) = grant.attestation.as_ref() else {
+            return Ok(ApprovalAttestationState::LegacyUnsigned);
+        };
+        let digest = approval_attestation_digest(grant)?;
+        let signature = hex::decode(attestation.signature.trim()).with_context(|| {
+            format!(
+                "approval `{}` carries a malformed attestation signature",
+                grant.grant_id
+            )
+        })?;
+        if self
+            .ledger
+            .signer()
+            .verify(&attestation.key_id, &digest, &signature)
+        {
+            Ok(ApprovalAttestationState::Attested)
+        } else {
+            bail!(
+                "approval `{}` failed attestation verification (key_id={})",
+                grant.grant_id,
+                attestation.key_id
+            )
+        }
+    }
+
+    /// Verifies one raw stored approval record: typed shape plus attestation.
+    /// Used by projection rebuild so a tampered record fails the daemon at
+    /// startup instead of entering the live projection.
+    fn check_stored_approval(&self, grant: &Value) -> anyhow::Result<()> {
+        let typed: ApprovalGrant = serde_json::from_value(grant.clone())
+            .with_context(|| "stored approval grant is not a valid ApprovalGrant")?;
+        self.check_approval_attestation(&typed)?;
+        Ok(())
     }
 
     pub fn redeem_approval(&mut self, grant_id: &str) -> anyhow::Result<Value> {
@@ -378,6 +471,12 @@ impl Store {
         else {
             bail!("approval grant `{grant_id}` not found")
         };
+        // Integrity before lifecycle: a tampered record is refused even when
+        // it would otherwise redeem. Legacy records without an attestation
+        // pass this check and keep their existing lifecycle behavior.
+        let typed: ApprovalGrant = serde_json::from_value(grant.clone())
+            .with_context(|| format!("stored approval grant `{grant_id}` is malformed"))?;
+        self.check_approval_attestation(&typed)?;
         if grant["redeemed"].as_bool().unwrap_or(false) {
             bail!("approval grant `{grant_id}` already redeemed")
         }

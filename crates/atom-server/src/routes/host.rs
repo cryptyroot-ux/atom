@@ -340,6 +340,19 @@ pub async fn commit(
             continue;
         }
         if let Ok(grant) = serde_json::from_value::<ApprovalGrant>(raw.clone()) {
+            // P0-B: an attested-but-tampered approval is never silently
+            // skipped — a record that fails verification means the approval
+            // store is not trustworthy, so the whole commit refuses loudly.
+            // Legacy records without an attestation load as before.
+            if let Err(e) = store.check_approval_attestation(&grant) {
+                return Err(ApiError::conflict(
+                    instance,
+                    format!(
+                        "approval `{}` is not trustworthy, refusing commit: {e}",
+                        grant.grant_id
+                    ),
+                ));
+            }
             let _ = approvals.record(grant);
         }
     }

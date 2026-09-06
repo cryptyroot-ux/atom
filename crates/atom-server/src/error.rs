@@ -1,4 +1,4 @@
-use axum::http::StatusCode;
+use axum::http::{header, HeaderValue, StatusCode};
 use axum::response::{IntoResponse, Response};
 use serde::Serialize;
 
@@ -53,6 +53,16 @@ impl ApiError {
         }
     }
 
+    pub fn unauthorized(instance: impl Into<String>, detail: impl Into<String>) -> Self {
+        Self {
+            status: StatusCode::UNAUTHORIZED,
+            ty: "https://atom.dev/errors/unauthorized",
+            title: "Unauthorized",
+            detail: detail.into(),
+            instance: instance.into(),
+        }
+    }
+
     pub fn service_unavailable(instance: impl Into<String>, detail: impl Into<String>) -> Self {
         Self {
             status: StatusCode::SERVICE_UNAVAILABLE,
@@ -74,6 +84,15 @@ impl IntoResponse for ApiError {
             detail: self.detail,
             instance: self.instance,
         };
-        (status, axum::Json(body)).into_response()
+        let mut response = (status, axum::Json(body)).into_response();
+        // RFC 9110 §15.5.2: a 401 response SHOULD carry a WWW-Authenticate
+        // challenge telling the caller which scheme to use.
+        if status == StatusCode::UNAUTHORIZED {
+            response.headers_mut().insert(
+                header::WWW_AUTHENTICATE,
+                HeaderValue::from_static("Bearer realm=\"atom\""),
+            );
+        }
+        response
     }
 }

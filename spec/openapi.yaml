@@ -9,9 +9,15 @@ info:
     the sovereign kernel boundary (authorize → commit).
     
     ## Authentication
-    - Bearer token (JWT) for PWA/CLI clients
-    - mTLS for inter-service communication
-    - API key for development/testing only
+
+    Every route except `GET /health` and `GET /ready` requires
+    `Authorization: Bearer <token>`. The token is a provisioned operator
+    secret (opaque, minimum 16 bytes), not a JWT: it proves the caller may
+    talk to the daemon, never *who* they are. Missing or wrong credentials
+    yield `401` with a `WWW-Authenticate: Bearer realm="atom"` challenge.
+    The daemon refuses to start without a token unless `--no-auth` is passed
+    explicitly (loopback development only). Auth is transport only — it never
+    substitutes for capability grants or approvals.
     
     ## Idempotency
     All mutation endpoints accept `Idempotency-Key` header.
@@ -642,6 +648,14 @@ paths:
                 $ref: '#/components/schemas/ProblemDetail'
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        Operator bearer token (`Authorization: Bearer <token>`). Required on
+        every operation except `GET /health` and `GET /ready`. Transport only:
+        it never substitutes for capability grants or approvals.
   parameters:
     MissionId:
       name: mission_id
@@ -1150,6 +1164,18 @@ components:
         redeemed:
           type: boolean
           description: Whether this approval has already been spent.
+        attestation:
+          type: object
+          description: |
+            Daemon attestation stapled at issue (P0-B). Proves the approval
+            passed through this daemon's authenticated API unmodified since.
+            Absent on pre-attestation records. Does not identify a human.
+          properties:
+            key_id:
+              type: string
+            signature:
+              type: string
+          required: [key_id, signature]
 
   responses:
     BadRequest:

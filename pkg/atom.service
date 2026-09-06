@@ -1,8 +1,9 @@
 # atom.service — durable ATOM HTTP control-plane daemon
 #
 # Install: sudo cp atom.service /etc/systemd/system/atom.service
-# Configure: `pkg/scripts/install.sh` creates `/etc/atom/signing-secret` and
-# `/etc/atom/provider-api-key`; systemd stages both as runtime credentials.
+# Configure: `pkg/scripts/install.sh` creates `/etc/atom/signing-secret`,
+# `/etc/atom/provider-api-key`, and `/etc/atom/api-token`; systemd stages all
+# three as runtime credentials.
 
 [Unit]
 Description=ATOM durable HTTP control-plane daemon
@@ -18,9 +19,10 @@ User=atom
 Group=atom
 LoadCredential=signing_secret:/etc/atom/signing-secret
 LoadCredential=provider_api_key:/etc/atom/provider-api-key
+LoadCredential=api_token:/etc/atom/api-token
 # Binary explicitly installed at /usr/local/bin/atom; the durable state path
 # is managed by systemd's StateDirectory below.
-ExecStart=/bin/sh -c 'export ATOM_SIGNING_SECRET="$(cat "$CREDENTIALS_DIRECTORY/signing_secret")"; export ATOM_PROVIDER_API_KEY="$(cat "$CREDENTIALS_DIRECTORY/provider_api_key")"; exec /usr/local/bin/atom serve --state-db /var/lib/atom/atom.sqlite'
+ExecStart=/bin/sh -c 'export ATOM_SIGNING_SECRET="$(cat "$CREDENTIALS_DIRECTORY/signing_secret")"; export ATOM_PROVIDER_API_KEY="$(cat "$CREDENTIALS_DIRECTORY/provider_api_key")"; export ATOM_API_TOKEN="$(cat "$CREDENTIALS_DIRECTORY/api_token")"; exec /usr/local/bin/atom serve --state-db /var/lib/atom/atom.sqlite'
 # Address the HTTP API binds (override via EnvironmentFile if needed)
 Environment=ATOM_SERVE_ADDR=127.0.0.1:8420
 Environment=ATOM_SIGNING_KEY_ID=atom-prod-v1

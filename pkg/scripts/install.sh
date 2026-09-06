@@ -79,6 +79,14 @@ if [[ ! -s "$CONFIG_DIR/signing-secret" ]]; then
   rm -f "$tmp_secret"
 fi
 
+if [[ ! -s "$CONFIG_DIR/api-token" ]]; then
+  command -v openssl >/dev/null || die "openssl is required"
+  tmp_token="$(mktemp)"
+  openssl rand -base64 32 >"$tmp_token"
+  install -o root -g atom -m 0640 "$tmp_token" "$CONFIG_DIR/api-token"
+  rm -f "$tmp_token"
+fi
+
 if [[ -n "$PROVIDER_KEY_FILE" ]]; then
   install -o root -g atom -m 0640 "$PROVIDER_KEY_FILE" "$CONFIG_DIR/provider-api-key"
 elif [[ ! -e "$CONFIG_DIR/provider-api-key" ]]; then

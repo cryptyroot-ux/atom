@@ -13,12 +13,48 @@ use crate::display::{
     print_tool_call, print_warning, render_markdown, Spinner, BOLD, CYAN, DIM, GOLD, GREEN, RESET,
 };
 
+/// Bearer token for the daemon API, mirroring the server's own resolution
+/// order (`ATOM_API_TOKEN_FILE`, else `ATOM_API_TOKEN`). `None` means the
+/// operator runs an unauthenticated daemon (`--no-auth`) or only hits public
+/// endpoints.
+fn api_token() -> Option<String> {
+    if let Ok(path) = std::env::var("ATOM_API_TOKEN_FILE") {
+        if let Ok(raw) = std::fs::read_to_string(path.trim()) {
+            let token = raw.trim().to_owned();
+            if !token.is_empty() {
+                return Some(token);
+            }
+        }
+    }
+    if let Ok(raw) = std::env::var("ATOM_API_TOKEN") {
+        let token = raw.trim().to_owned();
+        if !token.is_empty() {
+            return Some(token);
+        }
+    }
+    None
+}
+
 /// Opens a conversational session.
 pub fn run() -> Result<()> {
     let base = std::env::var("ATOM_SERVER_URL").unwrap_or_else(|_| "http://127.0.0.1:8420".into());
 
+    // The daemon requires `Authorization: Bearer <token>` on every route except
+    // `/health` and `/ready`. Attach it once as a default header so every call
+    // below — missions, chat, tools, evidence — authenticates. Sending the
+    // header to the public endpoints is harmless; omitting it breaks everything
+    // else with a 401 once the daemon enforces auth.
+    let mut default_headers = reqwest::header::HeaderMap::new();
+    if let Some(token) = api_token() {
+        let mut value = reqwest::header::HeaderValue::from_str(&format!("Bearer {token}"))
+            .context("API token is not a valid HTTP header value")?;
+        value.set_sensitive(true);
+        default_headers.insert(reqwest::header::AUTHORIZATION, value);
+    }
+
     let client = reqwest::blocking::Client::builder()
         .timeout(Duration::from_secs(120))
+        .default_headers(default_headers)
         .build()
         .context("creating ATOM API client")?;
 

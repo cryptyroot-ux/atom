@@ -250,6 +250,28 @@ pub enum RevocationState {
     Revoked,
 }
 
+/// Daemon attestation stapled to an approval at issue time (P0-B).
+///
+/// The ledger's hash chain already makes a *modified* record fail closed at
+/// startup; the attestation additionally binds the approval's content to the
+/// daemon identity that recorded it through the authenticated API, and gives
+/// every later reader — rehydrate, redeem, commit — an item-level check that
+/// does not depend on trusting the projection in memory.
+///
+/// What this proves and what it does not, stated plainly: a valid attestation
+/// proves the approval passed through this daemon's `POST /approvals` under a
+/// valid bearer token, unmodified since. It does **not** prove *which human*
+/// approved: within the single-operator trust domain the `approver_id` remains
+/// self-declared. Approver-held keys (true human attribution) are future work
+/// and will reuse this field shape with a different `key_id` namespace.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ApprovalAttestation {
+    /// Key identifier of the daemon signer that attested (the ledger `key_id`).
+    pub key_id: String,
+    /// Hex-encoded HMAC over [`ApprovalGrant::attestation_bytes`].
+    pub signature: String,
+}
+
 /// A durable approval grant.
 ///
 /// It is serializable so its creation and every lifecycle transition can be
@@ -271,6 +293,12 @@ pub struct ApprovalGrant {
     /// Monotonic generation, bumped on each durable transition.
     #[serde(default)]
     pub generation: u64,
+    /// Daemon attestation stapled at issue time. `None` for records that
+    /// predate attestation (P0-B): readers must accept-but-distinguish those
+    /// legacy records, never silently treat them as attested. See
+    /// [`ApprovalAttestation`] for what the presence of this field proves.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub attestation: Option<ApprovalAttestation>,
 }
 
 impl ApprovalGrant {
@@ -289,7 +317,28 @@ impl ApprovalGrant {
             validity,
             revocation_state: RevocationState::Active,
             generation: 0,
+            attestation: None,
         }
+    }
+
+    /// Canonical bytes the daemon attestation signs and verifiers recompute.
+    ///
+    /// The attestation field itself is excluded (a signature cannot cover
+    /// itself). Serialization is struct-order deterministic: `serde_json`
+    /// emits struct fields in declaration order, so identical grants always
+    /// yield identical bytes under the same struct definition. Invariant for
+    /// future edits: appending a field changes these bytes, which correctly
+    /// invalidates old signatures — never "fix" that by excluding fields.
+    ///
+    /// # Errors
+    ///
+    /// [`serde_json::Error`] if the grant cannot be serialized (cannot happen
+    /// for a grant built from validated types, but the signature keeps the
+    /// failure explicit rather than panicking).
+    pub fn attestation_bytes(&self) -> Result<Vec<u8>, serde_json::Error> {
+        let mut unsigned = self.clone();
+        unsigned.attestation = None;
+        serde_json::to_vec(&unsigned)
     }
 
     /// Whether the grant is revoked.
@@ -572,5 +621,82 @@ mod tests {
             &envelope.resources,
             None
         ));
+    }
+
+    fn attested_grant() -> ApprovalGrant {
+        ApprovalGrant::new(
+            "approval/att-1",
+            "human/root",
+            ApprovalScope::Effect {
+                effect_digest: "sha256:aaaa".into(),
+            },
+            interval(),
+        )
+    }
+
+    #[test]
+    fn attestation_bytes_are_deterministic() {
+        let a = attested_grant().attestation_bytes().expect("bytes");
+        let b = attested_grant().attestation_bytes().expect("bytes");
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn attestation_field_itself_is_not_covered() {
+        let plain = attested_grant().attestation_bytes().expect("bytes");
+        let mut stamped = attested_grant();
+        stamped.attestation = Some(ApprovalAttestation {
+            key_id: "k1".into(),
+            signature: "deadbeef".into(),
+        });
+        // A signature cannot cover itself: stamping must not move the bytes.
+        assert_eq!(stamped.attestation_bytes().expect("bytes"), plain);
+    }
+
+    #[test]
+    fn every_covered_field_moves_the_bytes() {
+        let base = attested_grant().attestation_bytes().expect("bytes");
+        let mut flip_approver = attested_grant();
+        flip_approver.approver_id = "human/other".into();
+        assert_ne!(flip_approver.attestation_bytes().expect("bytes"), base);
+
+        let mut flip_digest = attested_grant();
+        flip_digest.scope = ApprovalScope::Effect {
+            effect_digest: "sha256:bbbb".into(),
+        };
+        assert_ne!(flip_digest.attestation_bytes().expect("bytes"), base);
+
+        let mut flip_validity = attested_grant();
+        flip_validity.validity = ValidityInterval::new(ts(11), ts(12)).expect("valid");
+        assert_ne!(flip_validity.attestation_bytes().expect("bytes"), base);
+
+        let mut flip_generation = attested_grant();
+        flip_generation.generation = 1;
+        assert_ne!(flip_generation.attestation_bytes().expect("bytes"), base);
+
+        let mut flip_revoked = attested_grant();
+        flip_revoked.revocation_state = RevocationState::Revoked;
+        assert_ne!(flip_revoked.attestation_bytes().expect("bytes"), base);
+    }
+
+    #[test]
+    fn legacy_projection_without_attestation_parses_as_none() {
+        // Exactly what a pre-P0-B ledger projection looks like on disk: the
+        // grant shape plus the server's `redeemed` bookkeeping extra (ignored
+        // by the typed parse, as before) and no `attestation` key.
+        let legacy = serde_json::json!({
+            "grant_id": "approval/old",
+            "approver_id": "human/root",
+            "scope": { "kind": "effect", "effect_digest": "sha256:aaaa" },
+            "validity": {
+                "not_before": "2026-08-30T11:00:00Z",
+                "expires_at": "2026-08-30T13:00:00Z"
+            },
+            "revocation_state": "ACTIVE",
+            "generation": 0,
+            "redeemed": false
+        });
+        let grant: ApprovalGrant = serde_json::from_value(legacy).expect("legacy parses");
+        assert_eq!(grant.attestation, None);
     }
 }

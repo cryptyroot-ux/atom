@@ -165,6 +165,19 @@ pub enum Command {
         /// change the host. Without this flag those routes refuse every request.
         #[arg(long, value_name = "DIR", env = "ATOM_HOST_ROOT")]
         host_root: Option<PathBuf>,
+
+        /// File holding the bearer token that guards the HTTP API. Also read
+        /// from `ATOM_API_TOKEN_FILE`, falling back to `ATOM_API_TOKEN`.
+        /// Required unless `--no-auth` is passed: `atom serve` refuses to start
+        /// unauthenticated so an open daemon is always an explicit choice.
+        #[arg(long, value_name = "PATH", env = "ATOM_API_TOKEN_FILE")]
+        api_token_file: Option<PathBuf>,
+
+        /// Serve WITHOUT transport authentication. Loopback development only:
+        /// anyone who can reach the port can then issue approvals. Prints a
+        /// loud warning and must never guard a network-exposed daemon.
+        #[arg(long, env = "ATOM_NO_AUTH", default_value_t = false)]
+        no_auth: bool,
     },
 
     /// Seal bytes into a content-addressed, signed artifact (SUP-001).
@@ -409,6 +422,8 @@ pub fn run(cli: Cli) -> Result<()> {
             provider_backoff_ms,
             provider_max_plan_steps,
             host_root,
+            api_token_file,
+            no_auth,
         } => {
             let version = env!("CARGO_PKG_VERSION");
             let crates_loaded = boot::subsystem_count();
@@ -423,6 +438,26 @@ pub fn run(cli: Cli) -> Result<()> {
             let addr = addr
                 .parse::<std::net::SocketAddr>()
                 .with_context(|| format!("parsing bind address `{addr}`"))?;
+            // Fail closed: an unauthenticated daemon is only ever an explicit
+            // operator choice (`--no-auth`), never a missing-env accident. A
+            // provisioned token always wins over `--no-auth`.
+            let auth =
+                if let Ok(token) = atom_server::auth::ApiToken::load(api_token_file.as_deref()) {
+                    Some(token)
+                } else if no_auth {
+                    eprintln!(
+                        "WARNING: serving WITHOUT transport authentication — anyone who can \
+                         reach {addr} can issue approvals. Loopback development only; never \
+                         expose this port."
+                    );
+                    None
+                } else {
+                    anyhow::bail!(
+                        "refusing to serve without API auth: pass `--api-token-file <path>`, \
+                         set `ATOM_API_TOKEN_FILE` or `ATOM_API_TOKEN`, or pass `--no-auth` \
+                         explicitly for loopback development only"
+                    );
+                };
             let chat_config = if !no_provider {
                 provider_base_url
                     .as_ref()
@@ -473,6 +508,7 @@ pub fn run(cli: Cli) -> Result<()> {
                         store,
                         chat_config.clone(),
                         host_config,
+                        auth.clone(),
                     );
                     let (_, serve_res) = tokio::join!(exec_handle, serve);
                     serve_res?;
@@ -486,6 +522,7 @@ pub fn run(cli: Cli) -> Result<()> {
                         store,
                         chat_config,
                         host_config,
+                        auth,
                     )
                     .await?;
                 }

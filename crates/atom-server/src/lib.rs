@@ -11,6 +11,7 @@
 //! the HTTP read path.
 
 pub mod app;
+pub mod auth;
 pub mod error;
 pub mod routes;
 pub mod store;

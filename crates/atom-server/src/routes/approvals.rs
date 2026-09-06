@@ -14,7 +14,7 @@ pub async fn list(State(state): State<AppState>) -> Result<Json<serde_json::Valu
 pub async fn issue(
     State(state): State<AppState>,
     Json(grant): Json<ApprovalGrant>,
-) -> Result<(StatusCode, Json<ApprovalGrant>), ApiError> {
+) -> Result<(StatusCode, Json<serde_json::Value>), ApiError> {
     let mut value = serde_json::to_value(&grant)
         .map_err(|e| ApiError::bad_request("/approvals", e.to_string()))?;
     value["redeemed"] = serde_json::Value::Bool(false);
@@ -22,7 +22,18 @@ pub async fn issue(
     store
         .add_approval(&value)
         .map_err(|e| ApiError::bad_request("/approvals", e.to_string()))?;
-    Ok((StatusCode::CREATED, Json(grant)))
+    // Return exactly what was recorded — including the daemon attestation
+    // stapled at issue — never an echo of the request. Callers must see the
+    // seal they will later be held to, not the unsigned bytes they sent.
+    let stored = store
+        .approvals()
+        .iter()
+        .find(|v| v["grant_id"] == grant.grant_id)
+        .cloned()
+        .ok_or_else(|| {
+            ApiError::service_unavailable("/approvals", "issued approval is missing from store")
+        })?;
+    Ok((StatusCode::CREATED, Json(stored)))
 }
 
 pub async fn redeem(

@@ -5,6 +5,7 @@ use axum::routing::get;
 use axum::Router;
 use tokio::sync::Mutex;
 
+use crate::auth::{require_bearer, ApiToken};
 use crate::routes::approvals::{
     issue as issue_approval, list as list_approvals, redeem as redeem_approval,
 };
@@ -33,6 +34,11 @@ pub struct AppState {
     /// Host-mutation configuration. `None` disables `/host/*` entirely, which
     /// is the default: a daemon with no sandbox root can change nothing.
     pub host: Option<Arc<HostConfig>>,
+    /// Bearer-token transport auth. `None` leaves the router open: the test
+    /// builders below and explicit `--no-auth` development use only.
+    /// Production `atom serve` refuses to start unauthenticated, so an open
+    /// router can never be a silent misconfiguration.
+    pub auth: Option<Arc<ApiToken>>,
 }
 
 /// Redacted provider settings needed by `/chat`. The API key stays in daemon
@@ -70,6 +76,9 @@ pub fn build_router_with_chat(
 ///
 /// `host_config: None` is the safe default: `/host/plan` and `/host/commit` then
 /// refuse every request, so a misconfigured daemon cannot change the host.
+///
+/// The router is built **without** transport auth: test and loopback-development
+/// use only. Production code must use [`build_router_with_auth`].
 pub fn build_router_with(
     version: &'static str,
     crates_loaded: u32,
@@ -78,6 +87,33 @@ pub fn build_router_with(
     chat_config: Option<ChatConfig>,
     host_config: Option<HostConfig>,
 ) -> Router {
+    build_router_with_auth(
+        version,
+        crates_loaded,
+        started,
+        store,
+        chat_config,
+        host_config,
+        None,
+    )
+}
+
+/// Builds the full router with an explicit transport-auth choice.
+///
+/// `auth: None` leaves every route open (tests and explicit `--no-auth` only).
+/// `auth: Some(token)` requires `Authorization: Bearer <token>` on every route
+/// except `/health` and `/ready`, which stay public for unauthenticated
+/// diagnostics. Auth is transport only: it never substitutes for capability
+/// grants or approvals further down the stack.
+pub fn build_router_with_auth(
+    version: &'static str,
+    crates_loaded: u32,
+    started: Instant,
+    store: Arc<Mutex<Store>>,
+    chat_config: Option<ChatConfig>,
+    host_config: Option<HostConfig>,
+    auth: Option<ApiToken>,
+) -> Router {
     let state = AppState {
         version,
         crates_loaded,
@@ -85,10 +121,14 @@ pub fn build_router_with(
         store,
         chat: chat_config.map(Arc::new),
         host: host_config.map(Arc::new),
+        auth: auth.map(Arc::new),
     };
-    Router::new()
+    // Public surface: read-only liveness only, safe without credentials.
+    let public = Router::new()
         .route("/health", get(get_health))
-        .route("/ready", get(get_ready))
+        .route("/ready", get(get_ready));
+    // Everything else requires the bearer token when one is configured.
+    let protected = Router::new()
         .route("/chat", axum::routing::post(chat))
         .route("/missions", get(list_missions).post(create_mission))
         .route("/missions/{mission_id}", get(get_mission))
@@ -111,7 +151,14 @@ pub fn build_router_with(
             "/approvals/{grant_id}/redeem",
             axum::routing::post(redeem_approval),
         )
-        .with_state(state)
+        // The bearer check runs before any protected handler. `state` is
+        // cloned into the middleware here and again by `with_state` below;
+        // both clones share the same `Arc` allocations.
+        .route_layer(axum::middleware::from_fn_with_state(
+            state.clone(),
+            require_bearer,
+        ));
+    public.merge(protected).with_state(state)
 }
 
 pub async fn serve(
@@ -123,6 +170,11 @@ pub async fn serve(
     serve_with_chat(version, crates_loaded, addr, store, None).await
 }
 
+/// Serves the API with an explicit host-mutation configuration.
+///
+/// Kept signature-stable for the smoke test: serves **without** transport auth,
+/// loopback development only. Production `atom serve` uses [`serve_with`] with
+/// an explicit auth choice.
 pub async fn serve_with_chat(
     version: &'static str,
     crates_loaded: u32,
@@ -130,10 +182,14 @@ pub async fn serve_with_chat(
     store: Arc<Mutex<Store>>,
     chat_config: Option<ChatConfig>,
 ) -> anyhow::Result<()> {
-    serve_with(version, crates_loaded, addr, store, chat_config, None).await
+    serve_with(version, crates_loaded, addr, store, chat_config, None, None).await
 }
 
-/// Serves the API with an explicit host-mutation configuration.
+/// Serves the API with explicit host-mutation and transport-auth choices.
+///
+/// `auth: None` serves open (the CLI only allows this under explicit
+/// `--no-auth`); `Some(token)` enforces the bearer check on every route except
+/// `/health` and `/ready`.
 pub async fn serve_with(
     version: &'static str,
     crates_loaded: u32,
@@ -141,14 +197,16 @@ pub async fn serve_with(
     store: Arc<Mutex<Store>>,
     chat_config: Option<ChatConfig>,
     host_config: Option<HostConfig>,
+    auth: Option<ApiToken>,
 ) -> anyhow::Result<()> {
-    let app = build_router_with(
+    let app = build_router_with_auth(
         version,
         crates_loaded,
         std::time::Instant::now(),
         store,
         chat_config,
         host_config,
+        auth,
     );
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;
