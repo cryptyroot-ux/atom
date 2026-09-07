@@ -23,7 +23,7 @@ Implement Capability Foundry (ATOM-FND-001/002/003) per spec:
 3. `crates/atom-capability-foundry/src/verifier.rs` — VerifierFoundry + V0-V5 labeling
 4. `crates/atom-capability-foundry/src/gate.rs` — Activation gate (build+test+fuzz+holdout+cert)
 5. `crates/atom-capability-foundry/tests/foundry.rs` — VT-010 holdout suite + cert gate
-5. `crates/atom-capability-foundry/Cargo.toml` — deps: atom-capability, atom-artifact, atom-cert, atom-claim
+6. `crates/atom-capability-foundry/Cargo.toml` — deps: atom-capability, atom-artifact, atom-cert, atom-claim
 
 ## Acceptance
 - `cargo test -p atom-capability-foundry` passes (VT-010 + property tests)
@@ -33,3 +33,18 @@ Implement Capability Foundry (ATOM-FND-001/002/003) per spec:
 
 ## Definition of Done
 All tests pass, clippy clean, VT-010 holdout blocks uncertified candidates, cert required for ACTIVE.
+
+## Memory Audit - Capabilities
+The atom-capability-foundry component must be analyzed for:
+- Memory allocation patterns in synthesis engines
+- Memory safety in tool/workflow/verifier candidate storage
+- Memory exhaustion protection in gate activation checks
+- Secure cleanup of temporary candidate artifacts
+- Byte-by-byte memory usage verification for all generated candidates
+
+Key memory-sensitive areas:
+- Tool candidate synthesis buffers (fixed-size, bounded)
+- Workflow transition state serialization (owned data, no references)
+- Verifier independence labeling storage (compact enum encoding)
+- Gate validation caches (LRU with bounded capacity)
+- Foundry temporary artifact storage (drop-on-exit scope)
