@@ -18,6 +18,7 @@
 
 pub mod artifact_ops;
 pub mod boot;
+pub mod cert_ops;
 pub mod config;
 pub mod diagnostics;
 pub mod display;
@@ -232,6 +233,12 @@ pub enum Command {
         #[command(subcommand)]
         action: GrantAction,
     },
+
+    /// Issue, verify, or inspect behavior certificates (CER-001 / CRT-001).
+    Cert {
+        #[command(subcommand)]
+        action: CertAction,
+    },
 }
 
 /// Capability-issuance subcommands.
@@ -343,6 +350,86 @@ pub enum IdentityAction {
         /// Generation to rollback to.
         #[arg(long, value_name = "GENERATION")]
         generation: u64,
+    },
+}
+
+/// Certificate subcommands.
+#[derive(Debug, Subcommand)]
+pub enum CertAction {
+    /// Issue a certificate by sealing a binding with the signing key.
+    Issue {
+        /// Stable certificate id, e.g. `cert/tool-echo-v1`.
+        #[arg(long, value_name = "ID")]
+        certificate_id: String,
+
+        /// Subject digest (hex) of the certified workload/candidate.
+        #[arg(long, value_name = "HEX")]
+        subject_digest: String,
+
+        /// Path to the BehaviorManifestV2 JSON file.
+        #[arg(long, value_name = "PATH")]
+        manifest: PathBuf,
+
+        /// Path to the evaluation suite JSON file.
+        #[arg(long, value_name = "PATH")]
+        eval_suite: PathBuf,
+
+        /// Path to the environment scope JSON file.
+        #[arg(long, value_name = "PATH")]
+        env_scope: PathBuf,
+
+        /// Verifier independence level attained (V0..V5).
+        #[arg(long, value_name = "LEVEL")]
+        verifier_level: String,
+
+        /// Id of the verifier key that seals this certificate.
+        #[arg(long, value_name = "ID")]
+        verifier_id: String,
+
+        /// Validity window start (RFC 3339, e.g. `2026-08-01T00:00:00Z`).
+        #[arg(long, value_name = "RFC3339")]
+        issued_at: String,
+
+        /// Validity window end (RFC 3339).
+        #[arg(long, value_name = "RFC3339")]
+        valid_until: String,
+
+        /// Evidence reference (repeatable).
+        #[arg(long = "evidence", value_name = "REF")]
+        evidence_refs: Vec<String>,
+
+        /// Write the certificate JSON here (default: stdout).
+        #[arg(long, value_name = "PATH")]
+        out: Option<PathBuf>,
+    },
+
+    /// Verify a certificate against the current evaluation context.
+    Verify {
+        /// Path to the certificate JSON file.
+        #[arg(long, value_name = "PATH")]
+        certificate: PathBuf,
+
+        /// Path to the current BehaviorManifestV2 JSON file.
+        #[arg(long, value_name = "PATH")]
+        manifest: PathBuf,
+
+        /// Path to the current evaluation suite JSON file.
+        #[arg(long, value_name = "PATH")]
+        eval_suite: PathBuf,
+
+        /// Path to the current environment scope JSON file.
+        #[arg(long, value_name = "PATH")]
+        env_scope: PathBuf,
+
+        /// Minimum verifier level required (V0..V5).
+        #[arg(long, value_name = "LEVEL", default_value = "V0")]
+        required_level: String,
+    },
+
+    /// Inspect a certificate: show binding, signature, and validity.
+    Inspect {
+        /// Path to the certificate JSON file.
+        certificate: PathBuf,
     },
 }
 
@@ -560,6 +647,7 @@ fn run_signed(cli: Cli, cfg: SigningConfig) -> Result<()> {
         Command::Identity { action } => identity::run(action),
         Command::Soul { action } => soul::run(action),
         Command::Grant { action } => grant::run(action, &cfg),
+        Command::Cert { action } => cert_ops::run(action, &cfg),
         Command::Seal {
             content,
             input,
@@ -638,6 +726,58 @@ mod tests {
         assert!(Cli::try_parse_from(["atom", "seal", "hello"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "verify", "a.json"]).is_ok());
         assert!(Cli::try_parse_from(["atom", "bogus-subcommand"]).is_err());
+    }
+
+    #[test]
+    fn cert_subcommands_parse() {
+        // atom cert issue
+        assert!(Cli::try_parse_from([
+            "atom",
+            "cert",
+            "issue",
+            "--certificate-id",
+            "cert/test",
+            "--subject-digest",
+            "abcd1234",
+            "--manifest",
+            "manifest.json",
+            "--eval-suite",
+            "eval.json",
+            "--env-scope",
+            "env.json",
+            "--verifier-level",
+            "V2",
+            "--verifier-id",
+            "verifier-a",
+            "--issued-at",
+            "2026-08-01T00:00:00Z",
+            "--valid-until",
+            "2026-09-01T00:00:00Z",
+            "--evidence",
+            "ev/1",
+        ])
+        .is_ok());
+
+        // atom cert verify
+        assert!(Cli::try_parse_from([
+            "atom",
+            "cert",
+            "verify",
+            "--certificate",
+            "cert.json",
+            "--manifest",
+            "manifest.json",
+            "--eval-suite",
+            "eval.json",
+            "--env-scope",
+            "env.json",
+            "--required-level",
+            "V3",
+        ])
+        .is_ok());
+
+        // atom cert inspect
+        assert!(Cli::try_parse_from(["atom", "cert", "inspect", "cert.json"]).is_ok());
     }
 
     #[test]

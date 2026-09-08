@@ -470,6 +470,8 @@ dependencies = [
  "atom-approval",
  "atom-artifact",
  "atom-capability",
+ "atom-capability-foundry",
+ "atom-cert",
  "atom-claim",
  "atom-connector",
  "atom-context",
