@@ -272,8 +272,8 @@ fn object_digest(value: &serde_json::Value, domain: &str) -> Result<Hash, CertEr
 /// A certificate seal: which key signed, and the signature bytes.
 #[derive(Clone, PartialEq, Eq)]
 pub struct Signature {
-    key_id: String,
-    bytes: Vec<u8>,
+    pub key_id: String,
+    pub bytes: Vec<u8>,
 }
 
 impl Signature {
@@ -286,6 +286,12 @@ impl Signature {
     /// The raw signature bytes.
     #[must_use]
     pub fn bytes(&self) -> &[u8] {
+        &self.bytes
+    }
+
+    /// The signature bytes as a slice for verification.
+    #[must_use]
+    pub fn as_slice(&self) -> &[u8] {
         &self.bytes
     }
 }
@@ -476,6 +482,12 @@ impl CertificateBinding {
         &self.environment_scope
     }
 
+    /// The environment scope digest this binding is valid within.
+    #[must_use]
+    pub fn environment_scope_digest(&self) -> Hash {
+        self.environment_scope_digest
+    }
+
     /// The conditions that make this certificate stale, in canonical form.
     #[must_use]
     pub fn stale_conditions(&self) -> &[String] {
@@ -545,6 +557,12 @@ pub struct Certificate {
 }
 
 impl Certificate {
+    /// Reconstruct a certificate from a binding and signature for verification.
+    #[must_use]
+    pub fn from_parts(binding: CertificateBinding, signature: Signature) -> Self {
+        Self { binding, signature }
+    }
+
     /// Seal a binding. The `verifier` must be the one the binding names.
     ///
     /// # Errors

@@ -695,6 +695,7 @@ fn resolve_content(inline: Option<String>, input: Option<&Path>) -> Result<Vec<u
 mod tests {
     use super::*;
     use clap::CommandFactory;
+    use hex; // For tampering tests
 
     fn cfg() -> SigningConfig {
         SigningConfig::new("test-key", b"test-secret".to_vec())
@@ -896,5 +897,102 @@ mod tests {
         assert_eq!(report.admitted_operation, "write");
         assert_eq!(report.subsystems.len(), 24, "all 24 crates inventoried");
         assert_eq!(report.key_id, "test-key");
+    }
+
+// ── cert E2E: issue → verify → tamper → deny ───────────────────────────────
+    #[test]
+    fn cert_e2e_issue_verify_tamper_deny() {
+        use std::io::Write;
+        use tempfile::NamedTempFile;
+
+        let cfg = cfg();
+        let cert_id = "cert/test-e2e";
+        let subject_digest = "abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234";
+        let verifier_id = "test-key";
+        let issued_at = "2026-08-01T00:00:00Z";
+        let valid_until = "2027-08-01T00:00:00Z";
+
+        // Create temp files for manifest, eval_suite, env_scope
+        let mut manifest_file = NamedTempFile::new().unwrap();
+        let mut eval_file = NamedTempFile::new().unwrap();
+        let mut env_file = NamedTempFile::new().unwrap();
+
+        writeln!(manifest_file, r#"{{"schema_version": "4.1", "cognition_runtime": "test", "runtime_version": "1", "provider": "test", "model_exact_id": "test", "sampling_parameters": {{}}, "system_prompt_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "instruction_bundle_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "context_compiler_version": "1", "context_snapshot_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "capability_contract_digests": [], "tool_schema_digests": [], "policy_bundle_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "grant_semantics_version": "1", "memory_snapshot_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "epistemic_policy_version": "1", "verifier_bundle_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "connector_versions": [], "sandbox_runtime": "test", "worker_image_digests": [], "secret_reference_generations": [], "compatibility_profile_digests": [], "environment_fingerprint": "test"}}"#).unwrap();
+        writeln!(eval_file, r#"{{"suite": "test-suite", "version": "1", "tests": []}}"#).unwrap();
+        writeln!(env_file, r#"{{"os": "linux", "arch": "x86_64"}}"#).unwrap();
+
+        let cert_file = NamedTempFile::new().unwrap();
+        cert_ops::run(
+            CertAction::Issue {
+                certificate_id: cert_id.to_string(),
+                subject_digest: subject_digest.to_string(),
+                manifest: manifest_file.path().to_path_buf(),
+                eval_suite: eval_file.path().to_path_buf(),
+                env_scope: env_file.path().to_path_buf(),
+                verifier_level: "V2".to_string(),
+                verifier_id: verifier_id.to_string(),
+                issued_at: issued_at.to_string(),
+                valid_until: valid_until.to_string(),
+                evidence_refs: vec!["evidence/1".to_string()],
+                out: Some(cert_file.path().to_path_buf()),
+            },
+            &cfg,
+        ).expect("issue succeeds");
+
+        // 2. Verify certificate (should pass)
+        cert_ops::run(
+            CertAction::Verify {
+                certificate: cert_file.path().to_path_buf(),
+                manifest: manifest_file.path().to_path_buf(),
+                eval_suite: eval_file.path().to_path_buf(),
+                env_scope: env_file.path().to_path_buf(),
+                required_level: "V0".to_string(),
+            },
+            &cfg,
+        ).expect("verify succeeds on valid cert");
+
+        // 3. Tamper with certificate (flip a byte in signature)
+        let cert_text = std::fs::read_to_string(cert_file.path()).unwrap();
+        let mut value: serde_json::Value = serde_json::from_str(&cert_text).unwrap();
+        let sig_hex = value["signature_bytes_hex"].as_str().unwrap();
+        let mut sig_bytes = hex::decode(sig_hex).unwrap();
+        sig_bytes[0] ^= 0x01; // Flip first byte
+        value["signature_bytes_hex"] = serde_json::json!(hex::encode(&sig_bytes));
+        let tampered = serde_json::to_string_pretty(&value).unwrap();
+        std::fs::write(cert_file.path(), tampered).unwrap();
+
+        // 4. Verify tampered certificate (should fail)
+        let result = cert_ops::run(
+            CertAction::Verify {
+                certificate: cert_file.path().to_path_buf(),
+                manifest: manifest_file.path().to_path_buf(),
+                eval_suite: eval_file.path().to_path_buf(),
+                env_scope: env_file.path().to_path_buf(),
+                required_level: "V0".to_string(),
+            },
+            &cfg,
+        );
+        assert!(result.is_err(), "tampered certificate should be rejected");
+
+        // 5. Tamper with manifest (simulate environment drift)
+        let mut tampered_manifest_file = NamedTempFile::new().unwrap();
+        let manifest_content = std::fs::read_to_string(manifest_file.path()).unwrap();
+        let mut manifest_val: serde_json::Value = serde_json::from_str(&manifest_content).unwrap();
+        manifest_val["cognition_runtime"] = serde_json::json!("tampered-runtime");
+        let tampered_manifest = serde_json::to_string_pretty(&manifest_val).unwrap();
+        writeln!(&mut tampered_manifest_file, "{}", tampered_manifest).unwrap();
+
+        // 6. Verify with tampered manifest should fail (stale)
+        let result = cert_ops::run(
+            CertAction::Verify {
+                certificate: cert_file.path().to_path_buf(),
+                manifest: tampered_manifest_file.path().to_path_buf(),
+                eval_suite: eval_file.path().to_path_buf(),
+                env_scope: env_file.path().to_path_buf(),
+                required_level: "V0".to_string(),
+            },
+            &cfg,
+        );
+        assert!(result.is_err(), "certificate with tampered manifest should be rejected as stale");
     }
 }

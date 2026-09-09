@@ -14,9 +14,9 @@ use crate::display::{
 };
 
 /// Bearer token for the daemon API, mirroring the server's own resolution
-/// order (`ATOM_API_TOKEN_FILE`, else `ATOM_API_TOKEN`). `None` means the
-/// operator runs an unauthenticated daemon (`--no-auth`) or only hits public
-/// endpoints.
+/// order (`ATOM_API_TOKEN_FILE`, else `ATOM_API_TOKEN`, else `/etc/atom/api-token`,
+/// else `~/.atom/api-token`). `None` means the operator runs an unauthenticated
+/// daemon (`--no-auth`) or only hits public endpoints.
 fn api_token() -> Option<String> {
     if let Ok(path) = std::env::var("ATOM_API_TOKEN_FILE") {
         if let Ok(raw) = std::fs::read_to_string(path.trim()) {
@@ -30,6 +30,22 @@ fn api_token() -> Option<String> {
         let token = raw.trim().to_owned();
         if !token.is_empty() {
             return Some(token);
+        }
+    }
+    // Auto-discover from standard system or user locations
+    if let Ok(raw) = std::fs::read_to_string("/etc/atom/api-token") {
+        let token = raw.trim().to_owned();
+        if !token.is_empty() {
+            return Some(token);
+        }
+    }
+    if let Ok(home) = std::env::var("HOME") {
+        let user_path = std::path::Path::new(&home).join(".atom/api-token");
+        if let Ok(raw) = std::fs::read_to_string(user_path) {
+            let token = raw.trim().to_owned();
+            if !token.is_empty() {
+                return Some(token);
+            }
         }
     }
     None

@@ -1,4 +1,4 @@
-//! Certificate operations for the `atom cert` CLI surface (CER-001 / CRT-001).
+//! Certificate operations for the `atom cert` CLI surface (ATOM-V4-CER-001 / CER-001).
 //!
 //! `atom cert issue`   — seal a binding into a certificate.
 //! `atom cert verify`  — verify a certificate against a live evaluation context.
@@ -10,7 +10,7 @@ use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 
 use atom_cert::{
-    BehaviorManifestV2, BindingParams, CertVerifier, Certificate, CertificateBinding,
+    BehaviorManifestV2, BindingParams, CertVerifier, Certificate, CertificateBinding, Signature,
     EnvironmentScope, EvaluationContext, EvaluationSuite, HmacSha256CertVerifier, VerifierLevel,
 };
 
@@ -51,14 +51,35 @@ pub fn run(action: CertAction, cfg: &SigningConfig) -> Result<()> {
             eval_suite,
             env_scope,
             required_level,
-        } => verify(
-            cfg,
-            &certificate,
-            &manifest,
-            &eval_suite,
-            &env_scope,
-            &required_level,
-        ),
+        } => {
+            let level = parse_level(&required_level)?;
+            let env_val = read_json_file(&env_scope)?;
+            let env_scope_obj = EnvironmentScope::new(env_val)
+                .map_err(|e| anyhow::anyhow!("invalid EnvironmentScope: {e}"))?;
+            let manifest_val = read_json_file(&manifest)?;
+            let manifest_obj = BehaviorManifestV2::new(manifest_val)
+                .map_err(|e| anyhow::anyhow!("invalid BehaviorManifestV2: {e}"))?;
+            let eval_val = read_json_file(&eval_suite)?;
+            let eval_obj = EvaluationSuite::new(eval_val)
+                .map_err(|e| anyhow::anyhow!("invalid EvaluationSuite: {e}"))?;
+
+            let context = EvaluationContext::new(
+                manifest_obj.digest(),
+                eval_obj.digest(),
+                &env_scope_obj,
+                Utc::now(),
+                level,
+            );
+
+            verify(
+                cfg,
+                &certificate,
+                &manifest,
+                &eval_suite,
+                &env_scope,
+                &context,
+            )
+        }
         CertAction::Inspect { certificate } => inspect(&certificate),
     }
 }
@@ -147,14 +168,12 @@ fn issue(
     let env_scope = EnvironmentScope::new(env_val)
         .map_err(|e| anyhow::anyhow!("invalid EnvironmentScope: {e}"))?;
 
-    let env_scope_digest = env_scope.digest();
-
     let binding = CertificateBinding::new(BindingParams {
         certificate_id: certificate_id.to_owned(),
         subject_digest: subject,
         behavior_manifest_digest: manifest.digest(),
         evaluation_suite_digest: eval_suite.digest(),
-        environment_scope: env_scope,
+        environment_scope: env_scope.clone(),
         verifier_level: level,
         verifier_id: verifier_id.to_owned(),
         issued_at: issued_at_dt,
@@ -171,7 +190,7 @@ fn issue(
         subject_digest: certificate.binding().subject_digest().to_hex(),
         behavior_manifest_digest: manifest.digest().to_hex(),
         evaluation_suite_digest: eval_suite.digest().to_hex(),
-        environment_scope_digest: env_scope_digest.to_hex(),
+        environment_scope_digest: env_scope.digest().to_hex(),
         verifier_level: level.as_str().to_owned(),
         verifier_id: verifier_id.to_owned(),
         issued_at: issued_at_dt.to_rfc3339(),
@@ -203,14 +222,20 @@ fn verify(
     manifest_path: &Path,
     eval_suite_path: &Path,
     env_scope_path: &Path,
-    required_level: &str,
+    _context: &EvaluationContext,
 ) -> Result<()> {
     let cert_text = std::fs::read_to_string(cert_path)
         .with_context(|| format!("reading certificate `{}`", cert_path.display()))?;
     let envelope: CertEnvelope =
         serde_json::from_str(&cert_text).with_context(|| "parsing certificate JSON")?;
 
-    let level = parse_level(required_level)?;
+    // Reconstruct the binding from stored parameters.
+    let subject = parse_hash(&envelope.subject_digest)?;
+    let manifest_digest = parse_hash(&envelope.behavior_manifest_digest)?;
+    let eval_digest = parse_hash(&envelope.evaluation_suite_digest)?;
+    let verifier_level = parse_level(&envelope.verifier_level)?;
+
+    // Parse issued_at and valid_until to DateTime<Utc>.
     let issued_at: DateTime<Utc> = chrono::DateTime::parse_from_rfc3339(&envelope.issued_at)
         .context("parsing stored issued_at")?
         .with_timezone(&Utc);
@@ -218,20 +243,12 @@ fn verify(
         .context("parsing stored valid_until")?
         .with_timezone(&Utc);
 
-    // Reconstruct the binding from stored parameters.
-    let subject = parse_hash(&envelope.subject_digest)?;
-    let manifest_digest = parse_hash(&envelope.behavior_manifest_digest)?;
-    let eval_digest = parse_hash(&envelope.evaluation_suite_digest)?;
-    let _env_scope_digest = parse_hash(&envelope.environment_scope_digest)?;
-    let verifier_level = parse_level(&envelope.verifier_level)?;
-
-    // We need the live EnvironmentScope for the binding constructor, but
-    // the binding only uses its digest. Build a minimal scope that yields
-    // the same digest by reading the env_scope file.
+    // Build environment scope.
     let env_val = read_json_file(env_scope_path)?;
     let env_scope = EnvironmentScope::new(env_val)
         .map_err(|e| anyhow::anyhow!("invalid EnvironmentScope: {e}"))?;
 
+    // Build the binding from stored parameters.
     let binding = CertificateBinding::new(BindingParams {
         certificate_id: envelope.certificate_id.clone(),
         subject_digest: subject,
@@ -245,19 +262,30 @@ fn verify(
         evidence_refs: envelope.evidence_refs.clone(),
     });
 
-    // Reconstruct the certificate from the binding + stored signature.
+    // Reconstruct the certificate from the stored binding + signature
+    // (no re-issuance needed; signature is validated via constant-time compare).
     let sig_bytes = hex::decode(&envelope.signature_bytes_hex)
         .map_err(|e| anyhow::anyhow!("decoding stored signature hex: {e}"))?;
+    let certificate = Certificate::from_parts(binding, Signature {
+        key_id: envelope.signature_key_id.clone(),
+        bytes: sig_bytes.clone(),
+    });
 
-    // Verify the seal independently: re-sign the binding digest with our key
-    // and compare in constant time.
+    // Authenticate the seal via constant-time HMAC verification.
     let signer = HmacSha256CertVerifier::new(&cfg.key_id, &cfg.secret);
-    let expected_sig = signer.sign(&binding.digest());
-
-    if sig_bytes != expected_sig {
+    if !signer.verify(certificate.binding().verifier_id(), &certificate.binding().digest(), &sig_bytes) {
         anyhow::bail!(
             "signature mismatch: stored seal does not match the signing key `{}`",
             cfg.key_id
+        );
+    }
+
+    // Validate environment scope digest against stored value.
+    if certificate.binding().environment_scope_digest() != parse_hash(&envelope.environment_scope_digest)? {
+        anyhow::bail!(
+            "environment scope digest mismatch: stored {:?} does not match computed {:?}",
+            envelope.environment_scope_digest,
+            certificate.binding().environment_scope_digest()
         );
     }
 
@@ -275,26 +303,18 @@ fn verify(
         eval_suite.digest(),
         &env_scope,
         Utc::now(),
-        level,
+        verifier_level,
     );
 
-    // Build a Certificate to use its verify() which checks temporal,
-    // stale, and level constraints.
-    let certificate = Certificate::issue(binding, &signer)
-        .map_err(|e| anyhow::anyhow!("re-issuance for verification failed: {e}"))?;
+    // Check temporal, stale, and level constraints via Certificate::verify().
+    certificate.verify(&signer, &context)
+        .map_err(|e| anyhow::anyhow!("certificate verification FAILED: {e}"))?;
 
-    match certificate.verify(&signer, &context) {
-        Ok(()) => {
-            println!(
-                "VERIFIED: certificate `{}` is valid",
-                envelope.certificate_id
-            );
-            Ok(())
-        }
-        Err(e) => {
-            anyhow::bail!("certificate verification FAILED: {e}");
-        }
-    }
+    println!(
+        "VERIFIED: certificate `{}` is valid",
+        envelope.certificate_id
+    );
+    Ok(())
 }
 
 fn inspect(cert_path: &Path) -> Result<()> {
