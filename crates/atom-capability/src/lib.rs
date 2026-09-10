@@ -109,6 +109,33 @@ pub enum CapabilityError {
 
     #[error("grant revoked: state={state:?}")]
     GrantRevoked { state: RevocationState },
+
+    #[error("parent grant `{grant_id}` has no authority_digest for lineage verification")]
+    MissingAuthorityDigest { grant_id: String },
+
+    #[error(
+        "parent authority digest mismatch: claimed={claimed}, computed={expected}"
+    )]
+    ParentAuthorityDigestMismatch { claimed: String, expected: String },
+
+    #[error(
+        "child must claim parent_authority_digest when parent carries an authority_digest (parent grant `{parent_grant_id}`)"
+    )]
+    MissingParentAuthorityDigest { parent_grant_id: String },
+
+    #[error("holder binding mismatch: child={child}, parent={parent}")]
+    HolderBindingMismatch { child: String, parent: String },
+
+    #[error(
+        "child claims holder_binding `{child}` but parent has none; cannot invent a holder"
+    )]
+    HolderBindingNotInParent { child: String },
+
+    #[error("authority digest mismatch: claimed={claimed}, computed={expected}")]
+    AuthorityDigestMismatch { claimed: String, expected: String },
+
+    #[error("grant cannot be canonicalized for lineage verification: {0}")]
+    Canonicalization(String),
 }
 
 // ---------------------------------------------------------------------------
@@ -289,9 +316,10 @@ impl AuthorityProfile {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Subset check (AUT-002 / INV-003)
-// ---------------------------------------------------------------------------
+// Domain tag for a capability grant authority digest — the signed message.
+pub const AUTHORITY_DOMAIN: &str = "ATOM-CAPABILITY-AUTHORITY-v1:";
+/// Domain tag for parent authority digest in capability grants.
+pub const PARENT_AUTHORITY_DOMAIN: &str = "ATOM-CAPABILITY-PARENT-AUTHORITY-v1:";
 
 /// Verify that `child` is a strict semantic subset of `parent` across every
 /// dimension of the capability lattice.
@@ -320,7 +348,76 @@ pub fn subset_check(
         });
     }
 
-    // 2. Operations ⊆ parent operations
+    // 2. Cryptographic lineage verification (AUT-008 / INV-017)
+    // (a) Parent's own self-digest must be self-consistent whenever it is set —
+    //     a parent whose `authority_digest` field was tampered anchors nothing.
+    if let Some(parent_digest_field) = &parent.authority_digest {
+        let parent_expected = authority_digest_of(parent)?;
+        if parent_digest_field != &parent_expected {
+            return Err(CapabilityError::AuthorityDigestMismatch {
+                claimed: parent_digest_field.clone(),
+                expected: parent_expected,
+            });
+        }
+    }
+
+    // (b) The child MUST cryptographically commit to the exact parent artifact
+    //     whenever the parent carries a self digest. The commitment is simply
+    //     the parent's authority_digest, so substituting a different parent
+    //     (even one with identical semantics) is rejected.
+    match (&parent.authority_digest, &child.parent_authority_digest) {
+        (Some(parent_digest), Some(child_commitment)) => {
+            if child_commitment != parent_digest {
+                return Err(CapabilityError::ParentAuthorityDigestMismatch {
+                    claimed: child_commitment.clone(),
+                    expected: parent_digest.clone(),
+                });
+            }
+        }
+        (Some(_), None) => {
+            return Err(CapabilityError::MissingParentAuthorityDigest {
+                parent_grant_id: parent.grant_id.clone(),
+            });
+        }
+        (None, Some(child_commitment)) => {
+            // Parent anchors no lineage but child claims one: cannot verify.
+            return Err(CapabilityError::ParentAuthorityDigestMismatch {
+                claimed: child_commitment.clone(),
+                expected: "-none-".into(),
+            });
+        }
+        (None, None) => {}
+    }
+
+    // (c) Child's self-digest must be self-consistent whenever set.
+    if let Some(claimed_authority_digest) = &child.authority_digest {
+        let child_expected = authority_digest_of(child)?;
+        if claimed_authority_digest != &child_expected {
+            return Err(CapabilityError::AuthorityDigestMismatch {
+                claimed: claimed_authority_digest.clone(),
+                expected: child_expected,
+            });
+        }
+    }
+
+    // (d) Holder binding is inherited, never invented (AUT-001). A child may
+    //     only carry the holder its parent already bound.
+    match (&parent.holder_binding, &child.holder_binding) {
+        (Some(parent_holder), Some(child_holder)) if child_holder != parent_holder => {
+            return Err(CapabilityError::HolderBindingMismatch {
+                child: child_holder.clone(),
+                parent: parent_holder.clone(),
+            });
+        }
+        (None, Some(child_holder)) => {
+            return Err(CapabilityError::HolderBindingNotInParent {
+                child: child_holder.clone(),
+            });
+        }
+        _ => {}
+    }
+
+    // 3. Operations ⊆ parent operations
     let parent_ops: std::collections::HashSet<&str> =
         parent.operations.iter().map(|s| s.as_str()).collect();
     let missing: Vec<String> = child
@@ -333,7 +430,7 @@ pub fn subset_check(
         return Err(CapabilityError::OperationsNotSubset { missing });
     }
 
-    // 3. Resources semantically contained
+    // 4. Resources semantically contained
     //    Each child resource must match at least one parent resource.
     //    "*" in parent means wildcard — matches anything.
     for cr in &child.resources {
@@ -348,7 +445,7 @@ pub fn subset_check(
         }
     }
 
-    // 4. Budget ≤ parent remaining reservation (BOTH dimensions, INV-003).
+    // 5. Budget ≤ parent remaining reservation (BOTH dimensions, INV-003).
     if child.budget.max_cost > parent.budget.max_cost {
         return Err(CapabilityError::BudgetExceeded {
             child: child.budget.max_cost,
@@ -362,7 +459,7 @@ pub fn subset_check(
         });
     }
 
-    // 5. Time window inside parent
+    // 6. Time window inside parent
     if child.not_before < parent.not_before || child.expires_at > parent.expires_at {
         return Err(CapabilityError::TimeWindowOutside {
             child_nb: child.not_before.to_rfc3339(),
@@ -372,7 +469,7 @@ pub fn subset_check(
         });
     }
 
-    // 6. Delegation depth strictly decreases
+    // 7. Delegation depth strictly decreases
     if child.delegation_depth >= parent.delegation_depth {
         return Err(CapabilityError::DelegationDepthNotDecreased {
             child: child.delegation_depth,
@@ -380,7 +477,7 @@ pub fn subset_check(
         });
     }
 
-    // 7. Grant generation must not exceed parent generation. Revocation is
+    // 8. Grant generation must not exceed parent generation. Revocation is
     //    generation-based, monotonic (AUT-001): a child carrying a higher
     //    generation would escape the parent's revocation watermark, widening
     //    its authority past what the parent held.
@@ -391,7 +488,7 @@ pub fn subset_check(
         });
     }
 
-    // 8. Audience cannot widen (INV-003).
+    // 9. Audience cannot widen (INV-003).
     //    Attenuation: child audience must equal parent, or be a strict child namespace
     //    of parent under the "parent + ':'" separator. A bare prefix match like
     //    "team" ⊃ "teamXYZ" is REJECTED — that would let a child escape its scope.
@@ -406,7 +503,7 @@ pub fn subset_check(
         }
     }
 
-    // 9. Purpose cannot widen (INV-003) — same strict namespace rule as audience.
+    // 10. Purpose cannot widen (INV-003) — same strict namespace rule as audience.
     if parent.purpose != "*" && child.purpose != parent.purpose {
         let namespace = format!("{}:", parent.purpose);
         if !child.purpose.starts_with(&namespace) {
@@ -418,6 +515,29 @@ pub fn subset_check(
     }
 
     Ok(())
+}
+
+/// Serialize a grant to canonical bytes excluding the self-referential digest
+/// fields (`authority_digest`, `parent_authority_digest`), so a grant's own
+/// digest depends only on its substantive content — the exact basis the
+/// lineage must commit to.
+fn compute_grant_bytes(grant: &CapabilityGrant) -> Result<Vec<u8>, CapabilityError> {
+    let mut value = serde_json::to_value(grant)
+        .map_err(|e| CapabilityError::Canonicalization(e.to_string()))?;
+    if let Some(object) = value.as_object_mut() {
+        object.remove("authority_digest");
+        object.remove("parent_authority_digest");
+    }
+    atom_ledger::canonicalize(&value).map_err(|e| CapabilityError::Canonicalization(e.to_string()))
+}
+
+/// Compute the domain-separated self density digest of a grant over its
+/// canonical bytes (excluding self-reference fields). This is what the grant's
+/// `authority_digest` field must contain and what descendants commit to in
+/// `parent_authority_digest`.
+pub fn authority_digest_of(grant: &CapabilityGrant) -> Result<String, CapabilityError> {
+    let bytes = compute_grant_bytes(grant)?;
+    Ok(atom_ledger::domain_digest(AUTHORITY_DOMAIN, &bytes).to_hex())
 }
 
 /// Validate that a grant is currently usable (not expired, not revoked, valid

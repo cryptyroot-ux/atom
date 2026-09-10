@@ -408,6 +408,7 @@ dependencies = [
 name = "atom-capability"
 version = "0.0.0-alpha.1"
 dependencies = [
+ "atom-ledger",
  "chrono",
  "jsonschema",
  "proptest",

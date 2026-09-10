@@ -80,6 +80,12 @@ pub enum DenyReason {
         /// Observed binding.
         observed: String,
     },
+    /// Hard deny for reasons not covered by a semantic dimension (e.g. the
+    /// child cannot be canonicalized, so lineage cannot be anchored).
+    Deny {
+        /// Why the claim is rejected.
+        reason: String,
+    },
 }
 
 impl fmt::Display for DenyReason {
@@ -126,6 +132,9 @@ impl fmt::Display for DenyReason {
                     f,
                     "holder binding mismatch: expected {expected:?}, got {observed:?}"
                 )
+            }
+            Self::Deny { reason } => {
+                write!(f, "denied: {reason}")
             }
         }
     }
@@ -321,11 +330,11 @@ pub fn attenuate(
         (None, _) => None,
     };
 
-    // --- Authority digest: will be computed after construction ---
-    // For now, leave it as None; caller should compute via domain-separated hash
-
-    // --- Construct child ---
-    let child = CapabilityGrant {
+    // --- Construct child with cryptographically committed lineage (P0) ---
+    // parent_authority_digest commits to the exact parent artifact; the child's
+    // own authority_digest is computed over its canonical bytes so downstream
+    // subset_check can verify self-consistency and parent splicing.
+    let mut child = CapabilityGrant {
         grant_id: uuid::Uuid::new_v4().to_string(),
         subject_id: request.subject_id.clone(),
         workload_id: request.workload_id.clone(),
@@ -340,12 +349,22 @@ pub fn attenuate(
         generation: parent.generation + 1,
         revocation_state: RevocationState::Active,
         parent_grant_id: Some(parent.grant_id.clone()),
-        parent_authority_digest: Some(parent.authority_digest.clone().unwrap_or_default()),
+        parent_authority_digest: parent.authority_digest.clone(),
         holder_binding,
-        authority_digest: None, // computed by caller
+        authority_digest: None, // computed below over canonical bytes
         nonce: None,
         constraints: request.constraints.clone(),
     };
+    if parent.authority_digest.is_some() {
+        // Parent anchors lineage -> child must commit to it.
+        child.authority_digest = Some(
+            atom_capability::authority_digest_of(&child).map_err(|e| DenyReason::Deny {
+                // Canonicalization failure is a hard deny: lineage cannot be
+                // anchored honestly.
+                reason: format!("authority digest failed: {e}"),
+            })?,
+        );
+    }
 
     Ok(child)
 }
