@@ -357,13 +357,13 @@ pub fn attenuate(
     };
     if parent.authority_digest.is_some() {
         // Parent anchors lineage -> child must commit to it.
-        child.authority_digest = Some(
-            atom_capability::authority_digest_of(&child).map_err(|e| DenyReason::Deny {
+        child.authority_digest = Some(atom_capability::authority_digest_of(&child).map_err(
+            |e| DenyReason::Deny {
                 // Canonicalization failure is a hard deny: lineage cannot be
                 // anchored honestly.
                 reason: format!("authority digest failed: {e}"),
-            })?,
-        );
+            },
+        )?);
     }
 
     Ok(child)

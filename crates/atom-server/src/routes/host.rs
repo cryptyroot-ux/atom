@@ -414,6 +414,21 @@ pub async fn commit(
 
     let nonce = format!("nonce/{}", uuid::Uuid::new_v4());
     let permit_id = format!("permit/{}", uuid::Uuid::new_v4());
+
+    // Snapshot the durable spent set BEFORE reserving this nonce. The broker's
+    // one-shot memory is seeded from this snapshot: it must see every nonce a
+    // PRIOR life burned (crash-window closure) but must NOT see this request's
+    // just-reserved nonce as spent yet, or the legitimate crossing is denied.
+    let burned_prior_lives: Vec<String> = store.burned_nonces().to_vec();
+
+    // P0 G3 — close the crash window: reserve the nonce durably BEFORE any
+    // host effect executes. If the daemon crashes between this append and the
+    // settlement below, the nonce is rehydrated as RESERVED → UNKNOWN_OUTCOME,
+    // never re-servable, and never silently lost.
+    store.reserve_nonce(&nonce, &request.plan_id).map_err(|e| {
+        ApiError::bad_request(instance, format!("reserving the permit nonce failed: {e}"))
+    })?;
+
     let permit = issue_commit_permit(PermitRequest {
         intent: &at_boundary,
         grant: &grant,
@@ -442,9 +457,10 @@ pub async fn commit(
     let executor = SandboxedHostExecutor::new(&config.root).map_err(|e| {
         ApiError::service_unavailable(instance, format!("sandbox unavailable: {e}"))
     })?;
-    let burned: Vec<String> = store.burned_nonces().to_vec();
-    let mut gateway =
-        UnprivilegedHostGateway::new(PrivilegeBroker::with_burned_nonces(executor, burned));
+    let mut gateway = UnprivilegedHostGateway::new(PrivilegeBroker::with_burned_nonces(
+        executor,
+        burned_prior_lives,
+    ));
 
     let admitted = match gateway.submit(HostOperationRequest {
         op: &op,

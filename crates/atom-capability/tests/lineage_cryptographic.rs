@@ -106,7 +106,10 @@ fn parent_without_digest_but_child_claims_one_is_denied() {
     child.parent_authority_digest = Some("sha256:0000".into());
     let result = subset_check(&parent, &child);
     assert!(
-        matches!(result, Err(CapabilityError::ParentAuthorityDigestMismatch { .. })),
+        matches!(
+            result,
+            Err(CapabilityError::ParentAuthorityDigestMismatch { .. })
+        ),
         "got {result:?}"
     );
 }
@@ -133,7 +136,8 @@ fn self_digest_tampering_is_denied() {
     // self-claim is a forgery even if everything else is subset-valid.
     let parent = parent_with_digest();
     let mut child = child_of(&parent);
-    child.authority_digest = Some("sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff".into());
+    child.authority_digest =
+        Some("sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff".into());
     let result = subset_check(&parent, &child);
     assert!(
         matches!(result, Err(CapabilityError::AuthorityDigestMismatch { .. })),
@@ -169,7 +173,10 @@ fn child_cannot_invent_a_holder() {
     child.authority_digest = Some(authority_digest_of(&child).expect("canonicalizable"));
     let result = subset_check(&parent, &child);
     assert!(
-        matches!(result, Err(CapabilityError::HolderBindingNotInParent { .. })),
+        matches!(
+            result,
+            Err(CapabilityError::HolderBindingNotInParent { .. })
+        ),
         "got {result:?}"
     );
 }

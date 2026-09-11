@@ -10,8 +10,9 @@ use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 
 use atom_cert::{
-    BehaviorManifestV2, BindingParams, CertVerifier, Certificate, CertificateBinding, Signature,
-    EnvironmentScope, EvaluationContext, EvaluationSuite, HmacSha256CertVerifier, VerifierLevel,
+    BehaviorManifestV2, BindingParams, CertVerifier, Certificate, CertificateBinding,
+    EnvironmentScope, EvaluationContext, EvaluationSuite, HmacSha256CertVerifier, Signature,
+    VerifierLevel,
 };
 
 use crate::{CertAction, SigningConfig};
@@ -266,14 +267,21 @@ fn verify(
     // (no re-issuance needed; signature is validated via constant-time compare).
     let sig_bytes = hex::decode(&envelope.signature_bytes_hex)
         .map_err(|e| anyhow::anyhow!("decoding stored signature hex: {e}"))?;
-    let certificate = Certificate::from_parts(binding, Signature {
-        key_id: envelope.signature_key_id.clone(),
-        bytes: sig_bytes.clone(),
-    });
+    let certificate = Certificate::from_parts(
+        binding,
+        Signature {
+            key_id: envelope.signature_key_id.clone(),
+            bytes: sig_bytes.clone(),
+        },
+    );
 
     // Authenticate the seal via constant-time HMAC verification.
     let signer = HmacSha256CertVerifier::new(&cfg.key_id, &cfg.secret);
-    if !signer.verify(certificate.binding().verifier_id(), &certificate.binding().digest(), &sig_bytes) {
+    if !signer.verify(
+        certificate.binding().verifier_id(),
+        &certificate.binding().digest(),
+        &sig_bytes,
+    ) {
         anyhow::bail!(
             "signature mismatch: stored seal does not match the signing key `{}`",
             cfg.key_id
@@ -281,7 +289,9 @@ fn verify(
     }
 
     // Validate environment scope digest against stored value.
-    if certificate.binding().environment_scope_digest() != parse_hash(&envelope.environment_scope_digest)? {
+    if certificate.binding().environment_scope_digest()
+        != parse_hash(&envelope.environment_scope_digest)?
+    {
         anyhow::bail!(
             "environment scope digest mismatch: stored {:?} does not match computed {:?}",
             envelope.environment_scope_digest,
@@ -307,7 +317,8 @@ fn verify(
     );
 
     // Check temporal, stale, and level constraints via Certificate::verify().
-    certificate.verify(&signer, &context)
+    certificate
+        .verify(&signer, &context)
         .map_err(|e| anyhow::anyhow!("certificate verification FAILED: {e}"))?;
 
     println!(

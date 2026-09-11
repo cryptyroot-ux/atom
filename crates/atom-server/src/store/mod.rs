@@ -16,6 +16,46 @@ const APPROVAL_STREAM: &str = "approval";
 const HOST_PLAN_STREAM: &str = "host_plan";
 /// Burned one-shot permit nonces: the durable half of the one-shot guarantee.
 pub const NONCE_BURN_STREAM: &str = "nonce_burn";
+
+/// Lifecycle of a one-shot permit nonce across a dispatch attempt (P0 G3).
+///
+/// The crash window is closed by recording a nonce as [`NonceState::Reserved`]
+/// in the ledger *before* the effect executes. A crash after the crossing but
+/// before settling leaves the nonce in a state the broker can see as spent
+/// (so it can never be re-served) while the daemon marks the outcome
+/// [`NonceState::UnknownOutcome`] for reconciliation on restart.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NonceState {
+    /// Permanently spent: the crossing it protected fully completed and the
+    /// outcome was durably recorded.
+    Burned,
+    /// Reserved durably before a dispatch attempt. If a crash leaves the nonce
+    /// here, the effect outcome is unknown and must be reconciled once.
+    Reserved,
+    /// A reserved nonce that never reached [`NonceState::Burned`]: the effect
+    /// may or may not have crossed before the crash.
+    UnknownOutcome,
+}
+
+impl NonceState {
+    /// Canonical stream value.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Burned => "BURNED",
+            Self::Reserved => "RESERVED",
+            Self::UnknownOutcome => "UNKNOWN_OUTCOME",
+        }
+    }
+
+    fn from_str(value: &str) -> Self {
+        match value {
+            "RESERVED" => Self::Reserved,
+            "UNKNOWN_OUTCOME" => Self::UnknownOutcome,
+            _ => Self::Burned,
+        }
+    }
+}
 /// Domain separation for approval attestations (P0-B): the signed digest binds
 /// the approval bytes to attestation specifically, so a signature lifted from
 /// any other sealed context (ledger checkpoints, sealed artifacts) can never
@@ -44,6 +84,19 @@ fn approval_attestation_digest(grant: &ApprovalGrant) -> anyhow::Result<Hash> {
     prefixed.extend_from_slice(&bytes);
     let digest = Sha256::digest(&prefixed);
     Hash::from_slice(&digest).context("hashing approval attestation bytes")
+}
+
+/// A tracked nonce dispatch lifecycle record (P0 G3).
+#[derive(Debug, Clone)]
+pub struct NonceDispatch {
+    /// The one-shot permit nonce.
+    pub nonce: String,
+    /// Current dispatch state.
+    pub state: NonceState,
+    /// When the last state transition was recorded (epoch millis).
+    pub timestamp_ms: i64,
+    /// The plan_id that originated this dispatch, when known.
+    pub plan_id: Option<String>,
 }
 
 const SERVER_STREAMS: [&str; 8] = [
@@ -75,6 +128,9 @@ pub struct Store {
     approvals: Vec<Value>,
     host_plans: Vec<Value>,
     burned_nonces: Vec<String>,
+    /// Dispatch state for every nonce ever reserved/attempted (P0 G3).
+    /// Tracks Reserved/Burned/UnknownOutcome lifecycle.
+    nonce_dispatch: Vec<NonceDispatch>,
 }
 
 impl Store {
@@ -106,6 +162,7 @@ impl Store {
             approvals: Vec::new(),
             host_plans: Vec::new(),
             burned_nonces: Vec::new(),
+            nonce_dispatch: Vec::new(),
         };
         store.rebuild_projections()?;
         Ok(store)
@@ -121,6 +178,7 @@ impl Store {
         self.approvals.clear();
         self.host_plans.clear();
         self.burned_nonces.clear();
+        self.nonce_dispatch.clear();
 
         for stream_id in SERVER_STREAMS {
             let report = self
@@ -185,11 +243,29 @@ impl Store {
 
         // The one-shot memory: every nonce a prior life burned. A restarted
         // daemon rebuilds this before it will admit any crossing, so a permit
-        // spent before the restart stays spent (ATOM-V4-EFX-004).
+        // spent before the restart stays spent (ATOM-V4-EFX-004). The dispatch
+        // state machine (P0 G3) also rehydrates Reserved and UnknownOutcome
+        // nonces: a reserved-but-never-settled nonce must never be re-served.
         for record in self.ledger.scan(NONCE_BURN_STREAM, 1)? {
             let nonce = string_field(&record.payload, "nonce", NONCE_BURN_STREAM)?;
             if !self.burned_nonces.iter().any(|seen| seen == nonce) {
                 self.burned_nonces.push(nonce.to_owned());
+            }
+            let state_value = record.payload["state"]
+                .as_str()
+                .unwrap_or("BURNED")
+                .to_owned();
+            let plan_id = record.payload["plan_id"].as_str().map(str::to_owned);
+            let timestamp_ms = record.payload["timestamp_ms"]
+                .as_i64()
+                .unwrap_or(record.event.ts);
+            if !self.nonce_dispatch.iter().any(|seen| seen.nonce == nonce) {
+                self.nonce_dispatch.push(NonceDispatch {
+                    nonce: nonce.to_owned(),
+                    state: NonceState::from_str(&state_value),
+                    timestamp_ms,
+                    plan_id,
+                });
             }
         }
 
@@ -376,19 +452,85 @@ impl Store {
     /// a crash before it returns leaves the nonce unburned, which is the honest
     /// state (the crossing did not happen).
     pub fn burn_nonce(&mut self, nonce: &str) -> anyhow::Result<()> {
+        self.record_nonce_transition(nonce, NonceState::Burned, None)
+    }
+
+    /// Records a nonce lifecycle transition in the durable ledger.
+    ///
+    /// Every transition updates the in-memory projection so the broker sees the
+    /// nonce as spent, and appends to the ledger so a restarted daemon rebuilds
+    /// the same state.
+    fn record_nonce_transition(
+        &mut self,
+        nonce: &str,
+        state: NonceState,
+        plan_id: Option<&str>,
+    ) -> anyhow::Result<()> {
         if nonce.trim().is_empty() {
-            bail!("refusing to burn an empty nonce");
+            bail!("refusing to record an empty nonce");
         }
-        if self.burned_nonces.iter().any(|seen| seen == nonce) {
-            bail!("nonce `{nonce}` was already burned");
+        let event = serde_json::json!({
+            "nonce": nonce,
+            "state": state.as_str(),
+            "plan_id": plan_id,
+            "timestamp_ms": now_millis(),
+        });
+        self.ledger
+            .append(NONCE_BURN_STREAM, &event, now_millis())?;
+        if !self.burned_nonces.iter().any(|seen| seen == nonce) {
+            self.burned_nonces.push(nonce.to_owned());
         }
-        self.ledger.append(
-            NONCE_BURN_STREAM,
-            &serde_json::json!({ "nonce": nonce }),
-            now_millis(),
-        )?;
-        self.burned_nonces.push(nonce.to_owned());
+        let exists = self
+            .nonce_dispatch
+            .iter_mut()
+            .find(|seen| seen.nonce == nonce);
+        if let Some(dispatch) = exists {
+            dispatch.state = state;
+            dispatch.timestamp_ms = now_millis();
+            dispatch.plan_id = plan_id.map(str::to_owned);
+        } else {
+            self.nonce_dispatch.push(NonceDispatch {
+                nonce: nonce.to_owned(),
+                state,
+                timestamp_ms: now_millis(),
+                plan_id: plan_id.map(str::to_owned),
+            });
+        }
         Ok(())
+    }
+
+    /// Durably reserves a nonce *before* the effect crossing is dispatched.
+    ///
+    /// Closing the crash window (P0 G3): the reserve append happens first, so
+    /// a crash after the crossing but before settlement leaves the nonce
+    /// RESERVED — never re-servable, but flagged `UnknownOutcome` for
+    /// reconciliation on restart.
+    pub fn reserve_nonce(&mut self, nonce: &str, plan_id: &str) -> anyhow::Result<()> {
+        self.record_nonce_transition(nonce, NonceState::Reserved, Some(plan_id))
+    }
+
+    /// The dispatch state of every nonce, rebuildable from the ledger.
+    pub fn nonce_dispatch(&self) -> &[NonceDispatch] {
+        &self.nonce_dispatch
+    }
+
+    /// Nonces reserved but never settled: candidates for unknown-outcome
+    /// reconciliation on restart.
+    pub fn unknown_outcome_nonces(&self) -> Vec<&NonceDispatch> {
+        self.nonce_dispatch
+            .iter()
+            .filter(|d| d.state == NonceState::Reserved)
+            .collect()
+    }
+
+    /// Marks a reserved nonce whose settlement never arrived as an unknown
+    /// outcome, so operators can reconcile it exactly once.
+    pub fn mark_unknown_outcome(
+        &mut self,
+        nonce: &str,
+        plan_id: Option<&str>,
+    ) -> anyhow::Result<()> {
+        self.record_nonce_transition(nonce, NonceState::UnknownOutcome, plan_id)
     }
 
     pub fn add_approval(&mut self, grant: &Value) -> anyhow::Result<()> {

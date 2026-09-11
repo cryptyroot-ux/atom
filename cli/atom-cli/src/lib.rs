@@ -695,7 +695,6 @@ fn resolve_content(inline: Option<String>, input: Option<&Path>) -> Result<Vec<u
 mod tests {
     use super::*;
     use clap::CommandFactory;
-    use hex; // For tampering tests
 
     fn cfg() -> SigningConfig {
         SigningConfig::new("test-key", b"test-secret".to_vec())
@@ -899,7 +898,7 @@ mod tests {
         assert_eq!(report.key_id, "test-key");
     }
 
-// ── cert E2E: issue → verify → tamper → deny ───────────────────────────────
+    // ── cert E2E: issue → verify → tamper → deny ───────────────────────────────
     #[test]
     fn cert_e2e_issue_verify_tamper_deny() {
         use std::io::Write;
@@ -918,7 +917,11 @@ mod tests {
         let mut env_file = NamedTempFile::new().unwrap();
 
         writeln!(manifest_file, r#"{{"schema_version": "4.1", "cognition_runtime": "test", "runtime_version": "1", "provider": "test", "model_exact_id": "test", "sampling_parameters": {{}}, "system_prompt_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "instruction_bundle_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "context_compiler_version": "1", "context_snapshot_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "capability_contract_digests": [], "tool_schema_digests": [], "policy_bundle_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "grant_semantics_version": "1", "memory_snapshot_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "epistemic_policy_version": "1", "verifier_bundle_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "connector_versions": [], "sandbox_runtime": "test", "worker_image_digests": [], "secret_reference_generations": [], "compatibility_profile_digests": [], "environment_fingerprint": "test"}}"#).unwrap();
-        writeln!(eval_file, r#"{{"suite": "test-suite", "version": "1", "tests": []}}"#).unwrap();
+        writeln!(
+            eval_file,
+            r#"{{"suite": "test-suite", "version": "1", "tests": []}}"#
+        )
+        .unwrap();
         writeln!(env_file, r#"{{"os": "linux", "arch": "x86_64"}}"#).unwrap();
 
         let cert_file = NamedTempFile::new().unwrap();
@@ -937,7 +940,8 @@ mod tests {
                 out: Some(cert_file.path().to_path_buf()),
             },
             &cfg,
-        ).expect("issue succeeds");
+        )
+        .expect("issue succeeds");
 
         // 2. Verify certificate (should pass)
         cert_ops::run(
@@ -949,7 +953,8 @@ mod tests {
                 required_level: "V0".to_string(),
             },
             &cfg,
-        ).expect("verify succeeds on valid cert");
+        )
+        .expect("verify succeeds on valid cert");
 
         // 3. Tamper with certificate (flip a byte in signature)
         let cert_text = std::fs::read_to_string(cert_file.path()).unwrap();
@@ -993,6 +998,9 @@ mod tests {
             },
             &cfg,
         );
-        assert!(result.is_err(), "certificate with tampered manifest should be rejected as stale");
+        assert!(
+            result.is_err(),
+            "certificate with tampered manifest should be rejected as stale"
+        );
     }
 }

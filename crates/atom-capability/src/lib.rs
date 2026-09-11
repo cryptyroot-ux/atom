@@ -113,9 +113,7 @@ pub enum CapabilityError {
     #[error("parent grant `{grant_id}` has no authority_digest for lineage verification")]
     MissingAuthorityDigest { grant_id: String },
 
-    #[error(
-        "parent authority digest mismatch: claimed={claimed}, computed={expected}"
-    )]
+    #[error("parent authority digest mismatch: claimed={claimed}, computed={expected}")]
     ParentAuthorityDigestMismatch { claimed: String, expected: String },
 
     #[error(
@@ -126,9 +124,7 @@ pub enum CapabilityError {
     #[error("holder binding mismatch: child={child}, parent={parent}")]
     HolderBindingMismatch { child: String, parent: String },
 
-    #[error(
-        "child claims holder_binding `{child}` but parent has none; cannot invent a holder"
-    )]
+    #[error("child claims holder_binding `{child}` but parent has none; cannot invent a holder")]
     HolderBindingNotInParent { child: String },
 
     #[error("authority digest mismatch: claimed={claimed}, computed={expected}")]
