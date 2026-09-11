@@ -344,7 +344,7 @@ pub fn subset_check(
         });
     }
 
-    // 2. Cryptographic lineage verification (AUT-008 / INV-017)
+    // 2. Cryptographic lineage verification (ATOM-V4-AUT-002 / ATOM-INV-003)
     // (a) Parent's own self-digest must be self-consistent whenever it is set —
     //     a parent whose `authority_digest` field was tampered anchors nothing.
     if let Some(parent_digest_field) = &parent.authority_digest {

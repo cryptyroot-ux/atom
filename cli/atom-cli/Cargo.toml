@@ -50,7 +50,7 @@ tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time"]
 reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
 atom-agent-profile = { path = "../../crates/atom-agent-profile" }
 atom-cert = { path = "../../crates/atom-cert" }
+hex = "0.4"
 
 [dev-dependencies]
 tempfile = "3"
-hex = "0.4"

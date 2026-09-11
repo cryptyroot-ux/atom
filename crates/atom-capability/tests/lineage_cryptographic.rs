@@ -1,4 +1,4 @@
-//! Cryptographic delegation lineage enforcement (AUT-008 / INV-017 / P0).
+//! Cryptographic delegation lineage enforcement (ATOM-V4-AUT-002 / ATOM-INV-003 / P0).
 //!
 //! `subset_check` must cryptographically commit the child to the exact parent
 //! artifact. Possession of the parent fields is not enough: a substituted or

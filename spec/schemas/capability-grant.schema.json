@@ -79,6 +79,27 @@
         "EXPIRED"
       ]
     },
+    "parent_authority_digest": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Domain-separated SHA-256 digest of the exact parent grant artifact this child commits to (ATOM-V4-AUT-002 lineage)."
+    },
+    "authority_digest": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Domain-separated SHA-256 digest of this grant's own canonical bytes excluding the self-referential digest fields."
+    },
+    "holder_binding": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Binds the grant to the concrete holder so the grant cannot be replayed by another workload."
+    },
     "nonce": {
       "type": "string"
     },

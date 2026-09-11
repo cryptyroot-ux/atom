@@ -3,10 +3,10 @@
   "requirement": "ATOM-V4-KRN-002",
   "gate": "G2",
   "outcome": "pass",
-  "generated_at": "2026-08-31T21:22:09.206018+00:00",
+  "generated_at": "2026-09-11T12:16:50.542288+00:00",
   "harness": "tools/emit_g2_evidence.py",
   "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)",
-  "test_source_digest": "sha256:51327810d684668af893e6e61c44ae71f8b40b41246b1cd9cce393a6ba729018",
+  "test_source_digest": "sha256:3e4d03508e220f856d250fd39ce8f3b03729c3a8935604834f907850da14aa10",
   "total_passed": 20,
   "runs": [
     {

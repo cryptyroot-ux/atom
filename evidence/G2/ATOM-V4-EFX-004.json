@@ -3,11 +3,11 @@
   "requirement": "ATOM-V4-EFX-004",
   "gate": "G2",
   "outcome": "pass",
-  "generated_at": "2026-08-31T21:22:12.374822+00:00",
+  "generated_at": "2026-09-11T12:16:56.271188+00:00",
   "harness": "tools/emit_g2_evidence.py",
   "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)",
-  "test_source_digest": "sha256:641ef3c6c11f93b5130f9e831587933d2d06cc88efaf33a258977a53651bf690",
-  "total_passed": 15,
+  "test_source_digest": "sha256:74b76986a7536d0ef7390584ca1dee1483577acdddb923710dae3e5e7b126ddd",
+  "total_passed": 20,
   "runs": [
     {
       "command": "cargo test -p atom-effect --test vt003_toctou_authority_drift",
@@ -15,7 +15,7 @@
       "test_binary": "vt003_toctou_authority_drift",
       "name_filter": null,
       "exit_code": 0,
-      "passed": 15,
+      "passed": 20,
       "failed": 0,
       "ok": true
     }

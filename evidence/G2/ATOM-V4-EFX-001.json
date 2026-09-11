@@ -3,11 +3,11 @@
   "requirement": "ATOM-V4-EFX-001",
   "gate": "G2",
   "outcome": "pass",
-  "generated_at": "2026-08-31T21:22:12.086497+00:00",
+  "generated_at": "2026-09-11T12:16:55.954635+00:00",
   "harness": "tools/emit_g2_evidence.py",
   "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)",
-  "test_source_digest": "sha256:ff0201e2795797c86ccded007a1b532af98cfdf3560526f2ac182a6fbddf9ca5",
-  "total_passed": 5,
+  "test_source_digest": "sha256:09c8df91d0be9af2b25fd979ab9d8cd6caa30c6d8a79aa237bdd72f35f3cab93",
+  "total_passed": 6,
   "runs": [
     {
       "command": "cargo test -p atom-kernel --test kernel_gate no_permit_non_durable_intent_denies_commit",
@@ -35,7 +35,7 @@
       "test_binary": "native_loop",
       "name_filter": null,
       "exit_code": 0,
-      "passed": 3,
+      "passed": 4,
       "failed": 0,
       "ok": true
     }

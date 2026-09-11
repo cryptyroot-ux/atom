@@ -10,6 +10,10 @@
   "resource_version_witness": {
     "version": 7
   },
+  "dispatch_sink_id": "atom-privilege-broker",
+  "connector_identity": "connector/host",
+  "connector_version": "0.0.0-alpha.1",
+  "connector_instance_epoch": 1,
   "approval_id": null,
   "evidence_freshness_digest": null,
   "issued_at": "2026-08-31T12:00:00Z",

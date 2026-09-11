@@ -1,10 +1,12 @@
 {
-  "inventory_id": "inv-schema",
-  "pack_version": "4.1",
+  "spec_version": "4.1.0",
   "schemas": [
     {
-      "id": "effect-intent"
+      "id": "effect-intent",
+      "path": "spec/schemas/effect-intent.schema.json",
+      "format": "json-schema",
+      "scope": "canonical",
+      "semantic_hooks": ["semantic_effect"]
     }
-  ],
-  "generated_at": "2026-08-31T12:00:00Z"
+  ]
 }

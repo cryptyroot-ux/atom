@@ -35,6 +35,12 @@ except ImportError:  # fail-closed: cannot validate without a parser
     print("FATAL: pyyaml is required (uv run --with pyyaml ...)", file=sys.stderr)
     sys.exit(2)
 
+try:
+    import jsonschema
+    HAS_JSONSCHEMA = True
+except ImportError:
+    HAS_JSONSCHEMA = False
+
 # Controlled totals — the verified v4.1 baseline. Drift from any of these is a
 # FAIL, never a silent re-baseline.
 CONTROLLED = {
@@ -305,6 +311,79 @@ class G0Validator:
         self.add("G0-COVERAGE::schema-fixtures", status,
                  f"{authored}/{SCHEMA_FIXTURES_REQUIRED} schema fixtures authored",
                  "one valid + one invalid per schema required")
+
+    # G0-SCHEMA: actual JSON Schema validation of fixtures against their body.
+    #
+    # File-existence coverage (above) is necessary but not sufficient: a valid
+    # fixture that no longer satisfies its own schema is a false green. Every
+    # fixture named in `schemas/inventory.yaml` is validated against its schema
+    # body here, and an invalid fixture that *also* qualifies under the schema
+    # is a contract bug (it is supposed to be rejected by its own required
+    # checks, though the fixture intentionally breaks a semantic rule the body
+    # cannot express — so we only require that valid fixtures actually validate).
+    def check_schema_bodies_validate(self) -> None:
+        if not HAS_JSONSCHEMA:
+            self.add(
+                "G0-SCHEMA::fixtures-validate",
+                BLOCKED,
+                "jsonschema not installed",
+                "cannot verify fixtures without jsonschema",
+            )
+            return
+        schemas = self._list("schemas/inventory.yaml")
+        checked = 0
+        errors = []
+        for s in schemas:
+            try:
+                contract = str(s["contract"])
+                schema_path = self.root / contract
+                if not schema_path.exists():
+                    continue
+                schema = json.loads(schema_path.read_text())
+                fx = s.get("fixtures", {}) if isinstance(s, dict) else {}
+                for kind in ("valid", "invalid"):
+                    rel = fx.get(kind)
+                    if not (isinstance(rel, str) and rel.startswith("spec/")):
+                        continue
+                    fixture_path = self.root / rel
+                    if not fixture_path.exists():
+                        errors.append(f"{rel}: fixture missing")
+                        continue
+                    fixture = json.loads(fixture_path.read_text())
+                    validator = jsonschema.Draft202012Validator(schema)
+                    if kind == "valid":
+                        v = list(validator.iter_errors(fixture))
+                        if v:
+                            errors.append(
+                                f"{rel}: valid fixture fails its schema: {v[0].message}"
+                            )
+                        else:
+                            checked += 1
+                    else:
+                        # Invalid fixtures must actually fail one of the
+                        # body's core kwargs (required/type/enum). A fixture
+                        # that still validates is a dead-invalid fixture.
+                        if validator.is_valid(fixture):
+                            errors.append(
+                                f"{rel}: invalid fixture unexpectedly satisfies its schema"
+                            )
+                        else:
+                            checked += 1
+            except Exception as e:  # any parse/load failure is a FAIL
+                errors.append(f"{contract}: {e}")
+        if errors:
+            self.add(
+                "G0-SCHEMA::fixtures-validate",
+                FAIL,
+                "fixture schema validation detected violations",
+                "; ".join(errors),
+            )
+        else:
+            self.add(
+                "G0-SCHEMA::fixtures-validate",
+                PASS,
+                f"{checked} fixture records validated against their schema bodies",
+            )
 
     def check_sm_bodies(self) -> None:
         machines = self._list("state-machines/inventory.yaml")
@@ -681,6 +760,7 @@ class G0Validator:
             self.check_manifest()
             self.check_schema_bodies()
             self.check_schema_fixtures()
+            self.check_schema_bodies_validate()
             self.check_sm_bodies()
             self.check_semantic_rules()
         fails = [c for c in self.checks if c.status == FAIL]
