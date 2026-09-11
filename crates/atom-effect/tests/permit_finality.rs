@@ -294,3 +294,41 @@ fn synthetic_durability_witness_deny() {
         "{error:?}"
     );
 }
+
+#[test]
+fn hand_edited_permit_is_refused_as_forged() {
+    let gate = Gate::new();
+    let permit = gate.permit();
+    let mut registry = NonceRegistry::new();
+
+    // A crate that is not the Authority Kernel cannot re-mint a permit, but it
+    // can mutate the minted one. The binding digest must catch the edit even
+    // when the effect digest and every other field still line up.
+    let mut forged = permit.clone();
+    forged.audience = "sink/elsewhere".to_owned();
+
+    let error = registry
+        .consume(gate.consume(&forged))
+        .expect_err("a post-issuance edit must be refused as forged");
+
+    assert!(matches!(error, PermitError::ForgedPermit), "{error:?}");
+    assert_eq!(registry.len(), 0, "a forged permit must not burn a nonce");
+}
+
+#[test]
+fn empty_binding_digest_is_refused_as_forged() {
+    let gate = Gate::new();
+    let permit = gate.permit();
+    let mut registry = NonceRegistry::new();
+
+    // A hand-built permit with no binding digest (or a blank one) is not a
+    // minted permit — it is a forgery, refused before any other check.
+    let mut forged = permit.clone();
+    forged.binding_digest = String::new();
+
+    let error = registry
+        .consume(gate.consume(&forged))
+        .expect_err("a permit without a binding digest is forged");
+
+    assert!(matches!(error, PermitError::ForgedPermit), "{error:?}");
+}

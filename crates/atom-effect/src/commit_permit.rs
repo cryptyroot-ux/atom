@@ -14,7 +14,7 @@
 use std::collections::BTreeSet;
 
 use atom_capability::{CapabilityGrant, RevocationState};
-use atom_ledger::DurabilityProof;
+use atom_ledger::{canonicalize, domain_digest, DurabilityProof};
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -28,6 +28,11 @@ use crate::state::EffectState;
 /// The bound belongs to the crate rather than the caller: "short-lived" is a
 /// property of the boundary, not a preference of whoever asks to cross it.
 pub const MAX_PERMIT_TTL_SECONDS: u32 = 60;
+
+/// Domain tag for a [`CommitPermit`] self-binding digest, distinct from every
+/// other sealed identity in ATOM (permit digests cannot collide with durable
+/// proofs, event identities, or capability authority digests).
+pub const PERMIT_BINDING_DOMAIN: &str = "ATOM-PERMIT-BINDING-v1:";
 
 /// The observed version of the resource an effect is about to write.
 ///
@@ -109,6 +114,13 @@ pub struct CommitPermit {
     pub expires_at: DateTime<Utc>,
     /// The nonce burned on consumption, which makes the permit one-shot.
     pub one_shot_nonce: String,
+    /// Self-authenticating binding digest over all other permit fields.
+    ///
+    /// Computed at issuance by the Authority Kernel over the permit's canonical
+    /// bytes and verified again at consumption, so a permit that was altered,
+    /// spliced, or hand-built by another crate after issuance is refused even
+    /// when every other field still lines up (EFX-004).
+    pub binding_digest: String,
 }
 
 impl CommitPermit {
@@ -371,6 +383,10 @@ pub enum PermitError {
         /// When the permit died.
         expires_at: DateTime<Utc>,
     },
+    /// The permit's binding digest does not match its own fields: it was
+    /// forged, spliced, or hand-edited after the Authority Kernel minted it.
+    #[error("permit is not authentic: binding_digest does not match the permit's fields")]
+    ForgedPermit,
 }
 /// Everything the commit gate revalidates before it issues a permit (EFX-004).
 #[derive(Clone, Debug)]
@@ -593,7 +609,12 @@ pub fn issue_commit_permit(request: PermitRequest<'_>) -> Result<CommitPermit, P
     }
 
     revalidate_witness(request.planned_witness, request.observed_witness)?;
-    Ok(CommitPermit {
+
+    // Bind the permit to everything it freezes. Only the Authority Kernel mints
+    // permits, so `binding_digest` is computed here over the canonical serialz
+    // of those fields and must match at consumption; a permit forged or edited
+    // by another crate carries the wrong digest and is refused (EFX-004).
+    let mut permit = CommitPermit {
         permit_id: request.permit_id.to_owned(),
         effect_digest: intent.digest(),
         principal_id: request.principal_id.to_owned(),
@@ -612,7 +633,51 @@ pub fn issue_commit_permit(request: PermitRequest<'_>) -> Result<CommitPermit, P
         issued_at: request.now,
         expires_at: request.now + Duration::seconds(i64::from(request.ttl_seconds)),
         one_shot_nonce: request.one_shot_nonce.to_owned(),
-    })
+        // Placeholder; replaced below with the real digest.
+        binding_digest: String::new(),
+    };
+    permit.binding_digest = permit.compute_binding_digest();
+    Ok(permit)
+}
+
+impl CommitPermit {
+    /// The domain-separated self-authenticating binding digest of a permit.
+    ///
+    /// Computed over the canonical (RFC 8785) bytes of every field except
+    /// `binding_digest` itself, under a dedicated domain so a permit digest can
+    /// never collide with any other sealed identity in the system.
+    pub fn compute_binding_digest(&self) -> String {
+        let value = serde_json::json!({
+            "permit_id": self.permit_id,
+            "effect_digest": self.effect_digest,
+            "principal_id": self.principal_id,
+            "workload_id": self.workload_id,
+            "capability_grant_id": self.capability_grant_id,
+            "grant_generation": self.grant_generation,
+            "audience": self.audience,
+            "resource_id": self.resource_id,
+            "resource_version_witness": self.resource_version_witness,
+            "approval_id": self.approval_id,
+            "evidence_freshness_digest": self.evidence_freshness_digest,
+            "dispatch_sink_id": self.dispatch_sink_id,
+            "connector_identity": self.connector_identity,
+            "connector_version": self.connector_version,
+            "connector_instance_epoch": self.connector_instance_epoch,
+            "issued_at": self.issued_at.to_rfc3339(),
+            "expires_at": self.expires_at.to_rfc3339(),
+            "one_shot_nonce": self.one_shot_nonce,
+        });
+        let bytes = canonicalize(&value).expect("string-only permit document is canonicalizable");
+        domain_digest(PERMIT_BINDING_DOMAIN, &bytes).to_hex()
+    }
+
+    /// Whether the permit is self-consistent: its `binding_digest` matches a
+    /// fresh digest of its own fields. Refused when another crate constructed
+    /// or altered the permit after the Authority Kernel minted it.
+    #[must_use]
+    pub fn is_authentic(&self) -> bool {
+        !self.binding_digest.is_empty() && self.binding_digest == self.compute_binding_digest()
+    }
 }
 /// The burned one-shot nonces (EFX-004).
 ///
@@ -681,6 +746,13 @@ impl NonceRegistry {
             connector_version,
             connector_instance_epoch,
         } = request;
+
+        // The permit must be self-consistent before any other binding is
+        // trusted: a forged or post-issuance-edited permit is refused even if
+        // every other field still lines up (EFX-004 / P0).
+        if !permit.is_authentic() {
+            return Err(PermitError::ForgedPermit);
+        }
 
         if self.is_used(&permit.one_shot_nonce) {
             return Err(PermitError::NonceAlreadyUsed {
